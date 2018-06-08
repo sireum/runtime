@@ -29,80 +29,61 @@ package org.sireum.ops
 import org.sireum.Graph
 import org.sireum._
 
-@sig trait GraphOps[V, E] {
-  def getEdgeData(e: Graph.Edge[V, E]): Option[E]
+@datatype class GraphOps[V, E](graph: Graph[V, E]) {
 
-  def getAllSuccessor(v: V): Set[V]
-
-  def getAllPredecessor(v: V): Set[V]
-
-  def getSCC: ISZ[HashSet[V]]
-
-  def getCycles: ISZ[ISZ[V]]
-
-  def forwardReach(criteria: ISZ[V]): ISZ[V]
-
-  def backwardReach(criteria: ISZ[V]): ISZ[V]
-}
-
-object GraphOps {
-  def apply[V, E](graph: Graph[V, E]): GraphOps[V, E] = new GraphOpsImpl(graph)
-}
-
-@datatype class GraphOpsImpl[V, E](graph: Graph[V, E]) extends GraphOps[V, E] {
-  def getEdgeData(e: Graph.Edge[V, E]): Option[E] = {
+  @pure def getEdgeData(e: Graph.Edge[V, E]): Option[E] = {
     e match {
-      case Graph.Edge.Data(s, d, ed) => Some[E](ed)
-      case _ => None[E]()
+      case Graph.Edge.Data(_, _, ed) => return Some[E](ed)
+      case _ => return None[E]()
     }
   }
 
-  def getAllSuccessor(v: V): Set[V] = {
+  @pure def getAllSuccessor(v: V): Set[V] = {
     if (graph.outgoingEdges.get(graph.nodes.get(v).get).nonEmpty) {
-      Set.empty[V] ++ graph.outgoingEdges.get(graph.nodes.get(v).get).get.elements.map(es =>
-        graph.nodesInverse(es.dest))
+      return Set.empty[V] ++ (for (es <- graph.outgoingEdges.get(graph.nodes.get(v).get).get.elements)
+        yield graph.nodesInverse(es.dest))
     } else {
-      Set.empty[V]
+      return Set.empty[V]
     }
   }
 
-  def getAllPredecessor(v: V): Set[V] = {
+  @pure def getAllPredecessor(v: V): Set[V] = {
     if (graph.incomingEdges.get(graph.nodes.get(v).get).nonEmpty) {
-      Set.empty[V] ++ graph.incomingEdges.get(graph.nodes.get(v).get).get.elements.map(es =>
-        graph.nodesInverse(es.source))
+      return Set.empty[V] ++ (for (es <- graph.incomingEdges.get(graph.nodes.get(v).get).get.elements)
+        yield graph.nodesInverse(es.source))
     } else {
-      Set.empty[V]
+      return Set.empty[V]
     }
 
   }
 
-  def getSCC: ISZ[HashSet[V]] = {
+  @pure def getSCC: ISZ[HashSet[V]] = {
     var result = ISZ[HashSet[V]]()
     var discoveryMap: HashMap[V, (B, B)] =
-      HashMap ++ graph.nodes.keys.map(v => (v, (B.F, B.F)))
+      HashMap ++ (for (v <- graph.nodes.keys) yield (v, (F, F)))
 
     def resetDiscoveryMap(): Unit = {
-      discoveryMap = HashMap ++ discoveryMap.entries.map(e => (e._1, (B.F, B.F)))
+      discoveryMap = HashMap ++ (for (e <- discoveryMap.entries) yield (e._1, (F, F)))
     }
 
     def setDiscovered(v: V): B = {
-      discoveryMap.get(v).exists { cf =>
-        discoveryMap = discoveryMap + ((v, (B.T, cf._2)))
-        B.T
+      return discoveryMap.get(v).exists { cf =>
+        discoveryMap = discoveryMap + ((v, (T, cf._2)))
+        T
       }
     }
 
     def setBoth(v: V): Unit = {
-      discoveryMap = discoveryMap + ((v, (B.T, B.T)))
+      discoveryMap = discoveryMap + ((v, (T, T)))
     }
 
     def isAllMySuccDiscovered(v: V): B = {
-      ISZOps(getAllSuccessor(v).elements.map(discoveryMap.get)
-        .flatMap(_.toIS.map(_._1))).foldLeft({ (c: B, n: B) => c & n }, B.T)
+      return ISZOps(for (s <- getAllSuccessor(v).elements; e <- discoveryMap.get(s).toIS) yield e._1)
+        .foldLeft((c: B, n: B) => c & n, T)
     }
 
     def dfs(v: V, isFirst: B): ISZ[V] = {
-      var result = ISZ[V]()
+      var r = ISZ[V]()
       var stack = Stack.empty[V]
       stack = stack.push(v)
 
@@ -113,40 +94,43 @@ object GraphOps {
           && !discoveryMap.get(current._1).get._1) {
           setDiscovered(current._1)
           if (!isFirst) {
-            result = result :+ current._1
+            r = r :+ current._1
           }
           setBoth(current._1)
           stack = stack.push(current._1)
 
-          val nexts = if (isFirst) getAllSuccessor(current._1) else getAllPredecessor(current._1)
+          val nexts: Set[V] = if (isFirst) getAllSuccessor(current._1) else getAllPredecessor(current._1)
 
-          nexts.elements.foreach(n => if (!discoveryMap.get(n).get._1) {
-            stack = stack.push(n)
-          })
+          for (n <- nexts.elements) {
+            if (!discoveryMap.get(n).get._1) {
+              stack = stack.push(n)
+            }
+          }
 
         } else if (discoveryMap.get(current._1).get._2 && isFirst) {
-          result = result.+:(current._1)
+          r = current._1 +: r
         }
       }
-      result
+      return r
     }
 
     var orderedNodes = ISZ[V]()
 
-    graph.nodes.keys.foreach { k =>
-      if (!discoveryMap.get(k).get._1)
-        orderedNodes = dfs(k, isFirst = B.T) ++ orderedNodes
+    for (k <- graph.nodes.keys) {
+      if (!discoveryMap.get(k).get._1) {
+        orderedNodes = dfs(k, T) ++ orderedNodes
+      }
     }
     resetDiscoveryMap()
-    orderedNodes.foreach(k =>
+    for (k <- orderedNodes) {
       if (!discoveryMap.get(k).get._1) {
-        result = result :+ HashSet.empty ++ dfs(k, isFirst = B.F)
+        result = result :+ HashSet.empty[V] ++ dfs(k, F)
       }
-    )
-    result
+    }
+    return result
   }
 
-  def getCycles: ISZ[ISZ[V]] = {
+  @pure def getCycles: ISZ[ISZ[V]] = {
     val sccs = getSCC
     var loops = ISZ[ISZ[V]]()
     var bSets = HashMap.empty[V, Set[V]]
@@ -154,11 +138,11 @@ object GraphOps {
     var marked = Set.empty[V]
     var removed = HashMap.empty[V, Set[V]]
     var position = HashMap.empty[V, Z]
-    var reach = HashMap.empty[V, B] ++ graph.nodes.keys.map(k => (k, B.F))
+    var reach = HashMap.empty[V, B] ++ (for (k <- graph.nodes.keys) yield (k, F))
 
     def cycle(v: V, tq: Z): B = {
       var q = tq
-      var foundCycle = B.F
+      var foundCycle = F
       marked = marked + v
       stack = stack.push(v)
       val t = stack.size
@@ -166,40 +150,41 @@ object GraphOps {
       if (!reach.get(v).get) {
         q = t
       }
-      val avRemoved = removed.get(v) match {
+      val avRemoved: Set[V] = removed.get(v) match {
         case Some(r) => r
         case _ => Set.empty[V]
       }
 
-      getAllSuccessor(v).elements.foreach { wV =>
+      for (wV <- getAllSuccessor(v).elements) {
         if (!avRemoved.contains(wV)) {
           if (!marked.contains(wV)) {
             val gotCycle = cycle(wV, q)
             if (gotCycle) {
-              foundCycle = B.T
+              foundCycle = T
             } else {
               noCycle(v, wV)
             }
-          } else if (position.get(wV).nonEmpty &&
-            position.get(wV).get <= q) {
-            foundCycle = B.T
+          } else if (position.get(wV).nonEmpty && position.get(wV).get <= q) {
+            foundCycle = T
             var cycle = ISZ[V]()
-            val it = stack.elements.elements.iterator
+            val elements = stack.elements
             var current = stack.peek.get
-            var break = B.T
-            while (it.hasNext && break) {
-              current = it.next()
+            var break = T
+            var i = 0
+            while (i < elements.size && break) {
+              current = elements(i)
               if (wV == current) {
-                break = B.F
+                break = F
               }
+              i = i + 1
             }
             cycle = cycle :+ wV
-            break = B.T
-            while (it.hasNext && break) {
-              current = it.next()
+            break = T
+            while (i < elements.size && break) {
+              current = elements(i)
               cycle = cycle :+ current
               if (current == v) {
-                break = B.F
+                break = F
               }
             }
             loops = loops :+ cycle
@@ -212,64 +197,76 @@ object GraphOps {
       if (foundCycle) {
         unmark(v)
       }
-      reach = reach + (v, B.T)
-      position = position + (v, graph.nodes.size)
-      foundCycle
+      reach = reach + ((v, T))
+      position = position + ((v, graph.nodes.size))
+      return foundCycle
     }
 
     def unmark(x: V): Unit = {
       marked = marked - x
-      val temp = bSets.get(x) match {
+      val temp: Set[V] = bSets.get(x) match {
         case Some(bsx) => bsx
         case _ => Set.empty[V]
       }
 
-      temp.elements.foreach { y =>
-        removed = removed + ((y, removed.get(y) match {
+      for (y <- temp.elements) {
+        val t: Set[V] = removed.get(y) match {
           case Some(ry) => ry - x
           case _ => Set.empty[V] - x
-        }))
+        }
+        removed = removed + ((y, t))
         if (marked.contains(y)) {
           unmark(y)
         }
       }
-      bSets = bSets + (x, Set.empty[V])
+      bSets = bSets + ((x, Set.empty[V]))
     }
-
 
     def noCycle(x: V, y: V): Unit = {
-      bSets = bSets + ((y, bSets.get(y) match {
+      val t1: Set[V] = bSets.get(y) match {
         case Some(bs) => bs
         case _ => Set.empty[V]
-      }))
-      removed = removed + ((x, removed.get(x) match {
+      }
+      bSets = bSets + ((y, t1))
+      val t2: Set[V] = removed.get(x) match {
         case Some(rx) => rx + y
         case _ => Set.empty[V] + y
-      }))
+      }
+      removed = removed + ((x, t2))
     }
 
-    val startNodes = sccs.map { scc =>
+    var startNodes = ISZ[V]()
+    for (scc <- sccs) {
       var max: Z = -1
       var startNode = scc.elements(0)
-      scc.elements.foreach { node =>
+      for (node <- scc.elements) {
         val inDegree = graph.incomingEdges.get(graph.nodes.get(node).get).get.size
         if (inDegree > max) {
           max = inDegree
           startNode = node
         }
       }
-      startNode
+      startNodes = startNodes :+ startNode
     }
 
-    startNodes.foreach(cycle(_, 0))
-    loops
+    for (n <- startNodes) {
+      cycle(n, 0)
+    }
+
+    return loops
   }
 
-  def forwardReach(criteria: ISZ[V]): ISZ[V] = reachable(criteria, B.T)
+  @pure def forwardReach(criteria: ISZ[V]): ISZ[V] = {
+    val r = reachable(criteria, T)
+    return r
+  }
 
-  def backwardReach(criteria: ISZ[V]): ISZ[V] = reachable(criteria, B.F)
+  @pure def backwardReach(criteria: ISZ[V]): ISZ[V] = {
+    val r = reachable(criteria, F)
+    return r
+  }
 
-  private def reachable(criteria: ISZ[V], isForward: B): ISZ[V] = {
+  @pure def reachable(criteria: ISZ[V], isForward: B): ISZ[V] = {
     var workList = ISZ[V]()
     workList = workList ++ criteria
     var result = HashSet.empty[V]
@@ -277,14 +274,16 @@ object GraphOps {
     while (workList.nonEmpty) {
       val current = ISZOps(workList).first
       if (!result.contains(current)) {
-        val next = if (isForward)
-          getAllSuccessor(current) else getAllPredecessor(current)
+        val next: Set[V] =
+          if (isForward)
+            getAllSuccessor(current)
+          else getAllPredecessor(current)
         workList = workList ++ next.elements
         result = result + current
       }
       workList = ISZOps(workList).tail
     }
-    result.elements
+    return result.elements
   }
 
 }
