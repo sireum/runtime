@@ -161,8 +161,7 @@ object Option {
   }
 
   def foreach(f: T => Unit): Unit = {
-    l""" reads    f_reads
-         requires f_requires(value)
+    l""" requires f_requires(value)
          modifies f_modifies
          ensures  f_ensures(value) """
     f(value)
