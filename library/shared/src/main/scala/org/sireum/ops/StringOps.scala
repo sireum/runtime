@@ -115,7 +115,7 @@ import org.sireum._
       return -1
     }
     val cis = conversions.String.toCis(s)
-    for (i <- z"0" to offset) {
+    for (i <- offset until s.size) {
       if (cis(i) == c) {
         return i
       }
