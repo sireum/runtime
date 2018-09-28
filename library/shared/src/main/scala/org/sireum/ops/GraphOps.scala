@@ -186,6 +186,7 @@ import org.sireum._
               if (current == v) {
                 break = F
               }
+              i = i + 1
             }
             loops = loops :+ cycle
           } else {
