@@ -1,8 +1,8 @@
-val scalaVer = "2.12.6"
+val scalaVer = "2.12.7"
 
 val runtimeVersion = "3.3.1-SNAPSHOT"
 
-val sireumScalacVersion = "3.3.1"
+val sireumScalacVersion = "3.3.3"
 
 ThisBuild / scalaVersion := scalaVer
 
