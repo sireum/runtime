@@ -241,7 +241,8 @@ import org.sireum._
       var max: Z = -1
       var startNode = scc.elements(0)
       for (node <- scc.elements) {
-        val inDegree = graph.incomingEdges.get(graph.nodes.get(node).get).get.size
+        val inedges =  graph.incomingEdges.get(graph.nodes.get(node).get)
+        val inDegree : Z = if(inedges.nonEmpty)inedges.get.size else Z(0)
         if (inDegree > max) {
           max = inDegree
           startNode = node
