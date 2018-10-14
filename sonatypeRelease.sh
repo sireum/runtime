@@ -1,2 +1,0 @@
-sbt "project macrosJVM" sonatypeRelease
-

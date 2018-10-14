@@ -33,8 +33,6 @@ trait Module extends CrossJvmJsPublish {
 
   final override def developers = Seq(Developers.robby)
 
-  final override def publishVersion = "4.0.0-SNAPSHOT"
-
   final override def jvmTestIvyDeps = Agg.empty
 
   final override def jsTestIvyDeps = Agg.empty
@@ -50,6 +48,10 @@ object Module {
   trait Macros extends Module {
 
     final override def description: String = "Sireum Runtime Macros"
+
+    final override def artifactNameOpt: Option[String] = Some("macros")
+
+    final override def jvmArtifactNameOpt: Option[String] = Some(null)
 
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion"
@@ -71,6 +73,10 @@ object Module {
   trait Library extends Module {
 
     final override def description: String = "Sireum Runtime Library"
+
+    final override def artifactNameOpt: Option[String] = Some("library")
+
+    final override def jvmArtifactNameOpt: Option[String] = Some(null)
 
     final override def testIvyDeps = Agg(
       ivy"org.scalatest::scalatest::$scalaTestVersion",

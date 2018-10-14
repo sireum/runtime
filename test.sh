@@ -7,4 +7,7 @@ $SCRIPT_HOME/sireum slang tipe --verbose -r -s library
 curl -Lo mill-standalone http://files.sireum.org/mill-standalone
 chmod +x mill-standalone
 curl -Lo versions.properties https://raw.githubusercontent.com/sireum/kekinian/master/versions.properties
-$SCRIPT_HOME/mill-standalone all runtime.library.shared.tests.test runtime.library.jvm.tests.test runtime.library.js.tests.test
+$SCRIPT_HOME/mill-standalone all runtime.library.shared.tests.test runtime.library.jvm.tests.test
+if [ -x "$(command -v node)" ]; then
+  $SCRIPT_HOME/mill-standalone runtime.library.js.tests.test
+fi
