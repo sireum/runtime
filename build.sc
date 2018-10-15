@@ -36,3 +36,7 @@ object runtime extends mill.Module {
   }
 
 }
+
+def jitPack(owner: String, repo: String, lib: String = "") = T.command {
+  org.sireum.mill.SireumModule.jitPack(owner, repo, if ("" == lib) repo else lib)
+}

@@ -27,7 +27,7 @@ import mill._
 import mill.scalalib._
 import org.sireum.mill.SireumModule._
 
-trait Module extends CrossJvmJsPublish {
+trait Module extends CrossSharedJsJitPack {
 
   final override def subUrl: String = "runtime"
 
@@ -49,9 +49,7 @@ object Module {
 
     final override def description: String = "Sireum Runtime Macros"
 
-    final override def artifactNameOpt: Option[String] = Some("macros")
-
-    final override def jvmArtifactNameOpt: Option[String] = Some(null)
+    final override def artifactName = "library"
 
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion"
@@ -74,9 +72,7 @@ object Module {
 
     final override def description: String = "Sireum Runtime Library"
 
-    final override def artifactNameOpt: Option[String] = Some("library")
-
-    final override def jvmArtifactNameOpt: Option[String] = Some(null)
+    final override def artifactName = "library"
 
     final override def testIvyDeps = Agg(
       ivy"org.scalatest::scalatest::$scalaTestVersion",
