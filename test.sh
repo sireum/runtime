@@ -11,4 +11,4 @@ $SCRIPT_HOME/mill-standalone all runtime.library.shared.tests.test runtime.libra
 if [ -x "$(command -v node)" ]; then
   $SCRIPT_HOME/mill-standalone runtime.library.js.tests.test
 fi
-$SCRIPT_HOME/mill-standalone jitPack --owner sireum --repo runtime --lib library
+$SCRIPT_HOME/mill-standalone jitPack --owner sireum --repo runtime --lib library || true
