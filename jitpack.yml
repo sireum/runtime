@@ -3,10 +3,11 @@ jdk:
 before_install:
   - ./test.sh
 install:
-  - export BUILD_DIR=$( cd "$( dirname "." )" &> /dev/null && pwd )
-  - $BUILD_DIR/mill-standalone all runtime.macros.shared.m2 runtime.macros.js.m2 runtime.library.shared.m2 runtime.library.js.m2
+  - ./mill-standalone all runtime.macros.shared.m2 runtime.macros.js.m2 runtime.test.shared.m2 runtime.test.js.m2 runtime.library.shared.m2 runtime.library.js.m2
   - mkdir -p ~/.m2/repository
   - cp -Rv out/runtime/macros/shared/m2/dest/* ~/.m2/repository/
   - cp -Rv out/runtime/macros/js/m2/dest/* ~/.m2/repository/
+  - cp -Rv out/runtime/test/shared/m2/dest/* ~/.m2/repository/
+  - cp -Rv out/runtime/test/js/m2/dest/* ~/.m2/repository/
   - cp -Rv out/runtime/library/shared/m2/dest/* ~/.m2/repository/
   - cp -Rv out/runtime/library/js/m2/dest/* ~/.m2/repository/

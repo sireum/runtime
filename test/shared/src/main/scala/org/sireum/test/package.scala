@@ -70,8 +70,8 @@ package object test {
         for (i <- result.indices if r) {
           if (result(i) != expected(i)) r = false
         }
-        val expectedSeq = expected.map(org.sireum.String.escape).mkString(", ")
-        val resultSeq = result.map(org.sireum.String.escape).mkString(", ")
+        val expectedSeq = expected.mkString(", ")
+        val resultSeq = result.mkString(", ")
         assert(r, s"\nExpected:  [$expectedSeq] (of ${expected.getClass.getName}),\nbut found: [$resultSeq] (of ${result.getClass.getName})")
         r
       case _ =>
@@ -94,8 +94,8 @@ package object test {
         for (i <- result.indices if !r) {
           if (result(i) != expected(i)) r = true
         }
-        val expectedSeq = expected.map(org.sireum.String.escape).mkString(", ")
-        val resultSeq = result.map(org.sireum.String.escape).mkString(", ")
+        val expectedSeq = expected.mkString(", ")
+        val resultSeq = result.mkString(", ")
         assert(r, s"\nExpected:  [$expectedSeq] (of ${expected.getClass.getName}),\nResult: [$resultSeq] (of ${result.getClass.getName})")
         r
       case _ =>

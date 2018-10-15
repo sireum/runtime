@@ -31,8 +31,13 @@ object runtime extends mill.Module {
 
   object macros extends Runtime.Module.Macros
 
+  object test extends Runtime.Module.Test {
+    override def macrosObject = macros
+  }
+
   object library extends Runtime.Module.Library {
     override def macrosObject = macros
+    override def testObject = test
   }
 
 }

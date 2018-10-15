@@ -68,18 +68,17 @@ object Module {
     final override def jsTestFrameworks = Seq()
   }
 
-  trait Library extends Module {
+  trait Test extends Module {
 
-    final override def description: String = "Sireum Runtime Library"
+    final override def description: String = "Sireum Test Library"
 
-    final override def artifactName = "library"
+    final override def artifactName = "test"
 
-    final override def testIvyDeps = Agg(
-      ivy"org.scalatest::scalatest::$scalaTestVersion",
-      ivy"org.spire-math::spire::$spireVersion"
+    final override def testIvyDeps = Agg.empty
+
+    final override def ivyDeps = Agg(
+      ivy"org.scalatest::scalatest::$scalaTestVersion"
     )
-
-    final override def ivyDeps = Agg.empty
 
     final override lazy val scalacPluginIvyDeps = Agg(
       ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
@@ -94,6 +93,40 @@ object Module {
     final override def jsTestFrameworks = jvmTestFrameworks
 
     def macrosObject: Macros
+  }
+
+  trait Library extends Module {
+
+    final override def description: String = "Sireum Runtime Library"
+
+    final override def artifactName = "library"
+
+    final override def testIvyDeps = Agg(
+      ivy"org.spire-math::spire::$spireVersion"
+    )
+
+    final override def ivyDeps = Agg.empty
+
+    final override lazy val scalacPluginIvyDeps = Agg(
+      ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
+    )
+
+    final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
+
+    final override def deps = Seq(macrosObject)
+
+    final override def testDeps = Seq(testObject.shared)
+
+    final override def jsTestDeps = Seq(testObject.js)
+
+    final override val jvmTestFrameworks = Seq("org.scalatest.tools.Framework")
+
+    final override def jsTestFrameworks = jvmTestFrameworks
+
+    def macrosObject: Macros
+
+    def testObject: Test
+
   }
 
 }
