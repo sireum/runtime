@@ -6,5 +6,6 @@ jdk:
   - oraclejdk11
 
 script:
+  - ./prelude.sh
   - $TRAVIS_BUILD_DIR/mill-standalone jitPack --owner sireum --repo runtime --lib library || true
   - ./test.sh
