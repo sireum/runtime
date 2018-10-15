@@ -49,7 +49,7 @@ object Module {
 
     final override def description: String = "Sireum Runtime Macros"
 
-    final override def artifactName = "library"
+    final override def artifactName = "macros"
 
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion"
