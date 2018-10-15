@@ -5,4 +5,6 @@ jdk:
 
 build:
   ci:
+    - ./prelude.sh
+    - ./mill-standalone jitPack --owner sireum --repo runtime --lib library || true
     - ./test.sh
