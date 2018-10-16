@@ -95,7 +95,13 @@ object Module {
     def macrosObject: Macros
   }
 
-  trait Library extends Module {
+  trait TestProvider {
+
+    def testObject: CrossJvmJsPublish
+
+  }
+
+  trait Library extends Module with TestProvider {
 
     final override def description: String = "Sireum Runtime Library"
 
@@ -124,8 +130,6 @@ object Module {
     final override def jsTestFrameworks = jvmTestFrameworks
 
     def macrosObject: Macros
-
-    def testObject: Test
 
   }
 
