@@ -6,4 +6,5 @@ jdk:
   - oraclejdk11
 
 script:
+  - export SIREUM_SOURCE_BUILD=true
   - ./test.sh

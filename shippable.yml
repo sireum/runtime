@@ -7,4 +7,5 @@ build:
   ci:
     - ./prelude.sh
     - ./mill-standalone jitPack --owner sireum --repo runtime --lib library || true
+    - export SIREUM_SOURCE_BUILD=true
     - ./test.sh
