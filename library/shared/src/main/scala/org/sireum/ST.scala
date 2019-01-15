@@ -138,7 +138,7 @@ object ST {
 
       def trimNlPart(): Int = {
         val part = parts(i)
-        val j = part.indexOf(System.lineSeparator)
+        val j = part.indexOf("\n")
         if (j >= 0 && (0 until j).forall(k => isWs(part(k)))) {
           trim(includeNewLine = true)
           j
@@ -194,13 +194,19 @@ object ST {
     sb.toString
   }
 
+  def apply(parts: scala.Seq[Predef.String],
+            args: scala.Seq[Arg],
+            source: Predef.String): ST =
+    if (parts.exists(_.indexOf("\r\n") >= 0))
+      new ST(parts.map(_.replaceAllLiterally("\r\n", "\n")), args, source)
+    else new ST(parts, args, source)
 }
 
 import ST._
 
-final case class ST(parts: scala.Seq[Predef.String],
-                    args: scala.Seq[Arg],
-                    source: Predef.String) extends Immutable with STMarker {
+final class ST(val parts: scala.Seq[Predef.String],
+               val args: scala.Seq[Arg],
+               val source: Predef.String) extends Immutable with STMarker {
   lazy val compactParts: scala.Seq[Predef.String] = {
     for (part <- parts) yield {
       val sb = new _root_.java.lang.StringBuilder(part.length)
