@@ -1,5 +1,7 @@
 jdk:
   - oraclejdk8
+before_install:
+  - ./prelude.sh
 install:
   - ./mill-standalone all runtime.macros.shared.m2 runtime.macros.js.m2 runtime.test.shared.m2 runtime.test.js.m2 runtime.library.shared.m2 runtime.library.js.m2
   - mkdir -p ~/.m2/repository
