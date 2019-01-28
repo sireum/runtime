@@ -47,30 +47,30 @@ import U64._
 
 object Json {
 
-  @sig trait JsonAstBinding[V] {
-    @pure def toObject(fields: ISZ[(String, V)]): V
+  @sig trait JsonAstBinding[T] {
+    @pure def toObject(fields: ISZ[(String, T)]): T
 
-    @pure def toArray(elements: ISZ[V]): V
+    @pure def toArray(elements: ISZ[T]): T
 
-    @pure def toNumber(s: String): V
+    @pure def toNumber(s: String): T
 
-    @pure def toString(s: String): V
+    @pure def toString(s: String): T
 
-    @pure def toNull: V
+    @pure def toNull: T
 
-    @pure def toBoolean(b: B): V
+    @pure def toBoolean(b: B): T
 
-    @pure def kind(o: V): ValueKind.Type
+    @pure def kind(o: T): ValueKind.Type
 
-    @pure def fromObject(o: V): ISZ[(String, V)]
+    @pure def fromObject(o: T): ISZ[(String, T)]
 
-    @pure def fromArray(o: V): ISZ[V]
+    @pure def fromArray(o: T): ISZ[T]
 
-    @pure def fromNumber(o: V): String
+    @pure def fromNumber(o: T): String
 
-    @pure def fromString(o: V): String
+    @pure def fromString(o: T): String
 
-    @pure def fromBoolean(o: V): B
+    @pure def fromBoolean(o: T): B
   }
 
   @datatype class ErrorMsg(line: Z, column: Z, message: String)
@@ -370,7 +370,7 @@ object Json {
       }
     }
 
-    @pure def printMap[K, V](isSimple: B, o: Map[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printMap[K, T](isSimple: B, o: Map[K, T], k: K => ST, v: T => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -412,7 +412,7 @@ object Json {
       )
     }
 
-    @pure def printHashMap[K, V](isSimple: B, o: HashMap[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printHashMap[K, T](isSimple: B, o: HashMap[K, T], k: K => ST, v: T => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -455,7 +455,7 @@ object Json {
       )
     }
 
-    @pure def printHashSMap[K, V](isSimple: B, o: HashSMap[K, V], k: K => ST, v: V => ST): ST = {
+    @pure def printHashSMap[K, T](isSimple: B, o: HashSMap[K, T], k: K => ST, v: T => ST): ST = {
       val entries: ST = if (isSimple) {
         var es = ISZ[ST]()
         for (e <- o.entries) {
@@ -521,7 +521,7 @@ object Json {
       )
     }
 
-    @pure def printGraph[V, E](isSimple: B, o: Graph[V, E], f: V => ST, g: E => ST): ST = {
+    @pure def printGraph[W, E](isSimple: B, o: Graph[W, E], f: W => ST, g: E => ST): ST = {
       @pure def printEdge(edge: Graph.Internal.Edge[E]): ST = {
         edge match {
           case Graph.Internal.Edge.Plain(src, dest) =>
@@ -1533,10 +1533,10 @@ object Json {
       }
     }
 
-    def parseMap[K, V](k: () => K, v: () => V): Map[K, V] = {
+    def parseMap[K, T](k: () => K, v: () => T): Map[K, T] = {
       parseObjectType("Map")
 
-      var r = Map.empty[K, V]
+      var r = Map.empty[K, T]
       parseObjectKey("entries")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1584,13 +1584,13 @@ object Json {
       return r
     }
 
-    def parseHashMap[K, V](k: () => K, v: () => V): HashMap[K, V] = {
+    def parseHashMap[K, T](k: () => K, v: () => T): HashMap[K, T] = {
       parseObjectType("HashMap")
       parseObjectKey("size")
       val size = parseZ()
       parseObjectNext()
 
-      var r = HashMap.emptyInit[K, V](size)
+      var r = HashMap.emptyInit[K, T](size)
       parseObjectKey("entries")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1641,13 +1641,13 @@ object Json {
       return r
     }
 
-    def parseHashSMap[K, V](k: () => K, v: () => V): HashSMap[K, V] = {
+    def parseHashSMap[K, T](k: () => K, v: () => T): HashSMap[K, T] = {
       parseObjectType("HashSMap")
       parseObjectKey("size")
       val size = parseZ()
       parseObjectNext()
 
-      var r = HashSMap.emptyInit[K, V](size)
+      var r = HashSMap.emptyInit[K, T](size)
       parseObjectKey("entries")
       if (!parseArrayBegin()) {
         parseObjectNext()
@@ -1744,7 +1744,7 @@ object Json {
       return r
     }
 
-    def parseGraph[V, E](f: () => V, g: () => E): Graph[V, E] = {
+    def parseGraph[W, E](f: () => W, g: () => E): Graph[W, E] = {
       def parseEdge(): Graph.Internal.Edge[E] = {
         parseObjectBegin()
         parseObjectKey("src")
@@ -1772,7 +1772,7 @@ object Json {
       parseObjectKey("edges")
       val edges = parseISZ(parseEdge _)
       parseObjectNext()
-      var r: Graph[V, E] = if (multi) Graph.emptyMulti else Graph.empty
+      var r: Graph[W, E] = if (multi) Graph.emptyMulti else Graph.empty
       for (node <- nodesInverse) {
         r = r * node
       }
@@ -2279,42 +2279,42 @@ object Json {
     }
   }
 
-  def parseAst[V](binding: JsonAstBinding[V], input: String): Either[V, ErrorMsg] = {
+  def parseAst[T](binding: JsonAstBinding[T], input: String): Either[T, ErrorMsg] = {
     val parser = Parser.create(input)
     val emptyKeys = ISZ[String]()
 
-    def parseString(): V = {
+    def parseString(): T = {
       val s = parser.parseString()
       return binding.toString(s)
     }
 
-    def parseNumber(): V = {
+    def parseNumber(): T = {
       val n = parser.parseNumber()
       return binding.toNumber(n)
     }
 
-    def parseTrue(): V = {
+    def parseTrue(): T = {
       parser.parseConstant("true")
       return binding.toBoolean(T)
     }
 
-    def parseFalse(): V = {
+    def parseFalse(): T = {
       parser.parseConstant("false")
       return binding.toBoolean(F)
     }
 
-    def parseNull(): V = {
+    def parseNull(): T = {
       parser.parseConstant("null")
       return binding.toNull
     }
 
-    def parseArray(): V = {
+    def parseArray(): T = {
       var continue = parser.parseArrayBegin()
       if (!continue) {
         return binding.toArray(ISZ())
       }
       var v = parseValue()
-      var values = ISZ[V](v)
+      var values = ISZ[T](v)
       continue = parser.parseArrayNext()
       while (continue) {
         v = parseValue()
@@ -2324,14 +2324,14 @@ object Json {
       return binding.toArray(values)
     }
 
-    def parseObject(): V = {
+    def parseObject(): T = {
       var continue = parser.parseObjectBegin()
       if (!continue) {
         return binding.toObject(ISZ())
       }
       var key = parser.parseObjectKeys(emptyKeys)
       var value = parseValue()
-      var fields = ISZ[(String, V)]((key, value))
+      var fields = ISZ[(String, T)]((key, value))
       continue = parser.parseObjectNext()
       while (continue) {
         key = parser.parseObjectKeys(emptyKeys)
@@ -2342,7 +2342,7 @@ object Json {
       return binding.toObject(fields)
     }
 
-    def parseValue(): V = {
+    def parseValue(): T = {
       val k = parser.detect()
       k match {
         case ValueKind.String => val r = parseString(); return r
@@ -2363,8 +2363,8 @@ object Json {
     }
   }
 
-  def printAst[V](binding: JsonAstBinding[V], v: V): ST = {
-    @pure def isSimple(o: V): B = {
+  def printAst[T](binding: JsonAstBinding[T], v: T): ST = {
+    @pure def isSimple(o: T): B = {
       binding.kind(o) match {
         case ValueKind.Object => return F
         case ValueKind.Array => return F
@@ -2372,7 +2372,7 @@ object Json {
       }
     }
 
-    @pure def printValue(o: V): ST = {
+    @pure def printValue(o: T): ST = {
       binding.kind(o) match {
         case ValueKind.String =>
           return Printer.printString(binding.fromString(o))

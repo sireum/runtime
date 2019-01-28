@@ -30,16 +30,16 @@ import org.sireum._
 
 object Collection {
 
-  @pure def mapToHashMap[K, V](map: Map[K, V]): HashMap[K, V] = {
-    var r = HashMap.emptyInit[K, V](map.size)
+  @pure def mapToHashMap[K, W](map: Map[K, W]): HashMap[K, W] = {
+    var r = HashMap.emptyInit[K, W](map.size)
     for (kv <- map.entries) {
       r = r + kv._1 ~> kv._2
     }
     return r
   }
 
-  @pure def mapToHashSMap[K, V](map: Map[K, V]): HashSMap[K, V] = {
-    var r = HashSMap.emptyInit[K, V](map.size)
+  @pure def mapToHashSMap[K, W](map: Map[K, W]): HashSMap[K, W] = {
+    var r = HashSMap.emptyInit[K, W](map.size)
     for (kv <- map.entries) {
       r = r + kv._1 ~> kv._2
     }

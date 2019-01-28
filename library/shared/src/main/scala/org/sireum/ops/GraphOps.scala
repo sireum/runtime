@@ -29,62 +29,62 @@ package org.sireum.ops
 import org.sireum.Graph
 import org.sireum._
 
-@datatype class GraphOps[V, E](graph: Graph[V, E]) {
+@datatype class GraphOps[W, E](graph: Graph[W, E]) {
 
-  @pure def getEdgeData(e: Graph.Edge[V, E]): Option[E] = {
+  @pure def getEdgeData(e: Graph.Edge[W, E]): Option[E] = {
     e match {
       case Graph.Edge.Data(_, _, ed) => return Some[E](ed)
       case _ => return None[E]()
     }
   }
 
-  @pure def getAllSuccessor(v: V): Set[V] = {
+  @pure def getAllSuccessor(v: W): Set[W] = {
     if (graph.outgoingEdges.get(graph.nodes.get(v).get).nonEmpty) {
-      return Set.empty[V] ++ (for (es <- graph.outgoingEdges.get(graph.nodes.get(v).get).get.elements)
+      return Set.empty[W] ++ (for (es <- graph.outgoingEdges.get(graph.nodes.get(v).get).get.elements)
         yield graph.nodesInverse(es.dest))
     } else {
-      return Set.empty[V]
+      return Set.empty[W]
     }
   }
 
-  @pure def getAllPredecessor(v: V): Set[V] = {
+  @pure def getAllPredecessor(v: W): Set[W] = {
     if (graph.incomingEdges.get(graph.nodes.get(v).get).nonEmpty) {
-      return Set.empty[V] ++ (for (es <- graph.incomingEdges.get(graph.nodes.get(v).get).get.elements)
+      return Set.empty[W] ++ (for (es <- graph.incomingEdges.get(graph.nodes.get(v).get).get.elements)
         yield graph.nodesInverse(es.source))
     } else {
-      return Set.empty[V]
+      return Set.empty[W]
     }
 
   }
 
-  @pure def getSCC: ISZ[HashSet[V]] = {
-    var result = ISZ[HashSet[V]]()
-    var discoveryMap: HashMap[V, (B, B)] =
+  @pure def getSCC: ISZ[HashSet[W]] = {
+    var result = ISZ[HashSet[W]]()
+    var discoveryMap: HashMap[W, (B, B)] =
       HashMap ++ (for (v <- graph.nodes.keys) yield (v, (F, F)))
 
     def resetDiscoveryMap(): Unit = {
       discoveryMap = HashMap ++ (for (e <- discoveryMap.entries) yield (e._1, (F, F)))
     }
 
-    def setDiscovered(v: V): B = {
+    def setDiscovered(v: W): B = {
       return discoveryMap.get(v).exists { cf =>
         discoveryMap = discoveryMap + ((v, (T, cf._2)))
         T
       }
     }
 
-    def setBoth(v: V): Unit = {
+    def setBoth(v: W): Unit = {
       discoveryMap = discoveryMap + ((v, (T, T)))
     }
 
-    def isAllMySuccDiscovered(v: V): B = {
+    def isAllMySuccDiscovered(v: W): B = {
       return ISZOps(for (s <- getAllSuccessor(v).elements; e <- discoveryMap.get(s).toIS) yield e._1)
         .foldLeft((c: B, n: B) => c & n, T)
     }
 
-    def dfs(v: V, isFirst: B): ISZ[V] = {
-      var r = ISZ[V]()
-      var stack = Stack.empty[V]
+    def dfs(v: W, isFirst: B): ISZ[W] = {
+      var r = ISZ[W]()
+      var stack = Stack.empty[W]
       stack = stack.push(v)
 
       while (stack.nonEmpty) {
@@ -99,7 +99,7 @@ import org.sireum._
           setBoth(current._1)
           stack = stack.push(current._1)
 
-          val nexts: Set[V] = if (isFirst) getAllSuccessor(current._1) else getAllPredecessor(current._1)
+          val nexts: Set[W] = if (isFirst) getAllSuccessor(current._1) else getAllPredecessor(current._1)
 
           for (n <- nexts.elements) {
             if (!discoveryMap.get(n).get._1) {
@@ -114,7 +114,7 @@ import org.sireum._
       return r
     }
 
-    var orderedNodes = ISZ[V]()
+    var orderedNodes = ISZ[W]()
 
     for (k <- graph.nodes.keys) {
       if (!discoveryMap.get(k).get._1) {
@@ -124,23 +124,23 @@ import org.sireum._
     resetDiscoveryMap()
     for (k <- orderedNodes) {
       if (!discoveryMap.get(k).get._1) {
-        result = result :+ HashSet.empty[V] ++ dfs(k, F)
+        result = result :+ HashSet.empty[W] ++ dfs(k, F)
       }
     }
     return result
   }
 
-  @pure def getCycles: ISZ[ISZ[V]] = {
+  @pure def getCycles: ISZ[ISZ[W]] = {
     val sccs = getSCC
-    var loops = ISZ[ISZ[V]]()
-    var bSets = HashMap.empty[V, Set[V]]
-    var stack = Stack.empty[V]
-    var marked = Set.empty[V]
-    var removed = HashMap.empty[V, Set[V]]
-    var position = HashMap.empty[V, Z]
-    var reach = HashMap.empty[V, B] ++ (for (k <- graph.nodes.keys) yield (k, F))
+    var loops = ISZ[ISZ[W]]()
+    var bSets = HashMap.empty[W, Set[W]]
+    var stack = Stack.empty[W]
+    var marked = Set.empty[W]
+    var removed = HashMap.empty[W, Set[W]]
+    var position = HashMap.empty[W, Z]
+    var reach = HashMap.empty[W, B] ++ (for (k <- graph.nodes.keys) yield (k, F))
 
-    def cycle(v: V, tq: Z): B = {
+    def cycle(v: W, tq: Z): B = {
       var q = tq
       var foundCycle = F
       marked = marked + v
@@ -150,9 +150,9 @@ import org.sireum._
       if (!reach.get(v).get) {
         q = t
       }
-      val avRemoved: Set[V] = removed.get(v) match {
+      val avRemoved: Set[W] = removed.get(v) match {
         case Some(r) => r
-        case _ => Set.empty[V]
+        case _ => Set.empty[W]
       }
 
       for (wV <- getAllSuccessor(v).elements) {
@@ -166,7 +166,7 @@ import org.sireum._
             }
           } else if (position.get(wV).nonEmpty && position.get(wV).get <= q) {
             foundCycle = T
-            var cycle = ISZ[V]()
+            var cycle = ISZ[W]()
             val elements = stack.elements
             var current = stack.peek.get
             var break = T
@@ -203,40 +203,40 @@ import org.sireum._
       return foundCycle
     }
 
-    def unmark(x: V): Unit = {
+    def unmark(x: W): Unit = {
       marked = marked - x
-      val temp: Set[V] = bSets.get(x) match {
+      val temp: Set[W] = bSets.get(x) match {
         case Some(bsx) => bsx
-        case _ => Set.empty[V]
+        case _ => Set.empty[W]
       }
 
       for (y <- temp.elements) {
-        val t: Set[V] = removed.get(y) match {
+        val t: Set[W] = removed.get(y) match {
           case Some(ry) => ry - x
-          case _ => Set.empty[V] - x
+          case _ => Set.empty[W] - x
         }
         removed = removed + ((y, t))
         if (marked.contains(y)) {
           unmark(y)
         }
       }
-      bSets = bSets + ((x, Set.empty[V]))
+      bSets = bSets + ((x, Set.empty[W]))
     }
 
-    def noCycle(x: V, y: V): Unit = {
-      val t1: Set[V] = bSets.get(y) match {
+    def noCycle(x: W, y: W): Unit = {
+      val t1: Set[W] = bSets.get(y) match {
         case Some(bs) => bs
-        case _ => Set.empty[V]
+        case _ => Set.empty[W]
       }
       bSets = bSets + ((y, t1))
-      val t2: Set[V] = removed.get(x) match {
+      val t2: Set[W] = removed.get(x) match {
         case Some(rx) => rx + y
-        case _ => Set.empty[V] + y
+        case _ => Set.empty[W] + y
       }
       removed = removed + ((x, t2))
     }
 
-    var startNodes = ISZ[V]()
+    var startNodes = ISZ[W]()
     for (scc <- sccs) {
       var max: Z = -1
       var startNode = scc.elements(0)
@@ -258,25 +258,25 @@ import org.sireum._
     return loops
   }
 
-  @pure def forwardReach(criteria: ISZ[V]): ISZ[V] = {
+  @pure def forwardReach(criteria: ISZ[W]): ISZ[W] = {
     val r = reachable(criteria, T)
     return r
   }
 
-  @pure def backwardReach(criteria: ISZ[V]): ISZ[V] = {
+  @pure def backwardReach(criteria: ISZ[W]): ISZ[W] = {
     val r = reachable(criteria, F)
     return r
   }
 
-  @pure def reachable(criteria: ISZ[V], isForward: B): ISZ[V] = {
-    var workList = ISZ[V]()
+  @pure def reachable(criteria: ISZ[W], isForward: B): ISZ[W] = {
+    var workList = ISZ[W]()
     workList = workList ++ criteria
-    var result = HashSet.empty[V]
+    var result = HashSet.empty[W]
 
     while (workList.nonEmpty) {
       val current = ISZOps(workList).first
       if (!result.contains(current)) {
-        val next: Set[V] =
+        val next: Set[W] =
           if (isForward)
             getAllSuccessor(current)
           else getAllPredecessor(current)

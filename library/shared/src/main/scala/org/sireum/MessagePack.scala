@@ -306,252 +306,252 @@ object MessagePack {
       }
     }
 
-    def writeISZ[V](s: IS[Z, V], f: V => Unit): Unit = {
+    def writeISZ[E](s: IS[Z, E], f: E => Unit): Unit = {
       writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISZ8[V](s: IS[Z8, V], f: V => Unit): Unit = {
+    def writeISZ8[E](s: IS[Z8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISZ16[V](s: IS[Z16, V], f: V => Unit): Unit = {
+    def writeISZ16[E](s: IS[Z16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISZ32[V](s: IS[Z32, V], f: V => Unit): Unit = {
+    def writeISZ32[E](s: IS[Z32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISZ64[V](s: IS[Z64, V], f: V => Unit): Unit = {
+    def writeISZ64[E](s: IS[Z64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISN[V](s: IS[N, V], f: V => Unit): Unit = {
+    def writeISN[E](s: IS[N, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISN8[V](s: IS[N8, V], f: V => Unit): Unit = {
+    def writeISN8[E](s: IS[N8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISN16[V](s: IS[N16, V], f: V => Unit): Unit = {
+    def writeISN16[E](s: IS[N16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISN32[V](s: IS[N32, V], f: V => Unit): Unit = {
+    def writeISN32[E](s: IS[N32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISN64[V](s: IS[N64, V], f: V => Unit): Unit = {
+    def writeISN64[E](s: IS[N64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISS8[V](s: IS[S8, V], f: V => Unit): Unit = {
+    def writeISS8[E](s: IS[S8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISS16[V](s: IS[S16, V], f: V => Unit): Unit = {
+    def writeISS16[E](s: IS[S16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISS32[V](s: IS[S32, V], f: V => Unit): Unit = {
+    def writeISS32[E](s: IS[S32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISS64[V](s: IS[S64, V], f: V => Unit): Unit = {
+    def writeISS64[E](s: IS[S64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISU8[V](s: IS[U8, V], f: V => Unit): Unit = {
+    def writeISU8[E](s: IS[U8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISU16[V](s: IS[U16, V], f: V => Unit): Unit = {
+    def writeISU16[E](s: IS[U16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISU32[V](s: IS[U32, V], f: V => Unit): Unit = {
+    def writeISU32[E](s: IS[U32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeISU64[V](s: IS[U64, V], f: V => Unit): Unit = {
+    def writeISU64[E](s: IS[U64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSZ[V](s: MS[Z, V], f: V => Unit): Unit = {
+    def writeMSZ[E](s: MS[Z, E], f: E => Unit): Unit = {
       writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSZ8[V](s: MS[Z8, V], f: V => Unit): Unit = {
+    def writeMSZ8[E](s: MS[Z8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSZ16[V](s: MS[Z16, V], f: V => Unit): Unit = {
+    def writeMSZ16[E](s: MS[Z16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSZ32[V](s: MS[Z32, V], f: V => Unit): Unit = {
+    def writeMSZ32[E](s: MS[Z32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSZ64[V](s: MS[Z64, V], f: V => Unit): Unit = {
+    def writeMSZ64[E](s: MS[Z64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.Z64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSN[V](s: MS[N, V], f: V => Unit): Unit = {
+    def writeMSN[E](s: MS[N, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSN8[V](s: MS[N8, V], f: V => Unit): Unit = {
+    def writeMSN8[E](s: MS[N8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSN16[V](s: MS[N16, V], f: V => Unit): Unit = {
+    def writeMSN16[E](s: MS[N16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSN32[V](s: MS[N32, V], f: V => Unit): Unit = {
+    def writeMSN32[E](s: MS[N32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSN64[V](s: MS[N64, V], f: V => Unit): Unit = {
+    def writeMSN64[E](s: MS[N64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.N64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSS8[V](s: MS[S8, V], f: V => Unit): Unit = {
+    def writeMSS8[E](s: MS[S8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSS16[V](s: MS[S16, V], f: V => Unit): Unit = {
+    def writeMSS16[E](s: MS[S16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSS32[V](s: MS[S32, V], f: V => Unit): Unit = {
+    def writeMSS32[E](s: MS[S32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSS64[V](s: MS[S64, V], f: V => Unit): Unit = {
+    def writeMSS64[E](s: MS[S64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.S64.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSU8[V](s: MS[U8, V], f: V => Unit): Unit = {
+    def writeMSU8[E](s: MS[U8, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U8.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSU16[V](s: MS[U16, V], f: V => Unit): Unit = {
+    def writeMSU16[E](s: MS[U16, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U16.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSU32[V](s: MS[U32, V], f: V => Unit): Unit = {
+    def writeMSU32[E](s: MS[U32, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U32.toZ(s.size))
       for (e <- s) {
         f(e)
       }
     }
 
-    def writeMSU64[V](s: MS[U64, V], f: V => Unit): Unit = {
+    def writeMSU64[E](s: MS[U64, E], f: E => Unit): Unit = {
       writeArrayHeader(conversions.U64.toZ(s.size))
       for (e <- s) {
         f(e)
@@ -562,7 +562,7 @@ object MessagePack {
       writeMSZ(s, writeZ _)
     }
 
-    def writeMap[K, V](o: Map[K, V], f: K => Unit, g: V => Unit): Unit = {
+    def writeMap[K, T](o: Map[K, T], f: K => Unit, g: T => Unit): Unit = {
       writeMapHeader(o.size)
       for (e <- o.entries) {
         f(e._1)
@@ -574,7 +574,7 @@ object MessagePack {
       writeISZ(o.elements, f)
     }
 
-    def writeHashMap[K, V](o: HashMap[K, V], f: K => Unit, g: V => Unit): Unit = {
+    def writeHashMap[K, T](o: HashMap[K, T], f: K => Unit, g: T => Unit): Unit = {
       writeMapHeader(o.size)
       for (e <- o.entries) {
         f(e._1)
@@ -586,7 +586,7 @@ object MessagePack {
       writeISZ(o.elements, f)
     }
 
-    def writeHashSMap[K, V](o: HashSMap[K, V], f: K => Unit, g: V => Unit): Unit = {
+    def writeHashSMap[K, T](o: HashSMap[K, T], f: K => Unit, g: T => Unit): Unit = {
       writeMapHeader(o.size)
       for (e <- o.entries) {
         f(e._1)
@@ -618,7 +618,7 @@ object MessagePack {
       writeHashMap(o.parents, writeZ _, g _)
     }
 
-    def writeGraph[V, E](o: Graph[V, E], f: V => Unit, g: E => Unit): Unit = {
+    def writeGraph[W, E](o: Graph[W, E], f: W => Unit, g: E => Unit): Unit = {
       def writeEdge(edge: Graph.Internal.Edge[E]): Unit = {
         edge match {
           case Graph.Internal.Edge.Plain(src, dest) =>
@@ -1291,9 +1291,9 @@ object MessagePack {
       }
     }
 
-    def readISZ[V](f: () => V): IS[Z, V] = {
+    def readISZ[E](f: () => E): IS[Z, E] = {
       val size = readArrayHeader()
-      var r = IS[Z, V]()
+      var r = IS[Z, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1303,9 +1303,9 @@ object MessagePack {
       return r
     }
 
-    def readISZ8[V](f: () => V): IS[Z8, V] = {
+    def readISZ8[E](f: () => E): IS[Z8, E] = {
       val size = readArrayHeader()
-      var r = IS[Z8, V]()
+      var r = IS[Z8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1315,9 +1315,9 @@ object MessagePack {
       return r
     }
 
-    def readISZ16[V](f: () => V): IS[Z16, V] = {
+    def readISZ16[E](f: () => E): IS[Z16, E] = {
       val size = readArrayHeader()
-      var r = IS[Z16, V]()
+      var r = IS[Z16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1327,9 +1327,9 @@ object MessagePack {
       return r
     }
 
-    def readISZ32[V](f: () => V): IS[Z32, V] = {
+    def readISZ32[E](f: () => E): IS[Z32, E] = {
       val size = readArrayHeader()
-      var r = IS[Z32, V]()
+      var r = IS[Z32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1339,9 +1339,9 @@ object MessagePack {
       return r
     }
 
-    def readISZ64[V](f: () => V): IS[Z64, V] = {
+    def readISZ64[E](f: () => E): IS[Z64, E] = {
       val size = readArrayHeader()
-      var r = IS[Z64, V]()
+      var r = IS[Z64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1351,9 +1351,9 @@ object MessagePack {
       return r
     }
 
-    def readISN[V](f: () => V): IS[N, V] = {
+    def readISN[E](f: () => E): IS[N, E] = {
       val size = readArrayHeader()
-      var r = IS[N, V]()
+      var r = IS[N, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1363,9 +1363,9 @@ object MessagePack {
       return r
     }
 
-    def readISN8[V](f: () => V): IS[N8, V] = {
+    def readISN8[E](f: () => E): IS[N8, E] = {
       val size = readArrayHeader()
-      var r = IS[N8, V]()
+      var r = IS[N8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1375,9 +1375,9 @@ object MessagePack {
       return r
     }
 
-    def readISN16[V](f: () => V): IS[N16, V] = {
+    def readISN16[E](f: () => E): IS[N16, E] = {
       val size = readArrayHeader()
-      var r = IS[N16, V]()
+      var r = IS[N16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1387,9 +1387,9 @@ object MessagePack {
       return r
     }
 
-    def readISN32[V](f: () => V): IS[N32, V] = {
+    def readISN32[E](f: () => E): IS[N32, E] = {
       val size = readArrayHeader()
-      var r = IS[N32, V]()
+      var r = IS[N32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1399,9 +1399,9 @@ object MessagePack {
       return r
     }
 
-    def readISN64[V](f: () => V): IS[N64, V] = {
+    def readISN64[E](f: () => E): IS[N64, E] = {
       val size = readArrayHeader()
-      var r = IS[N64, V]()
+      var r = IS[N64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1411,9 +1411,9 @@ object MessagePack {
       return r
     }
 
-    def readISS8[V](f: () => V): IS[S8, V] = {
+    def readISS8[E](f: () => E): IS[S8, E] = {
       val size = readArrayHeader()
-      var r = IS[S8, V]()
+      var r = IS[S8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1423,9 +1423,9 @@ object MessagePack {
       return r
     }
 
-    def readISS16[V](f: () => V): IS[S16, V] = {
+    def readISS16[E](f: () => E): IS[S16, E] = {
       val size = readArrayHeader()
-      var r = IS[S16, V]()
+      var r = IS[S16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1435,9 +1435,9 @@ object MessagePack {
       return r
     }
 
-    def readISS32[V](f: () => V): IS[S32, V] = {
+    def readISS32[E](f: () => E): IS[S32, E] = {
       val size = readArrayHeader()
-      var r = IS[S32, V]()
+      var r = IS[S32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1447,9 +1447,9 @@ object MessagePack {
       return r
     }
 
-    def readISS64[V](f: () => V): IS[S64, V] = {
+    def readISS64[E](f: () => E): IS[S64, E] = {
       val size = readArrayHeader()
-      var r = IS[S64, V]()
+      var r = IS[S64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1459,9 +1459,9 @@ object MessagePack {
       return r
     }
 
-    def readISU8[V](f: () => V): IS[U8, V] = {
+    def readISU8[E](f: () => E): IS[U8, E] = {
       val size = readArrayHeader()
-      var r = IS[U8, V]()
+      var r = IS[U8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1471,9 +1471,9 @@ object MessagePack {
       return r
     }
 
-    def readISU16[V](f: () => V): IS[U16, V] = {
+    def readISU16[E](f: () => E): IS[U16, E] = {
       val size = readArrayHeader()
-      var r = IS[U16, V]()
+      var r = IS[U16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1483,9 +1483,9 @@ object MessagePack {
       return r
     }
 
-    def readISU32[V](f: () => V): IS[U32, V] = {
+    def readISU32[E](f: () => E): IS[U32, E] = {
       val size = readArrayHeader()
-      var r = IS[U32, V]()
+      var r = IS[U32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1495,9 +1495,9 @@ object MessagePack {
       return r
     }
 
-    def readISU64[V](f: () => V): IS[U64, V] = {
+    def readISU64[E](f: () => E): IS[U64, E] = {
       val size = readArrayHeader()
-      var r = IS[U64, V]()
+      var r = IS[U64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1507,9 +1507,9 @@ object MessagePack {
       return r
     }
 
-    def readMSZ[V](f: () => V): MS[Z, V] = {
+    def readMSZ[E](f: () => E): MS[Z, E] = {
       val size = readArrayHeader()
-      var r = MS[Z, V]()
+      var r = MS[Z, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1519,9 +1519,9 @@ object MessagePack {
       return r
     }
 
-    def readMSZ8[V](f: () => V): MS[Z8, V] = {
+    def readMSZ8[E](f: () => E): MS[Z8, E] = {
       val size = readArrayHeader()
-      var r = MS[Z8, V]()
+      var r = MS[Z8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1531,9 +1531,9 @@ object MessagePack {
       return r
     }
 
-    def readMSZ16[V](f: () => V): MS[Z16, V] = {
+    def readMSZ16[E](f: () => E): MS[Z16, E] = {
       val size = readArrayHeader()
-      var r = MS[Z16, V]()
+      var r = MS[Z16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1543,9 +1543,9 @@ object MessagePack {
       return r
     }
 
-    def readMSZ32[V](f: () => V): MS[Z32, V] = {
+    def readMSZ32[E](f: () => E): MS[Z32, E] = {
       val size = readArrayHeader()
-      var r = MS[Z32, V]()
+      var r = MS[Z32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1555,9 +1555,9 @@ object MessagePack {
       return r
     }
 
-    def readMSZ64[V](f: () => V): MS[Z64, V] = {
+    def readMSZ64[E](f: () => E): MS[Z64, E] = {
       val size = readArrayHeader()
-      var r = MS[Z64, V]()
+      var r = MS[Z64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1567,9 +1567,9 @@ object MessagePack {
       return r
     }
 
-    def readMSN[V](f: () => V): MS[N, V] = {
+    def readMSN[E](f: () => E): MS[N, E] = {
       val size = readArrayHeader()
-      var r = MS[N, V]()
+      var r = MS[N, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1579,9 +1579,9 @@ object MessagePack {
       return r
     }
 
-    def readMSN8[V](f: () => V): MS[N8, V] = {
+    def readMSN8[E](f: () => E): MS[N8, E] = {
       val size = readArrayHeader()
-      var r = MS[N8, V]()
+      var r = MS[N8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1591,9 +1591,9 @@ object MessagePack {
       return r
     }
 
-    def readMSN16[V](f: () => V): MS[N16, V] = {
+    def readMSN16[E](f: () => E): MS[N16, E] = {
       val size = readArrayHeader()
-      var r = MS[N16, V]()
+      var r = MS[N16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1603,9 +1603,9 @@ object MessagePack {
       return r
     }
 
-    def readMSN32[V](f: () => V): MS[N32, V] = {
+    def readMSN32[E](f: () => E): MS[N32, E] = {
       val size = readArrayHeader()
-      var r = MS[N32, V]()
+      var r = MS[N32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1615,9 +1615,9 @@ object MessagePack {
       return r
     }
 
-    def readMSN64[V](f: () => V): MS[N64, V] = {
+    def readMSN64[E](f: () => E): MS[N64, E] = {
       val size = readArrayHeader()
-      var r = MS[N64, V]()
+      var r = MS[N64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1627,9 +1627,9 @@ object MessagePack {
       return r
     }
 
-    def readMSS8[V](f: () => V): MS[S8, V] = {
+    def readMSS8[E](f: () => E): MS[S8, E] = {
       val size = readArrayHeader()
-      var r = MS[S8, V]()
+      var r = MS[S8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1639,9 +1639,9 @@ object MessagePack {
       return r
     }
 
-    def readMSS16[V](f: () => V): MS[S16, V] = {
+    def readMSS16[E](f: () => E): MS[S16, E] = {
       val size = readArrayHeader()
-      var r = MS[S16, V]()
+      var r = MS[S16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1651,9 +1651,9 @@ object MessagePack {
       return r
     }
 
-    def readMSS32[V](f: () => V): MS[S32, V] = {
+    def readMSS32[E](f: () => E): MS[S32, E] = {
       val size = readArrayHeader()
-      var r = MS[S32, V]()
+      var r = MS[S32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1663,9 +1663,9 @@ object MessagePack {
       return r
     }
 
-    def readMSS64[V](f: () => V): MS[S64, V] = {
+    def readMSS64[E](f: () => E): MS[S64, E] = {
       val size = readArrayHeader()
-      var r = MS[S64, V]()
+      var r = MS[S64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1675,9 +1675,9 @@ object MessagePack {
       return r
     }
 
-    def readMSU8[V](f: () => V): MS[U8, V] = {
+    def readMSU8[E](f: () => E): MS[U8, E] = {
       val size = readArrayHeader()
-      var r = MS[U8, V]()
+      var r = MS[U8, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1687,9 +1687,9 @@ object MessagePack {
       return r
     }
 
-    def readMSU16[V](f: () => V): MS[U16, V] = {
+    def readMSU16[E](f: () => E): MS[U16, E] = {
       val size = readArrayHeader()
-      var r = MS[U16, V]()
+      var r = MS[U16, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1699,9 +1699,9 @@ object MessagePack {
       return r
     }
 
-    def readMSU32[V](f: () => V): MS[U32, V] = {
+    def readMSU32[E](f: () => E): MS[U32, E] = {
       val size = readArrayHeader()
-      var r = MS[U32, V]()
+      var r = MS[U32, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1711,9 +1711,9 @@ object MessagePack {
       return r
     }
 
-    def readMSU64[V](f: () => V): MS[U64, V] = {
+    def readMSU64[E](f: () => E): MS[U64, E] = {
       val size = readArrayHeader()
-      var r = MS[U64, V]()
+      var r = MS[U64, E]()
       var i = 0
       while (i < size) {
         val o = f()
@@ -1728,9 +1728,9 @@ object MessagePack {
       return r
     }
 
-    def readMap[K, V](f: () => K, g: () => V): Map[K, V] = {
+    def readMap[K, T](f: () => K, g: () => T): Map[K, T] = {
       val size = readMapHeader()
-      var r = Map.empty[K, V]
+      var r = Map.empty[K, T]
       var i = 0
       while (i < size) {
         val key = f()
@@ -1753,9 +1753,9 @@ object MessagePack {
       return r
     }
 
-    def readHashMap[K, V](f: () => K, g: () => V): HashMap[K, V] = {
+    def readHashMap[K, T](f: () => K, g: () => T): HashMap[K, T] = {
       val size = readMapHeader()
-      var r = HashMap.emptyInit[K, V](size)
+      var r = HashMap.emptyInit[K, T](size)
       var i = 0
       while (i < size) {
         val key = f()
@@ -1778,9 +1778,9 @@ object MessagePack {
       return r
     }
 
-    def readHashSMap[K, V](f: () => K, g: () => V): HashSMap[K, V] = {
+    def readHashSMap[K, T](f: () => K, g: () => T): HashSMap[K, T] = {
       val size = readMapHeader()
-      var r = HashSMap.emptyInit[K, V](size)
+      var r = HashSMap.emptyInit[K, T](size)
       var i = 0
       while (i < size) {
         val key = f()
@@ -1844,7 +1844,7 @@ object MessagePack {
       return r
     }
 
-    def readGraph[V, E](f: () => V, g: () => E): Graph[V, E] = {
+    def readGraph[W, E](f: () => W, g: () => E): Graph[W, E] = {
       def readEdge(): Graph.Internal.Edge[E] = {
         val src = readZ()
         val dest = readZ()
@@ -1859,7 +1859,7 @@ object MessagePack {
       val multi = readB()
       val nodesInverse = readISZ(f)
       val edges = readISZ(readEdge _)
-      var r: Graph[V, E] = if (multi) Graph.emptyMulti else Graph.empty
+      var r: Graph[W, E] = if (multi) Graph.emptyMulti else Graph.empty
       for (node <- nodesInverse) {
         r = r * node
       }

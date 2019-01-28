@@ -28,25 +28,25 @@ package org.sireum
 
 object HashMap {
 
-  @pure def empty[K, V]: HashMap[K, V] = {
-    return emptyInit[K, V](12)
+  @pure def empty[K, T]: HashMap[K, T] = {
+    return emptyInit[K, T](12)
   }
 
-  @pure def emptyInit[K, V](initialCapacity: Z): HashMap[K, V] = {
+  @pure def emptyInit[K, T](initialCapacity: Z): HashMap[K, T] = {
     val sz: Z = if (initialCapacity <= 0) 4 else initialCapacity * 4 / 3 + 1
-    return HashMap[K, V](ISZ.create(sz, Map.empty), 0)
+    return HashMap[K, T](ISZ.create(sz, Map.empty), 0)
   }
 
-  @pure def ++[I, K, V](s: IS[I, (K, V)]): HashMap[K, V] = {
-    return HashMap.emptyInit[K, V](s.zize) ++ s
+  @pure def ++[I, K, T](s: IS[I, (K, T)]): HashMap[K, T] = {
+    return HashMap.emptyInit[K, T](s.zize) ++ s
   }
 
 }
 
-@datatype class HashMap[K, V](mapEntries: ISZ[Map[K, V]], size: Z) {
+@datatype class HashMap[K, T](mapEntries: ISZ[Map[K, T]], size: Z) {
 
-  @pure def entries: ISZ[(K, V)] = {
-    var r = ISZ[(K, V)]()
+  @pure def entries: ISZ[(K, T)] = {
+    var r = ISZ[(K, T)]()
     for (ms <- mapEntries) {
       if (ms.nonEmpty) {
         r = r ++ ms.entries
@@ -65,8 +65,8 @@ object HashMap {
     return r
   }
 
-  @pure def values: ISZ[V] = {
-    var r = ISZ[V]()
+  @pure def values: ISZ[T] = {
+    var r = ISZ[T]()
     for (ms <- mapEntries) {
       if (ms.nonEmpty) {
         r = r ++ ms.values
@@ -79,11 +79,11 @@ object HashMap {
     return Set.empty[K] ++ keys
   }
 
-  @pure def valueSet: Set[V] = {
-    return Set.empty[V] ++ values
+  @pure def valueSet: Set[T] = {
+    return Set.empty[T] ++ values
   }
 
-  @pure def +(p: (K, V)): HashMap[K, V] = {
+  @pure def +(p: (K, T)): HashMap[K, T] = {
     val (key, value) = p
     val r = ensureCapacity(size + 1)
     val i = r.hashIndex(key)
@@ -92,7 +92,7 @@ object HashMap {
     return r(mapEntries = r.mapEntries(i ~> (m + key ~> value)), size = newSize)
   }
 
-  @pure def ++[I](entries: IS[I, (K, V)]): HashMap[K, V] = {
+  @pure def ++[I](entries: IS[I, (K, T)]): HashMap[K, T] = {
     if (entries.isEmpty) {
       return this
     }
@@ -103,12 +103,12 @@ object HashMap {
     return r
   }
 
-  @pure def ensureCapacity(sz: Z): HashMap[K, V] = {
+  @pure def ensureCapacity(sz: Z): HashMap[K, T] = {
     if (mapEntries.size * 3 / 4 >= sz) {
       return this
     }
     val init = sz * 2
-    var r = HashMap.emptyInit[K, V](init)
+    var r = HashMap.emptyInit[K, T](init)
     for (ms <- mapEntries) {
       for (kv <- ms.entries) {
         r = r + kv._1 ~> kv._2
@@ -123,17 +123,17 @@ object HashMap {
     return if (i < 0) i + sz else i
   }
 
-  @pure def get(key: K): Option[V] = {
+  @pure def get(key: K): Option[T] = {
     val m = mapEntries(hashIndex(key))
     return m.get(key)
   }
 
-  @pure def entry(key: K): Option[(K, V)] = {
+  @pure def entry(key: K): Option[(K, T)] = {
     val m = mapEntries(hashIndex(key))
     return m.entry(key)
   }
 
-  @pure def --[I](keys: IS[I, K]): HashMap[K, V] = {
+  @pure def --[I](keys: IS[I, K]): HashMap[K, T] = {
     var r = this
     for (k <- keys) {
       r.get(k) match {
@@ -144,7 +144,7 @@ object HashMap {
     return r
   }
 
-  @pure def -(p: (K, V)): HashMap[K, V] = {
+  @pure def -(p: (K, T)): HashMap[K, T] = {
     val (key, value) = p
     val i = hashIndex(key)
     return this(mapEntries(i ~> (mapEntries(i) - key ~> value)), size - 1)
@@ -174,7 +174,7 @@ object HashMap {
     return size
   }
 
-  @pure def isEqual(other: HashMap[K, V]): B = {
+  @pure def isEqual(other: HashMap[K, T]): B = {
     if (size != other.size) {
       return F
     }

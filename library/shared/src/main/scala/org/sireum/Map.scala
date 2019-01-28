@@ -28,21 +28,21 @@ package org.sireum
 
 object Map {
 
-  @pure def empty[K, V]: Map[K, V] = {
-    return Map[K, V](ISZ())
+  @pure def empty[K, T]: Map[K, T] = {
+    return Map[K, T](ISZ())
   }
 
-  @pure def of[K, V]: Map[K, V] = {
+  @pure def of[K, T]: Map[K, T] = {
     return Map.empty
   }
 
-  @pure def ++[K, V, I](s: IS[I, (K, V)]): Map[K, V] = {
-    return Map.empty[K, V] ++ s
+  @pure def ++[K, T, I](s: IS[I, (K, T)]): Map[K, T] = {
+    return Map.empty[K, T] ++ s
   }
 
 }
 
-@datatype class Map[K, V](entries: ISZ[(K, V)]) {
+@datatype class Map[K, T](entries: ISZ[(K, T)]) {
 
   @pure def keys: ISZ[K] = {
     var r = ISZ[K]()
@@ -52,8 +52,8 @@ object Map {
     return r
   }
 
-  @pure def values: ISZ[V] = {
-    var r = ISZ[V]()
+  @pure def values: ISZ[T] = {
+    var r = ISZ[T]()
     for (kv <- entries) {
       r = r :+ kv._2
     }
@@ -64,20 +64,20 @@ object Map {
     return Set.empty[K] ++ keys
   }
 
-  @pure def valueSet: Set[V] = {
-    return Set.empty[V] ++ values
+  @pure def valueSet: Set[T] = {
+    return Set.empty[T] ++ values
   }
 
-  @pure def +(p: (K, V)): Map[K, V] = {
+  @pure def +(p: (K, T)): Map[K, T] = {
     val (key, value) = p
     val index = indexOf(key)
-    val newEntries: ISZ[(K, V)] =
+    val newEntries: ISZ[(K, T)] =
       if (index < 0) entries :+ ((key, value))
       else entries((index, (key, value)))
     return Map(newEntries)
   }
 
-  @pure def ++[I](kvs: IS[I, (K, V)]): Map[K, V] = {
+  @pure def ++[I](kvs: IS[I, (K, T)]): Map[K, T] = {
     var r = this
     for (kv <- kvs) {
       r = r + kv._1 ~> kv._2
@@ -85,19 +85,19 @@ object Map {
     return r
   }
 
-  @pure def get(key: K): Option[V] = {
+  @pure def get(key: K): Option[T] = {
     val index = indexOf(key)
-    return if (index < 0) None[V]() else Some(entries(index)._2)
+    return if (index < 0) None[T]() else Some(entries(index)._2)
   }
 
-  @pure def getOrElse(key: K, default: => V): V = {
+  @pure def getOrElse(key: K, default: => T): T = {
     val index = indexOf(key)
     return if (index < 0) default else entries(index)._2
   }
 
-  @pure def entry(key: K): Option[(K, V)] = {
+  @pure def entry(key: K): Option[(K, T)] = {
     val index = indexOf(key)
-    return if (index < 0) None[(K, V)]() else Some(entries(index))
+    return if (index < 0) None[(K, T)]() else Some(entries(index))
   }
 
   @pure def indexOf(key: K): Z = {
@@ -110,8 +110,8 @@ object Map {
     return index
   }
 
-  @pure def --[I](keys: IS[I, K]): Map[K, V] = {
-    var deletedMappings = ISZ[(K, V)]()
+  @pure def --[I](keys: IS[I, K]): Map[K, T] = {
+    var deletedMappings = ISZ[(K, T)]()
     for (key <- keys) {
       get(key) match {
         case Some(value) => deletedMappings = deletedMappings :+ ((key, value))
@@ -125,7 +125,7 @@ object Map {
     }
   }
 
-  @pure def -(p: (K, V)): Map[K, V] = {
+  @pure def -(p: (K, T)): Map[K, T] = {
     return Map(entries - p)
   }
 
@@ -156,7 +156,7 @@ object Map {
     return entries.size
   }
 
-  @pure def isEqual(other: Map[K, V]): B = {
+  @pure def isEqual(other: Map[K, T]): B = {
     if (size != other.size) {
       return F
     }

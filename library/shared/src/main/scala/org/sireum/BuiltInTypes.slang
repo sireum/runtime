@@ -44,9 +44,13 @@ package org.sireum
 
   @pure def |^(other: B): B
 
+  @pure def imp_:(other: B): B
+
   @pure def &&(other: => B): B
 
   @pure def ||(other: => B): B
+
+  @pure def simp_:(other: => B): B
 
   @pure def unary_! : B
 
@@ -268,13 +272,13 @@ package org.sireum
 
 @ext object IS {
 
-  def create[I, V](size: I, default: V): IS[I, V] = $
+  def create[I, E](size: I, default: E): IS[I, E] = $
 
-  def zreate[I, V](size: Z, default: V): IS[I, V] = $
+  def zreate[I, E](size: Z, default: E): IS[I, E] = $
 
 }
 
-@ext trait IS[I, V] {
+@ext trait IS[I, E] {
 
   @pure def hash: Z
 
@@ -284,29 +288,29 @@ package org.sireum
 
   @pure def nonEmpty: B
 
-  @pure def :+(e: V): IS[I, V]
+  @pure def :+(e: E): IS[I, E]
 
-  @pure def +:(e: V): IS[I, V]
+  @pure def +:(e: E): IS[I, E]
 
-  @pure def ++[I2](other: IS[I2, V]): IS[I, V]
+  @pure def ++[I2](other: IS[I2, E]): IS[I, E]
 
-  @pure def --[I2](other: IS[I2, V]): IS[I, V]
+  @pure def --[I2](other: IS[I2, E]): IS[I, E]
 
-  @pure def -(e: V): IS[I, V]
+  @pure def -(e: E): IS[I, E]
 
-  @pure def map[V2](f: V => V2 @pure): IS[I, V2]
+  @pure def map[E2](f: E => E2 @pure): IS[I, E2]
 
-  @pure def flatMap[V2](f: V => IS[I, V2] @pure): IS[I, V2]
+  @pure def flatMap[E2](f: E => IS[I, E2] @pure): IS[I, E2]
 
-  @pure def withFilter(p: V => B @pure): IS[I, V]
+  @pure def withFilter(p: E => B @pure): IS[I, E]
 
-  @pure def foreach(p: V => Unit): Unit
+  @pure def foreach(p: E => Unit): Unit
 
   @pure def size: I
 
   @pure def zize: Z
 
-  @pure def toMS: MS[I, V] =
+  @pure def toMS: MS[I, E] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
 
@@ -314,20 +318,20 @@ package org.sireum
 
 @ext object ISZ {
 
-  def create[V](size: Z, default: V): ISZ[V] =
+  def create[E](size: Z, default: E): ISZ[E] =
     l""" requires size ≥ 0 """
 
 }
 
 @ext object MS {
 
-  def create[I, V](size: I, default: V): MS[I, V] = $
+  def create[I, E](size: I, default: E): MS[I, E] = $
 
-  def zreate[I, V](size: I, default: V): MS[I, V] = $
+  def zreate[I, E](size: I, default: E): MS[I, E] = $
 
 }
 
-@ext trait MS[I, V] {
+@ext trait MS[I, E] {
 
   @pure def hash: Z
 
@@ -337,31 +341,31 @@ package org.sireum
 
   @pure def nonEmpty: B
 
-  @pure def :+(e: V): MS[I, V]
+  @pure def :+(e: E): MS[I, E]
 
-  @pure def +:(e: V): MS[I, V]
+  @pure def +:(e: E): MS[I, E]
 
-  @pure def ++[I2](other: MS[I2, V]): MS[I, V]
+  @pure def ++[I2](other: MS[I2, E]): MS[I, E]
 
-  @pure def --[I2](other: MS[I2, V]): MS[I, V]
+  @pure def --[I2](other: MS[I2, E]): MS[I, E]
 
-  @pure def -(e: V): MS[I, V]
+  @pure def -(e: E): MS[I, E]
 
-  @pure def map[V2](f: V => V2 @pure): MS[I, V2]
+  @pure def map[E2](f: E => E2 @pure): MS[I, E2]
 
-  @pure def flatMap[V2](f: V => MS[I, V2] @pure): MS[I, V2]
+  @pure def flatMap[E2](f: E => MS[I, E2] @pure): MS[I, E2]
 
-  @pure def withFilter(p: V => B @pure): MS[I, V]
+  @pure def withFilter(p: E => B @pure): MS[I, E]
 
-  @pure def foreach(p: V => Unit): Unit
+  @pure def foreach(p: E => Unit): Unit
 
   @pure def size: I
 
   @pure def zize: Z
 
-  def expand(n: I, default: V): Unit
+  def expand(n: I, default: E): Unit
 
-  @pure def toIS: IS[I, V] =
+  @pure def toIS: IS[I, E] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
 
@@ -369,7 +373,7 @@ package org.sireum
 
 @ext object MSZ {
 
-  def create[V](size: Z, default: V): MSZ[V] =
+  def create[E](size: Z, default: E): MSZ[E] =
     l""" requires size ≥ 0 """
 
 }

@@ -28,28 +28,28 @@ package org.sireum
 
 object HashSMap {
 
-  @pure def empty[K, V]: HashSMap[K, V] = {
+  @pure def empty[K, T]: HashSMap[K, T] = {
     return HashSMap(HashMap.empty, Set.empty)
   }
 
-  @pure def emptyInit[K, V](initialCapacity: Z): HashSMap[K, V] = {
+  @pure def emptyInit[K, T](initialCapacity: Z): HashSMap[K, T] = {
     return HashSMap(HashMap.emptyInit(initialCapacity), Set.empty)
   }
 
-  @pure def ++[I, K, V](s: IS[I, (K, V)]): HashSMap[K, V] = {
-    return HashSMap.emptyInit[K, V](s.zize) ++ s
+  @pure def ++[I, K, T](s: IS[I, (K, T)]): HashSMap[K, T] = {
+    return HashSMap.emptyInit[K, T](s.zize) ++ s
   }
 
 }
 
-@datatype class HashSMap[K, V](map: HashMap[K, V], keys: Set[K]) {
+@datatype class HashSMap[K, T](map: HashMap[K, T], keys: Set[K]) {
 
   @pure def size: Z = {
     return keys.size
   }
 
-  @pure def entries: ISZ[(K, V)] = {
-    var r = ISZ[(K, V)]()
+  @pure def entries: ISZ[(K, T)] = {
+    var r = ISZ[(K, T)]()
     for (k <- keys.elements) {
       map.get(k) match {
         case Some(v) => r = r :+ ((k, v))
@@ -59,7 +59,7 @@ object HashSMap {
     return r
   }
 
-  @pure def values: ISZ[V] = {
+  @pure def values: ISZ[T] = {
     return map.values
   }
 
@@ -67,16 +67,16 @@ object HashSMap {
     return keys
   }
 
-  @pure def valueSet: Set[V] = {
-    return Set.empty[V] ++ values
+  @pure def valueSet: Set[T] = {
+    return Set.empty[T] ++ values
   }
 
-  @pure def +(p: (K, V)): HashSMap[K, V] = {
+  @pure def +(p: (K, T)): HashSMap[K, T] = {
     val newMap = map + p
     return HashSMap(newMap, keys + p._1)
   }
 
-  @pure def ++[I](entries: IS[I, (K, V)]): HashSMap[K, V] = {
+  @pure def ++[I](entries: IS[I, (K, T)]): HashSMap[K, T] = {
     if (entries.isEmpty) {
       return this
     }
@@ -88,19 +88,19 @@ object HashSMap {
     return HashSMap(newMap, newKeys)
   }
 
-  @pure def get(key: K): Option[V] = {
+  @pure def get(key: K): Option[T] = {
     return map.get(key)
   }
 
-  @pure def entry(key: K): Option[(K, V)] = {
+  @pure def entry(key: K): Option[(K, T)] = {
     return map.entry(key)
   }
 
-  @pure def --(keys: ISZ[K]): HashSMap[K, V] = {
+  @pure def --(keys: ISZ[K]): HashSMap[K, T] = {
     return HashSMap(map -- keys, this.keys -- keys)
   }
 
-  @pure def -(p: (K, V)): HashSMap[K, V] = {
+  @pure def -(p: (K, T)): HashSMap[K, T] = {
     return HashSMap(map - p, keys - p._1)
   }
 
@@ -128,7 +128,7 @@ object HashSMap {
     return map.hash
   }
 
-  @pure def isEqual(other: HashSMap[K, V]): B = {
+  @pure def isEqual(other: HashSMap[K, T]): B = {
     return map.isEqual(other.map)
   }
 
