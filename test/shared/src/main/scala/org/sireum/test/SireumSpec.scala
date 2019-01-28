@@ -54,4 +54,9 @@ trait SireumSpec extends FreeSpec {
   def *(b: => scala.Boolean, msg: => Predef.String)(implicit pos: org.scalactic.source.Position): Unit = {
     registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
   }
+
+  implicit class StringEq(s: String) {
+    def =~=(other: String): Boolean =
+      s.trim().replaceAll("\\s+", " ").equalsIgnoreCase(other.trim().replaceAll("\\s+", " "))
+  }
 }
