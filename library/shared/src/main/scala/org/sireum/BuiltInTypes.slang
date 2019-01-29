@@ -246,13 +246,7 @@ package org.sireum
 
   @pure def string: String
 
-  @pure def at(i: Z): C
-
   @pure def size: Z
-
-  @pure def toCis: IS[Z, C]
-
-  @pure def toCms: MS[Z, C]
 
 }
 
