@@ -357,8 +357,6 @@ package org.sireum
 
   @pure def zize: Z
 
-  def expand(n: I, default: E): Unit
-
   @pure def toIS: IS[I, E] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
