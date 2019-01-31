@@ -261,6 +261,16 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     boxer.lookup(data, i)
   }
 
+  def apply(args: (I, V)*): MS[I, V] = {
+    val a = boxer.clone(data, length, length, Z.MP.zero)
+    for ((index, v) <- args) {
+      val i = index.asInstanceOf[ZLike[_]].toIndex
+      assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+      boxer.store(a, i, v)
+    }
+    MS[I, V](companion, a, length, boxer)
+  }
+
   def update(index: I, value: V): Unit = {
     val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
