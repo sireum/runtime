@@ -33,7 +33,7 @@ class datatype extends StaticAnnotation
 
 class enum extends StaticAnnotation
 
-class ext extends StaticAnnotation
+class ext(name: String = "") extends StaticAnnotation
 
 class hidden extends StaticAnnotation
 
