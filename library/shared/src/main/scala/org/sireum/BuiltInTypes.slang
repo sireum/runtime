@@ -304,6 +304,8 @@ package org.sireum
 
   @pure def zize: Z
 
+  @pure def indices: ISZ[I]
+
   @pure def toMS: MS[I, E] =
     l""" ensures result.size ≡ s.size
                  ∀i: [0, result.size)  result(i) ≡ s(i) """
@@ -356,6 +358,8 @@ package org.sireum
   @pure def size: I
 
   @pure def zize: Z
+
+  @pure def indices: ISZ[I]
 
   @pure def toIS: IS[I, E] =
     l""" ensures result.size ≡ s.size
