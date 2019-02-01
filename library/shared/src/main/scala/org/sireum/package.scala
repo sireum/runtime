@@ -216,6 +216,10 @@ package object sireum extends $internal.PackageTrait {
 
     @inline def decrease: Z = Z(value).decrease
 
+    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+
+    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+
     @inline def ~>(o: scala.Boolean): (Z, B) = (Z(value), B(o))
 
     @inline def ~>(o: scala.Char): (Z, C) = (Z(value), C(o))
@@ -260,6 +264,10 @@ package object sireum extends $internal.PackageTrait {
     @inline def increase: Z = Z(value).increase
 
     @inline def decrease: Z = Z(value).decrease
+
+    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+
+    @inline def until(other: Z): ZRange[Z] = Z(value) until other
 
     @inline def ~>(o: scala.Boolean): (Z, B) = (Z(value), B(o))
 

@@ -133,12 +133,14 @@ trait PackageTrait {
 
   import language.implicitConversions
 
+  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
+
   @inline implicit def $2BigIntOpt(n: scala.Int): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
 
   @inline implicit def $2BigIntOpt(n: scala.Long): scala.Option[scala.BigInt] = scala.Some(scala.BigInt(n))
 
   @inline implicit def $2BigIntOpt(n: org.sireum.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
 
-  @inline implicit val $ZCompanion: $ZCompanion[Z] = Z
+  @inline implicit def $2IS[I](zr: org.sireum.ZRange[I]): ISZ[I] = zr.map(n => n)
 
 }
