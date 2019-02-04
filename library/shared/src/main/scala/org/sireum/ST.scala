@@ -31,9 +31,23 @@ object ST {
 
   sealed trait Arg
 
-  final case class Any(args: scala.Seq[scala.Any], sep: Predef.String = "") extends Arg
+  object Any {
+    def apply(args: scala.Seq[scala.Any], sep: Predef.String = ""): Any =
+      new Any(args.map(x => helper.cloneAssign(x)), sep)
+    def unapply(o: Any): scala.Option[(scala.Seq[scala.Any], Predef.String)] =
+      scala.Some((o.args, o.sep))
+  }
+  
+  final class Any(val args: scala.Seq[scala.Any], val sep: Predef.String) extends Arg
 
-  final case class Templ(args: scala.Seq[ST], sep: Predef.String = "") extends Arg
+  object Templ {
+    def apply(args: scala.Seq[ST], sep: Predef.String = ""): Templ =
+      new Templ(args, sep)
+    def unapply(o: Templ): scala.Option[(scala.Seq[ST], Predef.String)] =
+      scala.Some((o.args, o.sep))
+  }
+
+  final class Templ(val args: scala.Seq[ST], val sep: Predef.String) extends Arg
 
   def isWs(c: Char): Boolean = c match {
     case ' ' | '\r' | '\n' | '\t' => true
