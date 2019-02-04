@@ -33,7 +33,10 @@ object ST {
 
   object Any {
     def apply(args: scala.Seq[scala.Any], sep: Predef.String = ""): Any =
-      new Any(args.map(x => helper.cloneAssign(x)), sep)
+      new Any(args.map {
+        case arg: Mutable => helper.cloneAssign(arg)
+        case arg => arg
+      }, sep)
     def unapply(o: Any): scala.Option[(scala.Seq[scala.Any], Predef.String)] =
       scala.Some((o.args, o.sep))
   }
