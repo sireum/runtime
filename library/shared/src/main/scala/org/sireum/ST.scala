@@ -84,9 +84,10 @@ object ST {
 
     def appendIndent(): Unit = if (isCompact) appendChar(' ') else for (_ <- 0 until indent) sb.append(' ')
 
-    def appendLineSep(): Unit = {
-      trim()
-      if (isCompact) appendChar(' ') else sb.append(System.lineSeparator)
+    def appendLineSep(): Unit = if (sb.length > 0) {
+      trim(includeNewLine = true)
+      if (isCompact) appendChar(' ')
+      else sb.append(System.lineSeparator)
     }
 
     def appendPart(s: Predef.String): Unit = {
