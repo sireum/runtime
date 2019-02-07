@@ -168,6 +168,7 @@ object ST {
           case scala.Some(v: ST) => rec(v)
           case scala.Some(v) => append(v.toString)
           case scala.None => return trimNlPart()
+          case v: ST => rec(v)
           case v => append(v.toString)
         }
         0
