@@ -102,12 +102,12 @@ object ST {
             val i = tkn.indexOf("|")
             if (i >= 0 && tkn.substring(0, i).forall(isWs)) tkn.substring(i + 1) else tkn
           } else tkn
-          if (isCompact && stripped.length > 0 && lastWs && isWs(stripped.head))
-            sb.append(stripped, 1, stripped.length)
-          else sb.append(stripped)
-          if (stripped.length > 0)
-            lastWs = isWs(stripped.last)
-          n = stripped.length
+          if (isCompact) {
+            for (c <- stripped) sb.append(c)
+          } else {
+            sb.append(stripped)
+            n = stripped.length
+          }
         }
       }
       if (hasLine) {
@@ -121,7 +121,8 @@ object ST {
           appendLineSep()
           appendIndent()
         } else if (tkn != "\r") {
-          sb.append(tkn)
+          if (isCompact) for (c <- tkn) sb.append(c)
+          else sb.append(tkn)
         }
       }
     }
