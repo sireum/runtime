@@ -47,12 +47,12 @@ object Os {
     return Ext.pathSep
   }
 
-  def os: Kind.Type = {
+  def kind: Kind.Type = {
     return Ext.os
   }
 
   def path(value: String): Path = {
-    if (os == Kind.Win) {
+    if (kind == Kind.Win) {
       val sOps = ops.StringOps(value)
       val cygPrefix: String = "/cygdrive/"
       if (sOps.startsWith(cygPrefix)) {
