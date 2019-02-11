@@ -139,4 +139,12 @@ import org.sireum._
     }
     return -1
   }
+
+  @pure def replaceAllChars(from: C, to: C): String = {
+    val cs = conversions.String.toCms(s)
+    for (i <- 0 until cs.size if cs(i) == from) {
+      cs(i) = to
+    }
+    return conversions.String.fromCms(cs)
+  }
 }
