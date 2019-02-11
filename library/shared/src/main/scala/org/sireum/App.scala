@@ -29,14 +29,19 @@ trait App {
 
   def main(args: ISZ[String]): Z
 
-  def main(args: Array[Predef.String]): Unit = {
+  final def main(args: Array[Predef.String]): Unit = {
     Runtime.getRuntime.addShutdownHook(new Thread {
       override def run(): Unit = {
         atExit()
       }
     })
-    System.exit(main(ISZ(args.map(String(_)): _*)).toInt)
+    App.args = ISZ(args.map(String(_)): _*)
+    System.exit(main(App.args).toInt)
   }
 
   def atExit(): Unit = {}
+}
+
+object App {
+  var args: ISZ[String] = ISZ()
 }

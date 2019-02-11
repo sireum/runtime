@@ -113,6 +113,11 @@ object Module {
 
     final override def ivyDeps = Agg.empty
 
+    final override def jvmIvyDeps = Agg(
+      ivy"com.zaxxer:nuprocess:$nuProcessVersion",
+      ivy"com.lihaoyi::os-lib:$osLibVersion"
+    )
+
     final override lazy val scalacPluginIvyDeps = Agg(
       ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
     )
