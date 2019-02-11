@@ -44,6 +44,8 @@ object Os_Ext {
 
   lazy val home: String = cannon(System.getProperty("user.home"))
 
+  lazy val isNative: B = java.lang.Boolean.getBoolean("com.oracle.graalvm.isaot")
+
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)): _*)
 
   val os: Os.Kind.Type =
@@ -197,7 +199,7 @@ object Os_Ext {
 
   def parent(path: String): String = toIO(path).getParent
 
-  def exec(e: Os.Exec): Os.Exec.Result = if ($internal.Macro.forNative) {
+  def exec(e: Os.Exec): Os.Exec.Result = if (isNative) {
     import scala.collection.JavaConverters._
     val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
     val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
