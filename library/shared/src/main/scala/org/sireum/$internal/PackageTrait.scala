@@ -25,8 +25,10 @@
 
 package org.sireum.$internal
 
-import org.sireum.{$ZCompanion, B, Z, IS, MS, String, helper}
+import org.sireum.{$ZCompanion, B, IS, MS, String, Z, helper}
+
 import language.experimental.macros
+import scala.collection.generic.FilterMonadic
 
 trait PackageTrait {
 
@@ -142,5 +144,9 @@ trait PackageTrait {
   @inline implicit def $2BigIntOpt(n: org.sireum.Z): scala.Option[scala.BigInt] = scala.Some(n.toBigInt)
 
   @inline implicit def $2IS[I](zr: org.sireum.ZRange[I]): ISZ[I] = zr.map(n => n)
+
+  @inline implicit def $2IS[T](g: FilterMonadic[T, scala.collection.immutable.Seq[T]]): ISZ[T] = ISZ(g.map(x => x): _*)
+
+  @inline implicit def $2MS[T](g: FilterMonadic[T, scala.collection.mutable.Seq[T]]): MSZ[T] = MSZ(g.map(x => x): _*)
 
 }

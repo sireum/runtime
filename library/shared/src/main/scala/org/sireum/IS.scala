@@ -148,7 +148,10 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       IS[I, V](companion, a, newLength, boxer)
     }
 
-  def -(e: V): IS[I, V] = if (isEmpty) this else withFilter(_ != e)
+  def -(e: V): IS[I, V] = {
+    implicit val zc = companion
+    if (isEmpty) this else filter(_ != e)
+  }
 
   def indices: ZRange[I] = {
     var j = companion.Index.asInstanceOf[ZLike[_]]
@@ -197,7 +200,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       r
     }
 
-  def withFilter(p: V => B): IS[I, V] = {
+  def filter(p: V => B @pure): IS[I, V] = {
     val s = elements.withFilter(e => p(e).value).map(identity)
     val newLength = Z.MP(s.length)
     val a = boxer.create(newLength)
@@ -208,6 +211,9 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     }
     IS[I, V](companion, a, newLength, boxer)
   }
+
+  def withFilter(p: V => B): scala.collection.generic.FilterMonadic[V, scala.collection.immutable.Seq[V]] =
+    elements.toVector.withFilter(o => p(o).value)
 
   def foreach(f: V => Unit): Unit = {
     var i = Z.MP.zero

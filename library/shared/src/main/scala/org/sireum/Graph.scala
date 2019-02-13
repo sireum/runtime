@@ -298,7 +298,7 @@ object Graph {
   }
 
   @pure def edges(source: W, dest: W): ISZ[Graph.Edge[W, E]] = {
-    return outgoing(source).withFilter(e => e.dest == dest)
+    return outgoing(source).filter(e => e.dest == dest)
   }
 
   @pure def numOfNodes: Z = {

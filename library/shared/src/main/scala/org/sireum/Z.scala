@@ -1503,7 +1503,7 @@ final case class ZRange[I](
 
   @pure def by(n: Z): ZRange[I] = ZRange(isInclusive, init, to, n, cond, increase, decrease)
 
-  @pure def withFilter(@pure filter: I => B): ZRange[I] =
+  def withFilter(filter: I => B): ZRange[I] =
     ZRange(isInclusive, init, to, by, (i: I) => cond(i) && filter(i), increase, decrease)
 
   @pure def reverse: ZRange[I] =

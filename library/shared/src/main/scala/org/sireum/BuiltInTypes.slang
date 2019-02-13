@@ -296,7 +296,7 @@ package org.sireum
 
   @pure def flatMap[E2](f: E => IS[I, E2] @pure): IS[I, E2]
 
-  @pure def withFilter(p: E => B @pure): IS[I, E]
+  @pure def filter(p: E => B @pure): IS[I, E]
 
   @pure def foreach(p: E => Unit): Unit
 
@@ -351,7 +351,7 @@ package org.sireum
 
   @pure def flatMap[E2](f: E => MS[I, E2] @pure): MS[I, E2]
 
-  @pure def withFilter(p: E => B @pure): MS[I, E]
+  @pure def filter(p: E => B @pure): MS[I, E]
 
   @pure def foreach(p: E => Unit): Unit
 
