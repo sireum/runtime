@@ -427,20 +427,26 @@ object MGenerator {
 
     @record class Zipped[T, U](gen: MGenerator[T], gen2: MGenerator[U]) extends MGenerator[(T, U)] {
       def generate(f: ((T, U)) => MGenerator.Action): MGenerator.Action = {
-        (gen.headOption, gen2.headOption) match {
-          case (MSome(h), MSome(h2)) =>
-            val r = f((h, h2))
-            if (r) {
-              return Zipped(gen.drop(1), gen2.drop(1)).generate(f)
-            }
-          case _ =>
-        }
-        return F
+        val r = zipRec(f, gen, gen2)
+        return r
       }
 
       override def string: String = {
         return s"$gen.zip($gen2)"
       }
+    }
+
+    def zipRec[T, U](f: ((T, U)) => MGenerator.Action, gen: MGenerator[T], gen2: MGenerator[U]): MGenerator.Action = {
+      (gen.headOption, gen2.headOption) match {
+        case (MSome(h), MSome(h2)) =>
+          var r = f((h, h2))
+          if (r) {
+            r = zipRec(f, gen.drop(1), gen2.drop(1))
+            return r
+          }
+        case _ =>
+      }
+      return F
     }
 
     @record class Concat[T](gen: MGenerator[T], gen2: MGenerator[T]) extends MGenerator[T] {

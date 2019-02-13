@@ -420,20 +420,26 @@ object Generator {
 
     @datatype class Zipped[T, U](gen: Generator[T], gen2: Generator[U]) extends Generator[(T, U)] {
       def generate(f: ((T, U)) => Generator.Action): Generator.Action = {
-        (gen.headOption, gen2.headOption) match {
-          case (Some(h), Some(h2)) =>
-            val r = f((h, h2))
-            if (r) {
-              return Zipped(gen.drop(1), gen2.drop(1)).generate(f)
-            }
-          case _ =>
-        }
-        return F
+        val r = zipRec(f, gen, gen2)
+        return r
       }
 
       override def string: String = {
         return s"$gen.zip($gen2)"
       }
+    }
+
+    def zipRec[T, U](f: ((T, U)) => Generator.Action, gen: Generator[T], gen2: Generator[U]): Generator.Action = {
+      (gen.headOption, gen2.headOption) match {
+        case (Some(h), Some(h2)) =>
+          var r = f((h, h2))
+          if (r) {
+            r = zipRec(f, gen.drop(1), gen2.drop(1))
+            return r
+          }
+        case _ =>
+      }
+      return F
     }
 
     @datatype class Concat[T](gen: Generator[T], gen2: Generator[T]) extends Generator[T] {
