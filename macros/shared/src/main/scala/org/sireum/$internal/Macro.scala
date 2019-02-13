@@ -352,4 +352,3 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def forNativeImpl: c.Tree = if (forNativeCheck) q"true" else q"false"
 }
-
