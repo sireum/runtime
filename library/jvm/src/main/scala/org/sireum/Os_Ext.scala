@@ -40,9 +40,9 @@ object Os_Ext {
 
   val pathSep: String = java.io.File.pathSeparator
 
-  lazy val cwd: String = cannon(System.getProperty("user.dir"))
+  lazy val cwd: String = canon(System.getProperty("user.dir"))
 
-  lazy val home: String = cannon(System.getProperty("user.home"))
+  lazy val home: String = canon(System.getProperty("user.home"))
 
   lazy val isNative: B = java.lang.Boolean.getBoolean("com.oracle.graalvm.isaot")
 
@@ -56,7 +56,7 @@ object Os_Ext {
 
   def abs(path: String): String = toIO(path).getAbsolutePath
 
-  def cannon(path: String): String = toIO(path).getCanonicalPath
+  def canon(path: String): String = toIO(path).getCanonicalPath
 
   def cliArgs: ISZ[String] = App.args
 
@@ -73,7 +73,10 @@ object Os_Ext {
     else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
-  def env(name: String): String = System.getenv(name.value)
+  def env(name: String): Option[String] = {
+    val value = System.getenv(name.value)
+    if (value != null) Some(value) else None()
+  }
 
   def envs: Map[String, String] = {
     import scala.collection.JavaConverters._
@@ -129,6 +132,8 @@ object Os_Ext {
   }
 
   def name(path: String): String = toIO(path).getName
+
+  @pure def norm(path: String): String = toIO(path).getPath
 
   def relativize(path: String, other: String): String = toNIO(path).relativize(toNIO(other)).toString
 

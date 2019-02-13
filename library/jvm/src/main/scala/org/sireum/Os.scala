@@ -39,7 +39,7 @@ object Os {
     Ext.exit(code)
   }
 
-  def env(name: String): String = {
+  def env(name: String): Option[String] = {
     return Ext.env(name)
   }
 
@@ -71,12 +71,12 @@ object Os {
         return Path.Impl(
           ops.StringOps(s"${sOps.substring(cygPrefix.size, cygPrefix.size + 1)}:${sOps.substring(cygPrefix.size + 1, value.size)}").replaceAllChars('/', '\\'))
 
-      } else if (sOps.startsWith("/")) {
+      } else if (sOps.startsWith("/") && env("OSTYPE") == Some("msys")) {
         return Path.Impl(ops.StringOps(s"${sOps.substring(1, 2)}:${sOps.substring(2, value.size)}").
           replaceAllChars('/', '\\'))
       }
     }
-    return Path.Impl(value)
+    return Path.Impl(Ext.norm(value))
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
@@ -228,8 +228,8 @@ object Os {
       return Path.Impl(s"$value$fileSep$name")
     }
 
-    @pure def cannon: Path = {
-      val p = Ext.cannon(value)
+    @pure def canon: Path = {
+      val p = Ext.canon(value)
       return if (p == value) this else Path.Impl(p)
     }
 
@@ -381,13 +381,13 @@ object Os {
 
     @pure def abs(path: String): String = $
 
-    @pure def cannon(path: String): String = $
+    @pure def canon(path: String): String = $
 
     def chmod(path: String, mask: String, all: B): Unit = $
 
     def copy(path: String, target: String, over: B): Unit = $
 
-    def env(name: String): String = $
+    def env(name: String): Option[String] = $
 
     def envs: Map[String, String] = $
 
@@ -410,6 +410,8 @@ object Os {
     def mkdir(path: String, all: B): Unit = $
 
     @pure def name(path: String): String = $
+
+    @pure def norm(path: String): String = $
 
     @pure def relativize(path: String, other: String): String = $
 
