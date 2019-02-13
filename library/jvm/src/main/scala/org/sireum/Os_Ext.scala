@@ -73,7 +73,20 @@ object Os_Ext {
     else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
+  def env(name: String): String = System.getenv(name.value)
+
+  def envs: Map[String, String] = {
+    import scala.collection.JavaConverters._
+    var r = Map.empty[String, String]
+    for ((k, v) <- System.getenv().asScala) {
+      r = r + k ~> v
+    }
+    r
+  }
+
   def exists(path: String): B = JFiles.exists(toNIO(path), LO.NOFOLLOW_LINKS)
+
+  def exit(code: Z): Unit = System.exit(code.toInt)
 
   def isAbs(path: String): B = toIO(path).isAbsolute
 
@@ -147,8 +160,8 @@ object Os_Ext {
 
   def removeAll(path: String): Unit = if (exists(path)) {
     os match {
-      case Os.Kind.Win => exec(Os.proc(ISZ("RD", "/S", "/Q", path)))
-      case _ => exec(Os.proc(ISZ("rm", "-fR", path)))
+      case Os.Kind.Win => proc(Os.proc(ISZ("RD", "/S", "/Q", path)))
+      case _ => proc(Os.proc(ISZ("rm", "-fR", path)))
     }
   }
 
@@ -199,7 +212,7 @@ object Os_Ext {
 
   def parent(path: String): String = toIO(path).getParent
 
-  def exec(e: Os.Exec): Os.Exec.Result = if (isNative) {
+  def proc(e: Os.Proc): Os.Proc.Result = if (isNative) {
     import scala.collection.JavaConverters._
     val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
     val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
@@ -217,7 +230,7 @@ object Os_Ext {
       spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
         mergeErrIntoOut = e.errAsOut, propagateEnv = e.addEnv)
     val term = sp.waitFor(e.timeoutInMillis.toLong)
-    if (term) return Os.Exec.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
+    if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
       new Predef.String(sp.stderr.bytes(), SC.UTF_8))
     if (sp.isAlive) try {
       sp.destroy()
@@ -230,7 +243,7 @@ object Os_Ext {
       catch {
         case _: Throwable =>
       }
-    Os.Exec.Result.Timeout()
+    Os.Proc.Result.Timeout()
   } else {
     import scala.collection.JavaConverters._
     val commands = new java.util.ArrayList(e.commands.elements.map(_.value).asJavaCollection)
@@ -268,7 +281,7 @@ object Os_Ext {
       }
       p.closeStdin(false)
       val exitCode = p.waitFor(e.timeoutInMillis.toLong, TimeUnit.MILLISECONDS)
-      if (exitCode != scala.Int.MinValue) return Os.Exec.Result.Normal(exitCode, out.toString, err.toString)
+      if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode, out.toString, err.toString)
       if (p.isRunning) try {
         p.destroy(false)
         p.waitFor(500, TimeUnit.MICROSECONDS)
@@ -280,8 +293,8 @@ object Os_Ext {
         catch {
           case _: Throwable =>
         }
-      Os.Exec.Result.Timeout()
-    } else Os.Exec.Result.Exception(s"Could not execute command: ${e.commands.elements.mkString(" ")}")
+      Os.Proc.Result.Timeout()
+    } else Os.Proc.Result.Exception(s"Could not execute command: ${e.commands.elements.mkString(" ")}")
   }
 
 

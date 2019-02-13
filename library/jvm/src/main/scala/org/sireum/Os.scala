@@ -35,6 +35,18 @@ object Os {
     return Path.Impl(Ext.cwd)
   }
 
+  def exit(code: Z): Unit = {
+    Ext.exit(code)
+  }
+
+  def env(name: String): String = {
+    return Ext.env(name)
+  }
+
+  def envs: Map[String, String] = {
+    return Ext.envs
+  }
+
   def fileSep: String = {
     return Ext.fileSep
   }
@@ -67,8 +79,8 @@ object Os {
     return Path.Impl(value)
   }
 
-  @pure def proc(commands: ISZ[String]): Exec = {
-    return Exec(commands, cwd, Map.empty, T, None(), F, F, 0)
+  @pure def proc(commands: ISZ[String]): Proc = {
+    return Proc(commands, cwd, Map.empty, T, None(), F, F, 0)
   }
 
   @memoize def roots: ISZ[Path] = {
@@ -120,7 +132,7 @@ object Os {
 
   }
 
-  object Exec {
+  object Proc {
 
     @sig sealed trait Result
 
@@ -135,7 +147,7 @@ object Os {
     }
   }
 
-  @datatype class Exec(commands: ISZ[String],
+  @datatype class Proc(commands: ISZ[String],
                        wd: Path,
                        envMap: Map[String, String],
                        addEnv: B,
@@ -144,40 +156,66 @@ object Os {
                        outputConsole: B,
                        timeoutInMillis: Z) {
 
-    @pure def ++(cmds: ISZ[String]): Exec = {
+    @pure def ++(cmds: ISZ[String]): Proc = {
       return this(commands = commands ++ cmds)
     }
 
-    @pure def ^^(dir: Path): Exec = {
+    @pure def ^^(dir: Path): Proc = {
       return this(wd = dir)
     }
 
-    @pure def %(m: ISZ[(String, String)]): Exec = {
+    @pure def %(m: ISZ[(String, String)]): Proc = {
       return this(envMap = this.envMap ++ m)
     }
 
-    @pure def <(in: String): Exec = {
+    @pure def <(in: String): Proc = {
       return this(input = Some(in))
     }
 
-    @pure def !(millis: Z): Exec = {
+    @pure def !(millis: Z): Proc = {
       return this(timeoutInMillis = millis)
     }
 
-    @pure def dontInheritEnv: Exec = {
+    @pure def dontInheritEnv: Proc = {
       return this(addEnv = F)
     }
 
-    @pure def redirectErr: Exec = {
+    @pure def redirectErr: Proc = {
       return this(errAsOut = T)
     }
 
-    @pure def console: Exec = {
+    @pure def console: Proc = {
       return this(outputConsole = T)
     }
 
-    def run(): Exec.Result = {
-      val r = Ext.exec(this)
+    def run(): Proc.Result = {
+      val r = Ext.proc(this)
+      return r
+    }
+
+    def ** : Proc.Result = {
+      val r = run()
+      return r
+    }
+
+    def runCheck(): Proc.Result = {
+      val r = run()
+      r match {
+        case r: Proc.Result.Normal =>
+          if (r.exitCode == 0) {
+            return r
+          } else {
+            eprintln(r.err)
+            exit(-1)
+            halt("")
+          }
+        case r: Proc.Result.Exception => halt(r.err)
+        case _: Proc.Result.Timeout => halt("Timeout")
+      }
+    }
+
+    def *! : Proc.Result = {
+      val r = runCheck()
       return r
     }
   }
@@ -349,7 +387,13 @@ object Os {
 
     def copy(path: String, target: String, over: B): Unit = $
 
+    def env(name: String): String = $
+
+    def envs: Map[String, String] = $
+
     @pure def exists(path: String): B = $
+
+    def exit(code: Z): Unit = $
 
     @pure def isAbs(path: String): B = $
 
@@ -393,7 +437,7 @@ object Os {
 
     @pure def parent(path: String): String = $
 
-    def exec(e: Exec): Exec.Result = $
+    def proc(e: Proc): Proc.Result = $
 
   }
 
