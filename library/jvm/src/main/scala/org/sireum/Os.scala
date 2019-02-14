@@ -176,23 +176,23 @@ object Os {
                        outputConsole: B,
                        timeoutInMillis: Z) {
 
-    @pure def ++(cmds: ISZ[String]): Proc = {
+    @pure def commands(cmds: ISZ[String]): Proc = {
       return this(commands = commands ++ cmds)
     }
 
-    @pure def ^^(dir: Path): Proc = {
+    @pure def at(dir: Path): Proc = {
       return this(wd = dir)
     }
 
-    @pure def %(m: ISZ[(String, String)]): Proc = {
+    @pure def env(m: ISZ[(String, String)]): Proc = {
       return this(envMap = this.envMap ++ m)
     }
 
-    @pure def <(in: String): Proc = {
+    @pure def input(in: String): Proc = {
       return this(input = Some(in))
     }
 
-    @pure def !(millis: Z): Proc = {
+    @pure def timeout(millis: Z): Proc = {
       return this(timeoutInMillis = millis)
     }
 
@@ -213,11 +213,6 @@ object Os {
       return r
     }
 
-    def ** : Proc.Result = {
-      val r = run()
-      return r
-    }
-
     def runCheck(): Proc.Result = {
       val r = run()
       r match {
@@ -232,11 +227,6 @@ object Os {
         case r: Proc.Result.Exception => halt(r.err)
         case _: Proc.Result.Timeout => halt("Timeout")
       }
-    }
-
-    def *! : Proc.Result = {
-      val r = runCheck()
-      return r
     }
   }
 
