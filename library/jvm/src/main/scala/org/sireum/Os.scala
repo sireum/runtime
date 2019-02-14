@@ -167,17 +167,17 @@ object Os {
     }
   }
 
-  @datatype class Proc(commands: ISZ[String],
+  @datatype class Proc(cmds: ISZ[String],
                        wd: Path,
                        envMap: Map[String, String],
                        addEnv: B,
-                       input: Option[String],
+                       in: Option[String],
                        errAsOut: B,
                        outputConsole: B,
                        timeoutInMillis: Z) {
 
-    @pure def commands(cmds: ISZ[String]): Proc = {
-      return this(commands = commands ++ cmds)
+    @pure def commands(cs: ISZ[String]): Proc = {
+      return this(cmds = cmds ++ cs)
     }
 
     @pure def at(dir: Path): Proc = {
@@ -188,8 +188,8 @@ object Os {
       return this(envMap = this.envMap ++ m)
     }
 
-    @pure def input(in: String): Proc = {
-      return this(input = Some(in))
+    @pure def input(content: String): Proc = {
+      return this(in = Some(content))
     }
 
     @pure def timeout(millis: Z): Proc = {

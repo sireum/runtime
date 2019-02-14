@@ -419,11 +419,11 @@ object Os_Ext {
     val (stdout, stderr) =
       if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
       else (_root_.os.Pipe: _root_.os.ProcessOutput, _root_.os.Pipe: _root_.os.ProcessOutput)
-    val stdin: _root_.os.ProcessInput = e.input match {
+    val stdin: _root_.os.ProcessInput = e.in match {
       case Some(s) => s.value
       case _ => _root_.os.Pipe
     }
-    val sp = _root_.os.proc(e.commands.elements.map(_.value: _root_.os.Shellable)).
+    val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
       spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
         mergeErrIntoOut = e.errAsOut, propagateEnv = e.addEnv)
     val term = sp.waitFor(e.timeoutInMillis.toLong)
@@ -442,7 +442,7 @@ object Os_Ext {
       }
     Os.Proc.Result.Timeout()
   } else {
-    val commands = new java.util.ArrayList(e.commands.elements.map(_.value).asJavaCollection)
+    val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
     val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
     val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
     for ((k, v) <- env) {
@@ -472,7 +472,7 @@ object Os_Ext {
     })
     val p = npb.start()
     if (p != null && p.isRunning) {
-      e.input match {
+      e.in match {
         case Some(in) => p.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
         case _ =>
       }
@@ -491,7 +491,7 @@ object Os_Ext {
           case _: Throwable =>
         }
       Os.Proc.Result.Timeout()
-    } else Os.Proc.Result.Exception(s"Could not execute command: ${e.commands.elements.mkString(" ")}")
+    } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
   }
 
 
