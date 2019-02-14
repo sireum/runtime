@@ -24,9 +24,8 @@
  */
 package org.sireum
 
-import U8._
-import java.io.{FileReader => FR, File => JFile, FileInputStream => FIS, FileOutputStream => FOS, InputStreamReader => ISR, OutputStreamWriter => OSW}
-import java.nio.{ByteBuffer => BB }
+import java.io.{File => JFile, FileInputStream => FIS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
 import java.util.concurrent.{TimeUnit => TU}
@@ -76,6 +75,32 @@ object Os_Ext {
     else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
+  def download(path: String, url: String): Unit = {
+    val cookieManager = new java.net.CookieManager()
+    val default = java.net.CookieHandler.getDefault
+    java.net.CookieHandler.setDefault(cookieManager)
+    def fetch(loc: Predef.String): java.net.HttpURLConnection = {
+      val c = new java.net.URL(loc).openConnection().asInstanceOf[java.net.HttpURLConnection]
+      c.setInstanceFollowRedirects(false)
+      c.setUseCaches(false)
+      val responseCode = c.getResponseCode
+      if (301 <= responseCode && responseCode <= 303 || responseCode == 307 || responseCode == 308) {
+        var newLoc = c.getHeaderField( "Location")
+        if (newLoc.startsWith("/")) {
+          val locUrl = new java.net.URL(loc)
+          newLoc = s"${locUrl.getProtocol}://${locUrl.getHost}$newLoc"
+        }
+        fetch(newLoc)
+      } else c
+    }
+    val c = fetch(url.value)
+    val in = c.getInputStream
+    try JFiles.copy(in, toNIO(path)) finally {
+      in.close()
+      java.net.CookieHandler.setDefault(default)
+    }
+  }
+
   def env(name: String): Option[String] = {
     val value = System.getenv(name.value)
     if (value != null) Some(value) else None()
@@ -94,6 +119,12 @@ object Os_Ext {
   def exit(code: Z): Unit = System.exit(code.toInt)
 
   def isAbs(path: String): B = toIO(path).isAbsolute
+
+  def isDir(path: String): B = toIO(path).isDirectory
+
+  def isFile(path: String): B = toIO(path).isFile
+
+  def isSymLink(path: String): B = JFiles.isSymbolicLink(toNIO(path))
 
   def kind(path: String): Os.Path.Kind.Type = {
     val p = toNIO(path)
@@ -164,23 +195,13 @@ object Os_Ext {
     ISZ(JFiles.readAllLines(toNIO(path), SC.UTF_8).asScala.map(String.apply): _*)
 
   def readU8s(path: String): ISZ[U8] = {
-    val f = toIO(path)
-    val length = f.length
-    val r = ISZ.create(length, u8"0")
-    val data = r.data.asInstanceOf[Array[Byte]]
-    val is = new FIS(f)
-    try is.read(data, 0, length.toInt) finally is.close()
-    r
+    val data = JFiles.readAllBytes(toNIO(path))
+    new IS[Z, U8](Z, data, data.length, U8.Boxer)
   }
 
   def readU8ms(path: String): MSZ[U8] = {
-    val f = toIO(path)
-    val length = f.length
-    val r = MSZ.create(length, u8"0")
-    val data = r.data.asInstanceOf[Array[Byte]]
-    val is = new FIS(f)
-    try is.read(data, 0, length.toInt) finally is.close()
-    r
+    val data = JFiles.readAllBytes(toNIO(path))
+    new MS[Z, U8](Z, data, data.length, U8.Boxer)
   }
 
   def readLineStream(p: String): Os.Path.Jen[String] =
@@ -340,6 +361,10 @@ object Os_Ext {
 
   def tempDir(prefix: String): String = {
     JFiles.createTempDirectory(prefix.value).toFile.getCanonicalPath
+  }
+
+  def toUri(path: String): String = {
+    toNIO(canon(path).value).toUri.toASCIIString
   }
 
   def writeAppend(path: String, mode: Os.Path.WriteMode.Type): Boolean = {

@@ -27,7 +27,7 @@ package org.sireum
 
 object Os {
 
-  def cliArgs: ISZ[String] = {
+  @pure def cliArgs: ISZ[String] = {
     return Ext.cliArgs
   }
 
@@ -47,7 +47,7 @@ object Os {
     return Ext.envs
   }
 
-  def fileSep: String = {
+  @pure def fileSep: String = {
     return Ext.fileSep
   }
 
@@ -55,16 +55,28 @@ object Os {
     return Path.Impl(Ext.home)
   }
 
-  def pathSep: String = {
+  @pure def isLinux: B = {
+    return kind == Kind.Linux
+  }
+
+  @pure def isMac: B = {
+    return kind == Kind.Mac
+  }
+
+  @pure def isWin: B = {
+    return kind == Kind.Win
+  }
+
+  @pure def pathSep: String = {
     return Ext.pathSep
   }
 
-  def kind: Kind.Type = {
+  @pure def kind: Kind.Type = {
     return Ext.os
   }
 
-  def path(value: String): Path = {
-    if (kind == Kind.Win) {
+  @pure def path(value: String): Path = {
+    if (isWin) {
       val sOps = ops.StringOps(value)
       val cygPrefix: String = "/cygdrive/"
       if (sOps.startsWith(cygPrefix)) {
@@ -150,19 +162,69 @@ object Os {
       }
     }
 
+    def walk(path: Os.Path, includeDir: B, followLink: B, pred: Os.Path => B @pure): ISZ[Os.Path] = {
+      var rSet = HashSSet.empty[Os.Path]
+      var rIS = ISZ[Os.Path]()
+      def add(p: Os.Path): Unit = {
+        if (followLink) {
+          rSet = rSet + p
+        } else {
+          rIS = rIS :+ p
+        }
+      }
+      def rec(p: Os.Path): Unit = {
+        if (!followLink && rSet.contains(p)) {
+          return
+        }
+        p.kind match {
+          case Os.Path.Kind.Dir =>
+            if (includeDir && pred(p)) {
+              add(p)
+            }
+            for (p2 <- p.list) {
+              rec(p2)
+            }
+          case Os.Path.Kind.File if pred(p) => add(p)
+          case Os.Path.Kind.SymLink if followLink =>
+            val tOpt = p.readSymLink 
+            tOpt match {
+              case Some(t) => rec(t)
+              case _ =>
+            }
+          case _ =>
+        }
+      }
+      rec(path)
+      return if (followLink) rSet.map.keys else rIS
+    }
+
   }
 
   object Proc {
 
-    @sig sealed trait Result
+    @sig sealed trait Result {
+      def ok: B
+    }
 
     object Result {
 
-      @datatype class Normal(exitCode: Z, out: String, err: String) extends Result
+      @datatype class Normal(exitCode: Z, out: String, err: String) extends Result {
+        def ok: B = {
+          return exitCode == 0
+        }
+      }
 
-      @datatype class Exception(err: String) extends Result
+      @datatype class Exception(err: String) extends Result {
+        def ok: B = {
+          return F
+        }
+      }
 
-      @datatype class Timeout extends Result
+      @datatype class Timeout extends Result {
+        def ok: B = {
+          return F
+        }
+      }
 
     }
   }
@@ -264,6 +326,10 @@ object Os {
       Ext.copy(value, target.value, T)
     }
 
+    def downloadFrom(url: String): Unit = {
+      Ext.download(value, url)
+    }
+
     def exists: B = {
       return Ext.exists(value)
     }
@@ -276,6 +342,18 @@ object Os {
 
     def isAbs: B = {
       return Ext.isAbs(value)
+    }
+
+    def isDir: B = {
+      return Ext.isDir(value)
+    }
+
+    def isFile: B = {
+      return Ext.isFile(value)
+    }
+
+    def isSymLink: B = {
+      return Ext.isSymLink(value)
     }
 
     def kind: Path.Kind.Type = {
@@ -369,6 +447,10 @@ object Os {
 
     def removeOnExit(): Unit = {
       Ext.removeOnExit(value)
+    }
+
+    def toUri: String = {
+      Ext.toUri(value)
     }
 
     def write(content: String): Unit = {
@@ -510,6 +592,8 @@ object Os {
 
     def copy(path: String, target: String, over: B): Unit = $
 
+    def download(path: String, url: String): Unit = $
+
     def env(name: String): Option[String] = $
 
     def envs: Map[String, String] = $
@@ -519,6 +603,12 @@ object Os {
     def exit(code: Z): Unit = $
 
     @pure def isAbs(path: String): B = $
+
+    def isDir(path: String): B = $
+
+    def isFile(path: String): B = $
+
+    def isSymLink(path: String): B = $
 
     def kind(path: String): Path.Kind.Type = $
 
@@ -567,6 +657,8 @@ object Os {
     def temp(prefix: String, suffix: String): String = $
 
     def tempDir(prefix: String): String = $
+
+    def toUri(path: String): String = $
 
     def write(path: String, content: String, mode: Path.WriteMode.Type): Unit = $
 
