@@ -34,21 +34,22 @@ package org.sireum
   def foreach(f: T => Unit): Unit = {
     def ap(o: T): Generator.Action = {
       f(o)
-      return T
+      return Generator.Continue
     }
 
     generate(ap _)
   }
 
-  @pure def find(f: T => B@pure): Option[T] = {
+  def find(f: T => B): Option[T] = {
     var result: Option[T] = None()
 
     def ap(o: T): Generator.Action = {
-      if (!f(o)) {
-        return T
+      val r = f(o)
+      if (!r) {
+        return Generator.Continue
       } else {
         result = Some(o)
-        return F
+        return Generator.End
       }
     }
 
@@ -56,30 +57,37 @@ package org.sireum
     return result
   }
 
-  @pure def exists(f: T => B@pure): B = {
-    return find(f).nonEmpty
+  def exists(f: T => B): B = {
+    val r = find(f)
+    return r.nonEmpty
   }
 
   @pure def contains(o: T): B = {
     return exists(e => e == o)
   }
 
-  @pure def forall(f: T => B@pure): B = {
-    return !exists(e => !f(e))
+  def forall(f: T => B): B = {
+    def ap(o: T): B = {
+      val r = f(o)
+      return !r
+    }
+    val r = exists(ap _)
+    return !r
   }
 
   @pure def count(): Z = {
     return countIf(_ => T)
   }
 
-  @pure def countIf(p: T => B@pure): Z = {
+  def countIf(p: T => B): Z = {
     var result = 0
 
     def ap(o: T): Generator.Action = {
-      if (p(o)) {
+      val r = p(o)
+      if (r) {
         result = result + 1
       }
-      return T
+      return Generator.Continue
     }
 
     generate(ap _)
@@ -95,7 +103,7 @@ package org.sireum
 
     def ap(o: T): Generator.Action = {
       r = f(r, o)
-      return T
+      return Generator.Continue
     }
 
     generate(ap _)
@@ -114,7 +122,7 @@ package org.sireum
         case Some(prev) => Some(f(prev, o))
         case _ => Some(o)
       }
-      return T
+      return Generator.Continue
     }
 
     generate(ap _)
@@ -153,11 +161,11 @@ package org.sireum
     return slice(n, -1)
   }
 
-  @pure def takeWhile(p: T => B@pure): Generator[T] = {
+  @pure def takeWhile(p: T => B): Generator[T] = {
     return Generator.Internal.TakeWhile(this, p)
   }
 
-  @pure def dropWhile(p: T => B@pure): Generator[T] = {
+  @pure def dropWhile(p: T => B): Generator[T] = {
     return Generator.Internal.DropWhile(this, p)
   }
 
@@ -202,6 +210,22 @@ package org.sireum
     return r
   }
 
+  @pure def toMSZ: MSZ[T] = {
+    val r = toMS(MSZ[T]())
+    return r
+  }
+
+  @pure def toMS[I](init: MS[I, T]): MS[I, T] = {
+    var r = init
+
+    def append(o: T): Unit = {
+      r = r :+ o
+    }
+
+    foreach(append _)
+    return r
+  }
+
   @pure def mkStringWrap(start: String, sep: String, end: String): String = {
     return st"$start${(toISZ, sep)}$end".render
   }
@@ -215,14 +239,19 @@ package org.sireum
 object Generator {
 
   type Action = B
+  val Continue: Action = T
+  val End: Action = F
 
   object Internal {
 
     @datatype class ISImpl[I, T](s: IS[I, T]) extends Generator[T] {
       override def generate(f: T => Generator.Action): Generator.Action = {
-        var last: Generator.Action = T
-        for (e <- s if last) {
+        var last = Generator.Continue
+        for (e <- s) {
           last = f(e)
+          if (!last) {
+            return Generator.End
+          }
         }
         return last
       }
@@ -234,9 +263,12 @@ object Generator {
 
     @datatype class MapImpl[K, T](m: Map[K, T]) extends Generator[(K, T)] {
       override def generate(f: ((K, T)) => Generator.Action): Generator.Action = {
-        var last: Generator.Action = T
-        for (e <- m.entries if last) {
+        var last = Generator.Continue
+        for (e <- m.entries) {
           last = f(e)
+          if (!last) {
+            return Generator.End
+          }
         }
         return last
       }
@@ -248,11 +280,14 @@ object Generator {
 
     @datatype class HashMapImpl[K, T](m: HashMap[K, T]) extends Generator[(K, T)] {
       override def generate(f: ((K, T)) => Generator.Action): Generator.Action = {
-        var last: Generator.Action = T
-        for (ms <- m.mapEntries if last) {
+        var last = Generator.Continue
+        for (ms <- m.mapEntries) {
           if (ms.nonEmpty) {
-            for (e <- ms.entries if last) {
+            for (e <- ms.entries) {
               last = f(e)
+              if (!last) {
+                return Generator.End
+              }
             }
           }
         }
@@ -267,11 +302,12 @@ object Generator {
     @datatype class Filtered[T](gen: Generator[T], p: T => B) extends Generator[T] {
       override def generate(f: T => Generator.Action): Generator.Action = {
         def ap(o: T): Generator.Action = {
-          if (p(o)) {
-            val r = f(o)
+          var r = p(o)
+          if (r) {
+            r = f(o)
             return r
           } else {
-            return T
+            return Generator.Continue
           }
         }
 
@@ -300,7 +336,7 @@ object Generator {
       }
     }
 
-    @datatype class FlatMapped[U, T](gen: Generator[T], f: T => Generator[U]) extends Generator[U] {
+    @datatype class FlatMapped[U, T](gen: Generator[T], f: T => Generator[U]@pure) extends Generator[U] {
       override def generate(g: U => Generator.Action): Generator.Action = {
         def ap(o: T): Generator.Action = {
           def ap2(o2: U): Generator.Action = {
@@ -328,17 +364,17 @@ object Generator {
         def ap(o: T): Generator.Action = {
           if (count < start) {
             count = count + 1
-            return T
+            return Generator.Continue
           } else if (count < end || end < 0) {
             count = count + 1
             if (count != end) {
               return f(o)
             } else {
               f(o)
-              return F
+              return Generator.End
             }
           } else {
-            return F
+            return Generator.End
           }
         }
 
@@ -354,11 +390,12 @@ object Generator {
     @datatype class TakeWhile[T](gen: Generator[T], p: T => B) extends Generator[T] {
       def generate(f: T => Generator.Action): Generator.Action = {
         def ap(o: T): Generator.Action = {
-          if (p(o)) {
-            val r = f(o)
+          var r = p(o)
+          if (r) {
+            r = f(o)
             return r
           } else {
-            return F
+            return Generator.End
           }
         }
 
@@ -377,11 +414,12 @@ object Generator {
 
         def ap(o: T): Generator.Action = {
           if (!started) {
-            if (p(o)) {
-              return T
+            var r = p(o)
+            if (r) {
+              return Generator.Continue
             } else {
               started = T
-              val r = f(o)
+              r = f(o)
               return r
             }
           } else {
@@ -445,8 +483,8 @@ object Generator {
     @datatype class Concat[T](gen: Generator[T], gen2: Generator[T]) extends Generator[T] {
       def generate(f: T => Generator.Action): Generator.Action = {
         var r = gen.generate(f)
-        if (r == F) {
-          return F
+        if (!r) {
+          return Generator.End
         }
         r = gen2.generate(f)
         return r

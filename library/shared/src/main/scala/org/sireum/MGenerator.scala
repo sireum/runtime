@@ -34,49 +34,62 @@ package org.sireum
   def foreach(f: T => Unit): Unit = {
     def ap(o: T): MGenerator.Action = {
       f(o)
-      return T
+      return MGenerator.Continue
     }
+
     generate(ap _)
   }
 
-  @pure def find(f: T => B@pure): Option[T] = {
-    var result: Option[T] = None()
+  def find(f: T => B): MOption[T] = {
+    var result: MOption[T] = MNone()
+
     def ap(o: T): MGenerator.Action = {
-      if (!f(o)) {
-        return T
+      val r = f(o)
+      if (!r) {
+        return MGenerator.Continue
       } else {
-        result = Some(o)
-        return F
+        result = MSome(o)
+        return MGenerator.End
       }
     }
+
     generate(ap _)
     return result
   }
 
-  @pure def exists(f: T => B@pure): B = {
-    return find(f).nonEmpty
+  def exists(f: T => B): B = {
+    val r = find(f)
+    return r.nonEmpty
   }
 
   @pure def contains(o: T): B = {
     return exists(e => e == o)
   }
 
-  @pure def forall(f: T => B@pure): B = {
-    return !exists(e => !f(e))
+  def forall(f: T => B): B = {
+    def ap(o: T): B = {
+      val r = f(o)
+      return !r
+    }
+    val r = exists(ap _)
+    return !r
   }
 
   @pure def count(): Z = {
     return countIf(_ => T)
   }
 
-  @pure def countIf(p: T => B@pure): Z = {
+  def countIf(p: T => B): Z = {
     var result = 0
+
     def ap(o: T): MGenerator.Action = {
-      if (p(o)) {
+      val r = p(o)
+      if (r) {
         result = result + 1
       }
-      return T
+      return MGenerator.Continue
     }
+
     generate(ap _)
     return result
   }
@@ -87,10 +100,12 @@ package org.sireum
 
   @pure def foldLeft[U](initial: U, f: (U, T) => U@pure): U = {
     var r = initial
+
     def ap(o: T): MGenerator.Action = {
       r = f(r, o)
-      return T
+      return MGenerator.Continue
     }
+
     generate(ap _)
     return r
   }
@@ -107,7 +122,7 @@ package org.sireum
         case MSome(prev) => MSome(f(prev, o))
         case _ => MSome(o)
       }
-      return T
+      return MGenerator.Continue
     }
 
     generate(ap _)
@@ -146,11 +161,11 @@ package org.sireum
     return slice(n, -1)
   }
 
-  @pure def takeWhile(p: T => B@pure): MGenerator[T] = {
+  @pure def takeWhile(p: T => B): MGenerator[T] = {
     return MGenerator.Internal.TakeWhile(this, p)
   }
 
-  @pure def dropWhile(p: T => B@pure): MGenerator[T] = {
+  @pure def dropWhile(p: T => B): MGenerator[T] = {
     return MGenerator.Internal.DropWhile(this, p)
   }
 
@@ -208,14 +223,19 @@ package org.sireum
 object MGenerator {
 
   type Action = B
+  val Continue: Action = T
+  val End: Action = F
 
   object Internal {
 
     @record class ISImpl[I, T](s: IS[I, T]) extends MGenerator[T] {
       override def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        var last: MGenerator.Action = T
-        for (e <- s if last) {
+        var last = MGenerator.Continue
+        for (e <- s) {
           last = f(e)
+          if (!last) {
+            return MGenerator.End
+          }
         }
         return last
       }
@@ -227,9 +247,12 @@ object MGenerator {
 
     @record class MSImpl[I, T](s: MS[I, T]) extends MGenerator[T] {
       override def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        var last: MGenerator.Action = T
-        for (e <- s if last) {
+        var last = MGenerator.Continue
+        for (e <- s) {
           last = f(e)
+          if (!last) {
+            return MGenerator.End
+          }
         }
         return last
       }
@@ -241,9 +264,12 @@ object MGenerator {
 
     @record class MapImpl[K, T](m: Map[K, T]) extends MGenerator[(K, T)] {
       override def generate(f: ((K, T)) => MGenerator.Action): MGenerator.Action = {
-        var last: MGenerator.Action = T
-        for (e <- m.entries if last) {
+        var last = MGenerator.Continue
+        for (e <- m.entries) {
           last = f(e)
+          if (!last) {
+            return MGenerator.End
+          }
         }
         return last
       }
@@ -255,11 +281,14 @@ object MGenerator {
 
     @record class HashMapImpl[K, T](m: HashMap[K, T]) extends MGenerator[(K, T)] {
       override def generate(f: ((K, T)) => MGenerator.Action): MGenerator.Action = {
-        var last: MGenerator.Action = T
-        for (ms <- m.mapEntries if last) {
+        var last = MGenerator.Continue
+        for (ms <- m.mapEntries) {
           if (ms.nonEmpty) {
-            for (e <- ms.entries if last) {
+            for (e <- ms.entries) {
               last = f(e)
+              if (!last) {
+                return MGenerator.End
+              }
             }
           }
         }
@@ -274,11 +303,12 @@ object MGenerator {
     @record class Filtered[T](gen: MGenerator[T], p: T => B) extends MGenerator[T] {
       override def generate(f: T => MGenerator.Action): MGenerator.Action = {
         def ap(o: T): MGenerator.Action = {
-          if (p(o)) {
-            val r = f(o)
+          var r = p(o)
+          if (r) {
+            r = f(o)
             return r
           } else {
-            return T
+            return MGenerator.Continue
           }
         }
 
@@ -307,7 +337,7 @@ object MGenerator {
       }
     }
 
-    @record class FlatMapped[U, T](gen: MGenerator[T], f: T => MGenerator[U]) extends MGenerator[U] {
+    @record class FlatMapped[U, T](gen: MGenerator[T], f: T => MGenerator[U]@pure) extends MGenerator[U] {
       override def generate(g: U => MGenerator.Action): MGenerator.Action = {
         def ap(o: T): MGenerator.Action = {
           def ap2(o2: U): MGenerator.Action = {
@@ -335,17 +365,17 @@ object MGenerator {
         def ap(o: T): MGenerator.Action = {
           if (count < start) {
             count = count + 1
-            return T
+            return MGenerator.Continue
           } else if (count < end || end < 0) {
             count = count + 1
             if (count != end) {
               return f(o)
             } else {
               f(o)
-              return F
+              return MGenerator.End
             }
           } else {
-            return F
+            return MGenerator.End
           }
         }
 
@@ -361,11 +391,12 @@ object MGenerator {
     @record class TakeWhile[T](gen: MGenerator[T], p: T => B) extends MGenerator[T] {
       def generate(f: T => MGenerator.Action): MGenerator.Action = {
         def ap(o: T): MGenerator.Action = {
-          if (p(o)) {
-            val r = f(o)
+          var r = p(o)
+          if (r) {
+            r = f(o)
             return r
           } else {
-            return F
+            return MGenerator.End
           }
         }
 
@@ -384,11 +415,12 @@ object MGenerator {
 
         def ap(o: T): MGenerator.Action = {
           if (!started) {
-            if (p(o)) {
-              return T
+            var r = p(o)
+            if (r) {
+              return MGenerator.Continue
             } else {
               started = T
-              val r = f(o)
+              r = f(o)
               return r
             }
           } else {
@@ -452,8 +484,8 @@ object MGenerator {
     @record class Concat[T](gen: MGenerator[T], gen2: MGenerator[T]) extends MGenerator[T] {
       def generate(f: T => MGenerator.Action): MGenerator.Action = {
         var r = gen.generate(f)
-        if (r == F) {
-          return F
+        if (!r) {
+          return MGenerator.End
         }
         r = gen2.generate(f)
         return r
@@ -471,6 +503,7 @@ object MGenerator {
             val r = f((o, o2))
             return r
           }
+
           val r = gen2.generate(ap2 _)
           return r
         }
@@ -484,6 +517,10 @@ object MGenerator {
       }
     }
 
+  }
+
+  @pure def is[I, T](s: IS[I, T]): MGenerator[T] = {
+    return Internal.ISImpl(s)
   }
 
   @pure def ms[I, T](s: MS[I, T]): MGenerator[T] = {
