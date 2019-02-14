@@ -449,6 +449,7 @@ object Os_Ext {
       m(k.toString) = v.toString
     }
     val npb = new NuProcessBuilder(commands, m.asJava)
+    npb.setCwd(toNIO(e.wd.value))
     val out = new java.lang.StringBuilder()
     val err = new java.lang.StringBuilder()
     npb.setProcessListener(new NuAbstractProcessHandler {
