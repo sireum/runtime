@@ -160,8 +160,8 @@ object Os_Ext {
   }
 
   def mkdir(path: String, all: B): Unit = {
-    if (all) JFiles.createDirectory(toNIO(path))
-    else JFiles.createDirectories(toNIO(path))
+    if (all) JFiles.createDirectories(toNIO(path))
+    else JFiles.createDirectory(toNIO(path))
   }
 
   def name(path: String): String = toIO(path).getName
