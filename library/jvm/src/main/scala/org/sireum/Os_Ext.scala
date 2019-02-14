@@ -183,34 +183,34 @@ object Os_Ext {
     r
   }
 
-  def readLineStream(p: String): Os.Path.Generator[String] =
-    new Os.Path.Generator[String] {
+  def readLineStream(p: String): Os.Path.Jen[String] =
+    new Os.Path.Jen[String] {
       override def path: Os.Path = Os.Path.Impl(p)
-      override def generate(f: String => Generator.Action): Generator.Action = {
+      override def generate(f: String => Jen.Action): Jen.Action = {
         val stream = JFiles.lines(toNIO(p), SC.UTF_8)
-        var last = Generator.Continue
+        var last = Jen.Continue
         for (e <- stream.iterator.asScala) {
           last = f(e)
           if (!last) {
-            return Generator.End
+            return Jen.End
           }
         }
         return last
       }
     }
 
-  def readU8Stream(p: String): Os.Path.Generator[U8] =
-    new Os.Path.Generator[U8] {
+  def readU8Stream(p: String): Os.Path.Jen[U8] =
+    new Os.Path.Jen[U8] {
       override def path: Os.Path = Os.Path.Impl(p)
-      override def generate(f: U8 => Generator.Action): Generator.Action = {
+      override def generate(f: U8 => Jen.Action): Jen.Action = {
         val is = new FIS(toIO(p))
         try {
-          var last = Generator.Continue
+          var last = Jen.Continue
           var b = is.read()
           while (b != -1) {
             last = f(U8(b))
             if (!last) {
-              return Generator.End
+              return Jen.End
             }
             b = is.read()
           }
@@ -219,18 +219,18 @@ object Os_Ext {
       }
     }
 
-  def readCStream(p: String): Os.Path.Generator[C] =
-    new Os.Path.Generator[C] {
+  def readCStream(p: String): Os.Path.Jen[C] =
+    new Os.Path.Jen[C] {
       override def path: Os.Path = Os.Path.Impl(p)
-      override def generate(f: C => Generator.Action): Generator.Action = {
+      override def generate(f: C => Jen.Action): Jen.Action = {
         val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
         try {
-          var last = Generator.Continue
+          var last = Jen.Continue
           var c = fr.read()
           while (c != -1) {
             last = f(C(c))
             if (!last) {
-              return Generator.End
+              return Jen.End
             }
             c = fr.read()
           }
@@ -239,8 +239,8 @@ object Os_Ext {
       }
     }
 
-  def readLineMStream(p: String): Os.Path.MGenerator[String] = {
-    class G extends Os.Path.MGenerator[String] {
+  def readLineMStream(p: String): Os.Path.MJen[String] = {
+    class G extends Os.Path.MJen[String] {
       private var _owned: Boolean = false
       def $owned_=(owned: Boolean): G = { _owned = owned; this }
       def $owned: Boolean = _owned
@@ -248,13 +248,13 @@ object Os_Ext {
 
       override def path: Os.Path = Os.Path.Impl(p)
 
-      override def generate(f: String => Generator.Action): Generator.Action = {
+      override def generate(f: String => Jen.Action): Jen.Action = {
         val stream = JFiles.lines(toNIO(p), SC.UTF_8)
-        var last = Generator.Continue
+        var last = Jen.Continue
         for (e <- stream.iterator.asScala) {
           last = f(e)
           if (!last) {
-            return Generator.End
+            return Jen.End
           }
         }
         return last
@@ -263,8 +263,8 @@ object Os_Ext {
     new G
   }
 
-  def readU8MStream(p: String): Os.Path.MGenerator[U8] = {
-    class G extends Os.Path.MGenerator[U8] {
+  def readU8MStream(p: String): Os.Path.MJen[U8] = {
+    class G extends Os.Path.MJen[U8] {
       private var _owned: Boolean = false
       def $owned_=(owned: Boolean): G = { _owned = owned; this }
       def $owned: Boolean = _owned
@@ -272,15 +272,15 @@ object Os_Ext {
 
       override def path: Os.Path = Os.Path.Impl(p)
 
-      override def generate(f: U8 => Generator.Action): Generator.Action = {
+      override def generate(f: U8 => Jen.Action): Jen.Action = {
         val is = new FIS(toIO(p))
         try {
-          var last = Generator.Continue
+          var last = Jen.Continue
           var b = is.read()
           while (b != -1) {
             last = f(U8(b))
             if (!last) {
-              return Generator.End
+              return Jen.End
             }
             b = is.read()
           }
@@ -291,8 +291,8 @@ object Os_Ext {
     new G
   }
 
-  def readCMStream(p: String): Os.Path.MGenerator[C] = {
-    class G extends Os.Path.MGenerator[C] {
+  def readCMStream(p: String): Os.Path.MJen[C] = {
+    class G extends Os.Path.MJen[C] {
       private var _owned: Boolean = false
       def $owned_=(owned: Boolean): G = { _owned = owned; this }
       def $owned: Boolean = _owned
@@ -300,15 +300,15 @@ object Os_Ext {
 
       override def path: Os.Path = Os.Path.Impl(p)
 
-      override def generate(f: C => Generator.Action): Generator.Action = {
+      override def generate(f: C => Jen.Action): Jen.Action = {
         val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
         try {
-          var last = Generator.Continue
+          var last = Jen.Continue
           var c = fr.read()
           while (c != -1) {
             last = f(C(c))
             if (!last) {
-              return Generator.End
+              return Jen.End
             }
             c = fr.read()
           }
@@ -372,37 +372,37 @@ object Os_Ext {
     finally os.close()
   }
 
-  def writeLineStream(path: String, lines: Generator[String], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeLineStream(path: String, lines: Jen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
     finally os.close()
   }
 
-  def writeU8Stream(path: String, u8s: Generator[U8], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeU8Stream(path: String, u8s: Jen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     try for (b <- u8s) os.write(b.value)
     finally os.close()
   }
 
-  def writeCStream(path: String, cs: Generator[C], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeCStream(path: String, cs: Jen[C], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
     try for (c <- cs) os.write(c.value)
     finally os.close()
   }
 
-  def writeLineMStream(path: String, lines: MGenerator[String], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeLineMStream(path: String, lines: MJen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
     finally os.close()
   }
 
-  def writeU8MStream(path: String, u8s: MGenerator[U8], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeU8MStream(path: String, u8s: MJen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     try for (b <- u8s) os.write(b.value)
     finally os.close()
   }
 
-  def writeCMStream(path: String, cs: MGenerator[C], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeCMStream(path: String, cs: MJen[C], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
     try for (c <- cs) os.write(c.value)
     finally os.close()

@@ -27,14 +27,14 @@ package org.sireum
 
 // Adapted from https://github.com/lihaoyi/geny
 
-@sig trait Generator[T] {
+@sig trait Jen[T] {
 
-  def generate(f: T => Generator.Action): Generator.Action
+  def generate(f: T => Jen.Action): Jen.Action
 
   def foreach(f: T => Unit): Unit = {
-    def ap(o: T): Generator.Action = {
+    def ap(o: T): Jen.Action = {
       f(o)
-      return Generator.Continue
+      return Jen.Continue
     }
 
     generate(ap _)
@@ -43,13 +43,13 @@ package org.sireum
   def find(f: T => B): Option[T] = {
     var result: Option[T] = None()
 
-    def ap(o: T): Generator.Action = {
+    def ap(o: T): Jen.Action = {
       val r = f(o)
       if (!r) {
-        return Generator.Continue
+        return Jen.Continue
       } else {
         result = Some(o)
-        return Generator.End
+        return Jen.End
       }
     }
 
@@ -82,12 +82,12 @@ package org.sireum
   def countIf(p: T => B): Z = {
     var result = 0
 
-    def ap(o: T): Generator.Action = {
+    def ap(o: T): Jen.Action = {
       val r = p(o)
       if (r) {
         result = result + 1
       }
-      return Generator.Continue
+      return Jen.Continue
     }
 
     generate(ap _)
@@ -101,9 +101,9 @@ package org.sireum
   @pure def foldLeft[U](initial: U, f: (U, T) => U@pure): U = {
     var r = initial
 
-    def ap(o: T): Generator.Action = {
+    def ap(o: T): Jen.Action = {
       r = f(r, o)
-      return Generator.Continue
+      return Jen.Continue
     }
 
     generate(ap _)
@@ -117,72 +117,72 @@ package org.sireum
   @pure def reduceLeft(f: (T, T) => T@pure): Option[T] = {
     var r: Option[T] = None()
 
-    def ap(o: T): Generator.Action = {
+    def ap(o: T): Jen.Action = {
       r = r match {
         case Some(prev) => Some(f(prev, o))
         case _ => Some(o)
       }
-      return Generator.Continue
+      return Jen.Continue
     }
 
     generate(ap _)
     return r
   }
 
-  @pure def filter(p: T => B@pure): Generator[T] = {
-    return Generator.Internal.Filtered(this, p)
+  @pure def filter(p: T => B@pure): Jen[T] = {
+    return Jen.Internal.Filtered(this, p)
   }
 
-  def withFilter(p: T => B): Generator[T] = {
-    return Generator.Internal.Filtered(this, p)
+  def withFilter(p: T => B): Jen[T] = {
+    return Jen.Internal.Filtered(this, p)
   }
 
-  @pure def map[U](f: T => U@pure): Generator[U] = {
-    return Generator.Internal.Mapped(this, f)
+  @pure def map[U](f: T => U@pure): Jen[U] = {
+    return Jen.Internal.Mapped(this, f)
   }
 
-  @pure def flatMap[U](f: T => Generator[U]@pure): Generator[U] = {
-    return Generator.Internal.FlatMapped(this, f)
+  @pure def flatMap[U](f: T => Jen[U]@pure): Jen[U] = {
+    return Jen.Internal.FlatMapped(this, f)
   }
 
-  @pure def flatten[U](f: T => Generator[U]@pure): Generator[U] = {
+  @pure def flatten[U](f: T => Jen[U]@pure): Jen[U] = {
     return this.flatMap(o => f(o))
   }
 
-  @pure def slice(start: Z, end: Z): Generator[T] = {
-    return Generator.Internal.Sliced(this, start, end)
+  @pure def slice(start: Z, end: Z): Jen[T] = {
+    return Jen.Internal.Sliced(this, start, end)
   }
 
-  @pure def take(n: Z): Generator[T] = {
+  @pure def take(n: Z): Jen[T] = {
     return slice(0, n)
   }
 
-  @pure def drop(n: Z): Generator[T] = {
+  @pure def drop(n: Z): Jen[T] = {
     return slice(n, -1)
   }
 
-  @pure def takeWhile(p: T => B): Generator[T] = {
-    return Generator.Internal.TakeWhile(this, p)
+  @pure def takeWhile(p: T => B): Jen[T] = {
+    return Jen.Internal.TakeWhile(this, p)
   }
 
-  @pure def dropWhile(p: T => B): Generator[T] = {
-    return Generator.Internal.DropWhile(this, p)
+  @pure def dropWhile(p: T => B): Jen[T] = {
+    return Jen.Internal.DropWhile(this, p)
   }
 
-  @pure def zipWithIndex: Generator[(T, Z)] = {
-    return Generator.Internal.ZipWithIndexed(this)
+  @pure def zipWithIndex: Jen[(T, Z)] = {
+    return Jen.Internal.ZipWithIndexed(this)
   }
 
-  @pure def zip[U](other: Generator[U]): Generator[(T, U)] = {
-    return Generator.Internal.Zipped(this, other)
+  @pure def zip[U](other: Jen[U]): Jen[(T, U)] = {
+    return Jen.Internal.Zipped(this, other)
   }
 
-  @pure def product[U](other: Generator[U]): Generator[(T, U)] = {
-    return Generator.Internal.Product(this, other)
+  @pure def product[U](other: Jen[U]): Jen[(T, U)] = {
+    return Jen.Internal.Product(this, other)
   }
 
-  @pure def ++(other: Generator[T]): Generator[T] = {
-    return Generator.Internal.Concat(this, other)
+  @pure def ++(other: Jen[T]): Jen[T] = {
+    return Jen.Internal.Concat(this, other)
   }
 
   @pure def head: T = {
@@ -236,7 +236,7 @@ package org.sireum
 
 }
 
-object Generator {
+object Jen {
 
   type Action = B
   val Continue: Action = T
@@ -244,49 +244,49 @@ object Generator {
 
   object Internal {
 
-    @datatype class ISImpl[I, T](s: IS[I, T]) extends Generator[T] {
-      override def generate(f: T => Generator.Action): Generator.Action = {
-        var last = Generator.Continue
+    @datatype class ISImpl[I, T](s: IS[I, T]) extends Jen[T] {
+      override def generate(f: T => Jen.Action): Jen.Action = {
+        var last = Jen.Continue
         for (e <- s) {
           last = f(e)
           if (!last) {
-            return Generator.End
+            return Jen.End
           }
         }
         return last
       }
 
       override def string: String = {
-        return s"Generator($s)"
+        return s"Jen($s)"
       }
     }
 
-    @datatype class MapImpl[K, T](m: Map[K, T]) extends Generator[(K, T)] {
-      override def generate(f: ((K, T)) => Generator.Action): Generator.Action = {
-        var last = Generator.Continue
+    @datatype class MapImpl[K, T](m: Map[K, T]) extends Jen[(K, T)] {
+      override def generate(f: ((K, T)) => Jen.Action): Jen.Action = {
+        var last = Jen.Continue
         for (e <- m.entries) {
           last = f(e)
           if (!last) {
-            return Generator.End
+            return Jen.End
           }
         }
         return last
       }
 
       override def string: String = {
-        return s"Generator($m)"
+        return s"Jen($m)"
       }
     }
 
-    @datatype class HashMapImpl[K, T](m: HashMap[K, T]) extends Generator[(K, T)] {
-      override def generate(f: ((K, T)) => Generator.Action): Generator.Action = {
-        var last = Generator.Continue
+    @datatype class HashMapImpl[K, T](m: HashMap[K, T]) extends Jen[(K, T)] {
+      override def generate(f: ((K, T)) => Jen.Action): Jen.Action = {
+        var last = Jen.Continue
         for (ms <- m.mapEntries) {
           if (ms.nonEmpty) {
             for (e <- ms.entries) {
               last = f(e)
               if (!last) {
-                return Generator.End
+                return Jen.End
               }
             }
           }
@@ -295,19 +295,19 @@ object Generator {
       }
 
       override def string: String = {
-        return s"Generator($m)"
+        return s"Jen($m)"
       }
     }
 
-    @datatype class Filtered[T](gen: Generator[T], p: T => B) extends Generator[T] {
-      override def generate(f: T => Generator.Action): Generator.Action = {
-        def ap(o: T): Generator.Action = {
+    @datatype class Filtered[T](gen: Jen[T], p: T => B) extends Jen[T] {
+      override def generate(f: T => Jen.Action): Jen.Action = {
+        def ap(o: T): Jen.Action = {
           var r = p(o)
           if (r) {
             r = f(o)
             return r
           } else {
-            return Generator.Continue
+            return Jen.Continue
           }
         }
 
@@ -320,9 +320,9 @@ object Generator {
       }
     }
 
-    @datatype class Mapped[U, T](gen: Generator[T], f: T => U@pure) extends Generator[U] {
-      override def generate(g: U => Generator.Action): Generator.Action = {
-        def ap(o: T): Generator.Action = {
+    @datatype class Mapped[U, T](gen: Jen[T], f: T => U@pure) extends Jen[U] {
+      override def generate(g: U => Jen.Action): Jen.Action = {
+        def ap(o: T): Jen.Action = {
           val r = g(f(o))
           return r
         }
@@ -336,10 +336,10 @@ object Generator {
       }
     }
 
-    @datatype class FlatMapped[U, T](gen: Generator[T], f: T => Generator[U]@pure) extends Generator[U] {
-      override def generate(g: U => Generator.Action): Generator.Action = {
-        def ap(o: T): Generator.Action = {
-          def ap2(o2: U): Generator.Action = {
+    @datatype class FlatMapped[U, T](gen: Jen[T], f: T => Jen[U]@pure) extends Jen[U] {
+      override def generate(g: U => Jen.Action): Jen.Action = {
+        def ap(o: T): Jen.Action = {
+          def ap2(o2: U): Jen.Action = {
             val r = g(o2)
             return r
           }
@@ -357,24 +357,24 @@ object Generator {
       }
     }
 
-    @datatype class Sliced[T](gen: Generator[T], start: Z, end: Z) extends Generator[T] {
-      def generate(f: T => Generator.Action): Generator.Action = {
+    @datatype class Sliced[T](gen: Jen[T], start: Z, end: Z) extends Jen[T] {
+      def generate(f: T => Jen.Action): Jen.Action = {
         var count = 0
 
-        def ap(o: T): Generator.Action = {
+        def ap(o: T): Jen.Action = {
           if (count < start) {
             count = count + 1
-            return Generator.Continue
+            return Jen.Continue
           } else if (count < end || end < 0) {
             count = count + 1
             if (count != end) {
               return f(o)
             } else {
               f(o)
-              return Generator.End
+              return Jen.End
             }
           } else {
-            return Generator.End
+            return Jen.End
           }
         }
 
@@ -387,15 +387,15 @@ object Generator {
       }
     }
 
-    @datatype class TakeWhile[T](gen: Generator[T], p: T => B) extends Generator[T] {
-      def generate(f: T => Generator.Action): Generator.Action = {
-        def ap(o: T): Generator.Action = {
+    @datatype class TakeWhile[T](gen: Jen[T], p: T => B) extends Jen[T] {
+      def generate(f: T => Jen.Action): Jen.Action = {
+        def ap(o: T): Jen.Action = {
           var r = p(o)
           if (r) {
             r = f(o)
             return r
           } else {
-            return Generator.End
+            return Jen.End
           }
         }
 
@@ -408,15 +408,15 @@ object Generator {
       }
     }
 
-    @datatype class DropWhile[T](gen: Generator[T], p: T => B) extends Generator[T] {
-      def generate(f: T => Generator.Action): Generator.Action = {
+    @datatype class DropWhile[T](gen: Jen[T], p: T => B) extends Jen[T] {
+      def generate(f: T => Jen.Action): Jen.Action = {
         var started = F
 
-        def ap(o: T): Generator.Action = {
+        def ap(o: T): Jen.Action = {
           if (!started) {
             var r = p(o)
             if (r) {
-              return Generator.Continue
+              return Jen.Continue
             } else {
               started = T
               r = f(o)
@@ -437,11 +437,11 @@ object Generator {
       }
     }
 
-    @datatype class ZipWithIndexed[T](gen: Generator[T]) extends Generator[(T, Z)] {
-      def generate(f: ((T, Z)) => Generator.Action): Generator.Action = {
+    @datatype class ZipWithIndexed[T](gen: Jen[T]) extends Jen[(T, Z)] {
+      def generate(f: ((T, Z)) => Jen.Action): Jen.Action = {
         var i = 0
 
-        def ap(o: T): Generator.Action = {
+        def ap(o: T): Jen.Action = {
           val r = f((o, i))
           i = i + 1
           return r
@@ -456,8 +456,8 @@ object Generator {
       }
     }
 
-    @datatype class Zipped[T, U](gen: Generator[T], gen2: Generator[U]) extends Generator[(T, U)] {
-      def generate(f: ((T, U)) => Generator.Action): Generator.Action = {
+    @datatype class Zipped[T, U](gen: Jen[T], gen2: Jen[U]) extends Jen[(T, U)] {
+      def generate(f: ((T, U)) => Jen.Action): Jen.Action = {
         val r = zipRec(f, gen, gen2)
         return r
       }
@@ -467,7 +467,7 @@ object Generator {
       }
     }
 
-    def zipRec[T, U](f: ((T, U)) => Generator.Action, gen: Generator[T], gen2: Generator[U]): Generator.Action = {
+    def zipRec[T, U](f: ((T, U)) => Jen.Action, gen: Jen[T], gen2: Jen[U]): Jen.Action = {
       (gen.headOption, gen2.headOption) match {
         case (Some(h), Some(h2)) =>
           var r = f((h, h2))
@@ -480,11 +480,11 @@ object Generator {
       return F
     }
 
-    @datatype class Concat[T](gen: Generator[T], gen2: Generator[T]) extends Generator[T] {
-      def generate(f: T => Generator.Action): Generator.Action = {
+    @datatype class Concat[T](gen: Jen[T], gen2: Jen[T]) extends Jen[T] {
+      def generate(f: T => Jen.Action): Jen.Action = {
         var r = gen.generate(f)
         if (!r) {
-          return Generator.End
+          return Jen.End
         }
         r = gen2.generate(f)
         return r
@@ -495,10 +495,10 @@ object Generator {
       }
     }
 
-    @datatype class Product[T, U](gen: Generator[T], gen2: Generator[U]) extends Generator[(T, U)] {
-      def generate(f: ((T, U)) => Generator.Action): Generator.Action = {
-        def ap(o: T): Generator.Action = {
-          def ap2(o2: U): Generator.Action = {
+    @datatype class Product[T, U](gen: Jen[T], gen2: Jen[U]) extends Jen[(T, U)] {
+      def generate(f: ((T, U)) => Jen.Action): Jen.Action = {
+        def ap(o: T): Jen.Action = {
+          def ap2(o2: U): Jen.Action = {
             val r = f((o, o2))
             return r
           }
@@ -518,31 +518,31 @@ object Generator {
 
   }
 
-  @pure def is[I, T](s: IS[I, T]): Generator[T] = {
+  @pure def is[I, T](s: IS[I, T]): Jen[T] = {
     return Internal.ISImpl(s)
   }
 
-  @pure def map[K, T](m: Map[K, T]): Generator[(K, T)] = {
+  @pure def map[K, T](m: Map[K, T]): Jen[(K, T)] = {
     return Internal.MapImpl(m)
   }
 
-  @pure def set[T](s: Set[T]): Generator[T] = {
+  @pure def set[T](s: Set[T]): Jen[T] = {
     return Internal.MapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashMap[K, T](m: HashMap[K, T]): Generator[(K, T)] = {
+  @pure def hashMap[K, T](m: HashMap[K, T]): Jen[(K, T)] = {
     return Internal.HashMapImpl(m)
   }
 
-  @pure def hashSet[T](s: HashSet[T]): Generator[T] = {
+  @pure def hashSet[T](s: HashSet[T]): Jen[T] = {
     return Internal.HashMapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashSMap[K, T](m: HashSMap[K, T]): Generator[(K, T)] = {
+  @pure def hashSMap[K, T](m: HashSMap[K, T]): Jen[(K, T)] = {
     return set(m.keys).map(k => (k, m.get(k).get))
   }
 
-  @pure def hashSSet[T](s: HashSSet[T]): Generator[T] = {
+  @pure def hashSSet[T](s: HashSSet[T]): Jen[T] = {
     return hashSMap(s.map).map(p => p._1)
   }
 }

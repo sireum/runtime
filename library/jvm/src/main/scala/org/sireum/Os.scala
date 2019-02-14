@@ -136,17 +136,17 @@ object Os {
       }
     }
 
-    @sig trait Generator[T] extends org.sireum.Generator[T] {
+    @sig trait Jen[T] extends org.sireum.Jen[T] {
       def path: Path
       override def string: String = {
-        return s"Generator($path)"
+        return s"Jen($path)"
       }
     }
 
-    @msig trait MGenerator[T] extends org.sireum.MGenerator[T] {
+    @msig trait MJen[T] extends org.sireum.MJen[T] {
       def path: Path
       override def string: String = {
-        return s"MGenerator($path)"
+        return s"MJen($path)"
       }
     }
 
@@ -341,11 +341,11 @@ object Os {
       return Ext.readLineStream(value).toISZ
     }
 
-    def readLineStream: Path.Generator[String] = {
+    def readLineStream: Path.Jen[String] = {
       return Ext.readLineStream(value)
     }
 
-    def readLineMStream: Path.MGenerator[String] = {
+    def readLineMStream: Path.MJen[String] = {
       return Ext.readLineMStream(value)
     }
 
@@ -353,19 +353,19 @@ object Os {
       return Ext.readU8s(value)
     }
 
-    def readU8Stream: Path.Generator[U8] = {
+    def readU8Stream: Path.Jen[U8] = {
       return Ext.readU8Stream(value)
     }
 
-    def readU8MStream: Path.MGenerator[U8] = {
+    def readU8MStream: Path.MJen[U8] = {
       return Ext.readU8MStream(value)
     }
 
-    def readCStream: Path.Generator[C] = {
+    def readCStream: Path.Jen[C] = {
       return Ext.readCStream(value)
     }
 
-    def readCMStream: Path.MGenerator[C] = {
+    def readCMStream: Path.MJen[C] = {
       return Ext.readCMStream(value)
     }
 
@@ -393,27 +393,27 @@ object Os {
       Ext.write(value, content, Path.WriteMode.Append)
     }
 
-    def writeLineStream(content: Generator[String]): Unit = {
+    def writeLineStream(content: Jen[String]): Unit = {
       Ext.writeLineStream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverLineStream(content: Generator[String]): Unit = {
+    def writeOverLineStream(content: Jen[String]): Unit = {
       Ext.writeLineStream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendLineStream(content: Generator[String]): Unit = {
+    def writeAppendLineStream(content: Jen[String]): Unit = {
       Ext.writeLineStream(value, content, Path.WriteMode.Append)
     }
 
-    def writeLineMStream(content: MGenerator[String]): Unit = {
+    def writeLineMStream(content: MJen[String]): Unit = {
       Ext.writeLineMStream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverLineMStream(content: MGenerator[String]): Unit = {
+    def writeOverLineMStream(content: MJen[String]): Unit = {
       Ext.writeLineMStream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendLineMStream(content: MGenerator[String]): Unit = {
+    def writeAppendLineMStream(content: MJen[String]): Unit = {
       Ext.writeLineMStream(value, content, Path.WriteMode.Append)
     }
 
@@ -441,51 +441,51 @@ object Os {
       Ext.writeU8ms(value, content, Path.WriteMode.Append)
     }
 
-    def writeU8Stream(content: Generator[U8]): Unit = {
+    def writeU8Stream(content: Jen[U8]): Unit = {
       Ext.writeU8Stream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverU8Stream(content: Generator[U8]): Unit = {
+    def writeOverU8Stream(content: Jen[U8]): Unit = {
       Ext.writeU8Stream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendU8Stream(content: Generator[U8]): Unit = {
+    def writeAppendU8Stream(content: Jen[U8]): Unit = {
       Ext.writeU8Stream(value, content, Path.WriteMode.Append)
     }
 
-    def writeU8MStream(content: MGenerator[U8]): Unit = {
+    def writeU8MStream(content: MJen[U8]): Unit = {
       Ext.writeU8MStream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverU8MStream(content: MGenerator[U8]): Unit = {
+    def writeOverU8MStream(content: MJen[U8]): Unit = {
       Ext.writeU8MStream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendU8MStream(content: MGenerator[U8]): Unit = {
+    def writeAppendU8MStream(content: MJen[U8]): Unit = {
       Ext.writeU8MStream(value, content, Path.WriteMode.Append)
     }
 
-    def writeCStream(content: Generator[C]): Unit = {
+    def writeCStream(content: Jen[C]): Unit = {
       Ext.writeCStream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverCStream(content: Generator[C]): Unit = {
+    def writeOverCStream(content: Jen[C]): Unit = {
       Ext.writeCStream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendCStream(content: Generator[C]): Unit = {
+    def writeAppendCStream(content: Jen[C]): Unit = {
       Ext.writeCStream(value, content, Path.WriteMode.Append)
     }
 
-    def writeCMStream(content: MGenerator[C]): Unit = {
+    def writeCMStream(content: MJen[C]): Unit = {
       Ext.writeCMStream(value, content, Path.WriteMode.Regular)
     }
 
-    def writeOverCMStream(content: MGenerator[C]): Unit = {
+    def writeOverCMStream(content: MJen[C]): Unit = {
       Ext.writeCMStream(value, content, Path.WriteMode.Over)
     }
 
-    def writeAppendCMStream(content: MGenerator[C]): Unit = {
+    def writeAppendCMStream(content: MJen[C]): Unit = {
       Ext.writeCMStream(value, content, Path.WriteMode.Append)
     }
 
@@ -556,17 +556,17 @@ object Os {
 
     def readU8ms(path: String): MSZ[U8] = $
 
-    def readLineStream(path: String): Path.Generator[String] = $
+    def readLineStream(path: String): Path.Jen[String] = $
 
-    def readU8Stream(path: String): Path.Generator[U8] = $
+    def readU8Stream(path: String): Path.Jen[U8] = $
 
-    def readCStream(path: String): Path.Generator[C] = $
+    def readCStream(path: String): Path.Jen[C] = $
 
-    def readLineMStream(path: String): Path.MGenerator[String] = $
+    def readLineMStream(path: String): Path.MJen[String] = $
 
-    def readCMStream(path: String): Path.MGenerator[C] = $
+    def readCMStream(path: String): Path.MJen[C] = $
 
-    def readU8MStream(path: String): Path.MGenerator[U8] = $
+    def readU8MStream(path: String): Path.MJen[U8] = $
 
     def remove(path: String): Unit = $
 
@@ -584,17 +584,17 @@ object Os {
 
     def writeU8ms(path: String, u8s: MSZ[U8], mode: Path.WriteMode.Type): Unit = $
 
-    def writeLineStream(path: String, lines: Generator[String], mode: Path.WriteMode.Type): Unit = $
+    def writeLineStream(path: String, lines: Jen[String], mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8Stream(path: String, u8s: Generator[U8], mode: Path.WriteMode.Type): Unit = $
+    def writeU8Stream(path: String, u8s: Jen[U8], mode: Path.WriteMode.Type): Unit = $
 
-    def writeCStream(path: String, cs: Generator[C], mode: Path.WriteMode.Type): Unit = $
+    def writeCStream(path: String, cs: Jen[C], mode: Path.WriteMode.Type): Unit = $
 
-    def writeLineMStream(path: String, lines: MGenerator[String], mode: Path.WriteMode.Type): Unit = $
+    def writeLineMStream(path: String, lines: MJen[String], mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8MStream(path: String, u8s: MGenerator[U8], mode: Path.WriteMode.Type): Unit = $
+    def writeU8MStream(path: String, u8s: MJen[U8], mode: Path.WriteMode.Type): Unit = $
 
-    def writeCMStream(path: String, cs: MGenerator[C], mode: Path.WriteMode.Type): Unit = $
+    def writeCMStream(path: String, cs: MJen[C], mode: Path.WriteMode.Type): Unit = $
 
     @pure def parent(path: String): String = $
 

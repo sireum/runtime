@@ -27,14 +27,14 @@ package org.sireum
 
 // Adapted from https://github.com/lihaoyi/geny
 
-@msig trait MGenerator[T] {
+@msig trait MJen[T] {
 
-  def generate(f: T => MGenerator.Action): MGenerator.Action
+  def generate(f: T => MJen.Action): MJen.Action
 
   def foreach(f: T => Unit): Unit = {
-    def ap(o: T): MGenerator.Action = {
+    def ap(o: T): MJen.Action = {
       f(o)
-      return MGenerator.Continue
+      return MJen.Continue
     }
 
     generate(ap _)
@@ -43,13 +43,13 @@ package org.sireum
   def find(f: T => B): MOption[T] = {
     var result: MOption[T] = MNone()
 
-    def ap(o: T): MGenerator.Action = {
+    def ap(o: T): MJen.Action = {
       val r = f(o)
       if (!r) {
-        return MGenerator.Continue
+        return MJen.Continue
       } else {
         result = MSome(o)
-        return MGenerator.End
+        return MJen.End
       }
     }
 
@@ -82,12 +82,12 @@ package org.sireum
   def countIf(p: T => B): Z = {
     var result = 0
 
-    def ap(o: T): MGenerator.Action = {
+    def ap(o: T): MJen.Action = {
       val r = p(o)
       if (r) {
         result = result + 1
       }
-      return MGenerator.Continue
+      return MJen.Continue
     }
 
     generate(ap _)
@@ -101,9 +101,9 @@ package org.sireum
   @pure def foldLeft[U](initial: U, f: (U, T) => U@pure): U = {
     var r = initial
 
-    def ap(o: T): MGenerator.Action = {
+    def ap(o: T): MJen.Action = {
       r = f(r, o)
-      return MGenerator.Continue
+      return MJen.Continue
     }
 
     generate(ap _)
@@ -117,72 +117,72 @@ package org.sireum
   @pure def reduceLeft(f: (T, T) => T@pure): MOption[T] = {
     var r: MOption[T] = MNone()
 
-    def ap(o: T): MGenerator.Action = {
+    def ap(o: T): MJen.Action = {
       r = r match {
         case MSome(prev) => MSome(f(prev, o))
         case _ => MSome(o)
       }
-      return MGenerator.Continue
+      return MJen.Continue
     }
 
     generate(ap _)
     return r
   }
 
-  @pure def filter(p: T => B@pure): MGenerator[T] = {
-    return MGenerator.Internal.Filtered(this, p)
+  @pure def filter(p: T => B@pure): MJen[T] = {
+    return MJen.Internal.Filtered(this, p)
   }
 
-  def withFilter(p: T => B): MGenerator[T] = {
-    return MGenerator.Internal.Filtered(this, p)
+  def withFilter(p: T => B): MJen[T] = {
+    return MJen.Internal.Filtered(this, p)
   }
 
-  @pure def map[U](f: T => U@pure): MGenerator[U] = {
-    return MGenerator.Internal.Mapped(this, f)
+  @pure def map[U](f: T => U@pure): MJen[U] = {
+    return MJen.Internal.Mapped(this, f)
   }
 
-  @pure def flatMap[U](f: T => MGenerator[U]@pure): MGenerator[U] = {
-    return MGenerator.Internal.FlatMapped(this, f)
+  @pure def flatMap[U](f: T => MJen[U]@pure): MJen[U] = {
+    return MJen.Internal.FlatMapped(this, f)
   }
 
-  @pure def flatten[U](f: T => MGenerator[U]@pure): MGenerator[U] = {
+  @pure def flatten[U](f: T => MJen[U]@pure): MJen[U] = {
     return this.flatMap(o => f(o))
   }
 
-  @pure def slice(start: Z, end: Z): MGenerator[T] = {
-    return MGenerator.Internal.Sliced(this, start, end)
+  @pure def slice(start: Z, end: Z): MJen[T] = {
+    return MJen.Internal.Sliced(this, start, end)
   }
 
-  @pure def take(n: Z): MGenerator[T] = {
+  @pure def take(n: Z): MJen[T] = {
     return slice(0, n)
   }
 
-  @pure def drop(n: Z): MGenerator[T] = {
+  @pure def drop(n: Z): MJen[T] = {
     return slice(n, -1)
   }
 
-  @pure def takeWhile(p: T => B): MGenerator[T] = {
-    return MGenerator.Internal.TakeWhile(this, p)
+  @pure def takeWhile(p: T => B): MJen[T] = {
+    return MJen.Internal.TakeWhile(this, p)
   }
 
-  @pure def dropWhile(p: T => B): MGenerator[T] = {
-    return MGenerator.Internal.DropWhile(this, p)
+  @pure def dropWhile(p: T => B): MJen[T] = {
+    return MJen.Internal.DropWhile(this, p)
   }
 
-  @pure def zipWithIndex: MGenerator[(T, Z)] = {
-    return MGenerator.Internal.ZipWithIndexed(this)
+  @pure def zipWithIndex: MJen[(T, Z)] = {
+    return MJen.Internal.ZipWithIndexed(this)
   }
 
-  @pure def zip[U](other: MGenerator[U]): MGenerator[(T, U)] = {
-    return MGenerator.Internal.Zipped(this, other)
+  @pure def zip[U](other: MJen[U]): MJen[(T, U)] = {
+    return MJen.Internal.Zipped(this, other)
   }
 
-  @pure def product[U](other: MGenerator[U]): MGenerator[(T, U)] = {
-    return MGenerator.Internal.Product(this, other)
+  @pure def product[U](other: MJen[U]): MJen[(T, U)] = {
+    return MJen.Internal.Product(this, other)
   }
 
-  @pure def ++(other: MGenerator[T]): MGenerator[T] = {
-    return MGenerator.Internal.Concat(this, other)
+  @pure def ++(other: MJen[T]): MJen[T] = {
+    return MJen.Internal.Concat(this, other)
   }
 
   @pure def head: T = {
@@ -220,7 +220,7 @@ package org.sireum
 
 }
 
-object MGenerator {
+object MJen {
 
   type Action = B
   val Continue: Action = T
@@ -228,66 +228,66 @@ object MGenerator {
 
   object Internal {
 
-    @record class ISImpl[I, T](s: IS[I, T]) extends MGenerator[T] {
-      override def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        var last = MGenerator.Continue
+    @record class ISImpl[I, T](s: IS[I, T]) extends MJen[T] {
+      override def generate(f: T => MJen.Action): MJen.Action = {
+        var last = MJen.Continue
         for (e <- s) {
           last = f(e)
           if (!last) {
-            return MGenerator.End
+            return MJen.End
           }
         }
         return last
       }
 
       override def string: String = {
-        return s"MGenerator($s)"
+        return s"MJen($s)"
       }
     }
 
-    @record class MSImpl[I, T](s: MS[I, T]) extends MGenerator[T] {
-      override def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        var last = MGenerator.Continue
+    @record class MSImpl[I, T](s: MS[I, T]) extends MJen[T] {
+      override def generate(f: T => MJen.Action): MJen.Action = {
+        var last = MJen.Continue
         for (e <- s) {
           last = f(e)
           if (!last) {
-            return MGenerator.End
+            return MJen.End
           }
         }
         return last
       }
 
       override def string: String = {
-        return s"MGenerator($s)"
+        return s"MJen($s)"
       }
     }
 
-    @record class MapImpl[K, T](m: Map[K, T]) extends MGenerator[(K, T)] {
-      override def generate(f: ((K, T)) => MGenerator.Action): MGenerator.Action = {
-        var last = MGenerator.Continue
+    @record class MapImpl[K, T](m: Map[K, T]) extends MJen[(K, T)] {
+      override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
+        var last = MJen.Continue
         for (e <- m.entries) {
           last = f(e)
           if (!last) {
-            return MGenerator.End
+            return MJen.End
           }
         }
         return last
       }
 
       override def string: String = {
-        return s"MGenerator($m)"
+        return s"MJen($m)"
       }
     }
 
-    @record class HashMapImpl[K, T](m: HashMap[K, T]) extends MGenerator[(K, T)] {
-      override def generate(f: ((K, T)) => MGenerator.Action): MGenerator.Action = {
-        var last = MGenerator.Continue
+    @record class HashMapImpl[K, T](m: HashMap[K, T]) extends MJen[(K, T)] {
+      override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
+        var last = MJen.Continue
         for (ms <- m.mapEntries) {
           if (ms.nonEmpty) {
             for (e <- ms.entries) {
               last = f(e)
               if (!last) {
-                return MGenerator.End
+                return MJen.End
               }
             }
           }
@@ -296,19 +296,19 @@ object MGenerator {
       }
 
       override def string: String = {
-        return s"MGenerator($m)"
+        return s"MJen($m)"
       }
     }
 
-    @record class Filtered[T](gen: MGenerator[T], p: T => B) extends MGenerator[T] {
-      override def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        def ap(o: T): MGenerator.Action = {
+    @record class Filtered[T](gen: MJen[T], p: T => B) extends MJen[T] {
+      override def generate(f: T => MJen.Action): MJen.Action = {
+        def ap(o: T): MJen.Action = {
           var r = p(o)
           if (r) {
             r = f(o)
             return r
           } else {
-            return MGenerator.Continue
+            return MJen.Continue
           }
         }
 
@@ -321,9 +321,9 @@ object MGenerator {
       }
     }
 
-    @record class Mapped[U, T](gen: MGenerator[T], f: T => U@pure) extends MGenerator[U] {
-      override def generate(g: U => MGenerator.Action): MGenerator.Action = {
-        def ap(o: T): MGenerator.Action = {
+    @record class Mapped[U, T](gen: MJen[T], f: T => U@pure) extends MJen[U] {
+      override def generate(g: U => MJen.Action): MJen.Action = {
+        def ap(o: T): MJen.Action = {
           val r = g(f(o))
           return r
         }
@@ -337,10 +337,10 @@ object MGenerator {
       }
     }
 
-    @record class FlatMapped[U, T](gen: MGenerator[T], f: T => MGenerator[U]@pure) extends MGenerator[U] {
-      override def generate(g: U => MGenerator.Action): MGenerator.Action = {
-        def ap(o: T): MGenerator.Action = {
-          def ap2(o2: U): MGenerator.Action = {
+    @record class FlatMapped[U, T](gen: MJen[T], f: T => MJen[U]@pure) extends MJen[U] {
+      override def generate(g: U => MJen.Action): MJen.Action = {
+        def ap(o: T): MJen.Action = {
+          def ap2(o2: U): MJen.Action = {
             val r = g(o2)
             return r
           }
@@ -358,24 +358,24 @@ object MGenerator {
       }
     }
 
-    @record class Sliced[T](gen: MGenerator[T], start: Z, end: Z) extends MGenerator[T] {
-      def generate(f: T => MGenerator.Action): MGenerator.Action = {
+    @record class Sliced[T](gen: MJen[T], start: Z, end: Z) extends MJen[T] {
+      def generate(f: T => MJen.Action): MJen.Action = {
         var count = 0
 
-        def ap(o: T): MGenerator.Action = {
+        def ap(o: T): MJen.Action = {
           if (count < start) {
             count = count + 1
-            return MGenerator.Continue
+            return MJen.Continue
           } else if (count < end || end < 0) {
             count = count + 1
             if (count != end) {
               return f(o)
             } else {
               f(o)
-              return MGenerator.End
+              return MJen.End
             }
           } else {
-            return MGenerator.End
+            return MJen.End
           }
         }
 
@@ -388,15 +388,15 @@ object MGenerator {
       }
     }
 
-    @record class TakeWhile[T](gen: MGenerator[T], p: T => B) extends MGenerator[T] {
-      def generate(f: T => MGenerator.Action): MGenerator.Action = {
-        def ap(o: T): MGenerator.Action = {
+    @record class TakeWhile[T](gen: MJen[T], p: T => B) extends MJen[T] {
+      def generate(f: T => MJen.Action): MJen.Action = {
+        def ap(o: T): MJen.Action = {
           var r = p(o)
           if (r) {
             r = f(o)
             return r
           } else {
-            return MGenerator.End
+            return MJen.End
           }
         }
 
@@ -409,15 +409,15 @@ object MGenerator {
       }
     }
 
-    @record class DropWhile[T](gen: MGenerator[T], p: T => B) extends MGenerator[T] {
-      def generate(f: T => MGenerator.Action): MGenerator.Action = {
+    @record class DropWhile[T](gen: MJen[T], p: T => B) extends MJen[T] {
+      def generate(f: T => MJen.Action): MJen.Action = {
         var started = F
 
-        def ap(o: T): MGenerator.Action = {
+        def ap(o: T): MJen.Action = {
           if (!started) {
             var r = p(o)
             if (r) {
-              return MGenerator.Continue
+              return MJen.Continue
             } else {
               started = T
               r = f(o)
@@ -438,11 +438,11 @@ object MGenerator {
       }
     }
 
-    @record class ZipWithIndexed[T](gen: MGenerator[T]) extends MGenerator[(T, Z)] {
-      def generate(f: ((T, Z)) => MGenerator.Action): MGenerator.Action = {
+    @record class ZipWithIndexed[T](gen: MJen[T]) extends MJen[(T, Z)] {
+      def generate(f: ((T, Z)) => MJen.Action): MJen.Action = {
         var i = 0
 
-        def ap(o: T): MGenerator.Action = {
+        def ap(o: T): MJen.Action = {
           val r = f((o, i))
           i = i + 1
           return r
@@ -457,8 +457,8 @@ object MGenerator {
       }
     }
 
-    @record class Zipped[T, U](gen: MGenerator[T], gen2: MGenerator[U]) extends MGenerator[(T, U)] {
-      def generate(f: ((T, U)) => MGenerator.Action): MGenerator.Action = {
+    @record class Zipped[T, U](gen: MJen[T], gen2: MJen[U]) extends MJen[(T, U)] {
+      def generate(f: ((T, U)) => MJen.Action): MJen.Action = {
         val r = zipRec(f, gen, gen2)
         return r
       }
@@ -468,7 +468,7 @@ object MGenerator {
       }
     }
 
-    def zipRec[T, U](f: ((T, U)) => MGenerator.Action, gen: MGenerator[T], gen2: MGenerator[U]): MGenerator.Action = {
+    def zipRec[T, U](f: ((T, U)) => MJen.Action, gen: MJen[T], gen2: MJen[U]): MJen.Action = {
       (gen.headOption, gen2.headOption) match {
         case (MSome(h), MSome(h2)) =>
           var r = f((h, h2))
@@ -481,11 +481,11 @@ object MGenerator {
       return F
     }
 
-    @record class Concat[T](gen: MGenerator[T], gen2: MGenerator[T]) extends MGenerator[T] {
-      def generate(f: T => MGenerator.Action): MGenerator.Action = {
+    @record class Concat[T](gen: MJen[T], gen2: MJen[T]) extends MJen[T] {
+      def generate(f: T => MJen.Action): MJen.Action = {
         var r = gen.generate(f)
         if (!r) {
-          return MGenerator.End
+          return MJen.End
         }
         r = gen2.generate(f)
         return r
@@ -496,10 +496,10 @@ object MGenerator {
       }
     }
 
-    @record class Product[T, U](gen: MGenerator[T], gen2: MGenerator[U]) extends MGenerator[(T, U)] {
-      def generate(f: ((T, U)) => MGenerator.Action): MGenerator.Action = {
-        def ap(o: T): MGenerator.Action = {
-          def ap2(o2: U): MGenerator.Action = {
+    @record class Product[T, U](gen: MJen[T], gen2: MJen[U]) extends MJen[(T, U)] {
+      def generate(f: ((T, U)) => MJen.Action): MJen.Action = {
+        def ap(o: T): MJen.Action = {
+          def ap2(o2: U): MJen.Action = {
             val r = f((o, o2))
             return r
           }
@@ -519,35 +519,35 @@ object MGenerator {
 
   }
 
-  @pure def is[I, T](s: IS[I, T]): MGenerator[T] = {
+  @pure def is[I, T](s: IS[I, T]): MJen[T] = {
     return Internal.ISImpl(s)
   }
 
-  @pure def ms[I, T](s: MS[I, T]): MGenerator[T] = {
+  @pure def ms[I, T](s: MS[I, T]): MJen[T] = {
     return Internal.MSImpl(s)
   }
 
-  @pure def map[K, T](m: Map[K, T]): MGenerator[(K, T)] = {
+  @pure def map[K, T](m: Map[K, T]): MJen[(K, T)] = {
     return Internal.MapImpl(m)
   }
 
-  @pure def set[T](s: Set[T]): MGenerator[T] = {
+  @pure def set[T](s: Set[T]): MJen[T] = {
     return Internal.MapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashMap[K, T](m: HashMap[K, T]): MGenerator[(K, T)] = {
+  @pure def hashMap[K, T](m: HashMap[K, T]): MJen[(K, T)] = {
     return Internal.HashMapImpl(m)
   }
 
-  @pure def hashSet[T](s: HashSet[T]): MGenerator[T] = {
+  @pure def hashSet[T](s: HashSet[T]): MJen[T] = {
     return Internal.HashMapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashSMap[K, T](m: HashSMap[K, T]): MGenerator[(K, T)] = {
+  @pure def hashSMap[K, T](m: HashSMap[K, T]): MJen[(K, T)] = {
     return set(m.keys).map(k => (k, m.get(k).get))
   }
 
-  @pure def hashSSet[T](s: HashSSet[T]): MGenerator[T] = {
+  @pure def hashSSet[T](s: HashSSet[T]): MJen[T] = {
     return hashSMap(s.map).map(p => p._1)
   }
 }
