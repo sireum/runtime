@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2019, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@ package org.sireum
 object HashSMap {
 
   @pure def empty[K, T]: HashSMap[K, T] = {
-    return HashSMap(HashMap.empty, Set.empty)
+    return HashSMap(HashMap.empty, ISZ())
   }
 
   @pure def emptyInit[K, T](initialCapacity: Z): HashSMap[K, T] = {
-    return HashSMap(HashMap.emptyInit(initialCapacity), Set.empty)
+    return HashSMap(HashMap.emptyInit(initialCapacity), ISZ())
   }
 
   @pure def ++[I, K, T](s: IS[I, (K, T)]): HashSMap[K, T] = {
@@ -42,7 +42,7 @@ object HashSMap {
 
 }
 
-@datatype class HashSMap[K, T](map: HashMap[K, T], keys: Set[K]) {
+@datatype class HashSMap[K, T](map: HashMap[K, T], keys: ISZ[K]) {
 
   @pure def size: Z = {
     return keys.size
@@ -50,7 +50,7 @@ object HashSMap {
 
   @pure def entries: ISZ[(K, T)] = {
     var r = ISZ[(K, T)]()
-    for (k <- keys.elements) {
+    for (k <- keys) {
       map.get(k) match {
         case Some(v) => r = r :+ ((k, v))
         case _ =>
@@ -63,7 +63,7 @@ object HashSMap {
     return map.values
   }
 
-  @pure def keySet: Set[K] = {
+  @pure def keySet: ISZ[K] = {
     return keys
   }
 
@@ -73,17 +73,21 @@ object HashSMap {
 
   @pure def +(p: (K, T)): HashSMap[K, T] = {
     val newMap = map + p
-    return HashSMap(newMap, keys + p._1)
+    return HashSMap(newMap, if (newMap.size == map.size) keys else keys :+ p._1)
   }
 
   @pure def ++[I](entries: IS[I, (K, T)]): HashSMap[K, T] = {
     if (entries.isEmpty) {
       return this
     }
-    val newMap = map ++ entries
+    var newMap = map
     var newKeys = keys
     for (kv <- entries) {
-      newKeys = newKeys + kv._1
+      val oldNewMapSize = newMap.size
+      newMap = newMap + kv
+      if (newMap.size != oldNewMapSize) {
+        newKeys = newKeys :+ kv._1
+      }
     }
     return HashSMap(newMap, newKeys)
   }

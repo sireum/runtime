@@ -677,7 +677,7 @@ object MessagePack {
 
       def result: ISZ[U8] = {
         if (pooling) {
-          val strings = stringPool.keys.elements
+          val strings = stringPool.keys
           val poolBufferSize: Z = {
             var r: Z = 0
             for (s <- strings) {
@@ -692,7 +692,7 @@ object MessagePack {
               r.writeStringNoPool(s)
             }
             r.writeExtTypeHeader(DocInfoExtType, docInfoPool.size)
-            for (di <- docInfoPool.keys.elements) {
+            for (di <- docInfoPool.keys) {
               r.writeDocInfoNoPool(di)
             }
             (r.buf, r.size)

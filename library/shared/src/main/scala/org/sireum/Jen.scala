@@ -539,7 +539,7 @@ object Jen {
   }
 
   @pure def HashSMap[K, T](m: HashSMap[K, T]): Jen[(K, T)] = {
-    return Set(m.keys).map(k => (k, m.get(k).get))
+    return IS(m.keys).map(k => (k, m.get(k).get))
   }
 
   @pure def HashSSet[T](s: HashSSet[T]): Jen[T] = {

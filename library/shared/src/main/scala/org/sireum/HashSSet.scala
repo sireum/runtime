@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2019, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -85,7 +85,7 @@ object HashSSet {
 
   @pure def ∩(other: HashSSet[T]): HashSSet[T] = {
     var r = HashSSet.emptyInit[T](size)
-    for (e <- other.map.keys.elements) {
+    for (e <- other.map.keys) {
       if (contains(e)) {
         r = r + e
       }
@@ -118,7 +118,7 @@ object HashSSet {
   }
 
   @pure def elements: ISZ[T] = {
-    return map.keys.elements
+    return map.keys
   }
 
   @pure override def string: String = {
