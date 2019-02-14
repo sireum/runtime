@@ -519,35 +519,35 @@ object MJen {
 
   }
 
-  @pure def is[I, T](s: IS[I, T]): MJen[T] = {
+  @pure def IS[I, T](s: IS[I, T]): MJen[T] = {
     return Internal.ISImpl(s)
   }
 
-  @pure def ms[I, T](s: MS[I, T]): MJen[T] = {
+  @pure def MS[I, T](s: MS[I, T]): MJen[T] = {
     return Internal.MSImpl(s)
   }
 
-  @pure def map[K, T](m: Map[K, T]): MJen[(K, T)] = {
+  @pure def Map[K, T](m: Map[K, T]): MJen[(K, T)] = {
     return Internal.MapImpl(m)
   }
 
-  @pure def set[T](s: Set[T]): MJen[T] = {
+  @pure def Set[T](s: Set[T]): MJen[T] = {
     return Internal.MapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashMap[K, T](m: HashMap[K, T]): MJen[(K, T)] = {
+  @pure def HashMap[K, T](m: HashMap[K, T]): MJen[(K, T)] = {
     return Internal.HashMapImpl(m)
   }
 
-  @pure def hashSet[T](s: HashSet[T]): MJen[T] = {
+  @pure def HashSet[T](s: HashSet[T]): MJen[T] = {
     return Internal.HashMapImpl(s.map).map(p => p._1)
   }
 
-  @pure def hashSMap[K, T](m: HashSMap[K, T]): MJen[(K, T)] = {
-    return set(m.keys).map(k => (k, m.get(k).get))
+  @pure def HashSMap[K, T](m: HashSMap[K, T]): MJen[(K, T)] = {
+    return Set(m.keys).map(k => (k, m.get(k).get))
   }
 
-  @pure def hashSSet[T](s: HashSSet[T]): MJen[T] = {
-    return hashSMap(s.map).map(p => p._1)
+  @pure def HashSSet[T](s: HashSSet[T]): MJen[T] = {
+    return HashSMap(s.map).map(p => p._1)
   }
 }
