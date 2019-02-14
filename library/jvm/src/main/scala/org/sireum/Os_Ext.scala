@@ -25,12 +25,15 @@
 package org.sireum
 
 import U8._
-import java.io.{File => JFile, FileInputStream => FIS, FileOutputStream => FOS}
-import java.nio.ByteBuffer
+import java.io.{FileReader => FR, File => JFile, FileInputStream => FIS, FileOutputStream => FOS, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.nio.{ByteBuffer => BB }
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{TimeUnit => TU}
+
 import com.zaxxer.nuprocess._
+
+import scala.collection.JavaConverters._
 
 object Os_Ext {
 
@@ -79,7 +82,6 @@ object Os_Ext {
   }
 
   def envs: Map[String, String] = {
-    import scala.collection.JavaConverters._
     var r = Map.empty[String, String]
     for ((k, v) <- System.getenv().asScala) {
       r = r + k ~> v
@@ -135,9 +137,31 @@ object Os_Ext {
 
   @pure def norm(path: String): String = toIO(path).getPath
 
+  def properties(path: String): Map[String, String] = {
+    val p = new java.util.Properties()
+    val reader = new FR(toIO(path))
+    try p.load(reader)
+    finally reader.close()
+    var r = Map.empty[String, String]
+    for (k <- p.stringPropertyNames.asScala) {
+      r = r + k ~> p.getProperty(k)
+    }
+    r
+  }
+
+  def readSymLink(path: String): Option[String] = {
+    try Some(JFiles.readSymbolicLink(toNIO(path)).toFile.getCanonicalPath)
+    catch {
+      case _: Throwable => None()
+    }
+  }
+
   def relativize(path: String, other: String): String = toNIO(path).relativize(toNIO(other)).toString
 
   def read(path: String): String = new Predef.String(JFiles.readAllBytes(toNIO(path)), SC.UTF_8)
+
+  def readLines(path: String): ISZ[String] =
+    ISZ(JFiles.readAllLines(toNIO(path), SC.UTF_8).asScala.map(String.apply): _*)
 
   def readU8s(path: String): ISZ[U8] = {
     val f = toIO(path)
@@ -157,6 +181,142 @@ object Os_Ext {
     val is = new FIS(f)
     try is.read(data, 0, length.toInt) finally is.close()
     r
+  }
+
+  def readLineStream(p: String): Os.Path.Generator[String] =
+    new Os.Path.Generator[String] {
+      override def path: Os.Path = Os.Path.Impl(p)
+      override def generate(f: String => Generator.Action): Generator.Action = {
+        val stream = JFiles.lines(toNIO(p), SC.UTF_8)
+        var last = Generator.Continue
+        for (e <- stream.iterator.asScala) {
+          last = f(e)
+          if (!last) {
+            return Generator.End
+          }
+        }
+        return last
+      }
+    }
+
+  def readU8Stream(p: String): Os.Path.Generator[U8] =
+    new Os.Path.Generator[U8] {
+      override def path: Os.Path = Os.Path.Impl(p)
+      override def generate(f: U8 => Generator.Action): Generator.Action = {
+        val is = new FIS(toIO(p))
+        try {
+          var last = Generator.Continue
+          var b = is.read()
+          while (b != -1) {
+            last = f(U8(b))
+            if (!last) {
+              return Generator.End
+            }
+            b = is.read()
+          }
+          return last
+        } finally is.close()
+      }
+    }
+
+  def readCStream(p: String): Os.Path.Generator[C] =
+    new Os.Path.Generator[C] {
+      override def path: Os.Path = Os.Path.Impl(p)
+      override def generate(f: C => Generator.Action): Generator.Action = {
+        val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
+        try {
+          var last = Generator.Continue
+          var c = fr.read()
+          while (c != -1) {
+            last = f(C(c))
+            if (!last) {
+              return Generator.End
+            }
+            c = fr.read()
+          }
+          return last
+        } finally fr.close()
+      }
+    }
+
+  def readLineMStream(p: String): Os.Path.MGenerator[String] = {
+    class G extends Os.Path.MGenerator[String] {
+      private var _owned: Boolean = false
+      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+      def $owned: Boolean = _owned
+      def $clone: G = new G
+
+      override def path: Os.Path = Os.Path.Impl(p)
+
+      override def generate(f: String => Generator.Action): Generator.Action = {
+        val stream = JFiles.lines(toNIO(p), SC.UTF_8)
+        var last = Generator.Continue
+        for (e <- stream.iterator.asScala) {
+          last = f(e)
+          if (!last) {
+            return Generator.End
+          }
+        }
+        return last
+      }
+    }
+    new G
+  }
+
+  def readU8MStream(p: String): Os.Path.MGenerator[U8] = {
+    class G extends Os.Path.MGenerator[U8] {
+      private var _owned: Boolean = false
+      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+      def $owned: Boolean = _owned
+      def $clone: G = new G
+
+      override def path: Os.Path = Os.Path.Impl(p)
+
+      override def generate(f: U8 => Generator.Action): Generator.Action = {
+        val is = new FIS(toIO(p))
+        try {
+          var last = Generator.Continue
+          var b = is.read()
+          while (b != -1) {
+            last = f(U8(b))
+            if (!last) {
+              return Generator.End
+            }
+            b = is.read()
+          }
+          return last
+        } finally is.close()
+      }
+    }
+    new G
+  }
+
+  def readCMStream(p: String): Os.Path.MGenerator[C] = {
+    class G extends Os.Path.MGenerator[C] {
+      private var _owned: Boolean = false
+      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+      def $owned: Boolean = _owned
+      def $clone: G = new G
+
+      override def path: Os.Path = Os.Path.Impl(p)
+
+      override def generate(f: C => Generator.Action): Generator.Action = {
+        val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
+        try {
+          var last = Generator.Continue
+          var c = fr.read()
+          while (c != -1) {
+            last = f(C(c))
+            if (!last) {
+              return Generator.End
+            }
+            c = fr.read()
+          }
+          return last
+        } finally fr.close()
+      }
+    }
+    new G
   }
 
   def remove(path: String): Unit = {
@@ -182,43 +342,75 @@ object Os_Ext {
     JFiles.createTempDirectory(prefix.value).toFile.getCanonicalPath
   }
 
-  def write(path: String, content: String, over: B): Unit = {
-    if (exists(path) && !over) {
+  def writeAppend(path: String, mode: Os.Path.WriteMode.Type): Boolean = {
+    val f = toIO(path)
+    if (f.exists && mode == Os.Path.WriteMode.Regular)
       throw new FileAlreadyExistsException(s"$path already exists")
+    mkdir(f.getParentFile.getCanonicalPath, T)
+    if (mode == Os.Path.WriteMode.Append) true
+    else {
+      removeAll(path)
+      false
     }
-    mkdir(path, T)
-    val os = new FOS(toIO(path))
-    try {
-      os.write(content.value.getBytes(SC.UTF_8))
-    } finally os.close()
   }
 
-  def writeU8s(path: String, content: ISZ[U8], over: B): Unit = {
-    if (exists(path) && !over) {
-      throw new FileAlreadyExistsException(s"$path already exists")
-    }
-    mkdir(path, T)
-    val os = new FOS(toIO(path))
-    try {
-      os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-    } finally os.close()
+  def write(path: String, content: String, mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try os.write(content.value.getBytes(SC.UTF_8))
+    finally os.close()
   }
 
-  def writeU8ms(path: String, content: MSZ[U8], over: B): Unit = {
-    if (exists(path) && !over) {
-      throw new FileAlreadyExistsException(s"$path already exists")
-    }
-    mkdir(path, T)
-    val os = new FOS(toIO(path))
-    try {
-      os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-    } finally os.close()
+  def writeU8s(path: String, content: ISZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+    finally os.close()
+  }
+
+  def writeU8ms(path: String, content: MSZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+    finally os.close()
+  }
+
+  def writeLineStream(path: String, lines: Generator[String], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
+    finally os.close()
+  }
+
+  def writeU8Stream(path: String, u8s: Generator[U8], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try for (b <- u8s) os.write(b.value)
+    finally os.close()
+  }
+
+  def writeCStream(path: String, cs: Generator[C], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
+    try for (c <- cs) os.write(c.value)
+    finally os.close()
+  }
+
+  def writeLineMStream(path: String, lines: MGenerator[String], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
+    finally os.close()
+  }
+
+  def writeU8MStream(path: String, u8s: MGenerator[U8], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new FOS(toIO(path), writeAppend(path, mode))
+    try for (b <- u8s) os.write(b.value)
+    finally os.close()
+  }
+
+  def writeCMStream(path: String, cs: MGenerator[C], mode: Os.Path.WriteMode.Type): Unit = {
+    val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
+    try for (c <- cs) os.write(c.value)
+    finally os.close()
   }
 
   def parent(path: String): String = toIO(path).getParent
 
   def proc(e: Os.Proc): Os.Proc.Result = if (isNative) {
-    import scala.collection.JavaConverters._
     val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
     val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
     for ((k, v) <- env) {
@@ -239,7 +431,7 @@ object Os_Ext {
       new Predef.String(sp.stderr.bytes(), SC.UTF_8))
     if (sp.isAlive) try {
       sp.destroy()
-      sp.wrapped.waitFor(500, TimeUnit.MICROSECONDS)
+      sp.wrapped.waitFor(500, TU.MICROSECONDS)
     } catch {
       case _: Throwable =>
     }
@@ -250,7 +442,6 @@ object Os_Ext {
       }
     Os.Proc.Result.Timeout()
   } else {
-    import scala.collection.JavaConverters._
     val commands = new java.util.ArrayList(e.commands.elements.map(_.value).asJavaCollection)
     val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
     val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
@@ -261,7 +452,7 @@ object Os_Ext {
     val out = new java.lang.StringBuilder()
     val err = new java.lang.StringBuilder()
     npb.setProcessListener(new NuAbstractProcessHandler {
-      def append(isOut: B, buffer: ByteBuffer): Unit = {
+      def append(isOut: B, buffer: BB): Unit = {
         val bytes = new Array[Byte](buffer.remaining)
         buffer.get(bytes)
         val s = new Predef.String(bytes, SC.UTF_8)
@@ -270,26 +461,26 @@ object Os_Ext {
         else if (e.outputConsole) System.err.print(s) else err.append(s)
       }
 
-      override def onStderr(buffer: ByteBuffer, closed: Boolean): Unit = {
+      override def onStderr(buffer: BB, closed: Boolean): Unit = {
         if (!closed) append(F, buffer)
       }
 
-      override def onStdout(buffer: ByteBuffer, closed: Boolean): Unit = {
+      override def onStdout(buffer: BB, closed: Boolean): Unit = {
         if (!closed) append(T, buffer)
       }
     })
     val p = npb.start()
     if (p != null && p.isRunning) {
       e.input match {
-        case Some(in) => p.writeStdin(ByteBuffer.wrap(in.value.getBytes(SC.UTF_8)))
+        case Some(in) => p.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
         case _ =>
       }
       p.closeStdin(false)
-      val exitCode = p.waitFor(e.timeoutInMillis.toLong, TimeUnit.MILLISECONDS)
+      val exitCode = p.waitFor(e.timeoutInMillis.toLong, TU.MILLISECONDS)
       if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode, out.toString, err.toString)
       if (p.isRunning) try {
         p.destroy(false)
-        p.waitFor(500, TimeUnit.MICROSECONDS)
+        p.waitFor(500, TU.MICROSECONDS)
       } catch {
         case _: Throwable =>
       }

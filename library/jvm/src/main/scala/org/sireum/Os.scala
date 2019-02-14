@@ -124,9 +124,29 @@ object Os {
       'Other
     }
 
+    @enum object WriteMode {
+      'Regular
+      'Over
+      'Append
+    }
+
     @datatype class Impl(val value: String) extends Path {
       override def string: String = {
         return value
+      }
+    }
+
+    @sig trait Generator[T] extends org.sireum.Generator[T] {
+      def path: Path
+      override def string: String = {
+        return s"Generator($path)"
+      }
+    }
+
+    @msig trait MGenerator[T] extends org.sireum.MGenerator[T] {
+      def path: Path
+      override def string: String = {
+        return s"MGenerator($path)"
       }
     }
 
@@ -228,12 +248,12 @@ object Os {
       return Path.Impl(s"$value$fileSep$name")
     }
 
-    @pure def canon: Path = {
+    def canon: Path = {
       val p = Ext.canon(value)
       return if (p == value) this else Path.Impl(p)
     }
 
-    @pure def abs: Path = {
+    def abs: Path = {
       val p = Ext.abs(value)
       return if (p == value) this else Path.Impl(p)
     }
@@ -254,7 +274,7 @@ object Os {
       Ext.copy(value, target.value, T)
     }
 
-    @pure def exists: B = {
+    def exists: B = {
       return Ext.exists(value)
     }
 
@@ -264,23 +284,19 @@ object Os {
       return if (i >= 0) nameOps.substring(i + 1, name.size) else ""
     }
 
-    @pure def isAbs: B = {
+    def isAbs: B = {
       return Ext.isAbs(value)
     }
 
-    @pure def kind: Path.Kind.Type = {
+    def kind: Path.Kind.Type = {
       return Ext.kind(value)
     }
 
-    @pure def lastModified: Z = {
+    def lastModified: Z = {
       return Ext.lastModified(value)
     }
 
-    @pure def lines(n: Z): ISZ[String] = {
-      return Ext.lines(value, n)
-    }
-
-    @pure def list: ISZ[Path] = {
+    def list: ISZ[Path] = {
       return for (filename <- Ext.list(value)) yield this / filename
     }
 
@@ -304,20 +320,53 @@ object Os {
       return Ext.name(value)
     }
 
+    def properties: Map[String, String] = {
+      return Ext.properties(value)
+    }
+
+    def readSymLink: Option[Path] = {
+      val r = Ext.readSymLink(value)
+      return r.map(o => Path.Impl(o))
+    }
+
     @pure def relativize(other: Path): Path = {
       return Path.Impl(Ext.relativize(value, other.value))
     }
 
-    @pure def read: String = {
+    def read: String = {
       return Ext.read(value)
     }
 
-    @pure def readU8s: ISZ[U8] = {
+    def readLines: ISZ[String] = {
+      return Ext.readLineStream(value).toISZ
+    }
+
+    def readLineStream: Path.Generator[String] = {
+      return Ext.readLineStream(value)
+    }
+
+    def readLineMStream: Path.MGenerator[String] = {
+      return Ext.readLineMStream(value)
+    }
+
+    def readU8s: ISZ[U8] = {
       return Ext.readU8s(value)
     }
 
-    @pure def readU8ms: MSZ[U8] = {
-      return Ext.readU8ms(value)
+    def readU8Stream: Path.Generator[U8] = {
+      return Ext.readU8Stream(value)
+    }
+
+    def readU8MStream: Path.MGenerator[U8] = {
+      return Ext.readU8MStream(value)
+    }
+
+    def readCStream: Path.Generator[C] = {
+      return Ext.readCStream(value)
+    }
+
+    def readCMStream: Path.MGenerator[C] = {
+      return Ext.readCMStream(value)
     }
 
     def remove(): Unit = {
@@ -333,27 +382,111 @@ object Os {
     }
 
     def write(content: String): Unit = {
-      Ext.write(value, content, F)
+      Ext.write(value, content, Path.WriteMode.Regular)
     }
 
     def writeOver(content: String): Unit = {
-      Ext.write(value, content, T)
+      Ext.write(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppend(content: String): Unit = {
+      Ext.write(value, content, Path.WriteMode.Append)
+    }
+
+    def writeLineStream(content: Generator[String]): Unit = {
+      Ext.writeLineStream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverLineStream(content: Generator[String]): Unit = {
+      Ext.writeLineStream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendLineStream(content: Generator[String]): Unit = {
+      Ext.writeLineStream(value, content, Path.WriteMode.Append)
+    }
+
+    def writeLineMStream(content: MGenerator[String]): Unit = {
+      Ext.writeLineMStream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverLineMStream(content: MGenerator[String]): Unit = {
+      Ext.writeLineMStream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendLineMStream(content: MGenerator[String]): Unit = {
+      Ext.writeLineMStream(value, content, Path.WriteMode.Append)
     }
 
     def writeU8s(content: ISZ[U8]): Unit = {
-      Ext.writeU8s(value, content, F)
+      Ext.writeU8s(value, content, Path.WriteMode.Regular)
     }
 
     def writeOverU8s(content: ISZ[U8]): Unit = {
-      Ext.writeU8s(value, content, T)
+      Ext.writeU8s(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendU8s(content: ISZ[U8]): Unit = {
+      Ext.writeU8s(value, content, Path.WriteMode.Append)
     }
 
     def writeU8ms(content: MSZ[U8]): Unit = {
-      Ext.writeU8ms(value, content, F)
+      Ext.writeU8ms(value, content, Path.WriteMode.Regular)
     }
 
     def writeOverU8ms(content: MSZ[U8]): Unit = {
-      Ext.writeU8ms(value, content, T)
+      Ext.writeU8ms(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendU8ms(content: MSZ[U8]): Unit = {
+      Ext.writeU8ms(value, content, Path.WriteMode.Append)
+    }
+
+    def writeU8Stream(content: Generator[U8]): Unit = {
+      Ext.writeU8Stream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverU8Stream(content: Generator[U8]): Unit = {
+      Ext.writeU8Stream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendU8Stream(content: Generator[U8]): Unit = {
+      Ext.writeU8Stream(value, content, Path.WriteMode.Append)
+    }
+
+    def writeU8MStream(content: MGenerator[U8]): Unit = {
+      Ext.writeU8MStream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverU8MStream(content: MGenerator[U8]): Unit = {
+      Ext.writeU8MStream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendU8MStream(content: MGenerator[U8]): Unit = {
+      Ext.writeU8MStream(value, content, Path.WriteMode.Append)
+    }
+
+    def writeCStream(content: Generator[C]): Unit = {
+      Ext.writeCStream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverCStream(content: Generator[C]): Unit = {
+      Ext.writeCStream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendCStream(content: Generator[C]): Unit = {
+      Ext.writeCStream(value, content, Path.WriteMode.Append)
+    }
+
+    def writeCMStream(content: MGenerator[C]): Unit = {
+      Ext.writeCMStream(value, content, Path.WriteMode.Regular)
+    }
+
+    def writeOverCMStream(content: MGenerator[C]): Unit = {
+      Ext.writeCMStream(value, content, Path.WriteMode.Over)
+    }
+
+    def writeAppendCMStream(content: MGenerator[C]): Unit = {
+      Ext.writeCMStream(value, content, Path.WriteMode.Append)
     }
 
     @pure def up: Path = {
@@ -377,11 +510,11 @@ object Os {
 
     @pure def os: Kind.Type = $
 
-    @pure def roots: ISZ[String] = $
+    def roots: ISZ[String] = $
 
-    @pure def abs(path: String): String = $
+    def abs(path: String): String = $
 
-    @pure def canon(path: String): String = $
+    def canon(path: String): String = $
 
     def chmod(path: String, mask: String, all: B): Unit = $
 
@@ -391,19 +524,17 @@ object Os {
 
     def envs: Map[String, String] = $
 
-    @pure def exists(path: String): B = $
+    def exists(path: String): B = $
 
     def exit(code: Z): Unit = $
 
     @pure def isAbs(path: String): B = $
 
-    @pure def kind(path: String): Path.Kind.Type = $
+    def kind(path: String): Path.Kind.Type = $
 
-    @pure def lastModified(path: String): Z = $
+    def lastModified(path: String): Z = $
 
-    @pure def lines(path: String, count: Z): ISZ[String] = $
-
-    @pure def list(path: String): ISZ[String] = $
+    def list(path: String): ISZ[String] = $
 
     def move(path: String, target: String, over: B): Unit = $
 
@@ -413,6 +544,10 @@ object Os {
 
     @pure def norm(path: String): String = $
 
+    def properties(path: String): Map[String, String] = $
+
+    def readSymLink(path: String): Option[String] = $
+
     @pure def relativize(path: String, other: String): String = $
 
     def read(path: String): String = $
@@ -420,6 +555,18 @@ object Os {
     def readU8s(path: String): ISZ[U8] = $
 
     def readU8ms(path: String): MSZ[U8] = $
+
+    def readLineStream(path: String): Path.Generator[String] = $
+
+    def readU8Stream(path: String): Path.Generator[U8] = $
+
+    def readCStream(path: String): Path.Generator[C] = $
+
+    def readLineMStream(path: String): Path.MGenerator[String] = $
+
+    def readCMStream(path: String): Path.MGenerator[C] = $
+
+    def readU8MStream(path: String): Path.MGenerator[U8] = $
 
     def remove(path: String): Unit = $
 
@@ -431,11 +578,23 @@ object Os {
 
     def tempDir(prefix: String): String = $
 
-    def write(path: String, content: String, over: B): Unit = $
+    def write(path: String, content: String, mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8s(path: String, content: ISZ[U8], over: B): Unit = $
+    def writeU8s(path: String, u8s: ISZ[U8], mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8ms(path: String, content: MSZ[U8], over: B): Unit = $
+    def writeU8ms(path: String, u8s: MSZ[U8], mode: Path.WriteMode.Type): Unit = $
+
+    def writeLineStream(path: String, lines: Generator[String], mode: Path.WriteMode.Type): Unit = $
+
+    def writeU8Stream(path: String, u8s: Generator[U8], mode: Path.WriteMode.Type): Unit = $
+
+    def writeCStream(path: String, cs: Generator[C], mode: Path.WriteMode.Type): Unit = $
+
+    def writeLineMStream(path: String, lines: MGenerator[String], mode: Path.WriteMode.Type): Unit = $
+
+    def writeU8MStream(path: String, u8s: MGenerator[U8], mode: Path.WriteMode.Type): Unit = $
+
+    def writeCMStream(path: String, cs: MGenerator[C], mode: Path.WriteMode.Type): Unit = $
 
     @pure def parent(path: String): String = $
 
