@@ -64,8 +64,8 @@ object Os_Ext {
 
   def chmod(path: String, mask: String, all: B): Unit = {
     if (os == Os.Kind.Win) return
-    if (all) Os.proc(ISZ("chmod", "-fR", mask, path))
-    else Os.proc(ISZ("chmod", mask, path))
+    if (all) Os.proc(ISZ("chmod", "-fR", mask, path)).run()
+    else Os.proc(ISZ("chmod", mask, path)).runCheck()
   }
 
   def copy(path: String, target: String, over: B): Unit = {
@@ -346,8 +346,8 @@ object Os_Ext {
 
   def removeAll(path: String): Unit = if (exists(path)) {
     os match {
-      case Os.Kind.Win => proc(Os.proc(ISZ("RD", "/S", "/Q", path)))
-      case _ => proc(Os.proc(ISZ("rm", "-fR", path)))
+      case Os.Kind.Win => Os.proc(ISZ("RD", "/S", "/Q", path)).run()
+      case _ => Os.proc(ISZ("rm", "-fR", path)).run()
     }
   }
 
