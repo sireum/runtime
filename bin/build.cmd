@@ -68,7 +68,9 @@ def test(): Unit = {
 def m2(): Unit = {
   Os.proc(ISZ(mill.string, "all",
     "runtime.macros.shared.m2", "runtime.macros.jvm.m2", "runtime.macros.js.m2",
-    "runtime.library.shared.m2", "runtime.library.jvm.m2", "runtime.library.js.m2")).at(home).console.runCheck()
+    "runtime.library.shared.m2", "runtime.library.jvm.m2", "runtime.library.js.m2",
+    "runtime.test.shared.m2", "runtime.test.jvm.m2", "runtime.test.js.m2")).
+    at(home).env(ISZ("SIREUM_SOURCE_BUILD" ~> "false")).console.runCheck()
 
   val repository = Os.home / ".m2" / "repository"
   repository.mkdirAll()
@@ -81,7 +83,11 @@ def m2(): Unit = {
     Os.cwd.up / "out" / "runtime" / "macros" / "js" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "library" / "shared" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "library" / "jvm" / "m2" / "dest",
-    Os.cwd.up / "out" / "runtime" / "library" / "js" / "m2" / "dest")
+    Os.cwd.up / "out" / "runtime" / "library" / "js" / "m2" / "dest",
+    Os.cwd.up / "out" / "runtime" / "test" / "shared" / "m2" / "dest",
+    Os.cwd.up / "out" / "runtime" / "test" / "jvm" / "m2" / "dest",
+    Os.cwd.up / "out" / "runtime" / "test" / "js" / "m2" / "dest"
+  )
   ) {
     for (p <- cd.overlayMove(repository, F, F, _ => T, T).keys) {
       println(s"* $p")

@@ -1,7 +1,6 @@
 jdk:
   - oraclejdk8
 before_install:
-  - export SIREUM_SOURCE_BUILD=false
   - export SIREUM_PROVIDED_JAVA=true
   - bin/init.sh
 install:
