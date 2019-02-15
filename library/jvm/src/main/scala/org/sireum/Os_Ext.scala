@@ -153,16 +153,20 @@ object Os_Ext {
   def move(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
     val t = toNIO(target)
-    try if (over) {
-      JFiles.move(p, t, SCO.COPY_ATTRIBUTES, SCO.ATOMIC_MOVE)
-    } else {
-      JFiles.move(p, t, SCO.COPY_ATTRIBUTES, SCO.REPLACE_EXISTING, SCO.ATOMIC_MOVE)
+    try {
+      if (over) {
+        if (t.toFile.exists()) removeAll(target)
+        JFiles.move(p, t, SCO.ATOMIC_MOVE)
+      } else {
+        JFiles.move(p, t, SCO.ATOMIC_MOVE)
+      }
     } catch {
       case _: AtomicMoveNotSupportedException =>
         if (over) {
+          if (t.toFile.exists()) removeAll(target)
           JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
         } else {
-          JFiles.move(p, t, SCO.COPY_ATTRIBUTES, SCO.REPLACE_EXISTING)
+          JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
         }
     }
   }
