@@ -204,13 +204,18 @@ object Os {
 
     @sig sealed trait Result {
       def ok: B
+      def errOpt: Option[String]
+      def exitCode: Z
     }
 
     object Result {
 
-      @datatype class Normal(exitCode: Z, out: String, err: String) extends Result {
+      @datatype class Normal(val exitCode: Z, out: String, err: String) extends Result {
         def ok: B = {
           return exitCode == 0
+        }
+        def errOpt: Option[String] = {
+          return Some(err)
         }
       }
 
@@ -218,11 +223,23 @@ object Os {
         def ok: B = {
           return F
         }
+        def errOpt: Option[String] = {
+          return Some(err)
+        }
+        def exitCode: Z = {
+          return -1
+        }
       }
 
       @datatype class Timeout extends Result {
         def ok: B = {
           return F
+        }
+        def errOpt: Option[String] = {
+          return None()
+        }
+        def exitCode: Z = {
+          return -1
         }
       }
 
@@ -277,18 +294,17 @@ object Os {
 
     def runCheck(): Proc.Result = {
       val r = run()
-      r match {
-        case r: Proc.Result.Normal =>
-          if (r.exitCode == 0) {
-            return r
-          } else {
-            eprintln(r.err)
-            exit(-1)
-            halt("")
-          }
-        case r: Proc.Result.Exception => halt(r.err)
-        case _: Proc.Result.Timeout => halt("Timeout")
+      if (!r.ok) {
+        r.errOpt match {
+          case Some(err) =>
+            halt(
+              st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}
+                  |$err""".render)
+          case _ =>
+            halt(st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}""".render)
+        }
       }
+      return r
     }
   }
 

@@ -36,6 +36,12 @@ import scala.collection.JavaConverters._
 
 object Os_Ext {
 
+  { // for nuprocess
+    java.util.logging.LogManager.getLogManager.reset()
+    System.setProperty("jna.nosys", "true")
+  }
+
+
   val fileSep: String = java.io.File.separator
 
   val lineSep: String = System.lineSeparator
@@ -64,8 +70,8 @@ object Os_Ext {
 
   def chmod(path: String, mask: String, all: B): Unit = {
     if (os == Os.Kind.Win) return
-    if (all) Os.proc(ISZ("chmod", "-fR", mask, path)).run()
-    else Os.proc(ISZ("chmod", mask, path)).runCheck()
+    if (all) Os.proc(ISZ("sh", "-c", s"chmod -fR $mask $path")).run()
+    else Os.proc(ISZ("sh", "-c", s"chmod $mask $path")).runCheck()
   }
 
   def copy(path: String, target: String, over: B): Unit = {
@@ -366,8 +372,8 @@ object Os_Ext {
 
   def removeAll(path: String): Unit = if (exists(path)) {
     os match {
-      case Os.Kind.Win => Os.proc(ISZ("RD", "/S", "/Q", path)).run()
-      case _ => Os.proc(ISZ("rm", "-fR", path)).run()
+      case Os.Kind.Win => Os.proc(ISZ("cmd", "/c", "RD", "/S", "/Q", path)).run()
+      case _ => Os.proc(ISZ("sh", "-c", s"rm -fR $path")).run()
     }
   }
 
@@ -458,8 +464,12 @@ object Os_Ext {
   def proc(e: Os.Proc): Os.Proc.Result = try {
     if (isNative) {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
-      for ((k, v) <- env) {
+      if (e.addEnv) {
+        for ((k, v) <- System.getenv().asScala) {
+          m(k.toString) = v.toString
+        }
+      }
+      for ((k, v) <- e.envMap.entries.elements) {
         m(k.toString) = v.toString
       }
       val (stdout, stderr) =
@@ -471,7 +481,7 @@ object Os_Ext {
       }
       val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
         spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
-          mergeErrIntoOut = e.errAsOut, propagateEnv = e.addEnv)
+          mergeErrIntoOut = e.errAsOut, propagateEnv = false)
       val term = sp.waitFor(e.timeoutInMillis.toLong)
       if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
         new Predef.String(sp.stderr.bytes(), SC.UTF_8))
@@ -490,8 +500,12 @@ object Os_Ext {
     } else {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
-      for ((k, v) <- env) {
+      if (e.addEnv) {
+        for ((k, v) <- System.getenv().asScala) {
+          m(k.toString) = v.toString
+        }
+      }
+      for ((k, v) <- e.envMap.entries.elements) {
         m(k.toString) = v.toString
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
