@@ -30,7 +30,20 @@ def compile(): Unit = {
   def triggerJitPack(): Unit = {
     if (Os.isMac) {
       println("Triggering jitpack ...")
-      Os.proc(ISZ(mill.string, "jitPack", "--owner", "sireum", "--repo", "runtime", "--lib", "library")).run()
+      val r = Os.proc(ISZ(mill.string, "jitPack", "--owner", "sireum", "--repo", "runtime", "--lib", "library")).run()
+      r match {
+        case r: Os.Proc.Result.Normal =>
+          println(r.out)
+          println(r.err)
+          if (!r.ok) {
+            eprintln(s"Exit code: ${r.exitCode}")
+          }
+        case r: Os.Proc.Result.Exception =>
+          eprintln(s"Exception: ${r.err}")
+        case _: Os.Proc.Result.Timeout =>
+          eprintln("Timout")
+          eprintln()
+      }
       println()
     }
   }
