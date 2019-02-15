@@ -24,7 +24,7 @@
  */
 package org.sireum
 
-import java.io.{File => JFile, FileInputStream => FIS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.io.{PrintWriter, File => JFile, FileInputStream => FIS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
 import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
@@ -79,13 +79,14 @@ object Os_Ext {
     val cookieManager = new java.net.CookieManager()
     val default = java.net.CookieHandler.getDefault
     java.net.CookieHandler.setDefault(cookieManager)
+
     def fetch(loc: Predef.String): java.net.HttpURLConnection = {
       val c = new java.net.URL(loc).openConnection().asInstanceOf[java.net.HttpURLConnection]
       c.setInstanceFollowRedirects(false)
       c.setUseCaches(false)
       val responseCode = c.getResponseCode
       if (301 <= responseCode && responseCode <= 303 || responseCode == 307 || responseCode == 308) {
-        var newLoc = c.getHeaderField( "Location")
+        var newLoc = c.getHeaderField("Location")
         if (newLoc.startsWith("/")) {
           val locUrl = new java.net.URL(loc)
           newLoc = s"${locUrl.getProtocol}://${locUrl.getHost}$newLoc"
@@ -93,6 +94,7 @@ object Os_Ext {
         fetch(newLoc)
       } else c
     }
+
     val c = fetch(url.value)
     val in = c.getInputStream
     try JFiles.copy(in, toNIO(path)) finally {
@@ -207,6 +209,7 @@ object Os_Ext {
   def readLineStream(p: String): Os.Path.Jen[String] =
     new Os.Path.Jen[String] {
       override def path: Os.Path = Os.Path.Impl(p)
+
       override def generate(f: String => Jen.Action): Jen.Action = {
         val stream = JFiles.lines(toNIO(p), SC.UTF_8)
         var last = Jen.Continue
@@ -223,6 +226,7 @@ object Os_Ext {
   def readU8Stream(p: String): Os.Path.Jen[U8] =
     new Os.Path.Jen[U8] {
       override def path: Os.Path = Os.Path.Impl(p)
+
       override def generate(f: U8 => Jen.Action): Jen.Action = {
         val is = new FIS(toIO(p))
         try {
@@ -243,6 +247,7 @@ object Os_Ext {
   def readCStream(p: String): Os.Path.Jen[C] =
     new Os.Path.Jen[C] {
       override def path: Os.Path = Os.Path.Impl(p)
+
       override def generate(f: C => Jen.Action): Jen.Action = {
         val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
         try {
@@ -263,8 +268,13 @@ object Os_Ext {
   def readLineMStream(p: String): Os.Path.MJen[String] = {
     class G extends Os.Path.MJen[String] {
       private var _owned: Boolean = false
-      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+
+      def $owned_=(owned: Boolean): G = {
+        _owned = owned; this
+      }
+
       def $owned: Boolean = _owned
+
       def $clone: G = new G
 
       override def path: Os.Path = Os.Path.Impl(p)
@@ -287,8 +297,13 @@ object Os_Ext {
   def readU8MStream(p: String): Os.Path.MJen[U8] = {
     class G extends Os.Path.MJen[U8] {
       private var _owned: Boolean = false
-      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+
+      def $owned_=(owned: Boolean): G = {
+        _owned = owned; this
+      }
+
       def $owned: Boolean = _owned
+
       def $clone: G = new G
 
       override def path: Os.Path = Os.Path.Impl(p)
@@ -315,8 +330,13 @@ object Os_Ext {
   def readCMStream(p: String): Os.Path.MJen[C] = {
     class G extends Os.Path.MJen[C] {
       private var _owned: Boolean = false
-      def $owned_=(owned: Boolean): G = { _owned = owned; this }
+
+      def $owned_=(owned: Boolean): G = {
+        _owned = owned; this
+      }
+
       def $owned: Boolean = _owned
+
       def $clone: G = new G
 
       override def path: Os.Path = Os.Path.Impl(p)
@@ -435,88 +455,95 @@ object Os_Ext {
 
   def parent(path: String): String = toIO(path).getParent
 
-  def proc(e: Os.Proc): Os.Proc.Result = if (isNative) {
-    val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-    val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
-    for ((k, v) <- env) {
-      m(k.toString) = v.toString
-    }
-    val (stdout, stderr) =
-      if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
-      else (_root_.os.Pipe: _root_.os.ProcessOutput, _root_.os.Pipe: _root_.os.ProcessOutput)
-    val stdin: _root_.os.ProcessInput = e.in match {
-      case Some(s) => s.value
-      case _ => _root_.os.Pipe
-    }
-    val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
-      spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
-        mergeErrIntoOut = e.errAsOut, propagateEnv = e.addEnv)
-    val term = sp.waitFor(e.timeoutInMillis.toLong)
-    if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
-      new Predef.String(sp.stderr.bytes(), SC.UTF_8))
-    if (sp.isAlive) try {
-      sp.destroy()
-      sp.wrapped.waitFor(500, TU.MICROSECONDS)
-    } catch {
-      case _: Throwable =>
-    }
-    if (sp.isAlive)
-      try sp.destroyForcibly()
-      catch {
-        case _: Throwable =>
+  def proc(e: Os.Proc): Os.Proc.Result = try {
+    if (isNative) {
+      val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
+      val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
+      for ((k, v) <- env) {
+        m(k.toString) = v.toString
       }
-    Os.Proc.Result.Timeout()
-  } else {
-    val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
-    val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-    val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
-    for ((k, v) <- env) {
-      m(k.toString) = v.toString
-    }
-    val npb = new NuProcessBuilder(commands, m.asJava)
-    npb.setCwd(toNIO(e.wd.value))
-    val out = new java.lang.StringBuilder()
-    val err = new java.lang.StringBuilder()
-    npb.setProcessListener(new NuAbstractProcessHandler {
-      def append(isOut: B, buffer: BB): Unit = {
-        val bytes = new Array[Byte](buffer.remaining)
-        buffer.get(bytes)
-        val s = new Predef.String(bytes, SC.UTF_8)
-        if (isOut || e.errAsOut)
-          if (e.outputConsole) System.out.print(s) else out.append(s)
-        else if (e.outputConsole) System.err.print(s) else err.append(s)
+      val (stdout, stderr) =
+        if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
+        else (_root_.os.Pipe: _root_.os.ProcessOutput, _root_.os.Pipe: _root_.os.ProcessOutput)
+      val stdin: _root_.os.ProcessInput = e.in match {
+        case Some(s) => s.value
+        case _ => _root_.os.Pipe
       }
-
-      override def onStderr(buffer: BB, closed: Boolean): Unit = {
-        if (!closed) append(F, buffer)
-      }
-
-      override def onStdout(buffer: BB, closed: Boolean): Unit = {
-        if (!closed) append(T, buffer)
-      }
-    })
-    val p = npb.start()
-    if (p != null && p.isRunning) {
-      e.in match {
-        case Some(in) => p.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
-        case _ =>
-      }
-      p.closeStdin(false)
-      val exitCode = p.waitFor(e.timeoutInMillis.toLong, TU.MILLISECONDS)
-      if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode, out.toString, err.toString)
-      if (p.isRunning) try {
-        p.destroy(false)
-        p.waitFor(500, TU.MICROSECONDS)
+      val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
+        spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
+          mergeErrIntoOut = e.errAsOut, propagateEnv = e.addEnv)
+      val term = sp.waitFor(e.timeoutInMillis.toLong)
+      if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
+        new Predef.String(sp.stderr.bytes(), SC.UTF_8))
+      if (sp.isAlive) try {
+        sp.destroy()
+        sp.wrapped.waitFor(500, TU.MICROSECONDS)
       } catch {
         case _: Throwable =>
       }
-      if (p.isRunning)
-        try p.destroy(true)
+      if (sp.isAlive)
+        try sp.destroyForcibly()
         catch {
           case _: Throwable =>
         }
       Os.Proc.Result.Timeout()
-    } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
+    } else {
+      val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
+      val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
+      val env = if (e.addEnv) System.getenv().asScala ++ e.envMap.entries.elements else e.envMap.entries.elements
+      for ((k, v) <- env) {
+        m(k.toString) = v.toString
+      }
+      val npb = new NuProcessBuilder(commands, m.asJava)
+      npb.setCwd(toNIO(e.wd.value))
+      val out = new java.lang.StringBuilder()
+      val err = new java.lang.StringBuilder()
+      npb.setProcessListener(new NuAbstractProcessHandler {
+        def append(isOut: B, buffer: BB): Unit = {
+          val bytes = new Array[Byte](buffer.remaining)
+          buffer.get(bytes)
+          val s = new Predef.String(bytes, SC.UTF_8)
+          if (isOut || e.errAsOut)
+            if (e.outputConsole) System.out.print(s) else out.append(s)
+          else if (e.outputConsole) System.err.print(s) else err.append(s)
+        }
+
+        override def onStderr(buffer: BB, closed: Boolean): Unit = {
+          if (!closed) append(F, buffer)
+        }
+
+        override def onStdout(buffer: BB, closed: Boolean): Unit = {
+          if (!closed) append(T, buffer)
+        }
+      })
+      val p = npb.start()
+      if (p != null && p.isRunning) {
+        e.in match {
+          case Some(in) => p.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
+          case _ =>
+        }
+        p.closeStdin(false)
+        val exitCode = p.waitFor(e.timeoutInMillis.toLong, TU.MILLISECONDS)
+        if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode, out.toString, err.toString)
+        if (p.isRunning) try {
+          p.destroy(false)
+          p.waitFor(500, TU.MICROSECONDS)
+        } catch {
+          case _: Throwable =>
+        }
+        if (p.isRunning)
+          try p.destroy(true)
+          catch {
+            case _: Throwable =>
+          }
+        Os.Proc.Result.Timeout()
+      } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
+    }
+  } catch {
+    case t: Throwable =>
+      val sw = java.io.StringWriter
+      t.printStackTrace(new PrintWriter(sw))
+      Os.Proc.Result.Exception(sw.toString)
   }
 
 
