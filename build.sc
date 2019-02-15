@@ -23,11 +23,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 import $file.Runtime
-import ammonite.ops.up
 
 object runtime extends mill.Module {
 
-  final override def millSourcePath = super.millSourcePath / up
+  final override def millSourcePath = super.millSourcePath / os.up
 
   object macros extends Runtime.Module.Macros
 
@@ -43,6 +42,10 @@ object runtime extends mill.Module {
     override def macrosObject = macros
   }
 
+  object bin extends mill.scalalib.ScalaModule {
+    final override def scalaVersion = org.sireum.mill.SireumModule.scalaVersion
+    final override def moduleDeps = Seq(runtime.library.jvm)
+  }
 }
 
 def jitPack(owner: String, repo: String, lib: String = "") = T.command {
