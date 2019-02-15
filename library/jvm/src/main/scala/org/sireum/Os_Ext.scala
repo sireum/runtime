@@ -541,7 +541,7 @@ object Os_Ext {
     }
   } catch {
     case t: Throwable =>
-      val sw = java.io.StringWriter
+      val sw = new java.io.StringWriter
       t.printStackTrace(new PrintWriter(sw))
       Os.Proc.Result.Exception(sw.toString)
   }
