@@ -67,8 +67,8 @@ def test(): Unit = {
 
 def m2(): Unit = {
   Os.proc(ISZ(mill.string, "all",
-    "runtime.macros.shared.m2", "runtime.macros.js.m2",
-    "runtime.library.shared.m2", "runtime.library.js.m2")).at(home).console.runCheck()
+    "runtime.macros.shared.m2", "runtime.macros.jvm.m2", "runtime.macros.js.m2",
+    "runtime.library.shared.m2", "runtime.library.jvm.m2", "runtime.library.js.m2")).at(home).console.runCheck()
 
   val repository = Os.home / ".m2" / "repository"
   repository.mkdirAll()
