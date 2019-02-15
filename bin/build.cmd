@@ -10,8 +10,8 @@ import org.sireum._
 
 
 def usage(): Unit = {
-  println("Sireum Runtime /build")
-  println("Usage: ( compile | test | test-js | m2 | jitpack )")
+  println("Sireum Runtime Library /build")
+  println("Usage: ( compile | test | test-js | m2 | jitpack )+")
 }
 
 if (Os.cliArgs.size != 2) {
@@ -110,18 +110,20 @@ def m2(): Unit = {
 
 downloadMill()
 
-Os.cliArgs(1) match {
-  case string"compile" => compile()
-  case string"test" =>
-    test()
-    if (Os.proc(ISZ("node", "-v")).run().ok) {
-      testJs()
-    }
-  case string"test-js" => testJs()
-  case string"m2" => m2()
-  case string"jitpack" => jitpack()
-  case cmd =>
-    usage()
-    eprintln(s"Unrecognized command: $cmd")
-    Os.exit(-1)
+for (i <- 1 until Os.cliArgs.size) {
+  Os.cliArgs(i) match {
+    case string"compile" => compile()
+    case string"test" =>
+      test()
+      if (Os.proc(ISZ("node", "-v")).run().ok) {
+        testJs()
+      }
+    case string"test-js" => testJs()
+    case string"m2" => m2()
+    case string"jitpack" => jitpack()
+    case cmd =>
+      usage()
+      eprintln(s"Unrecognized command: $cmd")
+      Os.exit(-1)
+  }
 }
