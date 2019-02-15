@@ -162,6 +162,44 @@ object Os {
       }
     }
 
+    def overlay(isMove: B, path: Os.Path, target: Os.Path, includeDir: B, followLink: B,
+                pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
+      var r = HashSMap.empty[Os.Path, Os.Path]
+      for (p <- ops.ISZOps(walk(path, includeDir, T, pred)).reverse) {
+        var rel = ISZ[String]()
+        var t = p
+        while (t.name != "dest" && t.up.name != "m2") {
+          rel = t.name +: rel
+          t = t.up
+        }
+        t = target / st"${(rel, Os.fileSep)}".render
+        p.kind match {
+          case Kind.Dir =>
+            t.mkdirAll()
+            if (isMove) {
+              p.remove()
+            }
+            if (report) {
+              r = r + p ~> t
+            }
+          case Kind.File =>
+            t.up.mkdirAll()
+            if (isMove) {
+              p.moveOverTo(t)
+            } else {
+              p.copyOverTo(t)
+            }
+            if (report) {
+              r = r + p ~> t
+            }
+          case Kind.SymLink if isMove =>
+            p.remove()
+          case _ =>
+        }
+      }
+      return r
+    }
+
     def walk(path: Os.Path, includeDir: B, followLink: B, pred: Os.Path => B @pure): ISZ[Os.Path] = {
       var rSet = HashSSet.empty[Os.Path]
       var rIS = ISZ[Os.Path]()
@@ -186,6 +224,9 @@ object Os {
             }
           case Os.Path.Kind.File if pred(p) => add(p)
           case Os.Path.Kind.SymLink if followLink =>
+            if (pred(p)) {
+              add(p)
+            }
             val tOpt = p.readSymLink 
             tOpt match {
               case Some(t) => rec(t)
@@ -402,6 +443,16 @@ object Os {
 
     @pure def name: String = {
       return Ext.name(value)
+    }
+
+    def overlayCopy(target: Os.Path, includeDir: B, followLink: B,
+                    pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
+      Path.overlay(F, this, target, includeDir, followLink, pred, report)
+    }
+
+    def overlayMove(target: Os.Path, includeDir: B, followLink: B,
+                    pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
+      Path.overlay(T, this, target, includeDir, followLink, pred, report)
     }
 
     def properties: Map[String, String] = {

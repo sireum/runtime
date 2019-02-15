@@ -73,28 +73,21 @@ def m2(): Unit = {
   val repository = Os.home / ".m2" / "repository"
   repository.mkdirAll()
 
-  println(s"Moving ...")
-
+  println()
+  println("Artifacts")
   for (cd <- ISZ(
     Os.cwd.up / "out" / "runtime" / "macros" / "shared" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "macros" / "jvm" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "macros" / "js" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "library" / "shared" / "m2" / "dest",
     Os.cwd.up / "out" / "runtime" / "library" / "jvm" / "m2" / "dest",
-    Os.cwd.up / "out" / "runtime" / "library" / "js" / "m2" / "dest");
-    p <- Os.Path.walk(cd, F, F, _ => T)
+    Os.cwd.up / "out" / "runtime" / "library" / "js" / "m2" / "dest")
   ) {
-    var rel = ISZ[String]()
-    var t = p
-    while (t.name != "dest" && t.up.name != "m2") {
-      rel = t.name +: rel
-      t = t.up
+    for (p <- cd.overlayMove(repository, F, F, _ => T, T).keys) {
+      println(s"* $p")
     }
-    t = repository / st"${(rel, Os.fileSep)}".render
-    t.up.mkdirAll()
-    println(s"Moving $p to $t ...")
-    p.moveOverTo(t)
   }
+  println()
 }
 
 
