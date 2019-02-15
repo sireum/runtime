@@ -148,7 +148,7 @@ object Os_Ext {
     if (count <= 0) ISZ(JFiles.lines(toNIO(path), SC.UTF_8).toArray.map(s => String(s.toString)): _*)
     else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.map(s => String(s.toString)): _*)
 
-  def list(path: String): ISZ[String] = ISZ(toIO(path).list.map(String(_)): _*)
+  def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).map(String(_)): _*)
 
   def move(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
