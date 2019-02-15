@@ -11,7 +11,7 @@ import org.sireum._
 
 def usage(): Unit = {
   println("Sireum Runtime /build")
-  println("Usage: ( compile | test | m2 | jitpack )")
+  println("Usage: ( compile | test | test-js | m2 | jitpack )")
 }
 
 if (Os.cliArgs.size != 2) {
@@ -78,12 +78,13 @@ def test(): Unit = {
 
   println("Running jvm tests ...")
   Os.proc(ISZ(mill.string, "runtime.library.jvm.tests")).at(home).console.runCheck()
+  println()
+}
 
-  if (Os.proc(ISZ("node", "-v")).run().ok) {
-    println()
-    println("Running js tests ...")
-    Os.proc(ISZ(mill.string, "runtime.library.js.tests")).at(home).console.runCheck()
-  }
+def testJs(): Unit = {
+  println("Running js tests ...")
+  Os.proc(ISZ(mill.string, "runtime.library.js.tests")).at(home).console.runCheck()
+  println()
 }
 
 def m2(): Unit = {
@@ -111,7 +112,12 @@ downloadMill()
 
 Os.cliArgs(1) match {
   case string"compile" => compile()
-  case string"test" => test()
+  case string"test" =>
+    test()
+    if (Os.proc(ISZ("node", "-v")).run().ok) {
+      testJs()
+    }
+  case string"test-js" => testJs()
   case string"m2" => m2()
   case string"jitpack" => jitpack()
   case cmd =>
