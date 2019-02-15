@@ -165,7 +165,8 @@ object Os {
     def overlay(isMove: B, path: Os.Path, target: Os.Path, includeDir: B, followLink: B,
                 pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
       var r = HashSMap.empty[Os.Path, Os.Path]
-      for (p <- ops.ISZOps(walk(path, includeDir, T, pred)).reverse) {
+      val files = ops.ISZOps(walk(path, includeDir, T, pred)).reverse
+      for (p <- files) {
         var rel = ISZ[String]()
         var t = p
         while (t.name != "dest" && t.up.name != "m2") {
