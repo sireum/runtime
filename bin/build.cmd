@@ -58,7 +58,7 @@ def compile(): Unit = {
   def tipe(): Unit = {
     println("Slang type checking ...")
     Os.proc(ISZ("java", "-jar", sireumJar.string,
-      "slang", "tipe", "--verbose", "-r", "-s", "library")).at(home).console.runCheck()
+      "slang", "tipe", "--verbose", "-r", "-s", home.string)).at(home).console.runCheck()
     println()
   }
 
@@ -95,11 +95,13 @@ def m2(): Unit = {
       yield ISZ("runtime", pkg, plat, "m2")
 
   val m2Paths: ISZ[Os.Path] =
-    for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) yield  Os.cwd.up / "out" / cd
+    for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) yield  home / "out" / cd
 
   for (m2p <- m2Paths) {
     m2p.removeAll()
   }
+
+  (home / "out").removeAll()
 
   Os.proc(ISZ[String](mill.string, "all") ++ (for (m2 <- m2s) yield st"${(m2, ".")}".render)).
     at(home).env(ISZ("SIREUM_SOURCE_BUILD" ~> "false")).console.runCheck()
@@ -112,6 +114,8 @@ def m2(): Unit = {
     println(s"* $p")
   }
   println()
+
+  (home / "out").removeAll()
 }
 
 
