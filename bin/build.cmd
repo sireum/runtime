@@ -94,8 +94,11 @@ def m2(): Unit = {
     for (pkg <- ISZ("macros", "library", "test"); plat <- ISZ("shared", "jvm", "js"))
       yield ISZ("runtime", pkg, plat, "m2")
 
-  for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) {
-    (Os.cwd.up / "out" / cd).removeAll()
+  val m2Paths: ISZ[Os.Path] =
+    for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) yield  Os.cwd.up / "out" / cd
+
+  for (m2p <- m2Paths) {
+    m2p.removeAll()
   }
 
   Os.proc(ISZ[String](mill.string, "all") ++ (for (m2 <- m2s) yield st"${(m2, ".")}".render)).
@@ -105,10 +108,8 @@ def m2(): Unit = {
 
   println()
   println("Artifacts")
-  for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}${Os.fileSep}dest".render) {
-    for (p <- (Os.cwd.up / "out" / cd).overlayMove(repository, F, F, _ => T, T).keys) {
-      println(s"* $p")
-    }
+  for (m2p <- m2Paths; p <- (m2p / "dest").overlayMove(repository, F, F, _ => T, T).keys) {
+    println(s"* $p")
   }
   println()
 }
