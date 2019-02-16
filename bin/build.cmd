@@ -107,10 +107,11 @@ def m2(): Unit = {
     at(home).env(ISZ("SIREUM_SOURCE_BUILD" ~> "false")).console.runCheck()
 
   val repository = Os.home / ".m2" / "repository"
+  repository.removeAll()
 
   println()
   println("Artifacts")
-  for (m2p <- m2Paths; p <- (m2p / "dest").overlayMove(repository, F, F, _ => T, T).keys) {
+  for (m2p <- m2Paths; p <- (m2p / "dest").overlayMove(repository, F, F, _ => T, T).values) {
     println(s"* $p")
   }
   println()
