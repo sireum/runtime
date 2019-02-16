@@ -46,7 +46,7 @@ def jitpack(): Unit = {
     case r: Os.Proc.Result.Exception =>
       eprintln(s"Exception: ${r.err}")
     case _: Os.Proc.Result.Timeout =>
-      eprintln("Timout")
+      eprintln("Timeout")
       eprintln()
   }
   println()
@@ -66,7 +66,8 @@ def compile(): Unit = {
   }
   tipe()
   println("Compiling ...")
-  Os.proc(ISZ(mill.string, "all", "runtime.library.jvm.tests.compile")).at(home).console.runCheck()
+  Os.proc(ISZ(mill.string, "all", "runtime.library.jvm.tests.compile",
+    "runtime.library.js.tests.compile")).at(home).console.runCheck()
   println()
 }
 
@@ -113,11 +114,7 @@ downloadMill()
 for (i <- 1 until Os.cliArgs.size) {
   Os.cliArgs(i) match {
     case string"compile" => compile()
-    case string"test" =>
-      test()
-      if (Os.proc(ISZ("node", "-v")).run().ok) {
-        testJs()
-      }
+    case string"test" => test()
     case string"test-js" => testJs()
     case string"m2" => m2()
     case string"jitpack" => jitpack()
