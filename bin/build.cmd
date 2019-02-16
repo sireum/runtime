@@ -115,8 +115,6 @@ def m2(): Unit = {
     println(s"* $p")
   }
   println()
-
-  (home / "out").removeAll()
 }
 
 
