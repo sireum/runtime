@@ -14,7 +14,7 @@ def usage(): Unit = {
   println("Usage: ( compile | test | test-js | m2 | jitpack )+")
 }
 
-if (Os.cliArgs.size != 2) {
+if (Os.cliArgs.size < 2) {
   usage()
   Os.exit(0)
 }
