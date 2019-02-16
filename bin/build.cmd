@@ -94,6 +94,10 @@ def m2(): Unit = {
     for (pkg <- ISZ("macros", "library", "test"); plat <- ISZ("shared", "jvm", "js"))
       yield ISZ("runtime", pkg, plat, "m2")
 
+  for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) {
+    (Os.cwd.up / "out" / cd).removeAll()
+  }
+
   Os.proc(ISZ[String](mill.string, "all") ++ (for (m2 <- m2s) yield st"${(m2, ".")}".render)).
     at(home).env(ISZ("SIREUM_SOURCE_BUILD" ~> "false")).console.runCheck()
 
