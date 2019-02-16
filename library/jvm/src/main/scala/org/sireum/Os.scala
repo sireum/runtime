@@ -339,12 +339,13 @@ object Os {
       if (!r.ok) {
         r.errOpt match {
           case Some(err) =>
-            halt(
+            eprintln(
               st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}
                   |$err""".render)
           case _ =>
-            halt(st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}""".render)
+            eprintln(st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}""".render)
         }
+        Os.exit(-1)
       }
       return r
     }
