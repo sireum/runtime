@@ -78,8 +78,12 @@ object Os_Ext {
     val p = toNIO(path)
     val t = toNIO(target)
     if (over) {
+      removeAll(target)
       mkdir(parent(target), T)
-      JFiles.copy(p, t, SCO.REPLACE_EXISTING, SCO.COPY_ATTRIBUTES)
+    }
+    if (isDir(path)) {
+      if (Os.isWin) Os.proc(ISZ("xcopy", "/X", "/E", "/H", "/K", path, target)).runCheck()
+      else Os.proc(ISZ("sh", "-c", s"cp -a $path $target")).runCheck()
     } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
