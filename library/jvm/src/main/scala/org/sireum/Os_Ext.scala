@@ -77,8 +77,10 @@ object Os_Ext {
   def copy(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
     val t = toNIO(target)
-    if (over) JFiles.copy(p, t, SCO.REPLACE_EXISTING, SCO.COPY_ATTRIBUTES)
-    else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
+    if (over) {
+      mkdir(parent(target), T)
+      JFiles.copy(p, t, SCO.REPLACE_EXISTING, SCO.COPY_ATTRIBUTES)
+    } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
   def download(path: String, url: String): Unit = {
@@ -155,7 +157,10 @@ object Os_Ext {
     val t = toNIO(target)
     try {
       if (over) {
-        if (t.toFile.exists()) removeAll(target)
+        if (t.toFile.exists()) {
+          removeAll(target)
+          mkdir(parent(target), T)
+        }
         JFiles.move(p, t, SCO.ATOMIC_MOVE)
       } else {
         JFiles.move(p, t, SCO.ATOMIC_MOVE)
@@ -163,7 +168,10 @@ object Os_Ext {
     } catch {
       case _: AtomicMoveNotSupportedException =>
         if (over) {
-          if (t.toFile.exists()) removeAll(target)
+          if (t.toFile.exists()) {
+            removeAll(target)
+            mkdir(parent(target), T)
+          }
           JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
         } else {
           JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
@@ -405,6 +413,7 @@ object Os_Ext {
     if (mode == Os.Path.WriteMode.Append) true
     else {
       removeAll(path)
+      mkdir(parent(path), T)
       false
     }
   }
@@ -417,13 +426,13 @@ object Os_Ext {
 
   def writeU8s(path: String, content: ISZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+    try if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
     finally os.close()
   }
 
   def writeU8ms(path: String, content: MSZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+    try if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
     finally os.close()
   }
 
