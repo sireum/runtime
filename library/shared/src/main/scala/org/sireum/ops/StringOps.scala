@@ -28,6 +28,54 @@ package org.sireum.ops
 
 import org.sireum._
 
+object StringOps {
+  @pure def substring(cis: ISZ[C], start: Z, until: Z): String = {
+    val ms = MSZ.create[C](until - start, '\u0000')
+    var i = start
+    var j = 0
+    while (i < until) {
+      ms(j) = cis(i)
+      i = i + 1
+      j = j + 1
+    }
+    return conversions.String.fromCms(ms)
+  }
+
+  @pure def replaceAllLiterally(cis: ISZ[C], from: String, to: String): String = {
+    var r = ISZ[C]()
+    var i: Z = 0
+    val toSize = to.size
+    val fromSize = from.size
+    val fromCis = conversions.String.toCis(from)
+    val toCis = conversions.String.toCis(to)
+    val size = cis.size
+    while (i + fromSize < size) {
+      var j = 0
+      var found = T
+      while (i + j + fromSize < size && j < fromSize && found) {
+        if (cis(i + j) != fromCis(j)) {
+          found = F
+        }
+        j = j + 1
+      }
+      if (found) {
+        for (j <- 0 until toSize) {
+          r = r :+ toCis(j)
+        }
+        i = i + fromSize - 1
+      } else {
+        r = r :+ cis(i)
+      }
+      i = i + 1
+    }
+    while (i < size) {
+      r = r :+ cis(i)
+      i = i + 1
+    }
+    return conversions.String.fromCis(r)
+  }
+}
+
 @datatype class StringOps(s: String) {
 
   @pure def first: C = {
@@ -41,16 +89,7 @@ import org.sireum._
                   until ≤ s.size
          ensures  result.size ≡ until - start
                   ∀i: [0, result.size) result(i) ≡ s(start + i) """
-    var ms = MSZ.create[C](until - start, '\u0000')
-    var i = start
-    var j = 0
-    val cis = conversions.String.toCis(s)
-    while (i < until) {
-      ms(j) = cis(i)
-      i = i + 1
-      j = j + 1
-    }
-    return conversions.String.fromCms(ms)
+    return StringOps.substring(conversions.String.toCis(s), start, until)
   }
 
   @pure def startsWith(other: String): B = {
@@ -146,5 +185,49 @@ import org.sireum._
       cs(i) = to
     }
     return conversions.String.fromCms(cs)
+  }
+
+  @pure def replaceAllLiterally(from: String, to: String): String = {
+    return StringOps.replaceAllLiterally(conversions.String.toCis(s), from, to)
+  }
+
+  @pure def split(isSep: C => B @pure): ISZ[String] = {
+    var r = ISZ[String]()
+    val cis = conversions.String.toCis(s)
+    var last = 0
+    val size = s.size
+    while (last < size && isSep(cis(last))) {
+      last = last + 1
+    }
+    var i = last
+    while (i < size) {
+      if (isSep(cis(i)) && last != i) {
+        r = r :+ StringOps.substring(cis, last, i)
+        i = i + 1
+        while (i < size && isSep(cis(i))) {
+          i = i + 1
+        }
+        last = i
+      }
+      i = i + 1
+    }
+    if (last < size) {
+      r = r :+ StringOps.substring(cis, last, i)
+    }
+    return r
+  }
+
+  @pure def trim: String = {
+    var i = 0
+    val size = s.size
+    val cis = conversions.String.toCis(s)
+    while (i < size && cis(i).isWhitespace) {
+      i = i + 1
+    }
+    var j = size - 1
+    while (j >= 0 && cis(j).isWhitespace) {
+      j = j - 1
+    }
+    return if (i <= j) StringOps.substring(cis, i, j + 1) else ""
   }
 }
