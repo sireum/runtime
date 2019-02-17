@@ -12,13 +12,11 @@ This repository holds the [Slang](https://github.com/sireum/slang) runtime libra
 * **macOS/Linux**
 
   ```bash
-  bin/init.sh
   bin/build.cmd test test-js
   ```
   
 * **Windows**
 
   ```cmd
-  bin\init.bat
   bin\build.cmd test test-js
   ```

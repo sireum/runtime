@@ -113,6 +113,8 @@ def jitpack(): Unit = {
 
 
 def m2(): Unit = {
+  didM2 = T
+
   val m2s: ISZ[ISZ[String]] =
     for (pkg <- ISZ("macros", "library", "test"); plat <- ISZ("shared", "jvm", "js"))
       yield ISZ("runtime", pkg, plat, "m2")
