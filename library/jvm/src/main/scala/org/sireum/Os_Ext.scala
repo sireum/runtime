@@ -509,7 +509,8 @@ object Os_Ext {
         catch {
           case _: Throwable =>
         }
-      Os.Proc.Result.Timeout()
+      Os.Proc.Result.Timeout(new Predef.String(sp.stdout.bytes(), SC.UTF_8),
+        new Predef.String(sp.stderr.bytes(), SC.UTF_8))
     } else {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
@@ -563,7 +564,7 @@ object Os_Ext {
           catch {
             case _: Throwable =>
           }
-        Os.Proc.Result.Timeout()
+        Os.Proc.Result.Timeout(out.toString, err.toString)
       } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
     }
   } catch {

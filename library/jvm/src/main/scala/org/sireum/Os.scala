@@ -245,41 +245,28 @@ object Os {
   object Proc {
 
     @sig sealed trait Result {
-      def ok: B
-      def errOpt: Option[String]
+      def ok: B = {
+        return exitCode == 0
+      }
+      def out: String
+      def err: String
       def exitCode: Z
     }
 
     object Result {
 
-      @datatype class Normal(val exitCode: Z, out: String, err: String) extends Result {
-        def ok: B = {
-          return exitCode == 0
-        }
-        def errOpt: Option[String] = {
-          return Some(err)
-        }
-      }
+      @datatype class Normal(val exitCode: Z, val out: String, val err: String) extends Result
 
-      @datatype class Exception(err: String) extends Result {
-        def ok: B = {
-          return F
-        }
-        def errOpt: Option[String] = {
-          return Some(err)
+      @datatype class Exception(val err: String) extends Result {
+        def out: String = {
+          return ""
         }
         def exitCode: Z = {
           return -1
         }
       }
 
-      @datatype class Timeout extends Result {
-        def ok: B = {
-          return F
-        }
-        def errOpt: Option[String] = {
-          return None()
-        }
+      @datatype class Timeout(val out: String, val err: String) extends Result {
         def exitCode: Z = {
           return -1
         }
@@ -337,14 +324,9 @@ object Os {
     def runCheck(): Proc.Result = {
       val r = run()
       if (!r.ok) {
-        r.errOpt match {
-          case Some(err) =>
-            eprintln(
-              st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}
-                  |$err""".render)
-          case _ =>
-            eprintln(st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}""".render)
-        }
+        eprintln(
+          st"""Error encountered when running: ${(cmds, " ")}, exit code: ${r.exitCode}
+              |${r.err}""".render)
         Os.exit(-1)
       }
       return r
