@@ -167,13 +167,7 @@ object Os {
       var r = HashSMap.empty[Os.Path, Os.Path]
       val files = ops.ISZOps(walk(path, includeDir, T, pred)).reverse
       for (p <- files) {
-        var rel = ISZ[String]()
-        var t = p
-        while (t.name != "dest" && t.up.name != "m2") {
-          rel = t.name +: rel
-          t = t.up
-        }
-        t = target / st"${(rel, Os.fileSep)}".render
+        val t = target / path.relativize(p).string
         p.kind match {
           case Kind.Dir =>
             t.mkdirAll()
