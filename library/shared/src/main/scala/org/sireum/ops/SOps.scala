@@ -339,11 +339,17 @@ import org.sireum._
                    else result.size ≡ 0
                  ∀i: [i, result.size) result(i) ≡ s(NO(0).max(from) + i)               """
 
-    var r = IS[Z, T]()
-    for (i <- from until til if 0 <= i && i < s.size) {
-      r = r :+ s(i)
+    if (from >= til || s.isEmpty) {
+      return ISZ()
     }
-    return r
+    val start: Z = if (from < 0) 0 else from
+    val until: Z = if (til <= s.size) til else s.size
+    val len = until - start
+    val r = MS.create(len, s(0))
+    for (i <- 0 until len) {
+      r(i) = s(start + i)
+    }
+    return r.toIS
   }
 
   @pure def map[U](f: T => U @pure): IS[Z, U] = {
