@@ -110,6 +110,8 @@ final class C(val value: scala.Int) extends AnyVal with Immutable with $internal
 
   @inline override def toString: Predef.String = new Predef.String(Array(value), 0, 1)
 
+  @inline def isWhitespace: B = value.toChar.isWhitespace
+
   def boxer: $internal.Boxer = C.Boxer
 
 }
