@@ -145,6 +145,40 @@ object StringOps {
     return conversions.String.fromCms(cms)
   }
 
+  @pure def contains(other: String): B = {
+    return stringIndexOf(other) >= 0
+  }
+
+  @pure def stringIndexOf(other: String): Z = {
+    return stringIndexOfFrom(other, 0)
+  }
+
+  @pure def stringIndexOfFrom(other: String, offset: Z): Z = {
+    val size = s.size
+    if (!(0 <= offset && offset < size)) {
+      return -1
+    }
+    val cis = conversions.String.toCis(s)
+    val otherCis = conversions.String.toCis(other)
+    val otherSize = other.size
+    var i = offset
+    while (i + otherSize < size) {
+      var j = 0
+      var found = T
+      while (j < otherSize && found) {
+        if (cis(i + j) != otherCis(j)) {
+          found = F
+        }
+        j = j + 1
+      }
+      if (found) {
+        return i
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
   @pure def indexOf(c: C): Z = {
     return indexOfFrom(c, 0)
   }
