@@ -82,7 +82,10 @@ object Os_Ext {
       mkdir(parent(target), T)
     }
     if (isDir(path)) {
-      if (Os.isWin) Os.proc(ISZ("xcopy", "/X", "/E", "/H", "/K", path, target)).runCheck()
+      if (Os.isWin) {
+        val r = Os.proc(ISZ("robocopy.exe", "/MIR", path, target)).run()
+        if (r.exitCode > 7) halt(s"Failed to copy $path to $target")
+      }
       else Os.proc(ISZ("sh", "-c", s"cp -a $path $target")).runCheck()
     } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
