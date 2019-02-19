@@ -37,8 +37,6 @@ object Macro {
 
   def isJs: Boolean = macro Macro.isJsImpl
 
-  def forNative: Boolean = macro Macro.forNativeImpl
-
   def eval[T](c: scala.reflect.macros.blackbox.Context)(
     t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
     val tree = t.asInstanceOf[c.Tree]
@@ -60,11 +58,6 @@ import Macro._
 class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   val isJsCheck: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
-
-  val forNativeCheck: Boolean = Option(System.getenv("SIREUM_NATIVE")) match {
-    case Some("true") => true
-    case _ => false
-  }
 
   import c.universe._
 
@@ -349,6 +342,4 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   }
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
-
-  def forNativeImpl: c.Tree = if (forNativeCheck) q"true" else q"false"
 }
