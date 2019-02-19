@@ -256,13 +256,13 @@ object Os {
           return ""
         }
         def exitCode: Z = {
-          return -1
+          return -100
         }
       }
 
       @datatype class Timeout(val out: String, val err: String) extends Result {
         def exitCode: Z = {
-          return -1
+          return -101
         }
       }
 
@@ -606,6 +606,14 @@ object Os {
       Ext.writeCMStream(value, content, Path.WriteMode.Append)
     }
 
+    def zipTo(target: Os.Path): Unit = {
+      Ext.zip(value, target.value)
+    }
+
+    def unzipTo(target: Os.Path): Unit = {
+      Ext.unzip(value, target.value)
+    }
+
     @pure def up: Path = {
       return Path.Impl(Ext.parent(value))
     }
@@ -722,6 +730,10 @@ object Os {
     def writeU8MStream(path: String, u8s: MJen[U8], mode: Path.WriteMode.Type): Unit = $
 
     def writeCMStream(path: String, cs: MJen[C], mode: Path.WriteMode.Type): Unit = $
+
+    def zip(path: String, target: String): Unit = $
+
+    def unzip(path: String, target: String): Unit = $
 
     @pure def parent(path: String): String = $
 

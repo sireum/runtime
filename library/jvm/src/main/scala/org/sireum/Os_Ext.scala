@@ -29,6 +29,7 @@ import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
 import java.util.concurrent.{TimeUnit => TU}
+import java.util.zip.{ZipInputStream => ZIS, ZipOutputStream => ZOS, ZipEntry => ZE}
 
 import com.zaxxer.nuprocess._
 
@@ -52,7 +53,7 @@ object Os_Ext {
 
   lazy val home: String = canon(System.getProperty("user.home"))
 
-  lazy val isNative: B = java.lang.Boolean.getBoolean("com.oracle.graalvm.isaot")
+  lazy val isNative: B = Os_ExtJava.isNative
 
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)): _*)
 
@@ -295,7 +296,8 @@ object Os_Ext {
       private var _owned: Boolean = false
 
       def $owned_=(owned: Boolean): G = {
-        _owned = owned; this
+        _owned = owned
+        this
       }
 
       def $owned: Boolean = _owned
@@ -324,7 +326,8 @@ object Os_Ext {
       private var _owned: Boolean = false
 
       def $owned_=(owned: Boolean): G = {
-        _owned = owned; this
+        _owned = owned
+        this
       }
 
       def $owned: Boolean = _owned
@@ -357,7 +360,8 @@ object Os_Ext {
       private var _owned: Boolean = false
 
       def $owned_=(owned: Boolean): G = {
-        _owned = owned; this
+        _owned = owned
+        this
       }
 
       def $owned: Boolean = _owned
@@ -410,6 +414,31 @@ object Os_Ext {
 
   def toUri(path: String): String = {
     toNIO(canon(path).value).toUri.toASCIIString
+  }
+
+  def zip(path: String, target: String): Unit = {
+    val zip = new ZOS(JFiles.newOutputStream(toNIO(target)))
+    try {
+      for (file <- Os.Path.walk(Os.path(path), F, T, _ => T)) {
+        zip.putNextEntry(new ZE(relativize(path, file.string).value))
+        JFiles.copy(toNIO(file.string), zip)
+        zip.closeEntry()
+      }
+    } finally zip.close()
+  }
+
+  def unzip(path: String, target: String): Unit = {
+    val zis = new ZIS(new FIS(toIO(path)))
+    try {
+      val t = toNIO(target)
+      for (file <- Stream.continually(zis.getNextEntry).takeWhile(_ != null)) {
+        if (!file.isDirectory) {
+          val p = t.resolve(file.getName)
+          p.getParent.toFile.mkdirs()
+          JFiles.copy(zis, p)
+        }
+      }
+    } finally zis.close()
   }
 
   def writeAppend(path: String, mode: Os.Path.WriteMode.Type): Boolean = {
@@ -502,20 +531,22 @@ object Os_Ext {
       val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
         spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
           mergeErrIntoOut = e.errAsOut, propagateEnv = false)
-      val term = sp.waitFor(e.timeoutInMillis.toLong)
+      val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
       if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
         new Predef.String(sp.stderr.bytes(), SC.UTF_8))
-      if (sp.isAlive) try {
-        sp.destroy()
-        sp.wrapped.waitFor(500, TU.MICROSECONDS)
-      } catch {
-        case _: Throwable =>
-      }
-      if (sp.isAlive)
-        try sp.destroyForcibly()
-        catch {
+      if (sp.isAlive()) {
+        try {
+          sp.destroy()
+          sp.wrapped.waitFor(500, TU.MICROSECONDS)
+        } catch {
           case _: Throwable =>
         }
+        if (sp.isAlive)
+          try sp.destroyForcibly()
+          catch {
+            case _: Throwable =>
+          }
+      }
       Os.Proc.Result.Timeout(new Predef.String(sp.stdout.bytes(), SC.UTF_8),
         new Predef.String(sp.stderr.bytes(), SC.UTF_8))
     } else {
