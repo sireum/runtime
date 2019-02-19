@@ -459,26 +459,29 @@ object MJen {
 
     @record class Zipped[T, U](gen: MJen[T], gen2: MJen[U]) extends MJen[(T, U)] {
       def generate(f: ((T, U)) => MJen.Action): MJen.Action = {
-        val r = zipRec(f, gen, gen2)
-        return r
+        var g = gen
+        var g2 = gen2
+        var i = 1
+        while (true) {
+          (g.headOption, g2.headOption) match {
+            case (MSome(h), MSome(h2)) =>
+              val r = f((h, h2))
+              if (r) {
+                g = gen.drop(i)
+                g2 = gen2.drop(i)
+              } else {
+                return MJen.End
+              }
+            case _ => return MJen.End
+          }
+          i = i + 1
+        }
+        return MJen.End
       }
 
       override def string: String = {
         return s"$gen.zip($gen2)"
       }
-    }
-
-    def zipRec[T, U](f: ((T, U)) => MJen.Action, gen: MJen[T], gen2: MJen[U]): MJen.Action = {
-      (gen.headOption, gen2.headOption) match {
-        case (MSome(h), MSome(h2)) =>
-          var r = f((h, h2))
-          if (r) {
-            r = zipRec(f, gen.drop(1), gen2.drop(1))
-            return r
-          }
-        case _ =>
-      }
-      return F
     }
 
     @record class Concat[T](gen: MJen[T], gen2: MJen[T]) extends MJen[T] {

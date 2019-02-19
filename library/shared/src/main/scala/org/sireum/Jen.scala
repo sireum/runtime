@@ -458,26 +458,29 @@ object Jen {
 
     @datatype class Zipped[T, U](gen: Jen[T], gen2: Jen[U]) extends Jen[(T, U)] {
       def generate(f: ((T, U)) => Jen.Action): Jen.Action = {
-        val r = zipRec(f, gen, gen2)
-        return r
+        var g = gen
+        var g2 = gen2
+        var i = 1
+        while (true) {
+          (g.headOption, g2.headOption) match {
+            case (Some(h), Some(h2)) =>
+              val r = f((h, h2))
+              if (r) {
+                g = gen.drop(i)
+                g2 = gen2.drop(i)
+              } else {
+                return Jen.End
+              }
+            case _ => return Jen.End
+          }
+          i = i + 1
+        }
+        return Jen.End
       }
 
       override def string: String = {
         return s"$gen.zip($gen2)"
       }
-    }
-
-    def zipRec[T, U](f: ((T, U)) => Jen.Action, gen: Jen[T], gen2: Jen[U]): Jen.Action = {
-      (gen.headOption, gen2.headOption) match {
-        case (Some(h), Some(h2)) =>
-          var r = f((h, h2))
-          if (r) {
-            r = zipRec(f, gen.drop(1), gen2.drop(1))
-            return r
-          }
-        case _ =>
-      }
-      return F
     }
 
     @datatype class Concat[T](gen: Jen[T], gen2: Jen[T]) extends Jen[T] {
