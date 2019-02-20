@@ -57,6 +57,13 @@ object Os_Ext {
 
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)): _*)
 
+  lazy val downloadCommand: ISZ[String] =
+    if (Os.proc(ISZ("curl", "--version")).run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
+    else if (Os.proc(ISZ("wget", "--version")).run().ok) ISZ("wget", "-qO")
+    else ISZ()
+
+  lazy val hasWget: B = Os.proc(ISZ("wget", "--version")).run().ok
+
   val os: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux) Os.Kind.Linux
@@ -91,7 +98,14 @@ object Os_Ext {
     } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
-  def download(path: String, url: String): Unit = {
+  def download(path: String, url: String): Unit = if (isNative) {
+    if (Os.isWin) {
+      if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
+      else halt("Either curl or wget is required")
+    } else {
+      Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
+    }
+  } else {
     val cookieManager = new java.net.CookieManager()
     val default = java.net.CookieHandler.getDefault
     java.net.CookieHandler.setDefault(cookieManager)
