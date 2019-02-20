@@ -53,7 +53,7 @@ object Os_Ext {
 
   lazy val home: String = canon(System.getProperty("user.home"))
 
-  lazy val isNative: B = Os_ExtJava.isNative
+  var isNative: B = Os_ExtJava.isNative
 
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)): _*)
 
@@ -98,38 +98,50 @@ object Os_Ext {
     } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
   }
 
-  def download(path: String, url: String): Unit = if (isNative) {
-    if (Os.isWin) {
-      if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
-      else halt("Either curl or wget is required")
+  def download(path: String, url: String): Unit = {
+    def nativ(): Unit = {
+      if (Os.isWin) {
+        if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
+        else halt("Either curl or wget is required")
+      } else {
+        Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
+      }
+    }
+    def jvm(): Unit = {
+      val cookieManager = new java.net.CookieManager()
+      val default = java.net.CookieHandler.getDefault
+      java.net.CookieHandler.setDefault(cookieManager)
+
+      def fetch(loc: Predef.String): java.net.HttpURLConnection = {
+        val c = new java.net.URL(loc).openConnection().asInstanceOf[java.net.HttpURLConnection]
+        c.setInstanceFollowRedirects(false)
+        c.setUseCaches(false)
+        val responseCode = c.getResponseCode
+        if (301 <= responseCode && responseCode <= 303 || responseCode == 307 || responseCode == 308) {
+          var newLoc = c.getHeaderField("Location")
+          if (newLoc.startsWith("/")) {
+            val locUrl = new java.net.URL(loc)
+            newLoc = s"${locUrl.getProtocol}://${locUrl.getHost}$newLoc"
+          }
+          fetch(newLoc)
+        } else c
+      }
+
+      val c = fetch(url.value)
+      val in = c.getInputStream
+      try JFiles.copy(in, toNIO(path)) finally {
+        in.close()
+        java.net.CookieHandler.setDefault(default)
+      }
+    }
+    if (isNative) {
+      nativ()
     } else {
-      Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
-    }
-  } else {
-    val cookieManager = new java.net.CookieManager()
-    val default = java.net.CookieHandler.getDefault
-    java.net.CookieHandler.setDefault(cookieManager)
-
-    def fetch(loc: Predef.String): java.net.HttpURLConnection = {
-      val c = new java.net.URL(loc).openConnection().asInstanceOf[java.net.HttpURLConnection]
-      c.setInstanceFollowRedirects(false)
-      c.setUseCaches(false)
-      val responseCode = c.getResponseCode
-      if (301 <= responseCode && responseCode <= 303 || responseCode == 307 || responseCode == 308) {
-        var newLoc = c.getHeaderField("Location")
-        if (newLoc.startsWith("/")) {
-          val locUrl = new java.net.URL(loc)
-          newLoc = s"${locUrl.getProtocol}://${locUrl.getHost}$newLoc"
-        }
-        fetch(newLoc)
-      } else c
-    }
-
-    val c = fetch(url.value)
-    val in = c.getInputStream
-    try JFiles.copy(in, toNIO(path)) finally {
-      in.close()
-      java.net.CookieHandler.setDefault(default)
+      try {
+        jvm()
+      } catch {
+        case _: UnsatisfiedLinkError => nativ()
+      }
     }
   }
 
@@ -418,6 +430,10 @@ object Os_Ext {
     toIO(path).deleteOnExit()
   }
 
+  def slashDir: String =
+    if (isNative) parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").getMethod("getExecutableName").invoke(null).toString)
+    else parent(fromUri(getClass.getProtectionDomain.getCodeSource.getLocation.toURI.toASCIIString))
+
   def temp(prefix: String, suffix: String): String = {
     JFiles.createTempFile(prefix.value, suffix.value).toFile.getCanonicalPath
   }
@@ -428,6 +444,10 @@ object Os_Ext {
 
   def toUri(path: String): String = {
     toNIO(canon(path).value).toUri.toASCIIString
+  }
+
+  def fromUri(uri: String): String = {
+    new java.io.File(new java.net.URI(uri.value)).getCanonicalPath
   }
 
   def zip(path: String, target: String): Unit = {
@@ -524,16 +544,20 @@ object Os_Ext {
 
   def parent(path: String): String = toIO(path).getParent
 
-  def proc(e: Os.Proc): Os.Proc.Result = try {
-    if (isNative) {
+  def proc(e: Os.Proc): Os.Proc.Result = {
+    def nativ(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (e.addEnv) {
         for ((k, v) <- System.getenv().asScala) {
-          m(k.toString) = v.toString
+          val key = k.toString
+          val value = v.toString
+          m(key) = value
         }
       }
       for ((k, v) <- e.envMap.entries.elements) {
-        m(k.toString) = v.toString
+        val key = k.toString
+        val value = v.toString
+        m(key) = value
       }
       val (stdout, stderr) =
         if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
@@ -543,7 +567,8 @@ object Os_Ext {
         case _ => _root_.os.Pipe
       }
       val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
-        spawn(cwd = _root_.os.Path(e.wd.value.value), env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
+        spawn(cwd = _root_.os.Path(toIO(e.wd.value).getCanonicalPath),
+          env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
           mergeErrIntoOut = e.errAsOut, propagateEnv = false)
       val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
       if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
@@ -563,16 +588,21 @@ object Os_Ext {
       }
       Os.Proc.Result.Timeout(new Predef.String(sp.stdout.bytes(), SC.UTF_8),
         new Predef.String(sp.stderr.bytes(), SC.UTF_8))
-    } else {
+    }
+    def jvm(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (e.addEnv) {
         for ((k, v) <- System.getenv().asScala) {
-          m(k.toString) = v.toString
+          val key = k.toString
+          val value = v.toString
+          m(key) = value
         }
       }
       for ((k, v) <- e.envMap.entries.elements) {
-        m(k.toString) = v.toString
+        val key = k.toString
+        val value = v.toString
+        m(key) = value
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
       npb.setCwd(toNIO(e.wd.value))
@@ -619,11 +649,24 @@ object Os_Ext {
         Os.Proc.Result.Timeout(out.toString, err.toString)
       } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
     }
-  } catch {
-    case t: Throwable =>
-      val sw = new java.io.StringWriter
-      t.printStackTrace(new PrintWriter(sw))
-      Os.Proc.Result.Exception(sw.toString)
+    try {
+      if (isNative) {
+        nativ()
+      } else {
+        try {
+          jvm()
+        } catch {
+          case _: UnsatisfiedLinkError =>
+            isNative = T
+            nativ()
+        }
+      }
+    } catch {
+      case t: Throwable =>
+        val sw = new java.io.StringWriter
+        t.printStackTrace(new PrintWriter(sw))
+        Os.Proc.Result.Exception(sw.toString)
+    }
   }
 
 

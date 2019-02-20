@@ -99,6 +99,10 @@ object Os {
     return for (root <- Ext.roots) yield Path.Impl(root)
   }
 
+  def slashDir: Os.Path = {
+    return Os.path(Ext.slashDir)
+  }
+
   def temp(): Path = {
     val r = tempFix("", "")
     return r
@@ -425,12 +429,12 @@ object Os {
 
     def overlayCopy(target: Os.Path, includeDir: B, followLink: B,
                     pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
-      Path.overlay(F, this, target, includeDir, followLink, pred, report)
+      return Path.overlay(F, this, target, includeDir, followLink, pred, report)
     }
 
     def overlayMove(target: Os.Path, includeDir: B, followLink: B,
                     pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
-      Path.overlay(T, this, target, includeDir, followLink, pred, report)
+      return Path.overlay(T, this, target, includeDir, followLink, pred, report)
     }
 
     def properties: Map[String, String] = {
@@ -494,8 +498,22 @@ object Os {
       Ext.removeOnExit(value)
     }
 
+    def slash(args: ISZ[String]): Unit = {
+      val nativ = this / ".com"
+      if (nativ.exists && this.lastModified < nativ.lastModified) {
+        Os.proc(string +: args).console.runCheck()
+      } else {
+        nativ.removeAll()
+        if (isWin) {
+          Os.proc(ISZ[String]("cmd", "/c", string) ++ args).console.runCheck()
+        } else {
+          Os.proc(ISZ[String]("sh", string) ++ args).console.runCheck()
+        }
+      }
+    }
+
     def toUri: String = {
-      Ext.toUri(value)
+      return Ext.toUri(value)
     }
 
     def write(content: String): Unit = {
@@ -706,6 +724,8 @@ object Os {
     def removeAll(path: String): Unit = $
 
     def removeOnExit(path: String): Unit = $
+
+    def slashDir: String = $
 
     def temp(prefix: String, suffix: String): String = $
 
