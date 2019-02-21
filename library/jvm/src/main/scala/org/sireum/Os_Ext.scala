@@ -101,10 +101,10 @@ object Os_Ext {
   def download(path: String, url: String): Unit = {
     def nativ(): Unit = {
       if (Os.isWin) {
+        Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
+      } else {
         if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
         else halt("Either curl or wget is required")
-      } else {
-        Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
       }
     }
     def jvm(): Unit = {
