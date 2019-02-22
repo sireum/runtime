@@ -420,9 +420,15 @@ object Os_Ext {
   }
 
   def removeAll(path: String): Unit = if (exists(path)) {
-    os match {
-      case Os.Kind.Win => Os.proc(ISZ("cmd", "/c", "RD", "/S", "/Q", path)).run()
-      case _ => Os.proc(ISZ("sh", "-c", s"rm -fR $path")).run()
+    if (isDir(path)) {
+      os match {
+        case Os.Kind.Win => Os.proc(ISZ("cmd", "/c", "RD", "/S", "/Q", path)).run()
+        case _ => Os.proc(ISZ("sh", "-c", s"rm -fR $path")).run()
+      }
+    } else try {
+      remove(path)
+    } catch {
+      case _: Throwable =>
     }
   }
 
@@ -432,7 +438,7 @@ object Os_Ext {
 
   def slashDir: String =
     if (isNative) parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").getMethod("getExecutableName").invoke(null).toString)
-    else parent(fromUri(getClass.getProtectionDomain.getCodeSource.getLocation.toURI.toASCIIString))
+    else System.getenv("SLASH_DIR")
 
   def temp(prefix: String, suffix: String): String = {
     JFiles.createTempFile(prefix.value, suffix.value).toFile.getCanonicalPath
