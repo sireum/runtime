@@ -51,6 +51,10 @@ object Os {
     return Ext.fileSep
   }
 
+  @pure def uriToPath(uri: String): Os.Path = {
+    return Path.Impl(Ext.fromUri(uri))
+  }
+
   @memoize def home: Path = {
     return Path.Impl(Ext.home)
   }
@@ -672,6 +676,8 @@ object Os {
     def exists(path: String): B = $
 
     def exit(code: Z): Unit = $
+
+    def fromUri(uri: String): String = $
 
     @pure def isAbs(path: String): B = $
 
