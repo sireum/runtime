@@ -436,9 +436,14 @@ object Os_Ext {
     toIO(path).deleteOnExit()
   }
 
-  def slashDir: String =
-    if (isNative) parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").getMethod("getExecutableName").invoke(null).toString)
-    else System.getenv("SLASH_DIR")
+  def slashDir: String = {
+    try if (isNative) return parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").
+      getMethod("getExecutableName").invoke(null).toString)
+    catch {
+      case _: Throwable =>
+    }
+    System.getenv("SLASH_DIR")
+  }
 
   def temp(prefix: String, suffix: String): String = {
     JFiles.createTempFile(prefix.value, suffix.value).toFile.getCanonicalPath
