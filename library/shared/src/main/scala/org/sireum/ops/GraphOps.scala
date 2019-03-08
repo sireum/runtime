@@ -88,7 +88,7 @@ import org.sireum._
       stack = stack.push(v)
 
       while (stack.nonEmpty) {
-        val current = stack.pop().get
+        val current = stack.pop.get
         stack = current._2
         if (discoveryMap.get(current._1).nonEmpty
           && !discoveryMap.get(current._1).get._1) {
@@ -194,7 +194,7 @@ import org.sireum._
           }
         }
       }
-      stack = stack.pop().get._2
+      stack = stack.pop.get._2
       if (foundCycle) {
         unmark(v)
       }

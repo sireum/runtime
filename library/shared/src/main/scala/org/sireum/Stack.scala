@@ -61,7 +61,7 @@ object Stack {
     return Stack(elements :+ e)
   }
 
-  @pure def pop(): Option[(T, Stack[T])] = {
+  @pure def pop: Option[(T, Stack[T])] = {
     if (nonEmpty) {
       return Some((elements(elements.size - 1), Stack(ISZOps(elements).dropRight(1))))
     } else {
