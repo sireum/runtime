@@ -62,6 +62,12 @@ import org.sireum.U64._
   }
 }
 
+import org.sireum.U32._
+
+object Position {
+  val none: Position = FlatPos(None(), u32"1", u32"1", u32"1", u32"1", u32"0", u32"0")
+}
+
 @datatype trait Position {
 
   l""" invariant LinePos:            beginLine ≥ 1
