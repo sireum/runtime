@@ -299,7 +299,7 @@ import org.sireum._
     l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
 
     var r = init
-    for (i <- s.indices.reverse) {
+    for (i <- s.size - 1 to 0 by -1) {
       r = f(r, s(i))
     }
     return r
@@ -394,7 +394,7 @@ import org.sireum._
                   ∀i: [0, s.size)  result(i) ≡ s(s.size - 1 - i)
      """
 
-    return for (i <- s.indices.reverse) yield s(i)
+    return for (i <- s.size - 1 to 0 by -1) yield s(i)
   }
 
 
@@ -614,7 +614,7 @@ import org.sireum._
     l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
 
     var r = init
-    for (i <- s.indices.reverse) {
+    for (i <- s.size - 1 to 0 by -1) {
       r = f(r, s(i))
     }
     return r
