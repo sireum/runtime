@@ -49,18 +49,11 @@ object HashSMap {
   }
 
   @pure def entries: ISZ[(K, T)] = {
-    var r = ISZ[(K, T)]()
-    for (k <- keys) {
-      map.get(k) match {
-        case Some(v) => r = r :+ ((k, v))
-        case _ =>
-      }
-    }
-    return r
+    return for (k <- keys) yield (k, map.get(k).get)
   }
 
   @pure def values: ISZ[T] = {
-    return map.values
+    return for (k <- keys) yield map.get(k).get
   }
 
   @pure def keySet: ISZ[K] = {
