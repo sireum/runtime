@@ -68,9 +68,23 @@ object StringOps {
       }
       i = i + 1
     }
-    while (i < size) {
-      r = r :+ cis(i)
-      i = i + 1
+
+    var isSuffix = F
+    if(i + fromSize == size) {
+      var index = i
+      while(index < size && cis(index) == fromCis(index - i)) {
+        index = index + 1
+      }
+      isSuffix = index == size
+    }
+
+    if(isSuffix) {
+      r = r ++ toCis
+    } else {
+      while (i < size) {
+        r = r :+ cis(i)
+        i = i + 1
+      }
     }
     return conversions.String.fromCis(r)
   }
