@@ -27,6 +27,8 @@ import mill._
 import mill.scalalib._
 import org.sireum.mill.SireumModule._
 
+interp.load.ivy("com.lihaoyi" %% "mill-contrib-bloop" % System.getProperty("MILL_VERSION"))
+
 trait Module extends CrossJvmJsJitPack {
 
   final override def subUrl: String = "runtime"
