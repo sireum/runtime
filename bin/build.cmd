@@ -101,7 +101,7 @@ def compile(): Unit = {
     }
     tipe()
     println("Compiling ...")
-    Os.proc(ISZ(mill.string, "all", "runtime.library.jvm.tests.compile",
+    mill.call(ISZ("all", "runtime.library.jvm.tests.compile",
       "runtime.library.js.tests.compile")).at(home).console.runCheck()
     println()
   }
@@ -111,25 +111,25 @@ def compile(): Unit = {
 def test(): Unit = {
   compile()
   println("Running shared tests ...")
-  Os.proc(ISZ(mill.string, "runtime.library.shared.tests")).at(home).console.runCheck()
+  mill.call(ISZ("runtime.library.shared.tests")).at(home).console.runCheck()
   println()
 
   println("Running jvm tests ...")
-  Os.proc(ISZ(mill.string, "runtime.library.jvm.tests")).at(home).console.runCheck()
+  mill.call(ISZ("runtime.library.jvm.tests")).at(home).console.runCheck()
   println()
 }
 
 
 def testJs(): Unit = {
   println("Running js tests ...")
-  Os.proc(ISZ(mill.string, "runtime.library.js.tests")).at(home).console.runCheck()
+  mill.call(ISZ("runtime.library.js.tests")).at(home).console.runCheck()
   println()
 }
 
 
 def jitpack(): Unit = {
   println("Triggering jitpack ...")
-  val r = Os.proc(ISZ(mill.string, "jitPack", "--owner", "sireum", "--repo", "runtime", "--lib", "library")).
+  val r = mill.call(ISZ("jitPack", "--owner", "sireum", "--repo", "runtime", "--lib", "library")).
     at(home).console.run()
   r match {
     case r: Os.Proc.Result.Normal =>
