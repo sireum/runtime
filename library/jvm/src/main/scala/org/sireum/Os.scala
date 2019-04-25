@@ -343,6 +343,10 @@ object Os {
       return Path.Impl(s"$value$fileSep$name")
     }
 
+    def call(args: ISZ[String]): Os.Proc = {
+      return Os.proc((if (Os.isWin) ISZ[String]("cmd", "/c") else ISZ[String]("sh") :+ string) ++ args)
+    }
+
     def canon: Path = {
       val p = Ext.canon(value)
       return if (p == value) this else Path.Impl(p)
