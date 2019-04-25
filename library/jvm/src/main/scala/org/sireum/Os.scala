@@ -344,7 +344,7 @@ object Os {
     }
 
     def call(args: ISZ[String]): Os.Proc = {
-      return Os.proc((if (Os.isWin) ISZ[String]("cmd", "/c") else ISZ[String]("sh") :+ string) ++ args)
+      return Os.proc(((if (Os.isWin) ISZ[String]("cmd", "/c") else ISZ[String]("sh")) :+ string) ++ args)
     }
 
     def canon: Path = {
