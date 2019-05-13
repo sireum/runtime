@@ -55,6 +55,8 @@ object Option {
 
   @pure def getOrElse(default: => T): T
 
+  @pure def getOrElseEager(default: T): T
+
   @pure def toIS: IS[Z, T]
 
   def foreach(f: T => Unit): Unit
@@ -94,6 +96,11 @@ object Option {
   }
 
   @pure def getOrElse(default: => T): T = {
+    l""" ensures  result ≡ default """
+    return default
+  }
+
+  @pure def getOrElseEager(default: T): T = {
     l""" ensures  result ≡ default """
     return default
   }
@@ -144,6 +151,11 @@ object Option {
   }
 
   @pure def getOrElse(default: => T): T = {
+    l""" ensures  result ≡ value """
+    return value
+  }
+
+  @pure def getOrElseEager(default: T): T = {
     l""" ensures  result ≡ value """
     return value
   }

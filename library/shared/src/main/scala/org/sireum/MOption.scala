@@ -51,7 +51,9 @@ object MOption {
 
   @pure def exists(f: T => B @pure): B
 
-  @pure def getOrElse(default: T): T
+  @pure def getOrElse(default: => T): T
+
+  @pure def getOrElseEager(default: T): T
 
   @pure def get: T
 
@@ -93,7 +95,12 @@ object MOption {
     return F
   }
 
-  @pure def getOrElse(default: T): T = {
+  @pure def getOrElse(default: => T): T = {
+    l""" ensures  result ≡ default """
+    return default
+  }
+
+  @pure def getOrElseEager(default: T): T = {
     l""" ensures  result ≡ default """
     return default
   }
@@ -143,7 +150,12 @@ object MOption {
     return f(value)
   }
 
-  @pure def getOrElse(default: T): T = {
+  @pure def getOrElse(default: => T): T = {
+    l""" ensures  result ≡ value """
+    return value
+  }
+
+  @pure def getOrElseEager(default: T): T = {
     l""" ensures  result ≡ value """
     return value
   }
