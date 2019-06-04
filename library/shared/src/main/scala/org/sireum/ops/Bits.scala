@@ -121,7 +121,7 @@ object Bits {
 
     object IS {
 
-      def b(input: ISZ[B], context: Context): B = {
+      def bleB(input: ISZ[B], context: Context): B = {
         val offset = context.offset
         if (offset + 1 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -134,7 +134,7 @@ object Bits {
         return r
       }
 
-      def raw(input: ISZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+      def bleRaw(input: ISZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
         if (context.offset + size > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -142,11 +142,11 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = b(input, context)
+          result(i) = bleB(input, context)
         }
       }
 
-      def u1(input: ISZ[B], context: Context): U1 = {
+      def bleU1(input: ISZ[B], context: Context): U1 = {
         val offset = context.offset
         if (offset + 1 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3213,7 +3213,7 @@ object Bits {
     }
 
     object MS {
-      def b(input: MSZ[B], context: Context): B = {
+      def bleB(input: MSZ[B], context: Context): B = {
         val offset = context.offset
         if (offset + 1 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3226,7 +3226,7 @@ object Bits {
         return r
       }
 
-      def raw(input: MSZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+      def bleRaw(input: MSZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
         if (context.offset + size > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3234,11 +3234,11 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = b(input, context)
+          result(i) = bleB(input, context)
         }
       }
 
-      def u1(input: MSZ[B], context: Context): U1 = {
+      def bleU1(input: MSZ[B], context: Context): U1 = {
         val offset = context.offset
         if (offset + 1 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -6316,7 +6316,7 @@ object Bits {
       return ops.MSZOps(output).slice(0, context.offset)
     }
 
-    def b(output: MSZ[B], context: Context, v: B): Unit = {
+    def bleB(output: MSZ[B], context: Context, v: B): Unit = {
       val offset = context.offset
       if (offset + 1 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6328,7 +6328,7 @@ object Bits {
       context.offset = offset + 1
     }
 
-    def raw(output: MSZ[B], context: Context, v: MSZ[B], size: Z): Unit = {
+    def bleRaw(output: MSZ[B], context: Context, v: MSZ[B], size: Z): Unit = {
       val offset = context.offset
       if (offset + size > output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6337,11 +6337,11 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        b(output, context, v(i))
+        bleB(output, context, v(i))
       }
     }
 
-    def u1(output: MSZ[B], context: Context, v: U1): Unit = {
+    def bleU1(output: MSZ[B], context: Context, v: U1): Unit = {
       val offset = context.offset
       if (offset + 1 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
