@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2019, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -2390,5 +2390,144 @@ object Json {
     }
 
     return printValue(v)
+  }
+
+  @ext("JsonFun_Ext") object Fun {
+    def printPure0[R](f: () => R @pure): String = $
+    def parsePure0[R](parser: Parser, f: String): () => R @pure = $
+
+    def print0[R](f: () => R): String = $
+    def parse0[R](parser: Parser, f: String): () => R = $
+
+    def printPure1[T1, R](f: T1 => R @pure): String = $
+    def parsePure1[T1, R](parser: Parser, f: String): T1 => R @pure = $
+
+    def print1[T1, R](f: T1 => R): String = $
+    def parse1[T1, R](parser: Parser, f: String): T1 => R = $
+    def printPure2[T1, T2, R](f: (T1, T2) => R @pure): String = $
+    def parsePure2[T1, T2, R](parser: Parser, f: String): (T1, T2) => R @pure = $
+
+    def print2[T1, T2, R](f: (T1, T2) => R): String = $
+    def parse2[T1, T2, R](parser: Parser, f: String): (T1, T2) => R = $
+
+    def printPure3[T1, T2, T3, R](f: (T1, T2, T3) => R @pure): String = $
+    def parsePure3[T1, T2, T3, R](parser: Parser, f: String): (T1, T2, T3) => R @pure = $
+
+    def print3[T1, T2, T3, R](f: (T1, T2, T3) => R): String = $
+    def parse3[T1, T2, T3, R](parser: Parser, f: String): (T1, T2, T3) => R = $
+
+    def printPure4[T1, T2, T3, T4, R](f: (T1, T2, T3, T4) => R @pure): String = $
+    def parsePure4[T1, T2, T3, T4, R](parser: Parser, f: String): (T1, T2, T3, T4) => R @pure = $
+
+    def print4[T1, T2, T3, T4, R](f: (T1, T2, T3, T4) => R): String = $
+    def parse4[T1, T2, T3, T4, R](parser: Parser, f: String): (T1, T2, T3, T4) => R = $
+
+    def printPure5[T1, T2, T3, T4, T5, R](f: (T1, T2, T3, T4, T5) => R @pure): String = $
+    def parsePure5[T1, T2, T3, T4, T5, R](parser: Parser, f: String): (T1, T2, T3, T4, T5) => R @pure = $
+
+    def print5[T1, T2, T3, T4, T5, R](f: (T1, T2, T3, T4, T5) => R): String = $
+    def parse5[T1, T2, T3, T4, T5, R](parser: Parser, f: String): (T1, T2, T3, T4, T5) => R = $
+
+    def printPure6[T1, T2, T3, T4, T5, T6, R](f: (T1, T2, T3, T4, T5, T6) => R @pure): String = $
+    def parsePure6[T1, T2, T3, T4, T5, T6, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6) => R @pure = $
+
+    def print6[T1, T2, T3, T4, T5, T6, R](f: (T1, T2, T3, T4, T5, T6) => R): String = $
+    def parse6[T1, T2, T3, T4, T5, T6, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6) => R = $
+
+    def printPure7[T1, T2, T3, T4, T5, T6, T7, R](f: (T1, T2, T3, T4, T5, T6, T7) => R @pure): String = $
+    def parsePure7[T1, T2, T3, T4, T5, T6, T7, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7) => R @pure = $
+
+    def print7[T1, T2, T3, T4, T5, T6, T7, R](f: (T1, T2, T3, T4, T5, T6, T7) => R): String = $
+    def parse7[T1, T2, T3, T4, T5, T6, T7, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7) => R = $
+
+    def printPure8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: (T1, T2, T3, T4, T5, T6, T7, T8) => R @pure): String = $
+    def parsePure8[T1, T2, T3, T4, T5, T6, T7, T8, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8) => R @pure = $
+
+    def print8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: (T1, T2, T3, T4, T5, T6, T7, T8) => R): String = $
+    def parse8[T1, T2, T3, T4, T5, T6, T7, T8, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8) => R = $
+
+    def printPure9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R @pure): String = $
+    def parsePure9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R @pure = $
+
+    def print9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R): String = $
+    def parse9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R = $
+
+    def printPure10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R @pure): String = $
+    def parsePure10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R @pure = $
+
+    def print10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R): String = $
+    def parse10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R = $
+
+    def printPure11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R @pure): String = $
+    def parsePure11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R @pure = $
+
+    def print11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R): String = $
+    def parse11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R = $
+
+    def printPure12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R @pure): String = $
+    def parsePure12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R @pure = $
+
+    def print12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R): String = $
+    def parse12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R = $
+
+    def printPure13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R @pure): String = $
+    def parsePure13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R @pure = $
+
+    def print13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R): String = $
+    def parse13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R = $
+
+    def printPure14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R @pure): String = $
+    def parsePure14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R @pure = $
+
+    def print14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R): String = $
+    def parse14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R = $
+
+    def printPure15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R @pure): String = $
+    def parsePure15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R @pure = $
+
+    def print15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R): String = $
+    def parse15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R = $
+
+    def printPure16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R @pure): String = $
+    def parsePure16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R @pure = $
+
+    def print16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R): String = $
+    def parse16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R = $
+
+    def printPure17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R @pure): String = $
+    def parsePure17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R @pure = $
+
+    def print17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R): String = $
+    def parse17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R = $
+
+    def printPure18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R @pure): String = $
+    def parsePure18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R @pure = $
+
+    def print18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R): String = $
+    def parse18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R = $
+
+    def printPure19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R @pure): String = $
+    def parsePure19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R @pure = $
+
+    def print19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R): String = $
+    def parse19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R = $
+
+    def printPure20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R @pure): String = $
+    def parsePure20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R @pure = $
+
+    def print20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R): String = $
+    def parse20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R = $
+
+    def printPure21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R @pure): String = $
+    def parsePure21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R @pure = $
+
+    def print21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R): String = $
+    def parse21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R = $
+
+    def printPure22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R @pure): String = $
+    def parsePure22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R @pure = $
+
+    def print22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R): String = $
+    def parse22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](parser: Parser, f: String): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R = $
   }
 }

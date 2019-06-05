@@ -2327,4 +2327,143 @@ object MessagePack {
   def reader(data: ISZ[U8]): Reader.Impl = {
     return Reader.Impl(data, 0)
   }
+
+  @ext("MessagePackFun_Ext") object Fun {
+    def writePure0[R](f: () => R @pure): ISZ[U8] = $
+    def readPure0[R](reader: Reader.Impl, f: ISZ[U8]): () => R @pure = $
+
+    def write0[R](f: () => R): ISZ[U8] = $
+    def read0[R](reader: Reader.Impl, f: ISZ[U8]): () => R = $
+
+    def writePure1[T1, R](f: T1 => R @pure): ISZ[U8] = $
+    def readPure1[T1, R](reader: Reader.Impl, f: ISZ[U8]): T1 => R @pure = $
+
+    def write1[T1, R](f: T1 => R): ISZ[U8] = $
+    def read1[T1, R](reader: Reader.Impl, f: ISZ[U8]): T1 => R = $
+    def writePure2[T1, T2, R](f: (T1, T2) => R @pure): ISZ[U8] = $
+    def readPure2[T1, T2, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2) => R @pure = $
+
+    def write2[T1, T2, R](f: (T1, T2) => R): ISZ[U8] = $
+    def read2[T1, T2, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2) => R = $
+
+    def writePure3[T1, T2, T3, R](f: (T1, T2, T3) => R @pure): ISZ[U8] = $
+    def readPure3[T1, T2, T3, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3) => R @pure = $
+
+    def write3[T1, T2, T3, R](f: (T1, T2, T3) => R): ISZ[U8] = $
+    def read3[T1, T2, T3, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3) => R = $
+
+    def writePure4[T1, T2, T3, T4, R](f: (T1, T2, T3, T4) => R @pure): ISZ[U8] = $
+    def readPure4[T1, T2, T3, T4, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4) => R @pure = $
+
+    def write4[T1, T2, T3, T4, R](f: (T1, T2, T3, T4) => R): ISZ[U8] = $
+    def read4[T1, T2, T3, T4, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4) => R = $
+
+    def writePure5[T1, T2, T3, T4, T5, R](f: (T1, T2, T3, T4, T5) => R @pure): ISZ[U8] = $
+    def readPure5[T1, T2, T3, T4, T5, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5) => R @pure = $
+
+    def write5[T1, T2, T3, T4, T5, R](f: (T1, T2, T3, T4, T5) => R): ISZ[U8] = $
+    def read5[T1, T2, T3, T4, T5, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5) => R = $
+
+    def writePure6[T1, T2, T3, T4, T5, T6, R](f: (T1, T2, T3, T4, T5, T6) => R @pure): ISZ[U8] = $
+    def readPure6[T1, T2, T3, T4, T5, T6, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6) => R @pure = $
+
+    def write6[T1, T2, T3, T4, T5, T6, R](f: (T1, T2, T3, T4, T5, T6) => R): ISZ[U8] = $
+    def read6[T1, T2, T3, T4, T5, T6, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6) => R = $
+
+    def writePure7[T1, T2, T3, T4, T5, T6, T7, R](f: (T1, T2, T3, T4, T5, T6, T7) => R @pure): ISZ[U8] = $
+    def readPure7[T1, T2, T3, T4, T5, T6, T7, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7) => R @pure = $
+
+    def write7[T1, T2, T3, T4, T5, T6, T7, R](f: (T1, T2, T3, T4, T5, T6, T7) => R): ISZ[U8] = $
+    def read7[T1, T2, T3, T4, T5, T6, T7, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7) => R = $
+
+    def writePure8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: (T1, T2, T3, T4, T5, T6, T7, T8) => R @pure): ISZ[U8] = $
+    def readPure8[T1, T2, T3, T4, T5, T6, T7, T8, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8) => R @pure = $
+
+    def write8[T1, T2, T3, T4, T5, T6, T7, T8, R](f: (T1, T2, T3, T4, T5, T6, T7, T8) => R): ISZ[U8] = $
+    def read8[T1, T2, T3, T4, T5, T6, T7, T8, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8) => R = $
+
+    def writePure9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R @pure): ISZ[U8] = $
+    def readPure9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R @pure = $
+
+    def write9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R): ISZ[U8] = $
+    def read9[T1, T2, T3, T4, T5, T6, T7, T8, T9, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9) => R = $
+
+    def writePure10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R @pure): ISZ[U8] = $
+    def readPure10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R @pure = $
+
+    def write10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R): ISZ[U8] = $
+    def read10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => R = $
+
+    def writePure11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R @pure): ISZ[U8] = $
+    def readPure11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R @pure = $
+
+    def write11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R): ISZ[U8] = $
+    def read11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => R = $
+
+    def writePure12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R @pure): ISZ[U8] = $
+    def readPure12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R @pure = $
+
+    def write12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R): ISZ[U8] = $
+    def read12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => R = $
+
+    def writePure13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R @pure): ISZ[U8] = $
+    def readPure13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R @pure = $
+
+    def write13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R): ISZ[U8] = $
+    def read13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => R = $
+
+    def writePure14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R @pure): ISZ[U8] = $
+    def readPure14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R @pure = $
+
+    def write14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R): ISZ[U8] = $
+    def read14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => R = $
+
+    def writePure15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R @pure): ISZ[U8] = $
+    def readPure15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R @pure = $
+
+    def write15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R): ISZ[U8] = $
+    def read15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => R = $
+
+    def writePure16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R @pure): ISZ[U8] = $
+    def readPure16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R @pure = $
+
+    def write16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R): ISZ[U8] = $
+    def read16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => R = $
+
+    def writePure17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R @pure): ISZ[U8] = $
+    def readPure17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R @pure = $
+
+    def write17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R): ISZ[U8] = $
+    def read17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => R = $
+
+    def writePure18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R @pure): ISZ[U8] = $
+    def readPure18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R @pure = $
+
+    def write18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R): ISZ[U8] = $
+    def read18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => R = $
+
+    def writePure19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R @pure): ISZ[U8] = $
+    def readPure19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R @pure = $
+
+    def write19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R): ISZ[U8] = $
+    def read19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => R = $
+
+    def writePure20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R @pure): ISZ[U8] = $
+    def readPure20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R @pure = $
+
+    def write20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R): ISZ[U8] = $
+    def read20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => R = $
+
+    def writePure21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R @pure): ISZ[U8] = $
+    def readPure21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R @pure = $
+
+    def write21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R): ISZ[U8] = $
+    def read21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => R = $
+
+    def writePure22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R @pure): ISZ[U8] = $
+    def readPure22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R @pure = $
+
+    def write22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R): ISZ[U8] = $
+    def read22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](reader: Reader.Impl, f: ISZ[U8]): (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => R = $
+  }
 }
