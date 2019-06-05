@@ -72,6 +72,12 @@ object Spec {
 
   @datatype class GenRaw(val name: String) extends Spec
 
+  @datatype class Pads(size: Z) extends Spec {
+    def name: String = {
+      return ""
+    }
+  }
+
   @pure def fromJSON(s: String): Either[Spec, Json.ErrorMsg] = {
     return Ext.fromJSON(s)
   }

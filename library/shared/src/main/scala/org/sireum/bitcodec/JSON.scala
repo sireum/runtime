@@ -49,6 +49,7 @@ object JSON {
         case o: Spec.GenUnion => return printSpecGenUnion(o)
         case o: Spec.GenRepeat => return printSpecGenRepeat(o)
         case o: Spec.GenRaw => return printSpecGenRaw(o)
+        case o: Spec.Pads => return printSpecPads(o)
       }
     }
 
@@ -160,6 +161,13 @@ object JSON {
       ))
     }
 
+    @pure def printSpecPads(o: Spec.Pads): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pads""""),
+        ("size", printZ(o.size))
+      ))
+    }
+
   }
 
   @record class Parser(input: String) {
@@ -185,6 +193,7 @@ object JSON {
         case "Spec.GenUnion" => val r = parseSpecGenUnionT(T); return r
         case "Spec.GenRepeat" => val r = parseSpecGenRepeatT(T); return r
         case "Spec.GenRaw" => val r = parseSpecGenRawT(T); return r
+        case "Spec.Pads" => val r = parseSpecPadsT(T); return r
         case _ => val r = parseSpecGenRawT(T); return r
       }
     }
@@ -433,6 +442,21 @@ object JSON {
       val name = parser.parseString()
       parser.parseObjectNext()
       return Spec.GenRaw(name)
+    }
+
+    def parseSpecPads(): Spec.Pads = {
+      val r = parseSpecPadsT(F)
+      return r
+    }
+
+    def parseSpecPadsT(typeParsed: B): Spec.Pads = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pads")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.Pads(size)
     }
 
     def eof(): B = {
