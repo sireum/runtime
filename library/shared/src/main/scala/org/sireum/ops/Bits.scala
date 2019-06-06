@@ -114,6 +114,14 @@ object Bits {
         errorOffset = offset
       }
     }
+
+    def skip(n: Z): Unit = {
+      offset = offset + 1
+    }
+
+    def updateErrorCode(code: Z): Unit = {
+      errorCode = code
+    }
   }
 
   object Reader {
