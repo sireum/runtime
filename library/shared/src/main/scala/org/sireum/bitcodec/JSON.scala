@@ -36,6 +36,7 @@ object JSON {
 
     @pure def printSpec(o: Spec): ST = {
       o match {
+        case o: Spec.Boolean => return printSpecBoolean(o)
         case o: Spec.Bits => return printSpecBits(o)
         case o: Spec.Bytes => return printSpecBytes(o)
         case o: Spec.Shorts => return printSpecShorts(o)
@@ -51,6 +52,13 @@ object JSON {
         case o: Spec.GenRaw => return printSpecGenRaw(o)
         case o: Spec.Pads => return printSpecPads(o)
       }
+    }
+
+    @pure def printSpecBoolean(o: Spec.Boolean): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Boolean""""),
+        ("name", printString(o.name))
+      ))
     }
 
     @pure def printSpecBits(o: Spec.Bits): ST = {
@@ -196,6 +204,21 @@ object JSON {
         case "Spec.Pads" => val r = parseSpecPadsT(T); return r
         case _ => val r = parseSpecGenRawT(T); return r
       }
+    }
+
+    def parseSpecBoolean(): Spec.Boolean = {
+      val r = parseSpecBooleanT(F)
+      return r
+    }
+
+    def parseSpecBooleanT(typeParsed: B): Spec.Boolean = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Boolean")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      return Spec.Boolean(name)
     }
 
     def parseSpecBits(): Spec.Bits = {

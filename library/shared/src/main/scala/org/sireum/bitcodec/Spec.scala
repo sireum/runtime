@@ -38,6 +38,8 @@ import org.sireum._
 
 object Spec {
 
+  @datatype class Boolean(val name: String) extends Spec
+
   @datatype class Bits(val name: String, size: Z) extends Spec
 
   @datatype class Bytes(val name: String, size: Z) extends Spec
