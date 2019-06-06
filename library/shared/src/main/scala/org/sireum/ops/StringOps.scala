@@ -278,4 +278,8 @@ object StringOps {
     }
     return if (i <= j) StringOps.substring(cis, i, j + 1) else ""
   }
+
+  @pure def size: Z = {
+    return s.size
+  }
 }
