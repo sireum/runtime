@@ -27,6 +27,7 @@
 package org.sireum.ops
 
 import org.sireum._
+import org.sireum.message.Reporter
 
 object StringOps {
   @pure def substring(cis: ISZ[C], start: Z, until: Z): String = {
@@ -281,5 +282,49 @@ object StringOps {
 
   @pure def size: Z = {
     return s.size
+  }
+
+
+  def collectCodeSections(errorKind: String,
+                          beginMarker: String,
+                          endMarker: String,
+                          reporter: Reporter): HashSMap[String, String] = {
+    var r = HashSMap.empty[String, String]
+    val lines = ops.StringOps(s).split(c => c == '\n')
+    val size = lines.size
+    var i = 0
+    while (i < size) {
+      val line = lines(i)
+      val lOps = ops.StringOps(ops.StringOps(line).trim)
+      if (lOps.startsWith(beginMarker)) {
+        val name = ops.StringOps(lOps.substring(beginMarker.size, lOps.size)).trim
+        val beginLine = i
+        i = i + 1
+        var found = F
+        var code = ISZ[String]()
+        while (i < size && !found) {
+          val line2 = lines(i)
+          val lOps2 = ops.StringOps(ops.StringOps(line2).trim)
+          if (lOps2.startsWith(endMarker)) {
+            found = T
+            val name2 = ops.StringOps(lOps2.substring(endMarker.size, lOps2.size)).trim
+            if (name != name2) {
+              reporter.error(None(), errorKind,
+                s"Mismatch code marker at lines $beginLine and $i ($name != $name2)")
+              return r
+            }
+            r = r + name ~> st"${(code, "\n")}".render
+          } else {
+            code = code :+ line2
+          }
+          i = i + 1
+        }
+        if (!found) {
+          reporter.error(None(), errorKind, s"Unclosed code marker at line $beginLine for $name")
+        }
+      }
+      i = i + 1
+    }
+    return r
   }
 }
