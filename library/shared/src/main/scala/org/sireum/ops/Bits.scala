@@ -115,8 +115,12 @@ object Bits {
       }
     }
 
-    def skip(n: Z): Unit = {
-      offset = offset + 1
+    def skip(size: Z, n: Z, errorCode: Z): Unit = {
+      if (offset + n > size) {
+        signalError(errorCode)
+        return
+      }
+      offset = offset + n
     }
 
     def updateErrorCode(code: Z): Unit = {
@@ -140,6 +144,22 @@ object Bits {
         val r = input(offset)
         context.offset = offset + 1
         return r
+      }
+
+      def beBS(input: ISZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+        bleRaw(input, context, result, size)
+      }
+
+      def leBS(input: ISZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+        if (context.offset + size > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- size - 1 to 0 by -1) {
+          result(i) = bleB(input, context)
+        }
       }
 
       def bleRaw(input: ISZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
@@ -3232,6 +3252,22 @@ object Bits {
         val r = input(offset)
         context.offset = offset + 1
         return r
+      }
+
+      def beBS(input: MSZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+        bleRaw(input, context, result, size)
+      }
+
+      def leBS(input: MSZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
+        if (context.offset + size > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- size - 1 to 0 by -1) {
+          result(i) = bleB(input, context)
+        }
       }
 
       def bleRaw(input: MSZ[B], context: Context, result: MSZ[B], size: Z): Unit = {
@@ -6336,6 +6372,24 @@ object Bits {
       context.offset = offset + 1
     }
 
+    def beBS(output: MSZ[B], context: Context, v: MSZ[B]): Unit = {
+      bleRaw(output, context, v, v.size)
+    }
+
+    def leBS(output: MSZ[B], context: Context, v: MSZ[B]): Unit = {
+      val offset = context.offset
+      val size = v.size
+      if (offset + size > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- size - 1 to 0 by -1) {
+        bleB(output, context, v(i))
+      }
+    }
+
     def bleRaw(output: MSZ[B], context: Context, v: MSZ[B], size: Z): Unit = {
       val offset = context.offset
       if (offset + size > output.size) {
@@ -6361,7 +6415,8 @@ object Bits {
       context.offset = offset + 1
     }
 
-    def beU8S(output: MSZ[B], context: Context, v: MSZ[U8], size: Z): Unit = {
+    def beU8S(output: MSZ[B], context: Context, v: MSZ[U8]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 8 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6374,7 +6429,8 @@ object Bits {
       }
     }
 
-    def beU16S(output: MSZ[B], context: Context, v: MSZ[U16], size: Z): Unit = {
+    def beU16S(output: MSZ[B], context: Context, v: MSZ[U16]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 16 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6387,7 +6443,8 @@ object Bits {
       }
     }
 
-    def beU32S(output: MSZ[B], context: Context, v: MSZ[U32], size: Z): Unit = {
+    def beU32S(output: MSZ[B], context: Context, v: MSZ[U32]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 32 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6400,7 +6457,8 @@ object Bits {
       }
     }
 
-    def beU64S(output: MSZ[B], context: Context, v: MSZ[U64], size: Z): Unit = {
+    def beU64S(output: MSZ[B], context: Context, v: MSZ[U64]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 64 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6413,7 +6471,8 @@ object Bits {
       }
     }
 
-    def leU8S(output: MSZ[B], context: Context, v: MSZ[U8], size: Z): Unit = {
+    def leU8S(output: MSZ[B], context: Context, v: MSZ[U8]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 8 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6426,7 +6485,8 @@ object Bits {
       }
     }
 
-    def leU16S(output: MSZ[B], context: Context, v: MSZ[U16], size: Z): Unit = {
+    def leU16S(output: MSZ[B], context: Context, v: MSZ[U16]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 16 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6439,7 +6499,8 @@ object Bits {
       }
     }
 
-    def leU32S(output: MSZ[B], context: Context, v: MSZ[U32], size: Z): Unit = {
+    def leU32S(output: MSZ[B], context: Context, v: MSZ[U32]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 32 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
@@ -6452,7 +6513,8 @@ object Bits {
       }
     }
 
-    def leU64S(output: MSZ[B], context: Context, v: MSZ[U64], size: Z): Unit = {
+    def leU64S(output: MSZ[B], context: Context, v: MSZ[U64]): Unit = {
+      val size = v.size
       val offset = context.offset
       if (offset + size * 64 >= output.size) {
         context.signalError(INSUFFICIENT_BUFFER_SIZE)
