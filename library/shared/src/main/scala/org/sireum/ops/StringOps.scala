@@ -285,10 +285,10 @@ object StringOps {
   }
 
 
-  def collectCodeSections(errorKind: String,
-                          beginMarker: String,
-                          endMarker: String,
-                          reporter: Reporter): HashSMap[String, String] = {
+  def collectSections(errorKind: String,
+                      beginMarker: String,
+                      endMarker: String,
+                      reporter: Reporter): HashSMap[String, String] = {
     var r = HashSMap.empty[String, String]
     val lines = ops.StringOps(s).split(c => c == '\n')
     val size = lines.size
@@ -310,7 +310,7 @@ object StringOps {
             val name2 = ops.StringOps(lOps2.substring(endMarker.size, lOps2.size)).trim
             if (name != name2) {
               reporter.error(None(), errorKind,
-                s"Mismatch code marker at lines $beginLine and $i ($name != $name2)")
+                s"Mismatch marker at lines ${beginLine + 1} and ${i + 1} ($name != $name2)")
               return r
             }
             r = r + name ~> st"${(code, "\n")}".render
@@ -320,7 +320,7 @@ object StringOps {
           i = i + 1
         }
         if (!found) {
-          reporter.error(None(), errorKind, s"Unclosed code marker at line $beginLine for $name")
+          reporter.error(None(), errorKind, s"Unclosed marker at line ${beginLine + 1} for $name")
         }
       }
       i = i + 1
