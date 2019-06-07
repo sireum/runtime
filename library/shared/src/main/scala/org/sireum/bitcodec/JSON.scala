@@ -54,6 +54,21 @@ object JSON {
       }
     }
 
+    @pure def printSpecBase(o: Spec.Base): ST = {
+      o match {
+        case o: Spec.Boolean => return printSpecBoolean(o)
+        case o: Spec.Bits => return printSpecBits(o)
+        case o: Spec.Bytes => return printSpecBytes(o)
+        case o: Spec.Shorts => return printSpecShorts(o)
+        case o: Spec.Ints => return printSpecInts(o)
+        case o: Spec.Longs => return printSpecLongs(o)
+        case o: Spec.Enum => return printSpecEnum(o)
+        case o: Spec.Concat => return printSpecConcat(o)
+        case o: Spec.Union[_] => return printSpecUnion(o)
+        case o: Spec.GenUnion => return printSpecGenUnion(o)
+      }
+    }
+
     @pure def printSpecBoolean(o: Spec.Boolean): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Boolean""""),
@@ -186,8 +201,9 @@ object JSON {
     }
 
     def parseSpec(): Spec = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
+        case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
         case "Spec.Bytes" => val r = parseSpecBytesT(T); return r
         case "Spec.Shorts" => val r = parseSpecShortsT(T); return r
@@ -202,7 +218,24 @@ object JSON {
         case "Spec.GenRepeat" => val r = parseSpecGenRepeatT(T); return r
         case "Spec.GenRaw" => val r = parseSpecGenRawT(T); return r
         case "Spec.Pads" => val r = parseSpecPadsT(T); return r
-        case _ => val r = parseSpecGenRawT(T); return r
+        case _ => val r = parseSpecPadsT(T); return r
+      }
+    }
+
+    def parseSpecBase(): Spec.Base = {
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.GenUnion"))
+      t.native match {
+        case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
+        case "Spec.Bits" => val r = parseSpecBitsT(T); return r
+        case "Spec.Bytes" => val r = parseSpecBytesT(T); return r
+        case "Spec.Shorts" => val r = parseSpecShortsT(T); return r
+        case "Spec.Ints" => val r = parseSpecIntsT(T); return r
+        case "Spec.Longs" => val r = parseSpecLongsT(T); return r
+        case "Spec.Enum" => val r = parseSpecEnumT(T); return r
+        case "Spec.Concat" => val r = parseSpecConcatT(T); return r
+        case "Spec.Union" => val r = parseSpecUnionT(T); return r
+        case "Spec.GenUnion" => val r = parseSpecGenUnionT(T); return r
+        case _ => val r = parseSpecGenUnionT(T); return r
       }
     }
 
@@ -390,7 +423,7 @@ object JSON {
       parser.parseString()
       parser.parseObjectNext()
       parser.parseObjectKey("element")
-      val element = parseSpec()
+      val element = parseSpecBase()
       parser.parseObjectNext()
       return Spec.Repeat[Any](name, dependsOn, _ => ???, element)
     }
@@ -447,7 +480,7 @@ object JSON {
       val name = parser.parseString()
       parser.parseObjectNext()
       parser.parseObjectKey("element")
-      val element = parseSpec()
+      val element = parseSpecBase()
       parser.parseObjectNext()
       return Spec.GenRepeat(name, element)
     }
