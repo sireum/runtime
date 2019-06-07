@@ -123,7 +123,7 @@ object JSON {
         ("name", printString(o.name)),
         ("dependsOn", printISZ(T, o.dependsOn, printString _)),
         ("choice", printString("")),
-        ("elements", printISZ(F, o.elements, printSpec _))
+        ("subs", printISZ(F, o.subs, printSpec _))
       ))
     }
 
@@ -150,7 +150,7 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.GenUnion""""),
         ("name", printString(o.name)),
-        ("elements", printISZ(F, o.elements, printSpec _))
+        ("subs", printISZ(F, o.subs, printSpec _))
       ))
     }
 
@@ -365,10 +365,10 @@ object JSON {
       parser.parseObjectKey("choice")
       parser.parseString()
       parser.parseObjectNext()
-      parser.parseObjectKey("elements")
-      val elements = parser.parseISZ(parseSpec _)
+      parser.parseObjectKey("subs")
+      val subs = parser.parseISZ(parseSpec _)
       parser.parseObjectNext()
-      return Spec.Union[Any](name, dependsOn, _ => ???, elements)
+      return Spec.Union[Any](name, dependsOn, _ => ???, subs)
     }
 
     def parseSpecRepeat(): Spec.Repeat[_] = {
@@ -428,10 +428,10 @@ object JSON {
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      parser.parseObjectKey("elements")
-      val elements = parser.parseISZ(parseSpec _)
+      parser.parseObjectKey("subs")
+      val subs = parser.parseISZ(parseSpec _)
       parser.parseObjectNext()
-      return Spec.GenUnion(name, elements)
+      return Spec.GenUnion(name, subs)
     }
 
     def parseSpecGenRepeat(): Spec.GenRepeat = {

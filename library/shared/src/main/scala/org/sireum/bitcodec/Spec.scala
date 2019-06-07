@@ -34,51 +34,161 @@ import org.sireum._
   def toJSON(isCompact: B): String = {
     return Spec.Ext.toJSON(this, isCompact)
   }
+
+  def isComposite: B
+
+  def polyDescOpt: Option[Spec.PolyDesc]
 }
 
 object Spec {
 
-  @datatype class Boolean(val name: String) extends Spec
+  @datatype class Boolean(val name: String) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Bits(val name: String, size: Z) extends Spec
+  @datatype class Bits(val name: String, size: Z) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Bytes(val name: String, size: Z) extends Spec
+  @datatype class Bytes(val name: String, size: Z) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Shorts(val name: String, size: Z) extends Spec
+  @datatype class Shorts(val name: String, size: Z) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Ints(val name: String, size: Z) extends Spec
+  @datatype class Ints(val name: String, size: Z) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Longs(val name: String, size: Z) extends Spec
+  @datatype class Longs(val name: String, size: Z) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Enum(val name: String, objectName: String) extends Spec
+  @datatype class Enum(val name: String, objectName: String) extends Spec {
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Spec
+  @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
   @datatype class Union[T](val name: String,
                            dependsOn: ISZ[String],
-                           choice: T => Z@pure,
-                           elements: ISZ[Spec]) extends Spec
+                           @hidden choice: T => Z@pure,
+                           subs: ISZ[Spec]) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return Some(PolyDesc("Union", name, dependsOn, Some(subs)))
+    }
+  }
 
   @datatype class Repeat[T](val name: String,
                             dependsOn: ISZ[String],
-                            size: T => Z@pure,
-                            element: Spec) extends Spec
+                            @hidden size: T => Z@pure,
+                            element: Spec) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return Some(PolyDesc("Repeat", name, dependsOn, Some(ISZ(element))))
+    }
+  }
 
   @datatype class Raw[T](val name: String,
                          dependsOn: ISZ[String],
-                         size: T => Z@pure) extends Spec
+                         @hidden size: T => Z@pure) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return Some(PolyDesc("Raw", name, dependsOn, None()))
+    }
+  }
 
-  @datatype class GenUnion(val name: String, elements: ISZ[Spec]) extends Spec
+  @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class GenRepeat(val name: String, element: Spec) extends Spec
+  @datatype class GenRepeat(val name: String, element: Spec) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
-  @datatype class GenRaw(val name: String) extends Spec
+  @datatype class GenRaw(val name: String) extends Spec {
+    def isComposite: B = {
+      return T
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
+  }
 
   @datatype class Pads(size: Z) extends Spec {
     def name: String = {
       return ""
     }
+    def isComposite: B = {
+      return F
+    }
+    def polyDescOpt: Option[Spec.PolyDesc] = {
+      return None()
+    }
   }
+
+  @datatype class PolyDesc(compName: String, name: String, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]])
 
   @pure def fromJSON(s: String): Either[Spec, Json.ErrorMsg] = {
     return Ext.fromJSON(s)
