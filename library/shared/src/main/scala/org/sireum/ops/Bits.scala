@@ -247,7 +247,7 @@ object Bits {
         }
       }
 
-      def leRead16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
+      def le16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -259,7 +259,7 @@ object Bits {
         }
       }
 
-      def leRead32S(input: ISZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
+      def le32S(input: ISZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
         if (context.offset + size * 32 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -271,7 +271,7 @@ object Bits {
         }
       }
 
-      def leRead64S(input: ISZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
+      def le64S(input: ISZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3355,7 +3355,7 @@ object Bits {
         }
       }
 
-      def leRead16S(input: MSZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
+      def leU16S(input: MSZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3367,7 +3367,7 @@ object Bits {
         }
       }
 
-      def leRead32S(input: MSZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
+      def leU32S(input: MSZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
         if (context.offset + size * 32 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3379,7 +3379,7 @@ object Bits {
         }
       }
 
-      def leRead64S(input: MSZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
+      def leU64S(input: MSZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -6509,7 +6509,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        beU32(output, context, v(i))
+        leU32(output, context, v(i))
       }
     }
 
@@ -6523,7 +6523,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        beU64(output, context, v(i))
+        leU64(output, context, v(i))
       }
     }
 
