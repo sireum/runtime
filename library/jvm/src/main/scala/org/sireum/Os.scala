@@ -96,7 +96,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, Map.empty, T, None(), F, F, 0)
+    return Proc(commands, cwd, Map.empty, T, None(), F, F, 0, F)
   }
 
   @memoize def roots: ISZ[Path] = {
@@ -284,7 +284,8 @@ object Os {
                        in: Option[String],
                        errAsOut: B,
                        outputConsole: B,
-                       timeoutInMillis: Z) {
+                       timeoutInMillis: Z,
+                       standardLib: B) {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       return this(cmds = cmds ++ cs)
@@ -316,6 +317,10 @@ object Os {
 
     @pure def console: Proc = {
       return this(outputConsole = T)
+    }
+
+    @pure def standard: Proc = {
+      return this(standardLib = T)
     }
 
     def run(): Proc.Result = {
