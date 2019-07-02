@@ -25,7 +25,7 @@
 
 package org
 
-package object sireum extends $internal.PackageTrait {
+package object sireum extends $internal.PackageTrait with contract {
 
   import language.experimental.macros
 
@@ -122,9 +122,9 @@ package object sireum extends $internal.PackageTrait {
 
     @inline def |^(other: B): B = value ^ other.value
 
-    @inline def imp_:(other: B): B = !other.value | value
+    @inline def imply_:(other: B): B = !other.value | value
 
-    @inline def simp_:(other: => B): B = !other.value || value
+    @inline def simply_:(other: => B): B = !other.value || value
 
     @inline def hash: Z = B(value).hash
 
