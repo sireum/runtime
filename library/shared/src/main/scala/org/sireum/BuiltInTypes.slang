@@ -44,13 +44,13 @@ package org.sireum
 
   @pure def |^(other: B): B
 
-  @pure def imp_:(other: B): B
+  @pure def imply_:(other: B): B
 
   @pure def &&(other: => B): B
 
   @pure def ||(other: => B): B
 
-  @pure def simp_:(other: => B): B
+  @pure def simply_:(other: => B): B
 
   @pure def unary_! : B
 
