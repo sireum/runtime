@@ -27,8 +27,6 @@ package org.sireum
 
 import scala.annotation.StaticAnnotation
 
-class contract(spec: String) extends StaticAnnotation
-
 class datatype extends StaticAnnotation
 
 class enum extends StaticAnnotation
