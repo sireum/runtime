@@ -116,6 +116,8 @@ trait contract {
 
     trait Assert
 
+    trait Let
+
     trait StepBuilder {
       def #>(cond: B): StepBuilderBy
     }
@@ -173,15 +175,34 @@ trait contract {
 
   def SubProof(arg0: Contract.ProofStep*): Contract.SubProof = macro Macro.lNothing0S[Contract.SubProof]
 
-  def SubProof[T1](arg0: T1 => Unit): Contract.SubProof = macro Macro.lNothing1[Contract.SubProof]
-
   def Assume(arg0: B): Contract.Assume = macro Macro.lNothing1[Contract.Assume]
 
   def Assert(arg0: B, arg1: Contract.SubProof): Contract.Assert = macro Macro.lNothing2[Contract.Assert]
 
-  def SubProof[T1, T2](arg0: (T1, T2) => ISZ[Contract.ProofStep]): Contract.SubProof = macro Macro.lNothing1[B]
+  def StructuralInduction(arg0: Contract.SubProof): Contract.Justification = macro Macro.lNothing1[Contract.Justification]
 
-  def StructuralInduction(arg0: Contract.SubProof): Contract.Justification = macro Macro.lNothing1[B]
+  def Let[T](arg0: T => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2](arg0: (T1, T2) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3](arg0: (T1, T2, T3) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4](arg0: (T1, T2, T3, T4) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5](arg0: (T1, T2, T3, T4, T5) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6](arg0: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7](arg0: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8](arg0: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
 
   def In[T](v: T): T = ???
 
@@ -1177,5 +1198,7 @@ trait contract {
   implicit def $toB(sp: Contract.Assume): B = ???
 
   implicit def $toB(sp: Contract.Assert): B = ???
+
+  implicit def $toB(sp: Contract.Let): B = ???
 
 }
