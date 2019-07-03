@@ -41,6 +41,8 @@ class msig extends StaticAnnotation
 
 class pure extends StaticAnnotation
 
+class strictpure extends StaticAnnotation
+
 class record extends StaticAnnotation
 
 class sig extends StaticAnnotation
