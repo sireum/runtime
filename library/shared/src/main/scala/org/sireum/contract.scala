@@ -47,9 +47,11 @@ trait contract {
 
     def apply(arg0: Requires, arg1: Modifies, arg2: Ensures): Unit = macro Macro.lUnit3
 
-    def apply(arg0: CCase*): Unit = macro Macro.lUnit0S
+    def apply(arg0: CCase, arg1: CCase*): Unit = macro Macro.lUnit1S
 
     def apply(arg0: Modifies, arg1: CCase*): Unit = macro Macro.lUnit1S
+
+    def apply(arg0: => Unit): Unit = macro Macro.lUnit1
 
     object Only {
 
@@ -96,6 +98,12 @@ trait contract {
 
   trait Ensures
 
+  trait Proof
+
+  trait ProofStep
+
+  trait Justification
+
   def Requires(claims: B*): Requires = halt("Contract.Requires should be erased")
 
   def Modifies(claims: Any*): Modifies = halt("Contract.Requires should be erased")
@@ -105,6 +113,10 @@ trait contract {
   def Invariant(arg0: B*): Unit = macro Macro.lUnit0S
 
   def Invariant(arg0: String, arg1: B*): Unit = macro Macro.lUnit1S
+
+  def Axiom(arg0: B*): Unit = macro Macro.lUnit0S
+
+  def Axiom(arg0: String, arg1: B*): Unit = macro Macro.lUnit1S
 
   def Case(arg0: Requires): CCase = macro Macro.lNothing1[CCase]
 
@@ -120,6 +132,32 @@ trait contract {
 
   def LoopInvariant(arg0: Modifies, arg1: B*): Unit = macro Macro.lUnit1S
 
+  def Lemma(arg0: B, arg1: Proof): Unit = macro Macro.lUnit2
+
+  def Lemma(arg0: String, arg1: B, arg2: Proof): Unit = macro Macro.lUnit3
+
+  def Theorem(arg0: B, arg1: Proof): Unit = macro Macro.lUnit2
+
+  def Theorem(arg0: String, arg1: B, arg2: Proof): Unit = macro Macro.lUnit3
+
+  def Proof(arg0: ProofStep*): Proof = macro Macro.lNothing0S[Proof]
+
+  def Step(arg0: Int, arg1: B): ProofStep = macro Macro.lNothing2[ProofStep]
+
+  def Step(arg0: Int, arg1: B, arg2: Justification): ProofStep = macro Macro.lNothing3[ProofStep]
+
+  def SubProof(arg0: ProofStep*): B = macro Macro.lNothing0S[B]
+
+  def SubProof[T1](arg0: T1 => Unit): B = macro Macro.lNothing1[B]
+
+  def Assume(arg0: B): B = macro Macro.lNothing1[B]
+
+  def Assert(arg0: B): B = macro Macro.lNothing1[B]
+
+  def SubProof[T1, T2](arg0: (T1, T2) => ISZ[ProofStep]): B = macro Macro.lNothing1[B]
+
+  def StructuralInduction(arg0: ISZ[ProofStep]): Justification = macro Macro.lNothing1[B]
+
   def In[T](v: T): T = halt("In should be erased")
 
   def Old[T](v: T): T = halt("Old should be erased")
@@ -128,42 +166,68 @@ trait contract {
 
   object All {
 
-    def apply[T](p: T => B): B = halt("All should be erased")
+    def apply[T](p: T => Boolean): B = halt("All should be erased")
 
-    def apply[T](seq: ISZ[T])(p: T => B): B = halt("All should be erased")
+    def apply[T](seq: ISZ[T])(p: T => Boolean): B = halt("All should be erased")
 
-    def apply[T](seq: MSZ[T])(p: T => B): B = halt("All should be erased")
+    def apply[T](seq: MSZ[T])(p: T => Boolean): B = halt("All should be erased")
 
   }
 
   object ∀ {
 
-    def apply[T](p: T => B): B = halt("∀ should be erased")
+    def apply[T](p: T => Boolean): B = halt("∀ should be erased")
 
-    def apply[T](seq: ISZ[T])(p: T => B): B = halt("∀ should be erased")
+    def apply[T1, T2](p: (T1, T2) => Boolean): B = halt("∀ should be erased")
 
-    def apply[T](seq: MSZ[T])(p: T => B): B =  halt("∀ should be erased")
+    def apply[T](seq: ISZ[T])(p: T => Boolean): B = halt("∀ should be erased")
+
+    def apply[T](seq: MSZ[T])(p: T => Boolean): B =  halt("∀ should be erased")
 
   }
 
   object Exists {
 
-    def apply[T](p: T => B): B = halt("Exists should be erased")
+    def apply[T](p: T => Boolean): B = halt("Exists should be erased")
 
-    def apply[T](seq: ISZ[T])(p: T => B): B = halt("Exists should be erased")
+    def apply[T](seq: ISZ[T])(p: T => Boolean): B = halt("Exists should be erased")
 
-    def apply[T](seq: MSZ[T])(p: T => B): B = halt("Exists should be erased")
+    def apply[T](seq: MSZ[T])(p: T => Boolean): B = halt("Exists should be erased")
 
   }
 
   object ∃ {
 
-    def apply[T](p: T => B): B = halt("∃ should be erased")
+    def apply[T](p: T => Boolean): B = halt("∃ should be erased")
 
-    def apply[T](seq: ISZ[T])(p: T => B): B = halt("∃ should be erased")
+    def apply[T](seq: ISZ[T])(p: T => Boolean): B = halt("∃ should be erased")
 
-    def apply[T](seq: MSZ[T])(p: T => B): B = halt("∃ should be erased")
+    def apply[T](seq: MSZ[T])(p: T => Boolean): B = halt("∃ should be erased")
 
   }
 
+  import language.implicitConversions
+
+  implicit def toStepBuilder(stepNo: Int): StepBuilder = halt("toStepBuilder should be erased")
+
+  implicit def toStepBuilder(stepNo: Z): StepBuilder = halt("toStepBuilder should be erased")
+
+  implicit def toJustificationBuilder(name: String): JustificationBuilder = halt("toJustificationBuilder should be erased")
+
+  implicit def toJustification(name: String): Justification = halt("toJustificationBuilder should be erased")
+
+  implicit def toProofStep(sbb: StepBuilderBy): ProofStep = halt("toProofStep should be erased")
+
+
+  trait StepBuilder {
+    def #>(cond: B): StepBuilderBy
+  }
+
+  trait StepBuilderBy {
+    def by(just: Justification): ProofStep
+  }
+
+  trait JustificationBuilder {
+    def apply(args: Any*): Justification
+  }
 }
