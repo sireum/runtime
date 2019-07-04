@@ -80,18 +80,6 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def lUnit1S(arg0: c.Tree, arg1: c.Tree*): c.Expr[Unit] = c.Expr[Unit](q"{}")
 
-  def lNothing1[T](arg0: c.Tree): c.Expr[T] = c.Expr[T](q"???")
-
-  def lNothing2[T](arg0: c.Tree, arg1: c.Tree): c.Expr[T] = c.Expr[T](q"???")
-
-  def lNothing3[T](arg0: c.Tree, arg1: c.Tree, arg2: c.Tree): c.Expr[T] = c.Expr[T](q"???")
-
-  def lNothing4[T](arg0: c.Tree, arg1: c.Tree, arg2: c.Tree, arg3: c.Tree): c.Expr[T] = c.Expr[T](q"???")
-
-  def lNothing0S[T](arg0: c.Tree*): c.Expr[T] = c.Expr[T](q"???")
-
-  def lNothing1S[T](arg0: c.Tree, arg1: c.Tree*): c.Expr[T] = c.Expr[T](q"???")
-
   def lDef[T](args: c.Expr[Any]*): c.Expr[T] =
     c.Expr[T]( q"""halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")""")
 
