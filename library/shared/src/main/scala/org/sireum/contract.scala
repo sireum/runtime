@@ -55,37 +55,37 @@ trait contract {
 
     object Only {
 
-      def apply[T](arg0: Requires): T = macro Macro.lNothing1[T]
+      def apply[T](arg0: Requires): T = ???
 
-      def apply[T](arg0: Modifies): T = macro Macro.lNothing1[T]
+      def apply[T](arg0: Modifies): T = ???
 
-      def apply[T](arg0: Ensures): T = macro Macro.lNothing1[T]
+      def apply[T](arg0: Ensures): T = ???
 
-      def apply[T](arg0: Requires, arg1: Ensures): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: Requires, arg1: Ensures): T = ???
 
-      def apply[T](arg0: Requires, arg1: Modifies): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: Requires, arg1: Modifies): T = ???
 
-      def apply[T](arg0: Modifies, arg1: Ensures): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: Modifies, arg1: Ensures): T = ???
 
-      def apply[T](arg0: Requires, arg1: Modifies, arg2: Ensures): T = macro Macro.lNothing3[T]
+      def apply[T](arg0: Requires, arg1: Modifies, arg2: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: String, arg1: Requires): T = ???
 
-      def apply[T](arg0: String, arg1: Modifies): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: String, arg1: Modifies): T = ???
 
-      def apply[T](arg0: String, arg1: Ensures): T = macro Macro.lNothing2[T]
+      def apply[T](arg0: String, arg1: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Ensures): T = macro Macro.lNothing3[T]
+      def apply[T](arg0: String, arg1: Requires, arg2: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Modifies): T = macro Macro.lNothing3[T]
+      def apply[T](arg0: String, arg1: Requires, arg2: Modifies): T = ???
 
-      def apply[T](arg0: String, arg1: Modifies, arg2: Ensures): T = macro Macro.lNothing3[T]
+      def apply[T](arg0: String, arg1: Modifies, arg2: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Modifies, arg3: Ensures): T = macro Macro.lNothing4[T]
+      def apply[T](arg0: String, arg1: Requires, arg2: Modifies, arg3: Ensures): T = ???
 
-      def apply[T](arg0: Case*): T = macro Macro.lNothing0S[T]
+      def apply[T](arg0: Case*): T = ???
 
-      def apply[T](arg0: Modifies, arg1: Case*): T = macro Macro.lNothing1S[T]
+      def apply[T](arg0: Modifies, arg1: Case*): T = ???
     }
 
     trait Case
@@ -137,72 +137,72 @@ trait contract {
 
   def Ensures(claims: B*): Contract.Ensures = ???
 
-  def Invariant(arg0: B*): Contract.Invariant = macro Macro.lNothing0S[Contract.Invariant]
+  def Invariant(arg0: B*): Contract.Invariant = ???
 
-  def Invariant(arg0: String, arg1: B*): Contract.Invariant = macro Macro.lNothing1S[Contract.Invariant]
+  def Invariant(arg0: String, arg1: B*): Contract.Invariant = ???
 
-  def Case(arg0: Contract.Requires): Contract.Case = macro Macro.lNothing1[Contract.Case]
+  def Case(arg0: Contract.Requires): Contract.Case = ???
 
-  def Case(arg0: Contract.Ensures): Contract.Case = macro Macro.lNothing1[Contract.Case]
+  def Case(arg0: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: Contract.Requires, arg1: Contract.Ensures): Contract.Case = macro Macro.lNothing2[Contract.Case]
+  def Case(arg0: Contract.Requires, arg1: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Requires): Contract.Case = macro Macro.lNothing2[Contract.Case]
+  def Case(arg0: String, arg1: Contract.Requires): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Ensures): Contract.Case = macro Macro.lNothing2[Contract.Case]
+  def Case(arg0: String, arg1: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Requires, arg2: Contract.Ensures): Contract.Case = macro Macro.lNothing3[Contract.Case]
+  def Case(arg0: String, arg1: Contract.Requires, arg2: Contract.Ensures): Contract.Case = ???
 
   def LoopInvariant(arg0: Contract.Modifies, arg1: B*): Unit = macro Macro.lUnit1S
 
-  def Axiom(arg0: B*): Contract.Axiom = macro Macro.lNothing0S[Contract.Axiom]
+  def Axiom(arg0: B*): Contract.Axiom = ???
 
-  def Axiom(arg0: String, arg1: B*): Contract.Axiom = macro Macro.lNothing1S[Contract.Axiom]
+  def Axiom(arg0: String, arg1: B*): Contract.Axiom = ???
 
-  def Lemma(arg0: B, arg1: Contract.Proof): Contract.Lemma = macro Macro.lNothing2[Contract.Lemma]
+  def Lemma(arg0: B, arg1: Contract.Proof): Contract.Lemma = ???
 
-  def Lemma(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Lemma = macro Macro.lNothing3[Contract.Lemma]
+  def Lemma(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Lemma = ???
 
-  def Theorem(arg0: B, arg1: Contract.Proof): Contract.Theorem = macro Macro.lNothing2[Contract.Theorem]
+  def Theorem(arg0: B, arg1: Contract.Proof): Contract.Theorem = ???
 
-  def Theorem(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Theorem = macro Macro.lNothing3[Contract.Theorem]
+  def Theorem(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Theorem = ???
 
-  def Proof(arg0: Contract.ProofStep*): Contract.Proof = macro Macro.lNothing0S[Contract.Proof]
+  def Proof(arg0: Contract.ProofStep*): Contract.Proof = ???
 
-  def Step(arg0: Int, arg1: B): Contract.ProofStep = macro Macro.lNothing2[Contract.ProofStep]
+  def Step(arg0: Int, arg1: B): Contract.ProofStep = ???
 
-  def Step(arg0: Int, arg1: B, arg2: Contract.Justification): Contract.ProofStep = macro Macro.lNothing3[Contract.ProofStep]
+  def Step(arg0: Int, arg1: B, arg2: Contract.Justification): Contract.ProofStep = ???
 
-  def SubProof(arg0: Contract.ProofStep*): Contract.SubProof = macro Macro.lNothing0S[Contract.SubProof]
+  def SubProof(arg0: Contract.ProofStep*): Contract.SubProof = ???
 
-  def Assume(arg0: B): Contract.Assume = macro Macro.lNothing1[Contract.Assume]
+  def Assume(arg0: B): Contract.Assume = ???
 
-  def Assert(arg0: B, arg1: Contract.SubProof): Contract.Assert = macro Macro.lNothing2[Contract.Assert]
+  def Assert(arg0: B, arg1: Contract.SubProof): Contract.Assert = ???
 
-  def StructuralInduction(arg0: Contract.SubProof): Contract.Justification = macro Macro.lNothing1[Contract.Justification]
+  def StructuralInduction(arg0: Contract.SubProof): Contract.Justification = ???
 
-  def Let[T](arg0: T => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2](arg0: (T1, T2) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3](arg0: (T1, T2, T3) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4](arg0: (T1, T2, T3, T4) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5](arg0: (T1, T2, T3, T4, T5) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6](arg0: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7](arg0: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8](arg0: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): Contract.Let = macro Macro.lNothing1[Contract.Let]
+  def Let[T](arg0: T => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2](arg0: (T1, T2) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3](arg0: (T1, T2, T3) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4](arg0: (T1, T2, T3, T4) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5](arg0: (T1, T2, T3, T4, T5) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6](arg0: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7](arg0: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8](arg0: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): Contract.Let = ???
 
   def In[T](v: T): T = ???
 
@@ -709,6 +709,27 @@ trait contract {
   object Exists {
 
     def apply[T](p: T => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2](p: (T1, T2) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3](p: (T1, T2, T3) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4](p: (T1, T2, T3, T4) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5](p: (T1, T2, T3, T4, T5) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6](p: (T1, T2, T3, T4, T5, T6) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7](p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8](p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = halt("This form of Exists is not executable")
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = halt("This form of Exists is not executable")
 
     def apply[T](seq: ISZ[T])(p: T => Boolean): B = {
       for (e <- seq) {
@@ -1111,27 +1132,27 @@ trait contract {
   object ∃ {
 
     @inline def apply[T](p: T => Boolean): B = Exists(p)
-    def apply[T1, T2](p: (T1, T2) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3](p: (T1, T2, T3) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4](p: (T1, T2, T3, T4) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5](p: (T1, T2, T3, T4, T5) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6](p: (T1, T2, T3, T4, T5, T6) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7](p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8](p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = halt("This form of Exists is not executable")
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = halt("This form of Exists is not executable")
+    @inline def apply[T1, T2](p: (T1, T2) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3](p: (T1, T2, T3) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4](p: (T1, T2, T3, T4) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5](p: (T1, T2, T3, T4, T5) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6](p: (T1, T2, T3, T4, T5, T6) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7](p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = Exists(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = Exists(p)
 
     @inline def apply[T](seq: ISZ[T])(p: T => Boolean): B = Exists(seq)(p)
     @inline def apply[T1, T2](seq: ISZ[(T1, T2)])(p: (T1, T2) => Boolean): B = Exists(seq)(p)
