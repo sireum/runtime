@@ -55,7 +55,10 @@ object Module {
 
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion"
-    )
+    ) ++ (
+      if (scalaVersion.startsWith("2.13."))
+        Agg(ivy"org.scala-lang.modules::scala-parallel-collections:$parCollectionVersion")
+      else Agg.empty)
 
     final override def testIvyDeps = Agg.empty
 
@@ -113,9 +116,7 @@ object Module {
       ivy"org.typelevel::spire::$spireVersion"
     )
 
-    final override def ivyDeps =
-      if (scalaVersion.startsWith("2.13.")) Agg(ivy"org.scala-lang.modules::scala-parallel-collections:0.2.0")
-      else Agg.empty
+    final override def ivyDeps = Agg.empty
 
     final override def jvmIvyDeps = Agg(
       ivy"com.zaxxer:nuprocess:$nuProcessVersion",
