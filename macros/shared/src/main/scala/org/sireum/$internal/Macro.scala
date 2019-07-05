@@ -30,6 +30,8 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
+  def par[T](arg: scala.collection.Seq[T]): scala.collection.Seq[T] = macro Macro.parImpl
+
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
   def isJs: Boolean = macro Macro.isJsImpl
@@ -174,6 +176,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     //println(showCode(r))
     r
   }
+
+  def parImpl(arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$arg.par"
 
   def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
 
