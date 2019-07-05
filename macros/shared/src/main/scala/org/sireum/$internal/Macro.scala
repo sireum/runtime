@@ -30,7 +30,7 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
-  def par[T](arg: scala.collection.Seq[T]): scala.collection.Seq[T] = macro Macro.parImpl
+  def par[T](arg: scala.collection.Seq[T]): CollectionCompat.IterableOnce[T] = macro Macro.parImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 

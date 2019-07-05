@@ -35,8 +35,8 @@ object ISOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     if (ies.size >= MinimumParallelThreshold) {
-      val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      val a = new Array[scala.Any](irs.length)
+      val irs = $internal.Macro.par(ies).iterator.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](ies.length)
       irs.foreach { p => a(p._1) = p._2 }
       a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
     } else {
@@ -51,8 +51,8 @@ object ISOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     if (ies.size >= MinimumParallelThreshold) {
-      val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      val a = new Array[scala.Any](irs.length)
+      val irs = $internal.Macro.par(ies).iterator.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](ies.length)
       irs.foreach { p => a(p._1) = p._2 }
       a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
     } else {
@@ -92,8 +92,8 @@ object MSOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     if (ies.size >= ISOps_Ext.MinimumParallelThreshold) {
-      val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      val a = new Array[scala.Any](irs.length)
+      val irs = $internal.Macro.par(ies).iterator.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](ies.length)
       irs.foreach { p => a(p._1) = p._2 }
       a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
     } else {
@@ -108,8 +108,8 @@ object MSOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     if (ies.size >= ISOps_Ext.MinimumParallelThreshold) {
-      val irs = $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      val a = new Array[scala.Any](irs.length)
+      val irs = $internal.Macro.par(ies).iterator.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](ies.length)
       irs.foreach { p => a(p._1) = p._2 }
       a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
     } else {
