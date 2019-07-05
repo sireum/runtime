@@ -25,11 +25,15 @@
 
 package org.sireum.$internal
 
-import scala.collection.GenTraversableOnce
-
 object CollectionCompat {
-  type IterableOnce[T] = GenTraversableOnce[T]
+  type IterableOnce[T] = scala.collection.GenTraversableOnce[T]
   val LazyList = Stream
   val Converters = scala.collection.JavaConverters
   object ParConverters
+
+  // 2.13
+  // type IterableOnce[T] = scala.collection.IterableOnce[T]
+  // val LazyList = scala.collection.immutable.LazyList
+  // val Converters = scala.jdk.CollectionConverters
+  // val ParConverters = scala.collection.parallel.CollectionConverters
 }
