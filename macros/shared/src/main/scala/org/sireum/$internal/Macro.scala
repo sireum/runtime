@@ -30,6 +30,8 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
+  def par[T](arg: scala.collection.GenSeq[T]): scala.collection.GenSeq[T] = macro Macro.parImpl
+
   def parMap[T, U](arg: scala.collection.Seq[T], f: T => U): scala.collection.Iterator[U] = macro Macro.parMapImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
@@ -176,6 +178,8 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     //println(showCode(r))
     r
   }
+
+  def parImpl(arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$arg.par"
 
   def parMapImpl(arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).iterator"
