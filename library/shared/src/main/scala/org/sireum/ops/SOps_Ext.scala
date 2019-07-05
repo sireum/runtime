@@ -35,7 +35,7 @@ object ISOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map({ p: (Int, V) => (p._1, f(p._2)) })
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
@@ -46,7 +46,7 @@ object ISOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map({ p: (Int, V) => (p._1, f(p._2)) })
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
@@ -82,7 +82,7 @@ object MSOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.par(ies).map({ p: (Int, V) => (p._1, f(p._2)) })
+      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
@@ -93,7 +93,7 @@ object MSOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.par(ies).map({ p: (Int, V) => (p._1, f(p._2)) })
+      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
