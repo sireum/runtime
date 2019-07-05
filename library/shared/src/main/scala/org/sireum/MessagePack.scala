@@ -931,7 +931,7 @@ object MessagePack {
       }
 
       def writeZ(n: Z): Unit = {
-        if (-9223372036854775808l <= n && n <= 9223372036854775807l) {
+        if (-9223372036854775808L <= n && n <= 9223372036854775807L) {
           writeS64(conversions.Z.toS64(n))
         } else if (0 <= n && n <= z"18446744073709551615") {
           writeU64(conversions.Z.toU64(n))

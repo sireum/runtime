@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Robby, Kansas State University
+ * Copyright (c) 2019, Robby, Kansas State University
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,40 +23,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum.test
+package org.sireum.$internal
 
-import org.scalatest.{FreeSpec, Tag}
+import scala.collection.GenTraversableOnce
 
-trait SireumSpec extends FreeSpec {
-
-  val ts: scala.Seq[Tag] = scala.Vector()
-
-  private val m: scala.collection.mutable.Map[scala.Int, scala.Int] = {
-    import org.sireum.$internal.CollectionCompat.Converters._
-    new java.util.concurrent.ConcurrentHashMap[scala.Int, scala.Int]().asScala
-  }
-
-  private def name(line: scala.Int): Predef.String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
-  }
-
-  def *(title: Predef.String)(b: => scala.Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(s"${name(pos.lineNumber)}: $title", ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => scala.Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(assert(b))(pos)
-  }
-
-  def *(b: => scala.Boolean, msg: => Predef.String)(implicit pos: org.scalactic.source.Position): Unit = {
-    registerTest(name(pos.lineNumber), ts: _*)(if (!b) assert(b, msg))(pos)
-  }
-
-  implicit class StringEq(s: String) {
-    def =~=(other: String): Boolean =
-      s.trim().replaceAll("\\s+", " ").equalsIgnoreCase(other.trim().replaceAll("\\s+", " "))
-  }
+object CollectionCompat {
+  type IterableOnce[T] = GenTraversableOnce[T]
+  val LazyList = Stream
+  val Converters = scala.collection.JavaConverters
+  object ParConverters
 }

@@ -409,7 +409,7 @@ object Z extends $ZCompanion[Z] {
       def <=(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) <= 0
       def >(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) > 0
       def >=(other: _32): scala.Boolean = _root_.java.lang.Integer.compareUnsigned(value, other.value) >= 0
-      def toLong: scala.Long = value & 0xFFFFFFFFl
+      def toLong: scala.Long = value & 0xFFFFFFFFL
       override def toString: Predef.String =  f"$value%08x"
     }
 

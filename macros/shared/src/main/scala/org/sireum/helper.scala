@@ -35,7 +35,7 @@ object helper {
   val BigInt0: BigInt = BigInt(0)
   val UByteMax: BigInt = BigInt(255)
   val UShortMax: BigInt = BigInt(65535)
-  val UIntMax: BigInt = BigInt(4294967295l)
+  val UIntMax: BigInt = BigInt(4294967295L)
   val ULongMax: BigInt = BigInt("18446744073709551615")
 
   def halt(msg: Any): Nothing = {

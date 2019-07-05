@@ -103,7 +103,7 @@ object Z_Ext {
 
   @pure def isInRangeSigned32(n: Z): B = -2147483648 <= n && n <= 2147483647
 
-  @pure def isInRangeSigned64(n: Z): B = -9223372036854775808l <= n && n <= 9223372036854775807l
+  @pure def isInRangeSigned64(n: Z): B = -9223372036854775808L <= n && n <= 9223372036854775807L
 
   @pure def isInRangeN(n: Z): B = 0 <= n
 
@@ -111,7 +111,7 @@ object Z_Ext {
 
   @pure def isInRangeUnsigned16(n: Z): B = 0 <= n && n <= 65535
 
-  @pure def isInRangeUnsigned32(n: Z): B = 0 <= n && n <= 4294967295l
+  @pure def isInRangeUnsigned32(n: Z): B = 0 <= n && n <= 4294967295L
 
   @pure def isInRangeUnsigned64(n: Z): B = 0 <= n && n <= z"18446744073709551615"
 
@@ -1565,10 +1565,10 @@ object String_Ext {
   }
 
   @pure def toBis(s: String): IS[Z, U8] =
-    IS[Z, U8](s.value.getBytes("UTF-8").map(org.sireum.U8(_)): _*)
+    IS[Z, U8](s.value.getBytes("UTF-8").toIndexedSeq.map(org.sireum.U8(_)): _*)
 
   @pure def toBms(s: String): MS[Z, U8] =
-    MS[Z, U8](s.value.getBytes("UTF-8").map(org.sireum.U8(_)): _*)
+    MS[Z, U8](s.value.getBytes("UTF-8").toIndexedSeq.map(org.sireum.U8(_)): _*)
 
   @pure def toCis(s: String): IS[Z, C] = {
     toCms(s).toIS
@@ -1585,8 +1585,8 @@ object String_Ext {
   }
 
   @pure def toU8is(s: String): IS[Z, U8] =
-    IS[Z, U8](s.value.getBytes(UTF_8).map(org.sireum.U8(_)): _*)
+    IS[Z, U8](s.value.getBytes(UTF_8).toIndexedSeq.map(org.sireum.U8(_)): _*)
 
   @pure def toU8ms(s: String): MS[Z, U8] =
-    MS[Z, U8](s.value.getBytes(UTF_8).map(org.sireum.U8(_)): _*)
+    MS[Z, U8](s.value.getBytes(UTF_8).toIndexedSeq.map(org.sireum.U8(_)): _*)
 }

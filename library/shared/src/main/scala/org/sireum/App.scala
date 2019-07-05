@@ -35,7 +35,7 @@ trait App {
         atExit()
       }
     })
-    App.args = ISZ(args.map(String(_)): _*)
+    App.args = ISZ(args.toIndexedSeq.map(String(_)): _*)
     System.exit(main(App.args).toInt)
   }
 

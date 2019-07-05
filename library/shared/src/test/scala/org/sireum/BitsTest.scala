@@ -203,7 +203,7 @@ class BitsTest extends TestSuite {
 
       * - assert(x.Name =~= "U16")
 
-      * - assert(x.value =~= 14l)
+      * - assert(x.value =~= 14L)
 
       * - assert(x - u16"15" =~= U16.Max)
 
@@ -327,7 +327,7 @@ class BitsTest extends TestSuite {
 
       * - assert(x.Name =~= "S16_m2")
 
-      * - assert(x.value =~= 14l)
+      * - assert(x.value =~= 14L)
 
       * - assert(x - s16_m2"15" =~= s16_m2"-1")
 

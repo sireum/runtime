@@ -26,6 +26,7 @@
 package org.sireum.ops
 
 import org.sireum._
+import org.sireum.$internal.CollectionCompat.ParConverters._
 
 object ISOps_Ext {
   val MinimumParallelThreshold: Int = 8
@@ -33,23 +34,33 @@ object ISOps_Ext {
   def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      else ies.map { p => (p._1, f(p._2)) }
-    val a = new Array[scala.Any](irs.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    if (ies.size >= MinimumParallelThreshold && !$internal.Macro.isJs) {
+      val irs = ies.par.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    } else {
+      val irs = ies.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    }
   }
 
   def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      else ies.map { p => (p._1, f(p._2)) }
-    val a = new Array[scala.Any](irs.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    if (ies.size >= MinimumParallelThreshold && !$internal.Macro.isJs) {
+      val irs = ies.par.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    } else {
+      val irs = ies.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    }
   }
 
   @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
@@ -80,24 +91,33 @@ object MSOps_Ext {
   def mParMapFoldLeft[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold)
-        $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      else ies.map { p => (p._1, f(p._2)) }
-    val a = new Array[scala.Any](irs.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    if (ies.size >= ISOps_Ext.MinimumParallelThreshold && !$internal.Macro.isJs) {
+      val irs = ies.par.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    } else {
+      val irs = ies.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    }
   }
 
   def mParMapFoldRight[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.par(ies).map { p => (p._1, f(p._2)) }
-      else ies.map { p => (p._1, f(p._2)) }
-    val a = new Array[scala.Any](irs.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    if (ies.size >= ISOps_Ext.MinimumParallelThreshold && !$internal.Macro.isJs) {
+      val irs = ies.par.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    } else {
+      val irs = ies.map { p => (p._1, f(p._2)) }
+      val a = new Array[scala.Any](irs.length)
+      irs.foreach { p => a(p._1) = p._2 }
+      a.foldRight(init)((u, r) => g(r, u.asInstanceOf[U]))
+    }
   }
 
   @pure def sortWith[I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {

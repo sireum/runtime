@@ -100,7 +100,9 @@ trait contract {
 
     trait SubProof
 
-    trait ProofStep
+    trait ProofStep{
+      def by(just: Justification): ProofStep
+    }
 
     trait Justification
 
@@ -119,11 +121,11 @@ trait contract {
     trait Let
 
     trait StepBuilder {
-      def #>(cond: B): StepBuilderBy
-    }
-
-    trait StepBuilderBy {
-      def by(just: Justification): ProofStep
+      def #>(cond: B): ProofStep
+      def #>(cond: Assume): ProofStep
+      def #>(cond: Assert): ProofStep
+      def #>(cond: Let): ProofStep
+      def #>(cond: SubProof): ProofStep
     }
 
     trait JustificationBuilder {
@@ -1211,15 +1213,5 @@ trait contract {
   implicit def $toJustificationBuilder(name: String): Contract.JustificationBuilder = ???
 
   implicit def $toJustification(name: String): Contract.Justification = ???
-
-  implicit def $toProofStep(sbb: Contract.StepBuilderBy): Contract.ProofStep = ???
-
-  implicit def $toB(sp: Contract.SubProof): B = ???
-
-  implicit def $toB(sp: Contract.Assume): B = ???
-
-  implicit def $toB(sp: Contract.Assert): B = ???
-
-  implicit def $toB(sp: Contract.Let): B = ???
 
 }

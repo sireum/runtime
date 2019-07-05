@@ -47,8 +47,8 @@ object String {
 
     o match {
       case o: String => helper.escape(o.value)
-      case o: C => val s = helper.escape(o.toString); '\'' + s.substring(1, s.length - 1) + '\''
-      case o: F32 => o + "f"
+      case o: C => val s = helper.escape(o.toString); "'" + s.substring(1, s.length - 1) + "'"
+      case o: F32 => o.toString + "f"
       case o: R => "r\"" + o + '"'
       case o: Z.MP.Long => z2s(o.value)
       case o: Z.MP.BigInt => o.pack match {

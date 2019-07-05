@@ -25,13 +25,10 @@
 
 package org.sireum.$internal
 
-import scala.collection.GenSeq
 import scala.language.experimental.macros
 
 object Macro {
   val templateString = "st\"...\""
-
-  def par[T](arg: GenSeq[T]): GenSeq[T] = macro Macro.parImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
@@ -178,126 +175,6 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     r
   }
 
-  def up(lhs: c.Tree, rhs: c.Tree): c.Tree = {
-    def isVar(symbol: Symbol): Boolean = {
-      val t = symbol.asTerm
-      if (t.isVar) true
-      else if (t.isGetter & t.setter.toString != "<none>") true
-      else false
-    }
-
-    def varType(t: c.Tree): Option[c.Type] = t match {
-      case q"${name: Ident}.$_" =>
-        if (isVar(name.symbol)) Some(name.tpe) else None
-      case q"${name: Ident}.apply[..$_]($_)($_)" =>
-        if (isVar(name.symbol)) Some(name.tpe) else None
-      case q"${name: Ident}.apply[..$_]($_)" =>
-        if (isVar(name.symbol)) Some(name.tpe) else None
-      case t@Select(This(_), _) =>
-        if (isVar(t.symbol)) Some(t.tpe) else None
-      case Apply(Select(t@Select(This(_), _), TermName("apply")), List(_)) =>
-        if (isVar(t.symbol)) Some(t.tpe) else None
-      case Typed(e, _) => varType(e)
-      case q"${expr: c.Tree}.$_" => varType(expr)
-      case q"${expr: c.Tree}.apply[..$_]($_)($_)" => varType(expr)
-      case q"${expr: c.Tree}.apply[..$_]($_)" => varType(expr)
-      case _ =>
-        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
-    }
-
-    def f(t: c.Tree, r: c.Tree): c.Tree = t match {
-      case q"${name: c.TermName}.$tname" =>
-        q"$name = $name($tname = $r)"
-      case q"${name: c.TermName}.apply[..$_]($arg)($_)" =>
-        q"$name = $name(($arg, $r))"
-      case q"${name: c.TermName}.apply[..$_]($arg)" =>
-        q"$name = $name(($arg, $r))"
-      case q"$tpname.this.$name.$tname" =>
-        q"$tpname.this.$name = $name($tname = $r)"
-      case q"$tpname.this.$name.apply[..$_]($arg)($_)" =>
-        q"$tpname.this.$name = this.$name(($arg, $r))"
-      case Typed(e, _) => f(e, r)
-      case q"${expr: c.Tree}.$tname" => f(expr, q"$expr($tname = $r)")
-      case q"${expr: c.Tree}.apply[..$_]($arg)($_)" => f(expr, q"$expr(($arg, $r))")
-      case q"${expr: c.Tree}.apply[..$_]($arg)" => f(expr, q"$expr(($arg, $r))")
-      case _ =>
-        c.abort(t.pos, s"Unexpected left-hand side form: ${showCode(t)}")
-    }
-
-    //println(showRaw(lhs))
-    //println(showRaw(rhs))
-    val tpe = varType(lhs)
-    //println(t)
-    val r = tpe match {
-      case Some(t) =>
-        if (t <:< c.typeOf[DatatypeMarker] || t <:< c.typeOf[ISMarker]) f(lhs, rhs)
-        else c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a @datatype var or a var of type IS.")
-      case _ => c.abort(lhs.pos, s"Can only use 'up(...)' for expressions rooted in a var.")
-    }
-    //println(showRaw(r))
-    //println(showCode(r))
-    r
-  }
-
-  def pat(args: c.Tree*): c.Tree = {
-    if (args.last.tpe <:< c.typeOf[Product]) {
-      if (args.length < 3 || !args.dropRight(1).forall({
-        case Ident(TermName(_)) => true
-        case _ => false
-      })) {
-        c.abort(c.enclosingPosition, "Invalid tuple pattern form; it should be: pat(<id>, <id>+) = <exp>.")
-      }
-      val lhss = args.dropRight(1)
-      val rhs = args.last
-      var assigns = List[c.Tree](q"val _tmp = $rhs")
-      for (i <- lhss.indices) {
-        assigns ::= q"${lhss(i)} = _tmp.${TermName("_" + (i + 1))}"
-      }
-      val r = Block(assigns.reverse, Literal(Constant(())))
-      //println(showRaw(r))
-      //println(showCode(r))
-      r
-    } else {
-      if (args.length != 2) {
-        c.abort(c.enclosingPosition, "Invalid extraction pattern form; it should be: pat(<pattern>) = <exp>.")
-      }
-      var names = Map[TermName, TermName]()
-
-      def f(e: Any): c.Tree = {
-        e match {
-          case q"$expr.apply(...$exprss)" if exprss.size == 1 =>
-            val exprs2 = for (exprs <- exprss) yield for (exp <- exprs) yield f(exp)
-            pq"$expr(..${exprs2.head})"
-          case q"(..$exprs)" if exprs.size > 1 =>
-            pq"(..${for (expr <- exprs) yield f(expr)})"
-          case q"${name: TermName}" =>
-            val id = name.decodedName.toString
-            if (id.startsWith("_placeholder")) {
-              pq"_"
-            } else {
-              val e2 = TermName(s"_$id")
-              names += e2 -> name
-              pq"$e2"
-            }
-          case e: c.Tree => c.abort(e.pos, s"Invalid extraction pattern: ${showCode(e)}")
-        }
-      }
-
-      //println(showRaw(args.head))
-      val tmp = q"val ${f(args.head)} = ${args(1)}".asInstanceOf[Block].stats
-      var assigns = List[c.Tree]()
-      for ((rhs, lhs) <- names) {
-        assigns ::= q"${Ident(lhs)} = ${Ident(rhs)}"
-      }
-      val r = Block(tmp ++ assigns, Literal(Constant(())))
-      //println(showRaw(r))
-      //println(showCode(r))
-      r
-    }
-  }
-
-  def parImpl(arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$arg.par"
-
   def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
 
   def st(args: c.Tree*): c.Tree = {
@@ -312,7 +189,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
             case 2 if t.typeArgs(1) <:< templ => q"ST.Templ($e.elements, $sep)"
             case _ => q"ST.Any($e.elements.map($$internal.Option.apply), $sep)"
           }
-        } else if (t.erasure <:< c.typeOf[scala.collection.GenTraversableOnce[Any]].erasure) {
+        } else if (t.erasure <:< c.typeOf[CollectionCompat.IterableOnce[Any]].erasure) {
           if (t.typeArgs.head <:< templ) q"ST.Templ($e.toSeq, $sep)"
           else q"ST.Any($e.toSeq.map($$internal.Option.apply), $sep)"
         } else q"ST.Any(scala.Seq($$internal.Option($e)), $sep)"
@@ -329,7 +206,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       else true
     val parts = {
       val ps = extractParts
-      if (isSingle) ps.map(p => q"StringContext.treatEscapes($p)") else ps
+      if (isSingle) ps.map(p => q"StringContext.processEscapes($p)") else ps
     }
     val stArgs = for (arg <- args) yield arg match {
       case q"(..$exprs)" if exprs.size > 1 =>

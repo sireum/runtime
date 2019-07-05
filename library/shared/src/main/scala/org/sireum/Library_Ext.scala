@@ -28,7 +28,7 @@ package org.sireum
 import org.sireum.$internal.{RC, Trie}
 
 object Library_Ext {
-  def map: scala.collection.Map[scala.Seq[Predef.String], Predef.String] = RC.text(Seq("../..", "../../../../../../jvm/src/main/scala")) { (p, f) =>
+  def map: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../..", "../../../../../../jvm/src/main/scala")) { (p, f) =>
     val filename = p.last
     if (filename.endsWith(".slang")) true
     else if (filename.endsWith(".scala")) {

@@ -27,7 +27,7 @@ package org.sireum
 
 object MessagePackFun_Ext {
 
-  def write[T](f: T): ISZ[U8] = ISZ(JsonFun_Ext.printObj(f).map(U8(_)): _*)
+  def write[T](f: T): ISZ[U8] = ISZ(JsonFun_Ext.printObj(f).toIndexedSeq.map(U8(_)): _*)
 
   def read[T](reader: MessagePack.Reader.Impl, f: ISZ[U8]): Option[T] = {
     try {

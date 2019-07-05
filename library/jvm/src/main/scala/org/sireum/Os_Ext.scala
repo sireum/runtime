@@ -29,11 +29,11 @@ import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
 import java.util.concurrent.{TimeUnit => TU}
-import java.util.zip.{ZipInputStream => ZIS, ZipOutputStream => ZOS, ZipEntry => ZE}
+import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => ZOS}
 
 import com.zaxxer.nuprocess._
-
-import scala.collection.JavaConverters._
+import org.sireum.$internal.CollectionCompat
+import org.sireum.$internal.CollectionCompat.Converters._
 
 object Os_Ext {
 
@@ -55,7 +55,7 @@ object Os_Ext {
 
   var isNative: B = Os_ExtJava.isNative
 
-  lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)): _*)
+  lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)).toIndexedSeq: _*)
 
   lazy val downloadCommand: ISZ[String] =
     if (Os.proc(ISZ("curl", "--version")).run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
@@ -181,10 +181,10 @@ object Os_Ext {
   def lastModified(path: String): Z = toIO(path).lastModified
 
   @pure def lines(path: String, count: Z): ISZ[String] =
-    if (count <= 0) ISZ(JFiles.lines(toNIO(path), SC.UTF_8).toArray.map(s => String(s.toString)): _*)
-    else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.map(s => String(s.toString)): _*)
+    if (count <= 0) ISZ(JFiles.lines(toNIO(path), SC.UTF_8).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
+    else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
 
-  def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).map(String(_)): _*)
+  def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).toIndexedSeq.map(String(_)): _*)
 
   def move(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
@@ -246,7 +246,7 @@ object Os_Ext {
   def read(path: String): String = new Predef.String(JFiles.readAllBytes(toNIO(path)), SC.UTF_8)
 
   def readLines(path: String): ISZ[String] =
-    ISZ(JFiles.readAllLines(toNIO(path), SC.UTF_8).asScala.map(String.apply): _*)
+    ISZ(JFiles.readAllLines(toNIO(path), SC.UTF_8).asScala.toIndexedSeq.map(String.apply): _*)
 
   def readU8s(path: String): ISZ[U8] = {
     val data = JFiles.readAllBytes(toNIO(path))
@@ -476,7 +476,7 @@ object Os_Ext {
     val zis = new ZIS(new FIS(toIO(path)))
     try {
       val t = toNIO(target)
-      for (file <- Stream.continually(zis.getNextEntry).takeWhile(_ != null)) {
+      for (file <- CollectionCompat.LazyList.continually(zis.getNextEntry).takeWhile(_ != null)) {
         if (!file.isDirectory) {
           val p = t.resolve(file.getName)
           p.getParent.toFile.mkdirs()

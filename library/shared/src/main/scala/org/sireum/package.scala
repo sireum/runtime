@@ -70,7 +70,7 @@ package object sireum extends $internal.PackageTrait with contract {
       def apply(args: Any*): C = macro Macro.cApply
       def unapply(c: C): scala.Boolean = {
         require(sc.parts.length == 1)
-        val part = StringContext.treatEscapes(sc.parts.head)
+        val part = StringContext.processEscapes(sc.parts.head)
         require(part.codePointCount(0, part.length) == 1)
         c.value == part.codePointAt(0)
       }
@@ -104,7 +104,7 @@ package object sireum extends $internal.PackageTrait with contract {
       def apply(args: Any*): String = macro Macro.stringApply
       def unapply(s: String): scala.Boolean = {
         assume(sc.parts.size == 1)
-        val other = StringContext.treatEscapes(sc.parts.head)
+        val other = StringContext.processEscapes(sc.parts.head)
         val r = s.value == other
         r
       }

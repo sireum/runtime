@@ -29,6 +29,51 @@ import org.sireum.$internal.{Boxer, ISMarker}
 
 object IS {
 
+  class WithFilter[I, V](is: IS[I, V], p: V => B) {
+    def map[V2](f: V => V2): IS[I, V2] =
+      if (is.isEmpty) this.asInstanceOf[IS[I, V2]]
+      else {
+        var a: AnyRef = null
+        var boxer2: Boxer = null
+        var i = Z.MP.zero
+        while (i < is.length) {
+          val v = is.boxer.lookup(is.data, i)
+          if (p(v)) {
+            val v2 = f(v)
+            if (boxer2 == null) {
+              boxer2 = Boxer.boxer(v2)
+              a = boxer2.create(is.length)
+            }
+            boxer2.store(a, i, v2)
+          }
+          i = i.increase
+        }
+        IS[I, V2](is.companion, a, is.length, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
+      }
+
+    def foreach[U](f: V => U): Unit = {
+      var i = Z.MP.zero
+      while (i < is.length) {
+        val v = is.boxer.lookup(is.data, i)
+        if (p(v)) f(v)
+        i = i.increase
+      }
+    }
+
+    def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] =
+      if (is.isEmpty) this.asInstanceOf[IS[I, V2]]
+      else {
+        val es = is.elements
+        var r = f(es.head)
+        for (e <- es.tail if p(e)) {
+          r = r ++ f(e)
+        }
+        r
+      }
+
+    def withFilter(p2: V => B): WithFilter[I, V] = new WithFilter(is, v => p(v) && p2(v))
+  }
+
   def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
     assert(
@@ -189,6 +234,14 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       IS[I, V2](companion, a, length, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
     }
 
+  def foreach[U](f: V => U): Unit = {
+    var i = Z.MP.zero
+    while (i < length) {
+      f(boxer.lookup(data, i))
+      i = i.increase
+    }
+  }
+
   def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] =
     if (isEmpty) this.asInstanceOf[IS[I, V2]]
     else {
@@ -212,15 +265,16 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     IS[I, V](companion, a, newLength, boxer)
   }
 
-  def withFilter(p: V => B): scala.collection.generic.FilterMonadic[V, scala.collection.immutable.Seq[V]] =
-    elements.toVector.withFilter(o => p(o).value)
-
-  def foreach(f: V => Unit): Unit = {
+  def withFilter(p: V => B): IS[I, V] = {
+    val s = elements.withFilter(e => p(e).value).map(identity)
+    val newLength = Z.MP(s.length)
+    val a = boxer.create(newLength)
     var i = Z.MP.zero
-    while (i < length) {
-      f(boxer.lookup(data, i))
+    for (e <- s) {
+      boxer.store(a, i, e)
       i = i.increase
     }
+    IS[I, V](companion, a, newLength, boxer)
   }
 
   def iterator(): _root_.java.util.Iterator[V] = new _root_.java.util.Iterator[V] {

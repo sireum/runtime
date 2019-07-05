@@ -25,7 +25,7 @@
 
 package org.sireum.$internal
 
-import org.sireum.{Z, String, helper}
+import org.sireum.{Z, String, helper, Mutable}
 
 object Boxer {
   val MaxArraySize: Z = Z.MP(Int.MaxValue - 8)

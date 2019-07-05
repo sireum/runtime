@@ -32,7 +32,7 @@ package org.sireum
 
 @range(min = -2147483648, max = 2147483647) class Z32
 
-@range(min = -9223372036854775808l, max = 9223372036854775807l) class Z64
+@range(min = -9223372036854775808L, max = 9223372036854775807L) class Z64
 
 @range(min = 0) class N
 
@@ -40,7 +40,7 @@ package org.sireum
 
 @range(min = 0, max = 65535) class N16
 
-@range(min = 0, max = 4294967295l) class N32
+@range(min = 0, max = 4294967295L) class N32
 
 @range(min = 0, max = z"18,446,744,073,709,551,617") class N64
 

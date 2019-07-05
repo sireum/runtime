@@ -33,7 +33,7 @@ class BuiltInTypesTest extends TestSuite {
 
     * - assert(z"1" == Z(1))
 
-    * - assert(z"1" == Z(1l))
+    * - assert(z"1" == Z(1L))
 
     * - assert(z"1" == Z(BigInt(1)))
 
