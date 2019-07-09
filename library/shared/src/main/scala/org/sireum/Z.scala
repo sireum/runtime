@@ -1337,9 +1337,17 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def toMP: Z
 
-  def to(n: T): ZRange[T] = ZRange[T](T, this, n, 1, _ => T, n => n.increase, n => n.decrease)
+  def to(n: T): ZRange[T] = ZRange[T](T, this, n, 1, new ZRange.CondIncDec[T] {
+    @pure def cond(i: T): B = T
+    @pure def increase(i: T): T = i.increase
+    @pure def decrease(i: T): T = i.decrease
+  })
 
-  def until(n: T): ZRange[T] = ZRange[T](F, this, n, 1, _ => T, n => n.increase, n => n.decrease)
+  def until(n: T): ZRange[T] = ZRange[T](F, this, n, 1, new ZRange.CondIncDec[T] {
+    @pure def cond(i: T): B = T
+    @pure def increase(i: T): T = i.increase
+    @pure def decrease(i: T): T = i.decrease
+  })
 
   def compareTo(other: T): scala.Int =
     if (this < other) -1 else if (this > other) 1 else 0
@@ -1418,14 +1426,20 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
 
 }
 
+object ZRange {
+  trait CondIncDec[I] {
+    @pure def cond(i: I): B
+    @pure def increase(i: I): I
+    @pure def decrease(i: I): I
+  }
+}
+
 final case class ZRange[I](
   isInclusive: B,
   init: I,
   to: I,
   by: Z,
-  @pure cond: I => B,
-  @pure increase: I => I,
-  @pure decrease: I => I
+  cid: ZRange.CondIncDec[I]
 ) {
 
   def foreach(f: I => Unit): Unit = {
@@ -1438,14 +1452,22 @@ final case class ZRange[I](
       else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
     }
     while (loopCond) {
-      if (cond(i)) {
+      if (cid.cond(i)) {
         f(i)
       }
-      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
       var j = Z.MP.zero
-      while (j < n) {
-        i = step(i)
-        j = j + 1
+      if (by < 0) {
+        val n = -by
+        while (j < n) {
+          i = cid.decrease(i)
+          j = j + 1
+        }
+      } else {
+        val n = by
+        while (j < n) {
+          i = cid.increase(i)
+          j = j + 1
+        }
       }
       iZ = i.asInstanceOf[ZLike[_]].toMP
     }
@@ -1462,14 +1484,22 @@ final case class ZRange[I](
       else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
     }
     while (loopCond) {
-      if (cond(i)) {
+      if (cid.cond(i)) {
         r = r :+ f(i)
       }
-      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
       var j = Z.MP.zero
-      while (j < n) {
-        i = step(i)
-        j = j + 1
+      if (by < 0) {
+        val n = -by
+        while (j < n) {
+          i = cid.decrease(i)
+          j = j + 1
+        }
+      } else {
+        val n = by
+        while (j < n) {
+          i = cid.increase(i)
+          j = j + 1
+        }
       }
       iZ = i.asInstanceOf[ZLike[_]].toMP
     }
@@ -1487,26 +1517,38 @@ final case class ZRange[I](
       else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
     }
     while (loopCond) {
-      if (cond(i)) {
+      if (cid.cond(i)) {
         r = r ++ f(i)
       }
-      val (step, n) = if (by < 0) (decrease, -by) else (increase, by)
       var j = Z.MP.zero
-      while (j < n) {
-        i = step(i)
-        j = j + 1
+      if (by < 0) {
+        val n = -by
+        while (j < n) {
+          i = cid.decrease(i)
+          j = j + 1
+        }
+      } else {
+        val n = by
+        while (j < n) {
+          i = cid.increase(i)
+          j = j + 1
+        }
       }
       iZ = i.asInstanceOf[ZLike[_]].toMP
     }
     r
   }
 
-  @pure def by(n: Z): ZRange[I] = ZRange(isInclusive, init, to, n, cond, increase, decrease)
+  @pure def by(n: Z): ZRange[I] = ZRange(isInclusive, init, to, n, cid)
 
   def withFilter(filter: I => B): ZRange[I] =
-    ZRange(isInclusive, init, to, by, (i: I) => cond(i) && filter(i), increase, decrease)
+    ZRange(isInclusive, init, to, by, new ZRange.CondIncDec[I] {
+      @pure def cond(i: I): B = cid.cond(i) && filter(i)
+      @pure def increase(i: I): I = cid.increase(i)
+      @pure def decrease(i: I): I = cid.decrease(i)
+    })
 
   @pure def reverse: ZRange[I] =
-    ZRange(T, if (isInclusive) to else if (by > 0) decrease(to) else increase(to), init, -by, cond, increase, decrease)
+    ZRange(T, if (isInclusive) to else if (by > 0) cid.decrease(to) else cid.increase(to), init, -by, cid)
 
 }
