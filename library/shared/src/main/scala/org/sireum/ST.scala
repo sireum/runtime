@@ -33,24 +33,24 @@ object ST {
 
   object Any {
     def apply(args: scala.Seq[scala.Any], sep: Predef.String = ""): Any =
-      new Any(args.map {
+      new Any(args.toArray.map {
         case arg: Mutable => helper.cloneAssign(arg)
         case arg => arg
       }, sep)
     def unapply(o: Any): scala.Option[(scala.Seq[scala.Any], Predef.String)] =
-      scala.Some((o.args, o.sep))
+      scala.Some((o.args.toSeq, o.sep))
   }
   
-  final class Any(val args: scala.Seq[scala.Any], val sep: Predef.String) extends Arg
+  final class Any(val args: Array[scala.Any], val sep: Predef.String) extends Arg
 
   object Templ {
     def apply(args: scala.Seq[ST], sep: Predef.String = ""): Templ =
-      new Templ(args, sep)
+      new Templ(args.toArray, sep)
     def unapply(o: Templ): scala.Option[(scala.Seq[ST], Predef.String)] =
-      scala.Some((o.args, o.sep))
+      scala.Some((o.args.toSeq, o.sep))
   }
 
-  final class Templ(val args: scala.Seq[ST], val sep: Predef.String) extends Arg
+  final class Templ(val args: Array[ST], val sep: Predef.String) extends Arg
 
   def isWs(c: Char): Boolean = c match {
     case ' ' | '\r' | '\n' | '\t' => true
@@ -152,7 +152,7 @@ object ST {
     def rec(t: ST): Unit = {
       val oldIndent = indent
       val parts = if (isCompact) t.compactParts else t.parts
-      appendPart(parts.head)
+      appendPart(parts(0))
       var i = 1
 
       def trimNlPart(): Int = {
@@ -216,6 +216,10 @@ object ST {
 
   def apply(parts: scala.Seq[Predef.String],
             args: scala.Seq[Arg],
+            source: Predef.String): ST = apply(parts.toArray, args.toArray, source)
+
+  def apply(parts: Array[Predef.String],
+            args: Array[Arg],
             source: Predef.String): ST =
     if (parts.exists(_.indexOf("\r\n") >= 0))
       new ST(parts.map(_.replaceAllLiterally("\r\n", "\n")), args, source)
@@ -224,10 +228,10 @@ object ST {
 
 import ST._
 
-final class ST(val parts: scala.Seq[Predef.String],
-               val args: scala.Seq[Arg],
+final class ST(val parts: Array[Predef.String],
+               val args: Array[Arg],
                val source: Predef.String) extends Immutable with STMarker {
-  lazy val compactParts: scala.Seq[Predef.String] = {
+  lazy val compactParts: Array[Predef.String] = {
     for (part <- parts) yield {
       val sb = new _root_.java.lang.StringBuilder(part.length)
       var lastWs = false
