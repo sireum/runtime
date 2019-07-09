@@ -33,8 +33,10 @@ object MS {
     def foreach[U](f: V => U): Unit = {
       var i = Z.MP.zero
       while (i < ms.length) {
-        val v = ms.boxer.lookup(ms.data, i)
-        if (p(v)) f(v)
+        val v = ms.boxer.lookup[V](ms.data, i)
+        if (p(v)) {
+          f(v)
+        }
         i = i.increase
       }
     }
@@ -45,19 +47,21 @@ object MS {
         var a: AnyRef = null
         var boxer2: Boxer = null
         var i = Z.MP.zero
+        var j = Z.MP.zero
         while (i < ms.length) {
-          val v = ms.boxer.lookup(ms.data, i)
+          val v = ms.boxer.lookup[V](ms.data, i)
           if (p(v)) {
             val v2 = f(v)
             if (boxer2 == null) {
               boxer2 = Boxer.boxer(v2)
               a = boxer2.create(ms.length)
             }
-            boxer2.store(a, i, helper.assign(v2))
+            boxer2.store(a, j, helper.assign(v2))
+            j = j.increase
           }
           i = i.increase
         }
-        MS[I, V2](ms.companion, a, ms.length, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
+        MS[I, V2](ms.companion, a, j, if (boxer2 == null) $internal.IdentityBoxer else boxer2)
       }
 
     def flatMap[V2](f: V => MS[I, V2]): MS[I, V2] =
@@ -71,7 +75,7 @@ object MS {
         r
       }
 
-    def withFilter(p2: V => B): WithFilter[I, V] = new WithFilter(ms, v => p(v) && p2(v))
+    def withFilter(p2: V => B): WithFilter[I, V] = new WithFilter[I, V](ms, v => p(v) && p2(v))
   }
 
   def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
@@ -181,7 +185,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     var i = length
     var j = Z.MP.zero
     while (i < newLength) {
-      bxr.store(a, i, helper.assign(other.boxer.lookup(other.data, j)))
+      bxr.store(a, i, helper.assign(other.boxer.lookup[V](other.data, j)))
       i = i.increase
       j = j.increase
     }
@@ -221,9 +225,11 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       companion.Index,
       j.decrease.asInstanceOf[I],
       1,
-      _ => T,
-      _.asInstanceOf[ZLike[_]].increase.asInstanceOf[I],
-      _.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I]
+      new ZRange.CondIncDec[I] {
+        @pure def cond(i: I): B = T
+        @pure override def increase(i: I): I = i.asInstanceOf[ZLike[_]].increase.asInstanceOf[I]
+        @pure override def decrease(i: I): I = i.asInstanceOf[ZLike[_]].decrease.asInstanceOf[I]
+      }
     )
   }
 
@@ -234,7 +240,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       var boxer2: Boxer = null
       var i = Z.MP.zero
       while (i < length) {
-        val v2 = f(boxer.lookup(data, i))
+        val v2 = f(boxer.lookup[V](data, i))
         if (boxer2 == null) {
           boxer2 = Boxer.boxer(v2)
           a = boxer2.create(length)
@@ -248,7 +254,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
   def foreach[U](f: V => U): Unit = {
     var i = Z.MP.zero
     while (i < length) {
-      f(boxer.lookup(data, i))
+      f(boxer.lookup[V](data, i))
       i = i.increase
     }
   }
@@ -264,17 +270,22 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       r
     }
 
-  def filter(p: V => B @pure): MS[I, V] = {
-    val s = elements.withFilter(e => p(e).value).map(identity)
-    val newLength = Z.MP(s.length)
-    val a = boxer.create(newLength)
-    var i = Z.MP.zero
-    for (e <- s) {
-      boxer.store(a, i, helper.cloneAssign(e))
-      i = i.increase
+  def filter(p: V => B @pure): MS[I, V] =
+    if (isEmpty) this
+    else {
+      val a: AnyRef = boxer.create(length)
+      var i = Z.MP.zero
+      var j = Z.MP.zero
+      while (i < length) {
+        val v = boxer.lookup[V](data, i)
+        if (p(v)) {
+          boxer.store(a, j, helper.assign(v))
+          j = j.increase
+        }
+        i = i.increase
+      }
+      MS[I, V](companion, a, j, boxer)
     }
-    MS[I, V](companion, a, newLength, boxer)
-  }
 
   def withFilter(p: V => B): MS.WithFilter[I, V] = new MS.WithFilter(this, p)
 
@@ -305,7 +316,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
   def apply(index: I): V = {
     val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
-    boxer.lookup(data, i)
+    boxer.lookup[V](data, i)
   }
 
   def apply(args: (I, V)*): MS[I, V] = {
@@ -325,13 +336,13 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
   }
 
   def elements: scala.Seq[V] = {
-    var r = scala.Vector[V]()
+    val r = new Array[Any](length.toInt)
     var i = Z.MP.zero
     while (i < length) {
-      r = r :+ boxer.lookup[V](data, i)
+      r(i.toInt) = boxer.lookup[V](data, i)
       i = i.increase
     }
-    r
+    r.toSeq.asInstanceOf[scala.Seq[V]]
   }
 
   override def hashCode: scala.Int = {
@@ -352,7 +363,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
           val data2 = other.data
           for (i <- Z.MP.zero until length) {
             val iMP = i.toMP
-            if (b1.lookup(data1, iMP) != b2.lookup(data2, iMP)) return false
+            if (b1.lookup[V](data1, iMP) != b2.lookup[V](data2, iMP)) return false
           }
           true
         case _ => false
