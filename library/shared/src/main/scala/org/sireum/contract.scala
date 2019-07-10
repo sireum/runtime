@@ -33,68 +33,100 @@ trait contract {
 
   object Contract {
 
+    def apply(arg0: Reads): Unit = macro Macro.lUnit1
+
     def apply(arg0: Requires): Unit = macro Macro.lUnit1
 
     def apply(arg0: Modifies): Unit = macro Macro.lUnit1
 
     def apply(arg0: Ensures): Unit = macro Macro.lUnit1
 
-    def apply(arg0: Requires, arg1: Ensures): Unit = macro Macro.lUnit2
+    def apply(arg0: Reads, arg1: Requires): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Reads, arg1: Modifies): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Reads, arg1: Ensures): Unit = macro Macro.lUnit2
 
     def apply(arg0: Requires, arg1: Modifies): Unit = macro Macro.lUnit2
 
+    def apply(arg0: Requires, arg1: Ensures): Unit = macro Macro.lUnit2
+
     def apply(arg0: Modifies, arg1: Ensures): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: Ensures): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Ensures): Unit = macro Macro.lUnit3
 
     def apply(arg0: Requires, arg1: Modifies, arg2: Ensures): Unit = macro Macro.lUnit3
 
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: Ensures): Unit = macro Macro.lUnit4
+
     def apply(arg0: Case, arg1: Case*): Unit = macro Macro.lUnit1S
 
-    def apply(arg0: Modifies, arg1: Case*): Unit = macro Macro.lUnit1S
+    def apply(arg0: Reads, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
+
+    def apply(arg0: Modifies, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
 
     def apply(arg0: => Unit): Unit = macro Macro.lUnit1
 
+    def apply(arg0: String): Unit = macro Macro.lUnit1
+
     object Only {
 
-      def apply[T](arg0: Requires): T = ???
+      def apply[T](reads: Reads): T = ???
 
-      def apply[T](arg0: Modifies): T = ???
+      def apply[T](requires: Requires): T = ???
 
-      def apply[T](arg0: Ensures): T = ???
+      def apply[T](modifies: Modifies): T = ???
 
-      def apply[T](arg0: Requires, arg1: Ensures): T = ???
+      def apply[T](ensures: Ensures): T = ???
 
-      def apply[T](arg0: Requires, arg1: Modifies): T = ???
+      def apply[T](reads: Reads, requires: Requires): T = ???
 
-      def apply[T](arg0: Modifies, arg1: Ensures): T = ???
+      def apply[T](reads: Reads, modifies: Modifies): T = ???
 
-      def apply[T](arg0: Requires, arg1: Modifies, arg2: Ensures): T = ???
+      def apply[T](reads: Reads, ensures: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires): T = ???
+      def apply[T](requires: Requires, modifies: Modifies): T = ???
 
-      def apply[T](arg0: String, arg1: Modifies): T = ???
+      def apply[T](requires: Requires, ensures: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Ensures): T = ???
+      def apply[T](modifies: Modifies, ensures: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Ensures): T = ???
+      def apply[T](reads: Reads, requires: Requires, modifies: Modifies): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Modifies): T = ???
+      def apply[T](reads: Reads, modifies: Modifies, ensures: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Modifies, arg2: Ensures): T = ???
+      def apply[T](requires: Requires, modifies: Modifies, ensures: Ensures): T = ???
 
-      def apply[T](arg0: String, arg1: Requires, arg2: Modifies, arg3: Ensures): T = ???
+      def apply[T](reads: Reads, requires: Requires, modifies: Modifies, ensures: Ensures): T = ???
 
-      def apply[T](arg0: Case*): T = ???
+      def apply[T](case0: Case, cases: Case*): T = ???
 
-      def apply[T](arg0: Modifies, arg1: Case*): T = ???
+      def apply[T](reads: Reads, case0: Case, cases: Case*): T = ???
+
+      def apply[T](modifies: Modifies, case0: Case, cases: Case*): T = ???
+
+      def apply[T](reads: Reads, modifies: Modifies, case0: Case, cases: Case*): T = ???
     }
 
     trait Case
 
     trait Requires
 
+    trait Reads
+
     trait Modifies
 
     trait Ensures
+
+    trait Sequent {
+      def Proof(steps: ProofStep*): Sequent
+    }
 
     trait Proof
 
@@ -131,7 +163,14 @@ trait contract {
     trait JustificationBuilder {
       def apply(args: Any*): Justification
     }
+
+    trait SequentBuilder {
+      def |-(conclusion: B): Sequent
+      def ⊢(conclusion: B): Sequent
+    }
   }
+
+  def Reads(claims: Any*): Contract.Reads = ???
 
   def Requires(claims: B*): Contract.Requires = ???
 
@@ -139,78 +178,90 @@ trait contract {
 
   def Ensures(claims: B*): Contract.Ensures = ???
 
-  def Invariant(arg0: B*): Contract.Invariant = ???
+  def Invariant(claims: B*): Contract.Invariant = ???
 
-  def Invariant(arg0: String, arg1: B*): Contract.Invariant = ???
+  def Invariant(desc: String, claims: B*): Contract.Invariant = ???
 
-  def Case(arg0: Contract.Requires): Contract.Case = ???
+  def Case(requires: Contract.Requires): Contract.Case = ???
 
-  def Case(arg0: Contract.Ensures): Contract.Case = ???
+  def Case(ensures: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: Contract.Requires, arg1: Contract.Ensures): Contract.Case = ???
+  def Case(requires: Contract.Requires, ensures: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Requires): Contract.Case = ???
+  def Case(name: String, requires: Contract.Requires): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Ensures): Contract.Case = ???
+  def Case(name: String, ensures: Contract.Ensures): Contract.Case = ???
 
-  def Case(arg0: String, arg1: Contract.Requires, arg2: Contract.Ensures): Contract.Case = ???
+  def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures): Contract.Case = ???
 
   def LoopInvariant(arg0: Contract.Modifies, arg1: B*): Unit = macro Macro.lUnit1S
 
-  def Axiom(arg0: B*): Contract.Axiom = ???
+  def Axiom(claims: B*): Contract.Axiom = ???
 
-  def Axiom(arg0: String, arg1: B*): Contract.Axiom = ???
+  def Axiom(desc: String, claims: B*): Contract.Axiom = ???
 
-  def Lemma(arg0: B, arg1: Contract.Proof): Contract.Lemma = ???
+  def Lemma(claim: B, proof: Contract.Proof): Contract.Lemma = ???
 
-  def Lemma(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Lemma = ???
+  def Lemma(desc: String, claim: B, proof: Contract.Proof): Contract.Lemma = ???
 
-  def Theorem(arg0: B, arg1: Contract.Proof): Contract.Theorem = ???
+  def Theorem(claim: B, proof: Contract.Proof): Contract.Theorem = ???
 
-  def Theorem(arg0: String, arg1: B, arg2: Contract.Proof): Contract.Theorem = ???
+  def Theorem(desc: String, claim: B, proof: Contract.Proof): Contract.Theorem = ???
 
-  def Proof(arg0: Contract.ProofStep*): Contract.Proof = ???
+  def Proof(steps: Contract.ProofStep*): Contract.Proof = ???
 
-  def Step(arg0: Int, arg1: B): Contract.ProofStep = ???
+  def Deduce(arg0: Contract.ProofStep, arg1: Contract.ProofStep*): Unit = macro Macro.lUnit1S
 
-  def Step(arg0: Int, arg1: B, arg2: Contract.Justification): Contract.ProofStep = ???
+  def Deduce(arg0: Contract.Sequent, arg1: Contract.Sequent*): Unit = macro Macro.lUnit1S
 
-  def SubProof(arg0: Contract.ProofStep*): Contract.SubProof = ???
+  def Step(no: Int, claim: B): Contract.ProofStep = ???
 
-  def Assume(arg0: B): Contract.Assume = ???
+  def Step(no: Int, claim: B, just: Contract.Justification): Contract.ProofStep = ???
 
-  def Assert(arg0: B, arg1: Contract.SubProof): Contract.Assert = ???
+  def SubProof(steps: Contract.ProofStep*): Contract.SubProof = ???
 
-  def StructuralInduction(arg0: Contract.SubProof): Contract.Justification = ???
+  def Assume(claim: B): Contract.Assume = ???
 
-  def Let[T](arg0: T => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2](arg0: (T1, T2) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3](arg0: (T1, T2, T3) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4](arg0: (T1, T2, T3, T4) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5](arg0: (T1, T2, T3, T4, T5) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6](arg0: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7](arg0: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8](arg0: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): Contract.Let = ???
-  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](arg0: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): Contract.Let = ???
+  def Assert(claim: B, subProof: Contract.SubProof): Contract.Assert = ???
+
+  def StructuralInduction(subProof: Contract.SubProof): Contract.Justification = ???
+
+  def Let[T](body: T => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2](body: (T1, T2) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3](body: (T1, T2, T3) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4](body: (T1, T2, T3, T4) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5](body: (T1, T2, T3, T4, T5) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6](body: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7](body: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8](body: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): Contract.Let = ???
+  def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): Contract.Let = ???
 
   def In[T](v: T): T = ???
 
   def Old[T](v: T): T = ???
 
+  def At[T](label: String, v: T): T = ???
+
+  def At[T](n: Z, v: T): T = ???
+
   def Result[T]: T = ???
+
+  def |-(conclusion: B): Contract.Sequent = ???
+
+  def ⊢(conclusion: B): Contract.Sequent = ???
 
   object All {
 
@@ -1213,5 +1264,28 @@ trait contract {
   implicit def $toJustificationBuilder(name: String): Contract.JustificationBuilder = ???
 
   implicit def $toJustification(name: String): Contract.Justification = ???
+
+  implicit def $toSequent(bs: B): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
+  implicit def $toSequent(bs: (B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B, B)): Contract.SequentBuilder = ???
 
 }
