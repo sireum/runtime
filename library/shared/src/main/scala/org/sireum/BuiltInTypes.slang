@@ -308,16 +308,25 @@ package org.sireum
 
   @pure def indices: ISZ[I]
 
-  @pure def toMS: MS[I, E] =
-    l""" ensures result.size ≡ s.size
-                 ∀i: [0, result.size)  result(i) ≡ s(i) """
+  @pure def toMS: MS[I, E]
+//    Contract.Only(
+//      Ensures(
+//        result.size == s.size,
+//        ∀(result.indices)(i => result(i) == s(i))
+//      )
+//    )
 
 }
 
 @ext object ISZ {
 
   def create[E](size: Z, default: E): ISZ[E] =
-    l""" requires size ≥ 0 """
+    Contract.Only(
+      Ensures(
+        result.size == s.size,
+        ∀(result.indices)(i => result(i) == default)
+      )
+    )
 
 }
 
@@ -363,16 +372,25 @@ package org.sireum
 
   @pure def indices: ISZ[I]
 
-  @pure def toIS: IS[I, E] =
-    l""" ensures result.size ≡ s.size
-                 ∀i: [0, result.size)  result(i) ≡ s(i) """
+  @pure def toIS: IS[I, E]
+//    Contract.Only(
+//      Ensures(
+//        result.size == s.size,
+//        ∀(result.indices)(i => result(i) == s(i))
+//      )
+//    )
 
 }
 
 @ext object MSZ {
 
   def create[E](size: Z, default: E): MSZ[E] =
-    l""" requires size ≥ 0 """
+    Contract.Only(
+      Ensures(
+        result.size == s.size,
+        ∀(result.indices)(i => result(i) == default)
+      )
+    )
 
 }
 
@@ -381,5 +399,10 @@ package org.sireum
   def random: ZS = $
 
   def create(size: Z, default: Z): ZS =
-    l""" requires size ≥ 0 """
+    Contract.Only(
+      Ensures(
+        result.size == s.size,
+        ∀(result.indices)(i => result(i) == default)
+      )
+    )
 }

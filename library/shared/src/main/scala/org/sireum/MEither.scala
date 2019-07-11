@@ -40,32 +40,32 @@ object MEither {
   @record class Left[L, R](value: L) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
-      l""" ensures result ≡ T """
+//      l""" ensures result ≡ T """
       return T
     }
 
     @pure override def isRight: B = {
-      l""" ensures result ≡ F """
+//      l""" ensures result ≡ F """
       return F
     }
 
     @pure override def leftOpt: Option[L] = {
-      l""" ensures result ≡ Some(value) """
+//      l""" ensures result ≡ Some(value) """
       return Some(value)
     }
 
     @pure override def left: L = {
-      l""" ensures result ≡ value """
+//      l""" ensures result ≡ value """
       return value
     }
 
     @pure override def rightOpt: Option[R] = {
-      l""" ensures result ≡ None[R]() """
+//      l""" ensures result ≡ None[R]() """
       return None()
     }
 
     @pure override def right: R = {
-      l""" requires F """
+//      l""" requires F """
       halt("Invalid 'MEither.Left' operation 'right'.")
     }
 
@@ -74,32 +74,32 @@ object MEither {
   @record class Right[L, R](value: R) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
-      l""" ensures result ≡ F """
+//      l""" ensures result ≡ F """
       return F
     }
 
     @pure override def isRight: B = {
-      l""" ensures result ≡ T """
+//      l""" ensures result ≡ T """
       return T
     }
 
     @pure override def leftOpt: Option[L] = {
-      l""" ensures result ≡ None[L]() """
+//      l""" ensures result ≡ None[L]() """
       return None()
     }
 
     @pure override def left: L = {
-      l""" requires F """
+//      l""" requires F """
       halt("Invalid 'MEither.Right' operation 'left'.")
     }
 
     @pure override def rightOpt: Option[R] = {
-      l""" ensures result ≡ Some(value) """
+//      l""" ensures result ≡ Some(value) """
       return Some(value)
     }
 
     @pure override def right: R = {
-      l""" ensures result ≡ value """
+//      l""" ensures result ≡ value """
       return value
     }
 

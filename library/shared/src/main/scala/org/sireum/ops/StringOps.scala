@@ -94,22 +94,22 @@ object StringOps {
 @datatype class StringOps(s: String) {
 
   @pure def first: C = {
-    l""" requires s.size > 0 """
+//    l""" requires s.size > 0 """
     return conversions.String.toCis(s)(0)
   }
 
   @pure def substring(start: Z, until: Z): String = {
-    l""" requires 0 ≤ start ∧ start < s.size
-                  start ≤ until
-                  until ≤ s.size
-         ensures  result.size ≡ until - start
-                  ∀i: [0, result.size) result(i) ≡ s(start + i) """
+//    l""" requires 0 ≤ start ∧ start < s.size
+//                  start ≤ until
+//                  until ≤ s.size
+//         ensures  result.size ≡ until - start
+//                  ∀i: [0, result.size) result(i) ≡ s(start + i) """
     return StringOps.substring(conversions.String.toCis(s), start, until)
   }
 
   @pure def startsWith(other: String): B = {
-    l""" ensures  result ≡ ((size >= other.size) ∧
-                            ∀i: [0, other.size) s(i) ≡ other(i)) """
+//    l""" ensures  result ≡ ((size >= other.size) ∧
+//                            ∀i: [0, other.size) s(i) ≡ other(i)) """
     if (s.size < other.size) {
       return F
     }
@@ -124,8 +124,8 @@ object StringOps {
   }
 
   @pure def endsWith(other: String): B = {
-    l""" ensures  result ≡ ((size >= other.size) ∧
-                            ∀i: [0, other.size) s(i + other.size - s.size) ≡ other(i)) """
+//    l""" ensures  result ≡ ((size >= other.size) ∧
+//                            ∀i: [0, other.size) s(i + other.size - s.size) ≡ other(i)) """
     if (s.size < other.size) {
       return F
     }
@@ -141,20 +141,20 @@ object StringOps {
   }
 
   @pure def firstToUpper: String = {
-    l""" requires s.size > 0
-         ensures  result.size ≡ s.size
-                  result(0) ≡ conversions.COps(s(0)).toUpper
-                  ∀i: [1, s.size) result(i) ≡ s(i)   """
+//    l""" requires s.size > 0
+//         ensures  result.size ≡ s.size
+//                  result(0) ≡ conversions.COps(s(0)).toUpper
+//                  ∀i: [1, s.size) result(i) ≡ s(i)   """
     val cms = conversions.String.toCms(s)
     cms(0) = COps(cms(0)).toUpper
     return conversions.String.fromCms(cms)
   }
 
   @pure def firstToLower: String = {
-    l""" requires s.size > 0
-         ensures  result.size ≡ s.size
-                  result(0) ≡ conversions.COps(s(0)).toLower
-                  ∀i: [1, s.size) result(i) ≡ s(i)   """
+//    l""" requires s.size > 0
+//         ensures  result.size ≡ s.size
+//                  result(0) ≡ conversions.COps(s(0)).toLower
+//                  ∀i: [1, s.size) result(i) ≡ s(i)   """
     val cms = conversions.String.toCms(s)
     cms(0) = COps(cms(0)).toLower
     return conversions.String.fromCms(cms)

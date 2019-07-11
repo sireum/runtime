@@ -951,7 +951,7 @@ object MessagePack {
       }
 
       def writeArrayHeader(n: Z): Unit = {
-        l""" requires 0 <= n ∧ n <= z"4294967295" """
+        Contract(Requires(0 <= n, n <= z"4294967295"))
 
         if (n < 16 /* 1 << 4 */ ) {
           addU8(Code.FIXARRAY_PREFIX | conversions.Z.toU8(n))
@@ -965,7 +965,7 @@ object MessagePack {
       }
 
       def writeBinary(array: ISZ[U8]): Unit = {
-        l""" requires 0 <= array.size ∧ array.size <= z"4294967295" """
+        Contract(Requires(0 <= array.size, array.size <= z"4294967295"))
 
         val len = array.size
         if (len < 256 /* 1 << 8 */ ) {
@@ -988,7 +988,7 @@ object MessagePack {
       }
 
       def writeMapHeader(n: Z): Unit = {
-        l""" requires 0 <= n ∧ n <= z"4294967295" """
+        Contract(Requires(0 <= n, n <= z"4294967295"))
         if (n < 16 /* 1 << 4 */ ) {
           addU8(Code.FIXMAP_PREFIX | conversions.Z.toU8(n))
         } else if (n < 65536 /* 1 << 16 */ ) {
@@ -1036,7 +1036,7 @@ object MessagePack {
        */
 
       def writeString(s: String): Unit = {
-        l""" requires 0 <= s.size * 2 ∧ s.size * 2 <= z"4294967295" """
+        Contract(Requires(0 <= s.size * 2, s.size * 2 <= z"4294967295"))
 
         if (pooling) {
           val i = addString(s)
@@ -1047,7 +1047,7 @@ object MessagePack {
       }
 
       def writeExtTypeHeader(extType: S8, payloadLen: Z): Unit = {
-        l""" requires extType >= s8"0" ∧ 0 <= payloadLen ∧ payloadLen <= z"4294967295""""
+        Contract(Requires(extType >= s8"0", 0 <= payloadLen, payloadLen <= z"4294967295"))
 
         if (payloadLen < 256 /* 1 << 8 */ ) {
           payloadLen match {
@@ -2313,7 +2313,7 @@ object MessagePack {
       }
 
       def skip(n: Z): Unit = {
-        l""" requires 0 <= curr + n ∧ curr + n <= buf.size """
+        Contract(Requires(0 <= curr + n, curr + n <= buf.size))
         curr = curr + n
       }
     }

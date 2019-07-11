@@ -40,32 +40,32 @@ object Either {
   @datatype class Left[L, R](value: L) extends Either[L, R] {
 
     @pure override def isLeft: B = {
-      l""" ensures result ≡ T """
+      Contract(Ensures(Result))
       return T
     }
 
     @pure override def isRight: B = {
-      l""" ensures result ≡ F """
+      Contract(Ensures(!Result[B]))
       return F
     }
 
     @pure override def leftOpt: Option[L] = {
-      l""" ensures result ≡ Some(value) """
+      Contract(Ensures(Result == Some(value)))
       return Some(value)
     }
 
     @pure override def left: L = {
-      l""" ensures result ≡ value """
+      Contract(Ensures(Result == value))
       return value
     }
 
     @pure override def rightOpt: Option[R] = {
-      l""" ensures result ≡ None[R]() """
+      Contract(Ensures(Result == None()))
       return None()
     }
 
     @pure override def right: R = {
-      l""" requires F """
+      Contract(Requires(F))
       halt("Invalid 'Either.Left' operation 'right'.")
     }
 
@@ -74,32 +74,32 @@ object Either {
   @datatype class Right[L, R](value: R) extends Either[L, R] {
 
     @pure override def isLeft: B = {
-      l""" ensures result ≡ F """
+      Contract(Ensures(!Result[B]))
       return F
     }
 
     @pure override def isRight: B = {
-      l""" ensures result ≡ T """
+      Contract(Ensures(Result))
       return T
     }
 
     @pure override def leftOpt: Option[L] = {
-      l""" ensures result ≡ None[L]() """
+      Contract(Ensures(Result == None()))
       return None()
     }
 
     @pure override def left: L = {
-      l""" requires F """
+      Contract(Requires(F))
       halt("Invalid 'Either.Right' operation 'left'.")
     }
 
     @pure override def rightOpt: Option[R] = {
-      l""" ensures result ≡ Some(value) """
+      Contract(Requires(Result == Some(value)))
       return Some(value)
     }
 
     @pure override def right: R = {
-      l""" ensures result ≡ value """
+      Contract(Requires(Result == value))
       return value
     }
 

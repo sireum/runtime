@@ -65,53 +65,53 @@ object Option {
 @datatype class None[T] extends Option[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result ≡ T """
+    Contract(Ensures(Result))
 
     return T
   }
 
   @pure def nonEmpty: B = {
-    l""" ensures  result ≡ F """
+    Contract(Ensures(!Result[B]))
     return F
   }
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = {
-    l""" ensures  result ≡ None[T2]() """
+    Contract(Ensures(Result == None[T2]()))
     return None[T2]()
   }
 
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    l""" ensures  result ≡ None[T2]() """
+    Contract(Ensures(Result == None[T2]()))
     return None[T2]()
   }
 
   @pure def forall(f: T => B @pure): B = {
-    l""" ensures  result ≡ T """ // or simply: result
+    Contract(Ensures(Result))
     return T
   }
 
   @pure def exists(f: T => B @pure): B = {
-    l""" ensures  result ≡ F """ // or simply: ¬result
+    Contract(Ensures(!Result[B]))
     return F
   }
 
   @pure def getOrElse(default: => T): T = {
-    l""" ensures  result ≡ default """
+    Contract(Ensures(Result == default))
     return default
   }
 
   @pure def getOrElseEager(default: T): T = {
-    l""" ensures  result ≡ default """
+    Contract(Ensures(Result == default))
     return default
   }
 
   @pure def get: T = {
-    l""" requires  F """
+    Contract(Requires(F))
     halt("Invalid 'None' operation 'get'.")
   }
 
   @pure def toIS: IS[Z, T] = {
-    l""" ensures  result.size ≡ 0 """
+    Contract(Ensures(Result[ISZ[T]].size == 0))
     return IS[Z, T]()
   }
 
@@ -121,61 +121,57 @@ object Option {
 @datatype class Some[T](value: T) extends Option[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result ≡ F """
+    Contract(Ensures(!Result[B]))
     return F
   }
 
   @pure def nonEmpty: B = {
-    l""" ensures  result ≡ T """
+    Contract(Ensures(Result))
     return T
   }
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = {
-    l""" ensures  result ≡ f(value) """
+    Contract(Ensures(Result == f(value)))
     return Some(f(value))
   }
 
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    l""" ensures  result ≡ f(value) """
+    Contract(Ensures(Result == f(value)))
     return f(value)
   }
 
   @pure def forall(f: T => B @pure): B = {
-    l""" ensures  result ≡ f(value) """
+    Contract(Ensures(Result == f(value)))
     return f(value)
   }
 
   @pure def exists(f: T => B @pure): B = {
-    l""" ensures  result ≡ f(value) """
+    Contract(Ensures(Result == f(value)))
     return f(value)
   }
 
   @pure def getOrElse(default: => T): T = {
-    l""" ensures  result ≡ value """
+    Contract(Ensures(Result == value))
     return value
   }
 
   @pure def getOrElseEager(default: T): T = {
-    l""" ensures  result ≡ value """
+    Contract(Ensures(Result == value))
     return value
   }
 
   @pure def get: T = {
-    l""" ensures  result ≡ value """
+    Contract(Ensures(Result == value))
     return value
   }
 
   @pure def toIS: IS[Z, T] = {
-    l""" ensures  result.size ≡ 1
-                  result(0) ≡ value """
+    Contract(Ensures(Result == ISZ(value)))
 
     return ISZ(value)
   }
 
   def foreach(f: T => Unit): Unit = {
-    l""" requires f_requires(value)
-         modifies f_modifies
-         ensures  f_ensures(value) """
     f(value)
   }
 }

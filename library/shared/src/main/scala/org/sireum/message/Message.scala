@@ -70,12 +70,12 @@ object Position {
 
 @datatype trait Position {
 
-  l""" invariant LinePos:            beginLine ≥ 1
-                 ColumnPos:          beginColumn ≥ 1
-                 EndLinePos:         endLine ≥ 1
-                 EncColumnPos:       endColumn ≥ 1
-                 OffsetNonNegative:  offset ≥ 0
-                 LengthNonNegative:  length ≥ 0 """
+//  l""" invariant LinePos:            beginLine ≥ 1
+//                 ColumnPos:          beginColumn ≥ 1
+//                 EndLinePos:         endLine ≥ 1
+//                 EncColumnPos:       endColumn ≥ 1
+//                 OffsetNonNegative:  offset ≥ 0
+//                 LengthNonNegative:  length ≥ 0 """
 
   @pure def uriOpt: Option[String]
 

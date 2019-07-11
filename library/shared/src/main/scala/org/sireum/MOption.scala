@@ -65,53 +65,53 @@ object MOption {
 @record class MNone[T] extends MOption[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result ≡ T """
+//    l""" ensures  result ≡ T """
 
     return T
   }
 
   @pure def nonEmpty: B = {
-    l""" ensures  result ≡ F """
+//    l""" ensures  result ≡ F """
     return F
   }
 
   @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
-    l""" ensures  result ≡ MNone[T2]() """
+//    l""" ensures  result ≡ MNone[T2]() """
     return MNone[T2]()
   }
 
   @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-    l""" ensures  result ≡ MNone[T2]() """
+//    l""" ensures  result ≡ MNone[T2]() """
     return MNone[T2]()
   }
 
   @pure def forall(f: T => B @pure): B = {
-    l""" ensures  result ≡ T """ // or simply: result
+//    l""" ensures  result ≡ T """ // or simply: result
     return T
   }
 
   @pure def exists(f: T => B @pure): B = {
-    l""" ensures  result ≡ F """ // or simply: ¬result
+//    l""" ensures  result ≡ F """ // or simply: ¬result
     return F
   }
 
   @pure def getOrElse(default: => T): T = {
-    l""" ensures  result ≡ default """
+//    l""" ensures  result ≡ default """
     return default
   }
 
   @pure def getOrElseEager(default: T): T = {
-    l""" ensures  result ≡ default """
+//    l""" ensures  result ≡ default """
     return default
   }
 
   @pure def get: T = {
-    l""" requires  F """
+//    l""" requires  F """
     halt("Invalid 'MNone' operation 'get'.")
   }
 
   @pure def toMS: MS[Z, T] = {
-    l""" ensures  result.size ≡ 0 """
+//    l""" ensures  result.size ≡ 0 """
     return MS[Z, T]()
   }
 
@@ -121,61 +121,58 @@ object MOption {
 @record class MSome[T](value: T) extends MOption[T] {
 
   @pure def isEmpty: B = {
-    l""" ensures  result ≡ F """
+//    l""" ensures  result ≡ F """
     return F
   }
 
   @pure def nonEmpty: B = {
-    l""" ensures  result ≡ T """
+//    l""" ensures  result ≡ T """
     return T
   }
 
   @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
-    l""" ensures  result ≡ f(value) """
+//    l""" ensures  result ≡ f(value) """
     return MSome(f(value))
   }
 
   @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-    l""" ensures  result ≡ f(value) """
+//    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   @pure def forall(f: T => B @pure): B = {
-    l""" ensures  result ≡ f(value) """
+//    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   @pure def exists(f: T => B @pure): B = {
-    l""" ensures  result ≡ f(value) """
+//    l""" ensures  result ≡ f(value) """
     return f(value)
   }
 
   @pure def getOrElse(default: => T): T = {
-    l""" ensures  result ≡ value """
+//    l""" ensures  result ≡ value """
     return value
   }
 
   @pure def getOrElseEager(default: T): T = {
-    l""" ensures  result ≡ value """
+//    l""" ensures  result ≡ value """
     return value
   }
 
   @pure def get: T = {
-    l""" ensures  result ≡ value """
+//    l""" ensures  result ≡ value """
     return value
   }
 
   @pure def toMS: MS[Z, T] = {
-    l""" ensures  result.size ≡ 1
-                  result(0) ≡ value """
+//    l""" ensures  result.size ≡ 1
+//                  result(0) ≡ value """
 
     return MSZ(value)
   }
 
   def foreach(f: T => Unit): Unit = {
-    l""" requires f_requires(value)
-         modifies f_modifies
-         ensures  f_ensures(value) """
     f(value)
   }
 }
