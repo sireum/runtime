@@ -142,7 +142,7 @@ trait contract {
 
     trait Theorem
 
-    trait Axiom
+    trait Fact
 
     trait Assume
 
@@ -196,11 +196,11 @@ trait contract {
 
   def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures): Contract.Case = ???
 
-  def LoopInvariant(arg0: Contract.Modifies, arg1: B*): Unit = macro Macro.lUnit1S
+  def Invariant(arg0: Contract.Modifies, arg1: B*): Unit = macro Macro.lUnit1S
 
-  def Axiom(claims: B*): Contract.Axiom = ???
+  def Fact(claims: B*): Contract.Fact = ???
 
-  def Axiom(desc: String, claims: B*): Contract.Axiom = ???
+  def Fact(desc: String, claims: B*): Contract.Fact = ???
 
   def Lemma(claim: B, proof: Contract.Proof): Contract.Lemma = ???
 
