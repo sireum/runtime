@@ -31,7 +31,7 @@ object IS {
 
   class WithFilter[I, V](is: IS[I, V], p: V => B) {
     def map[V2](f: V => V2): IS[I, V2] =
-      if (is.isEmpty) this.asInstanceOf[IS[I, V2]]
+      if (is.isEmpty) IS[I, V2]()(is.companion)
       else {
         var a: AnyRef = null
         var boxer2: Boxer = null
