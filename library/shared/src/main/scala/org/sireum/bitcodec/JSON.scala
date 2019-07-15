@@ -47,6 +47,11 @@ object JSON {
         case o: Spec.Union[_] => return printSpecUnion(o)
         case o: Spec.Repeat[_] => return printSpecRepeat(o)
         case o: Spec.Raw[_] => return printSpecRaw(o)
+        case o: Spec.PredUnion => return printSpecPredUnion(o)
+        case o: Spec.PredRepeatWhile => return printSpecPredRepeatWhile(o)
+        case o: Spec.PredRepeatUntil => return printSpecPredRepeatUntil(o)
+        case o: Spec.PredRawWhile => return printSpecPredRawWhile(o)
+        case o: Spec.PredRawUntil => return printSpecPredRawUntil(o)
         case o: Spec.GenUnion => return printSpecGenUnion(o)
         case o: Spec.GenRepeat => return printSpecGenRepeat(o)
         case o: Spec.GenRaw => return printSpecGenRaw(o)
@@ -65,6 +70,7 @@ object JSON {
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
+        case o: Spec.PredUnion => return printSpecPredUnion(o)
         case o: Spec.GenUnion => return printSpecGenUnion(o)
       }
     }
@@ -161,6 +167,48 @@ object JSON {
       ))
     }
 
+    @pure def printSpecPredUnion(o: Spec.PredUnion): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredUnion""""),
+        ("name", printString(o.name)),
+        ("subs", printISZ(F, o.subs, printSpecPredSpec _))
+      ))
+    }
+
+    @pure def printSpecPredRepeatWhile(o: Spec.PredRepeatWhile): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredRepeatWhile""""),
+        ("name", printString(o.name)),
+        ("element", printSpecBase(o.element)),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
+      ))
+    }
+
+    @pure def printSpecPredRepeatUntil(o: Spec.PredRepeatUntil): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredRepeatUntil""""),
+        ("name", printString(o.name)),
+        ("element", printSpecBase(o.element)),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
+      ))
+    }
+
+    @pure def printSpecPredRawWhile(o: Spec.PredRawWhile): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredRawWhile""""),
+        ("name", printString(o.name)),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
+      ))
+    }
+
+    @pure def printSpecPredRawUntil(o: Spec.PredRawUntil): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredRawUntil""""),
+        ("name", printString(o.name)),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
+      ))
+    }
+
     @pure def printSpecGenUnion(o: Spec.GenUnion): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenUnion""""),
@@ -191,6 +239,79 @@ object JSON {
       ))
     }
 
+    @pure def printSpecPredSpec(o: Spec.PredSpec): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.PredSpec""""),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
+      ))
+    }
+
+    @pure def printSpecPred(o: Spec.Pred): ST = {
+      o match {
+        case o: Spec.Pred.Boolean => printSpecPredBoolean(o)
+        case o: Spec.Pred.Bits => printSpecPredBits(o)
+        case o: Spec.Pred.Bytes => printSpecPredBytes(o)
+        case o: Spec.Pred.Shorts => printSpecPredShorts(o)
+        case o: Spec.Pred.Ints => printSpecPredInts(o)
+        case o: Spec.Pred.Longs => printSpecPredLongs(o)
+        case o: Spec.Pred.Skip => printSpecPredSkip(o)
+      }
+    }
+
+    @pure def printSpecPredBoolean(o: Spec.Pred.Boolean): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Boolean""""),
+        ("value", printB(o.value))
+      ))
+    }
+
+    @pure def printSpecPredBits(o: Spec.Pred.Bits): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Bits""""),
+        ("size", printZ(o.size)),
+        ("value", printZ(o.value))
+      ))
+    }
+
+    @pure def printSpecPredBytes(o: Spec.Pred.Bytes): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Bytes""""),
+        ("size", printZ(o.size)),
+        ("value", printISZ(T, o.value, printZ _))
+      ))
+    }
+
+    @pure def printSpecPredShorts(o: Spec.Pred.Shorts): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Shorts""""),
+        ("size", printZ(o.size)),
+        ("value", printISZ(T, o.value, printZ _))
+      ))
+    }
+
+    @pure def printSpecPredInts(o: Spec.Pred.Ints): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Ints""""),
+        ("size", printZ(o.size)),
+        ("value", printISZ(T, o.value, printZ _))
+      ))
+    }
+
+    @pure def printSpecPredLongs(o: Spec.Pred.Longs): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Longs""""),
+        ("size", printZ(o.size)),
+        ("value", printISZ(T, o.value, printZ _))
+      ))
+    }
+
+    @pure def printSpecPredSkip(o: Spec.Pred.Skip): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Skip""""),
+        ("size", printZ(o.size))
+      ))
+    }
+
   }
 
   @record class Parser(input: String) {
@@ -201,7 +322,7 @@ object JSON {
     }
 
     def parseSpec(): Spec = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUtil", "Spec.PredRawWhile", "Spec.PredRawUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -214,6 +335,11 @@ object JSON {
         case "Spec.Union" => val r = parseSpecUnionT(T); return r
         case "Spec.Repeat" => val r = parseSpecRepeatT(T); return r
         case "Spec.Raw" => val r = parseSpecRawT(T); return r
+        case "Spec.PredUnion" => val r = parseSpecPredUnionT(T); return r
+        case "Spec.PredRepeatWhile" => val r = parseSpecPredRepeatWhileT(T); return r
+        case "Spec.PredRepeatUntil" => val r = parseSpecPredRepeatUntilT(T); return r
+        case "Spec.PredRawWhile" => val r = parseSpecPredRawWhileT(T); return r
+        case "Spec.PredRawUntil" => val r = parseSpecPredRawUntilT(T); return r
         case "Spec.GenUnion" => val r = parseSpecGenUnionT(T); return r
         case "Spec.GenRepeat" => val r = parseSpecGenRepeatT(T); return r
         case "Spec.GenRaw" => val r = parseSpecGenRawT(T); return r
@@ -223,7 +349,7 @@ object JSON {
     }
 
     def parseSpecBase(): Spec.Base = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.GenUnion"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.PredUnion", "Spec.GenUnion"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -234,6 +360,7 @@ object JSON {
         case "Spec.Enum" => val r = parseSpecEnumT(T); return r
         case "Spec.Concat" => val r = parseSpecConcatT(T); return r
         case "Spec.Union" => val r = parseSpecUnionT(T); return r
+        case "Spec.PredUnion" => val r = parseSpecPredUnionT(T); return r
         case "Spec.GenUnion" => val r = parseSpecGenUnionT(T); return r
         case _ => val r = parseSpecGenUnionT(T); return r
       }
@@ -449,6 +576,103 @@ object JSON {
       return Spec.Raw[Any](name, dependsOn, _ => ???)
     }
 
+    def parseSpecPredUnion(): Spec.PredUnion = {
+      val r = parseSpecPredUnionT(F)
+      return r
+    }
+
+    def parseSpecPredUnionT(typeParsed: B): Spec.PredUnion = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredUnion")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("subs")
+      val subs = parser.parseISZ(parseSpecPredSpec _)
+      parser.parseObjectNext()
+      return Spec.PredUnion(name, subs)
+    }
+
+    def parseSpecPredRepeatWhile(): Spec.PredRepeatWhile = {
+      val r = parseSpecPredRepeatWhileT(F)
+      return r
+    }
+
+    def parseSpecPredRepeatWhileT(typeParsed: B): Spec.PredRepeatWhile = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredRepeatWhile")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("element")
+      val element = parseSpecBase()
+      parser.parseObjectNext()
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      return Spec.PredRepeatWhile(name, element, preds)
+    }
+
+    def parseSpecPredRepeatUntil(): Spec.PredRepeatUntil = {
+      val r = parseSpecPredRepeatUntilT(F)
+      return r
+    }
+
+    def parseSpecPredRepeatUntilT(typeParsed: B): Spec.PredRepeatUntil = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredRepeatUntil")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("element")
+      val element = parseSpecBase()
+      parser.parseObjectNext()
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      return Spec.PredRepeatUntil(name, element, preds)
+    }
+
+
+    def parseSpecPredRawWhile(): Spec.PredRawWhile = {
+      val r = parseSpecPredRawWhileT(F)
+      return r
+    }
+
+    def parseSpecPredRawWhileT(typeParsed: B): Spec.PredRawWhile = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredRawWhile")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      return Spec.PredRawWhile(name, preds)
+    }
+
+    def parseSpecPredRawUntil(): Spec.PredRawUntil = {
+      val r = parseSpecPredRawUntilT(F)
+      return r
+    }
+
+    def parseSpecPredRawUntilT(typeParsed: B): Spec.PredRawUntil = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredRepeatUntil")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      return Spec.PredRawUntil(name, preds)
+    }
+
     def parseSpecGenUnion(): Spec.GenUnion = {
       val r = parseSpecGenUnionT(F)
       return r
@@ -513,6 +737,158 @@ object JSON {
       val size = parser.parseZ()
       parser.parseObjectNext()
       return Spec.Pads(size)
+    }
+
+    def parseSpecPredSpec(): Spec.PredSpec = {
+      val r = parseSpecPredSpecT(F)
+      return r
+    }
+
+    def parseSpecPredSpecT(typeParsed: B): Spec.PredSpec = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.PredSpec")
+      }
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      parser.parseObjectKey("spec")
+      val spec = parseSpec()
+      parser.parseObjectNext()
+      return Spec.PredSpec(preds, spec)
+    }
+
+    def parseSpecPred(): Spec.Pred = {
+      val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Skip"))
+      t.native match {
+        case "Spec.Pred.Boolean" => val r = parseSpecPredBooleanT(T); return r
+        case "Spec.Pred.Bits" => val r = parseSpecPredBitsT(T); return r
+        case "Spec.Pred.Bytes" => val r = parseSpecPredBytesT(T); return r
+        case "Spec.Pred.Shorts" => val r = parseSpecPredShortsT(T); return r
+        case "Spec.Pred.Ints" => val r = parseSpecPredIntsT(T); return r
+        case "Spec.Pred.Longs" => val r = parseSpecPredLongsT(T); return r
+        case "Spec.Pred.Skip" => val r = parseSpecPredSkipT(T); return r
+        case _ => val r = parseSpecPredSkipT(T); return r
+      }
+    }
+
+    def parseSpecPredBoolean(): Spec.Pred.Boolean = {
+      val r = parseSpecPredBooleanT(F)
+      return r
+    }
+
+    def parseSpecPredBooleanT(typeParsed: B): Spec.Pred.Boolean = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Boolean")
+      }
+      parser.parseObjectKey("value")
+      val value = parser.parseB()
+      parser.parseObjectNext()
+      return Spec.Pred.Boolean(value)
+    }
+
+    def parseSpecPredBits(): Spec.Pred.Bits = {
+      val r = parseSpecPredBitsT(F)
+      return r
+    }
+
+    def parseSpecPredBitsT(typeParsed: B): Spec.Pred.Bits = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Bits")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("value")
+      val value = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.Pred.Bits(size, value)
+    }
+
+    def parseSpecPredBytes(): Spec.Pred.Bytes = {
+      val r = parseSpecPredBytesT(F)
+      return r
+    }
+
+    def parseSpecPredBytesT(typeParsed: B): Spec.Pred.Bytes = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Bytes")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.Pred.Bytes(size, value)
+    }
+
+    def parseSpecPredShorts(): Spec.Pred.Shorts = {
+      val r = parseSpecPredShortsT(F)
+      return r
+    }
+
+    def parseSpecPredShortsT(typeParsed: B): Spec.Pred.Shorts = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Shorts")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.Pred.Shorts(size, value)
+    }
+
+    def parseSpecPredInts(): Spec.Pred.Ints = {
+      val r = parseSpecPredIntsT(F)
+      return r
+    }
+
+    def parseSpecPredIntsT(typeParsed: B): Spec.Pred.Ints = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Ints")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.Pred.Ints(size, value)
+    }
+
+    def parseSpecPredLongs(): Spec.Pred.Longs = {
+      val r = parseSpecPredLongsT(F)
+      return r
+    }
+
+    def parseSpecPredLongsT(typeParsed: B): Spec.Pred.Longs = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Longs")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.Pred.Longs(size, value)
+    }
+
+    def parseSpecPredSkip(): Spec.Pred.Skip = {
+      val r = parseSpecPredSkipT(F)
+      return r
+    }
+
+    def parseSpecPredSkipT(typeParsed: B): Spec.Pred.Skip = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Skip")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.Pred.Skip(size)
     }
 
     def eof(): B = {

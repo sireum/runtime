@@ -84,6 +84,16 @@ object Spec {
     val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, dependsOn, None())
   }
 
+  @datatype class PredUnion(val name: String, subs: ISZ[PredSpec]) extends Composite
+
+  @datatype class PredRepeatWhile(val name: String, element: Base, preds: ISZ[Pred]) extends Spec
+
+  @datatype class PredRepeatUntil(val name: String, element: Base, preds: ISZ[Pred]) extends Spec
+
+  @datatype class PredRawWhile(val name: String, preds: ISZ[Pred]) extends Spec
+
+  @datatype class PredRawUntil(val name: String, preds: ISZ[Pred]) extends Spec
+
   @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite
 
   @datatype class GenRepeat(val name: String, element: Base) extends Spec
@@ -94,6 +104,56 @@ object Spec {
     def name: String = {
       return ""
     }
+  }
+
+  @datatype class PredSpec(preds: ISZ[Pred], spec: Spec)
+
+  @datatype trait Pred
+
+  object Pred {
+
+    @datatype class Boolean(value: B) extends Pred
+
+    @datatype class Bits(size: Z, value: Z) extends Pred
+
+    @datatype class Bytes(size: Z, value: ISZ[Z]) extends Pred
+
+    @datatype class Shorts(size: Z, value: ISZ[Z]) extends Pred
+
+    @datatype class Ints(size: Z, value: ISZ[Z]) extends Pred
+
+    @datatype class Longs(size: Z, value: ISZ[Z]) extends Pred
+
+    @datatype class Skip(size: Z) extends Pred
+
+  }
+
+  @pure def boolean(value: B): Pred.Boolean = {
+    return Pred.Boolean(value)
+  }
+
+  @pure def bits(size: Z, value: Z): Pred.Bits = {
+    return Pred.Bits(size, value)
+  }
+
+  @pure def bytes(size: Z, value: ISZ[Z]): Pred.Bytes = {
+    return Pred.Bytes(size, value)
+  }
+
+  @pure def shorts(size: Z, value: ISZ[Z]): Pred.Shorts = {
+    return Pred.Shorts(size, value)
+  }
+
+  @pure def ints(size: Z, value: ISZ[Z]): Pred.Ints = {
+    return Pred.Ints(size, value)
+  }
+
+  @pure def longs(size: Z, value: ISZ[Z]): Pred.Longs = {
+    return Pred.Longs(size, value)
+  }
+
+  @pure def skip(size: Z): Pred.Skip = {
+    return Pred.Skip(size)
   }
 
   @pure def fromJSON(s: String): Either[Spec, Json.ErrorMsg] = {
