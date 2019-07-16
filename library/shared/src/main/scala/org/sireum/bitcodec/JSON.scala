@@ -177,8 +177,8 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatWhile""""),
         ("name", printString(o.name)),
-        ("element", printSpecBase(o.element)),
-        ("preds", printISZ(F, o.preds, printSpecPred _))
+        ("preds", printISZ(F, o.preds, printSpecPred _)),
+        ("element", printSpecBase(o.element))
       ))
     }
 
@@ -186,8 +186,8 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatUntil""""),
         ("name", printString(o.name)),
-        ("element", printSpecBase(o.element)),
-        ("preds", printISZ(F, o.preds, printSpecPred _))
+        ("preds", printISZ(F, o.preds, printSpecPred _)),
+        ("element", printSpecBase(o.element))
       ))
     }
 
@@ -224,7 +224,8 @@ object JSON {
     @pure def printSpecPredSpec(o: Spec.PredSpec): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredSpec""""),
-        ("preds", printISZ(F, o.preds, printSpecPred _))
+        ("preds", printISZ(F, o.preds, printSpecPred _)),
+        ("spec", printSpec(o.spec))
       ))
     }
 
@@ -237,6 +238,9 @@ object JSON {
         case o: Spec.Pred.Ints => printSpecPredInts(o)
         case o: Spec.Pred.Longs => printSpecPredLongs(o)
         case o: Spec.Pred.Skip => printSpecPredSkip(o)
+        case o: Spec.Pred.Between => printSpecPredBetween(o)
+        case o: Spec.Pred.Not => printSpecPredNot(o)
+        case o: Spec.Pred.Or => printSpecPredOr(o)
       }
     }
 
@@ -258,7 +262,6 @@ object JSON {
     @pure def printSpecPredBytes(o: Spec.Pred.Bytes): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Bytes""""),
-        ("size", printZ(o.size)),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
@@ -266,7 +269,6 @@ object JSON {
     @pure def printSpecPredShorts(o: Spec.Pred.Shorts): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Shorts""""),
-        ("size", printZ(o.size)),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
@@ -274,7 +276,6 @@ object JSON {
     @pure def printSpecPredInts(o: Spec.Pred.Ints): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Ints""""),
-        ("size", printZ(o.size)),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
@@ -282,7 +283,6 @@ object JSON {
     @pure def printSpecPredLongs(o: Spec.Pred.Longs): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Longs""""),
-        ("size", printZ(o.size)),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
@@ -291,6 +291,29 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Skip""""),
         ("size", printZ(o.size))
+      ))
+    }
+
+    @pure def printSpecPredBetween(o: Spec.Pred.Between): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Between""""),
+        ("size", printZ(o.size)),
+        ("lo", printZ(o.lo)),
+        ("hi", printZ(o.hi))
+      ))
+    }
+
+    @pure def printSpecPredNot(o: Spec.Pred.Not): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Not""""),
+        ("pred", printSpecPred(o.pred))
+      ))
+    }
+
+    @pure def printSpecPredOr(o: Spec.Pred.Or): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Or""""),
+        ("preds", printISZ(F, o.preds, printSpecPred _))
       ))
     }
 
@@ -304,7 +327,7 @@ object JSON {
     }
 
     def parseSpec(): Spec = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUtil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -586,13 +609,13 @@ object JSON {
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      parser.parseObjectKey("element")
-      val element = parseSpecBase()
-      parser.parseObjectNext()
       parser.parseObjectKey("preds")
       val preds = parser.parseISZ(parseSpecPred _)
       parser.parseObjectNext()
-      return Spec.PredRepeatWhile(name, element, preds)
+      parser.parseObjectKey("element")
+      val element = parseSpecBase()
+      parser.parseObjectNext()
+      return Spec.PredRepeatWhile(name, preds, element)
     }
 
     def parseSpecPredRepeatUntil(): Spec.PredRepeatUntil = {
@@ -607,13 +630,13 @@ object JSON {
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      parser.parseObjectKey("element")
-      val element = parseSpecBase()
-      parser.parseObjectNext()
       parser.parseObjectKey("preds")
       val preds = parser.parseISZ(parseSpecPred _)
       parser.parseObjectNext()
-      return Spec.PredRepeatUntil(name, element, preds)
+      parser.parseObjectKey("element")
+      val element = parseSpecBase()
+      parser.parseObjectNext()
+      return Spec.PredRepeatUntil(name, preds, element)
     }
 
 
@@ -702,7 +725,7 @@ object JSON {
     }
 
     def parseSpecPred(): Spec.Pred = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Skip"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Skip", "Spec.Pred.Between", "Spec.Pred.Not", "Spec.Pred.Or"))
       t.native match {
         case "Spec.Pred.Boolean" => val r = parseSpecPredBooleanT(T); return r
         case "Spec.Pred.Bits" => val r = parseSpecPredBitsT(T); return r
@@ -711,6 +734,9 @@ object JSON {
         case "Spec.Pred.Ints" => val r = parseSpecPredIntsT(T); return r
         case "Spec.Pred.Longs" => val r = parseSpecPredLongsT(T); return r
         case "Spec.Pred.Skip" => val r = parseSpecPredSkipT(T); return r
+        case "Spec.Pred.Between" => val r = parseSpecPredBetweenT(T); return r
+        case "Spec.Pred.Not" => val r = parseSpecPredNotT(T); return r
+        case "Spec.Pred.Or" => val r = parseSpecPredOrT(T); return r
         case _ => val r = parseSpecPredSkipT(T); return r
       }
     }
@@ -757,13 +783,10 @@ object JSON {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Bytes")
       }
-      parser.parseObjectKey("size")
-      val size = parser.parseZ()
-      parser.parseObjectNext()
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Bytes(size, value)
+      return Spec.Pred.Bytes(value)
     }
 
     def parseSpecPredShorts(): Spec.Pred.Shorts = {
@@ -775,13 +798,10 @@ object JSON {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Shorts")
       }
-      parser.parseObjectKey("size")
-      val size = parser.parseZ()
-      parser.parseObjectNext()
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Shorts(size, value)
+      return Spec.Pred.Shorts(value)
     }
 
     def parseSpecPredInts(): Spec.Pred.Ints = {
@@ -793,13 +813,10 @@ object JSON {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Ints")
       }
-      parser.parseObjectKey("size")
-      val size = parser.parseZ()
-      parser.parseObjectNext()
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Ints(size, value)
+      return Spec.Pred.Ints(value)
     }
 
     def parseSpecPredLongs(): Spec.Pred.Longs = {
@@ -811,13 +828,10 @@ object JSON {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Longs")
       }
-      parser.parseObjectKey("size")
-      val size = parser.parseZ()
-      parser.parseObjectNext()
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Longs(size, value)
+      return Spec.Pred.Longs(value)
     }
 
     def parseSpecPredSkip(): Spec.Pred.Skip = {
@@ -833,6 +847,57 @@ object JSON {
       val size = parser.parseZ()
       parser.parseObjectNext()
       return Spec.Pred.Skip(size)
+    }
+
+    def parseSpecPredBetween(): Spec.Pred.Between = {
+      val r = parseSpecPredBetweenT(F)
+      return r
+    }
+
+    def parseSpecPredBetweenT(typeParsed: B): Spec.Pred.Between = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Between")
+      }
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("lo")
+      val lo = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("hi")
+      val hi = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.Pred.Between(size, lo, hi)
+    }
+
+    def parseSpecPredNot(): Spec.Pred.Not = {
+      val r = parseSpecPredNotT(F)
+      return r
+    }
+
+    def parseSpecPredNotT(typeParsed: B): Spec.Pred.Not = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Not")
+      }
+      parser.parseObjectKey("pred")
+      val pred = parseSpecPred()
+      parser.parseObjectNext()
+      return Spec.Pred.Not(pred)
+    }
+
+    def parseSpecPredOr(): Spec.Pred.Or = {
+      val r = parseSpecPredOrT(F)
+      return r
+    }
+
+    def parseSpecPredOrT(typeParsed: B): Spec.Pred.Or = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Or")
+      }
+      parser.parseObjectKey("preds")
+      val preds = parser.parseISZ(parseSpecPred _)
+      parser.parseObjectNext()
+      return Spec.Pred.Or(preds)
     }
 
     def eof(): B = {

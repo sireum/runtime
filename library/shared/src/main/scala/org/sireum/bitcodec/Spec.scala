@@ -86,9 +86,9 @@ object Spec {
 
   @datatype class PredUnion(val name: String, subs: ISZ[PredSpec]) extends Composite
 
-  @datatype class PredRepeatWhile(val name: String, element: Base, preds: ISZ[Pred]) extends Spec
+  @datatype class PredRepeatWhile(val name: String, preds: ISZ[Pred], element: Base) extends Spec
 
-  @datatype class PredRepeatUntil(val name: String, element: Base, preds: ISZ[Pred]) extends Spec
+  @datatype class PredRepeatUntil(val name: String, preds: ISZ[Pred], element: Base) extends Spec
 
   @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite
 
@@ -112,15 +112,22 @@ object Spec {
 
     @datatype class Bits(size: Z, value: Z) extends Pred
 
-    @datatype class Bytes(size: Z, value: ISZ[Z]) extends Pred
+    @datatype class Bytes(value: ISZ[Z]) extends Pred
 
-    @datatype class Shorts(size: Z, value: ISZ[Z]) extends Pred
+    @datatype class Shorts(value: ISZ[Z]) extends Pred
 
-    @datatype class Ints(size: Z, value: ISZ[Z]) extends Pred
+    @datatype class Ints(value: ISZ[Z]) extends Pred
 
-    @datatype class Longs(size: Z, value: ISZ[Z]) extends Pred
+    @datatype class Longs(value: ISZ[Z]) extends Pred
 
     @datatype class Skip(size: Z) extends Pred
+
+    @datatype class Between(size: Z, lo: Z, hi: Z) extends Pred
+
+    @datatype class Not(pred: Pred) extends Pred
+
+    @datatype class Or(preds: ISZ[Pred]) extends Pred
+
 
   }
 
@@ -132,24 +139,36 @@ object Spec {
     return Pred.Bits(size, value)
   }
 
-  @pure def bytes(size: Z, value: ISZ[Z]): Pred.Bytes = {
-    return Pred.Bytes(size, value)
+  @pure def bytes(value: ISZ[Z]): Pred.Bytes = {
+    return Pred.Bytes(value)
   }
 
-  @pure def shorts(size: Z, value: ISZ[Z]): Pred.Shorts = {
-    return Pred.Shorts(size, value)
+  @pure def shorts(value: ISZ[Z]): Pred.Shorts = {
+    return Pred.Shorts(value)
   }
 
-  @pure def ints(size: Z, value: ISZ[Z]): Pred.Ints = {
-    return Pred.Ints(size, value)
+  @pure def ints(value: ISZ[Z]): Pred.Ints = {
+    return Pred.Ints(value)
   }
 
-  @pure def longs(size: Z, value: ISZ[Z]): Pred.Longs = {
-    return Pred.Longs(size, value)
+  @pure def longs(value: ISZ[Z]): Pred.Longs = {
+    return Pred.Longs(value)
   }
 
   @pure def skip(size: Z): Pred.Skip = {
     return Pred.Skip(size)
+  }
+
+  @pure def between(size: Z, lo: Z, hi: Z): Pred.Between = {
+    return Pred.Between(size, lo, hi)
+  }
+
+  @pure def not(pred: Pred): Pred.Not = {
+    return Pred.Not(pred)
+  }
+
+  @pure def or(preds: ISZ[Pred]): Pred.Or = {
+    return Pred.Or(preds)
   }
 
   @pure def fromJSON(s: String): Either[Spec, Json.ErrorMsg] = {
