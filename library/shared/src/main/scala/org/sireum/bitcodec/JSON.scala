@@ -50,8 +50,6 @@ object JSON {
         case o: Spec.PredUnion => return printSpecPredUnion(o)
         case o: Spec.PredRepeatWhile => return printSpecPredRepeatWhile(o)
         case o: Spec.PredRepeatUntil => return printSpecPredRepeatUntil(o)
-        case o: Spec.PredRawWhile => return printSpecPredRawWhile(o)
-        case o: Spec.PredRawUntil => return printSpecPredRawUntil(o)
         case o: Spec.GenUnion => return printSpecGenUnion(o)
         case o: Spec.GenRepeat => return printSpecGenRepeat(o)
         case o: Spec.GenRaw => return printSpecGenRaw(o)
@@ -193,22 +191,6 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredRawWhile(o: Spec.PredRawWhile): ST = {
-      return printObject(ISZ(
-        ("type", st""""Spec.PredRawWhile""""),
-        ("name", printString(o.name)),
-        ("preds", printISZ(F, o.preds, printSpecPred _))
-      ))
-    }
-
-    @pure def printSpecPredRawUntil(o: Spec.PredRawUntil): ST = {
-      return printObject(ISZ(
-        ("type", st""""Spec.PredRawUntil""""),
-        ("name", printString(o.name)),
-        ("preds", printISZ(F, o.preds, printSpecPred _))
-      ))
-    }
-
     @pure def printSpecGenUnion(o: Spec.GenUnion): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenUnion""""),
@@ -322,7 +304,7 @@ object JSON {
     }
 
     def parseSpec(): Spec = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUtil", "Spec.PredRawWhile", "Spec.PredRawUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUtil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -338,8 +320,6 @@ object JSON {
         case "Spec.PredUnion" => val r = parseSpecPredUnionT(T); return r
         case "Spec.PredRepeatWhile" => val r = parseSpecPredRepeatWhileT(T); return r
         case "Spec.PredRepeatUntil" => val r = parseSpecPredRepeatUntilT(T); return r
-        case "Spec.PredRawWhile" => val r = parseSpecPredRawWhileT(T); return r
-        case "Spec.PredRawUntil" => val r = parseSpecPredRawUntilT(T); return r
         case "Spec.GenUnion" => val r = parseSpecGenUnionT(T); return r
         case "Spec.GenRepeat" => val r = parseSpecGenRepeatT(T); return r
         case "Spec.GenRaw" => val r = parseSpecGenRawT(T); return r
@@ -636,42 +616,6 @@ object JSON {
       return Spec.PredRepeatUntil(name, element, preds)
     }
 
-
-    def parseSpecPredRawWhile(): Spec.PredRawWhile = {
-      val r = parseSpecPredRawWhileT(F)
-      return r
-    }
-
-    def parseSpecPredRawWhileT(typeParsed: B): Spec.PredRawWhile = {
-      if (!typeParsed) {
-        parser.parseObjectType("Spec.PredRawWhile")
-      }
-      parser.parseObjectKey("name")
-      val name = parser.parseString()
-      parser.parseObjectNext()
-      parser.parseObjectKey("preds")
-      val preds = parser.parseISZ(parseSpecPred _)
-      parser.parseObjectNext()
-      return Spec.PredRawWhile(name, preds)
-    }
-
-    def parseSpecPredRawUntil(): Spec.PredRawUntil = {
-      val r = parseSpecPredRawUntilT(F)
-      return r
-    }
-
-    def parseSpecPredRawUntilT(typeParsed: B): Spec.PredRawUntil = {
-      if (!typeParsed) {
-        parser.parseObjectType("Spec.PredRepeatUntil")
-      }
-      parser.parseObjectKey("name")
-      val name = parser.parseString()
-      parser.parseObjectNext()
-      parser.parseObjectKey("preds")
-      val preds = parser.parseISZ(parseSpecPred _)
-      parser.parseObjectNext()
-      return Spec.PredRawUntil(name, preds)
-    }
 
     def parseSpecGenUnion(): Spec.GenUnion = {
       val r = parseSpecGenUnionT(F)

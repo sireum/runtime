@@ -90,10 +90,6 @@ object Spec {
 
   @datatype class PredRepeatUntil(val name: String, element: Base, preds: ISZ[Pred]) extends Spec
 
-  @datatype class PredRawWhile(val name: String, preds: ISZ[Pred]) extends Spec
-
-  @datatype class PredRawUntil(val name: String, preds: ISZ[Pred]) extends Spec
-
   @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite
 
   @datatype class GenRepeat(val name: String, element: Base) extends Spec
