@@ -35,6 +35,10 @@ trait Module extends CrossJvmJsJitPack {
 
   final override def developers = Seq(Developers.robby)
 
+  final override lazy val scalacPluginIvyDeps = Agg(
+    ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
+  )
+
   final override def jvmTestIvyDeps = Agg.empty
 
   final override def jsTestIvyDeps = Agg.empty
@@ -62,8 +66,6 @@ object Module {
 
     final override def testIvyDeps = Agg.empty
 
-    final override def scalacPluginIvyDeps = Agg.empty
-
     final override def testScalacPluginIvyDeps = Agg.empty
 
     final override def deps = Seq()
@@ -83,10 +85,6 @@ object Module {
 
     final override def ivyDeps = Agg(
       ivy"org.scalatest::scalatest::$scalaTestVersion"
-    )
-
-    final override lazy val scalacPluginIvyDeps = Agg(
-      ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
     )
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
@@ -121,10 +119,6 @@ object Module {
     final override def jvmIvyDeps = Agg(
       ivy"com.zaxxer:nuprocess:$nuProcessVersion",
       ivy"com.lihaoyi::os-lib:$osLibVersion"
-    )
-
-    final override lazy val scalacPluginIvyDeps = Agg(
-      ivy"org.sireum::scalac-plugin:$scalacPluginVersion"
     )
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
