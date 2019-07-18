@@ -70,20 +70,20 @@ class PosetTest extends TestSuite {
     * - assert(poset.isChildOf("A", "C"))
 
     * - assert(poset
-      .parentsOf("F") =~= HashSet.empty[String].++(ISZ[String]("C", "G", "H")))
+      .parentsOf("F") =~= HashSSet.empty[String].++(ISZ[String]("C", "G", "H")))
 
     * - assert(
-      poset.ancestorsOf("J") =~= HashSet
+      poset.ancestorsOf("J") =~= HashSSet
         .empty[String]
         .++(ISZ[String]("G", "H", "I")))
 
     * - assert(
-      poset.ancestorsOf("F") =~= HashSet
+      poset.ancestorsOf("F") =~= HashSSet
         .empty[String]
         .++(ISZ[String]("A", "C", "G", "H", "I")))
 
     * - assert(
-      poset.ancestorsOf("L") =~= HashSet
+      poset.ancestorsOf("L") =~= HashSSet
         .empty[String]
         .++(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 

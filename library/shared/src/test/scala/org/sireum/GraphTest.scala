@@ -115,8 +115,8 @@ class GraphTest extends TestSuite {
       val scc = GraphOps[Z, String](g).getSCC
       assert(scc.nonEmpty)
       assert(scc.size == Z.apply(2))
-      val entry1 = HashSet.empty ++ ISZ(n1, n2, n3)
-      val entry2 = HashSet.empty ++ ISZ(n4)
+      val entry1 = HashSSet.empty ++ ISZ(n1, n2, n3)
+      val entry2 = HashSSet.empty ++ ISZ(n4)
       assert((Set.empty ++ scc).contains(entry1))
       assert((Set.empty ++ scc).contains(entry2))
     }

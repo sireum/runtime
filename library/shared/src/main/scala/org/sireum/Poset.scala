@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2017, Robby, Kansas State University
+ Copyright (c) 2019, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@ object Poset {
 
   object Internal {
 
-    val emptySet: HashSet[Poset.Index] = HashSet.empty
+    val emptySet: HashSSet[Poset.Index] = HashSSet.empty
 
     @pure def addNode[T](poset: Poset[T], node: T): (Poset[T], Index) = {
       poset.nodes.get(node) match {
@@ -66,7 +66,7 @@ object Poset {
 
     @pure def addParents[T](poset: Poset[T], n: Index, ns: ISZ[Index]): Poset[T] = {
       var changed = F
-      val newParents: HashMap[Index, HashSet[Index]] = {
+      val newParents: HashSMap[Index, HashSSet[Index]] = {
         val s = poset.parents.get(n).get
         val newS = s ++ ns
         if (newS.size != s.size) {
@@ -76,7 +76,7 @@ object Poset {
           poset.parents
         }
       }
-      var newChildren: HashMap[Index, HashSet[Index]] = poset.children
+      var newChildren: HashSMap[Index, HashSSet[Index]] = poset.children
       for (c <- ns) {
         newChildren = {
           val s = newChildren.get(c).get
@@ -105,7 +105,7 @@ object Poset {
 
     @pure def addChildren[T](poset: Poset[T], n: Index, ns: ISZ[Index]): Poset[T] = {
       var changed = F
-      val newChildren: HashMap[Index, HashSet[Index]] = {
+      val newChildren: HashSMap[Index, HashSSet[Index]] = {
         val s = poset.children.get(n).get
         val newS = s ++ ns
         if (newS.size != s.size) {
@@ -115,7 +115,7 @@ object Poset {
           poset.children
         }
       }
-      var newParents: HashMap[Index, HashSet[Index]] = poset.parents
+      var newParents: HashSMap[Index, HashSSet[Index]] = poset.parents
       for (c <- ns) {
         newParents = {
           val s = newParents.get(c).get
@@ -131,29 +131,29 @@ object Poset {
       return if (changed) poset(parents = newParents, children = newChildren) else poset
     }
 
-    @pure def childrenOf[T](poset: Poset[T], n: Index): HashSet[Index] = {
+    @pure def childrenOf[T](poset: Poset[T], n: Index): HashSSet[Index] = {
       poset.children.get(n) match {
         case Some(s) => return s
         case _ => return emptySet
       }
     }
 
-    @pure def parentsOf[T](poset: Poset[T], n: Index): HashSet[Index] = {
+    @pure def parentsOf[T](poset: Poset[T], n: Index): HashSSet[Index] = {
       poset.parents.get(n) match {
         case Some(s) => return s
         case _ => return emptySet
       }
     }
 
-    @pure def ancestorsOf[T](poset: Poset[T], n: Index): HashSet[Index] = {
-      return ancestorsCache[T](poset, n, HashMap.empty)._1
+    @pure def ancestorsOf[T](poset: Poset[T], n: Index): HashSSet[Index] = {
+      return ancestorsCache[T](poset, n, HashSMap.empty)._1
     }
 
     @pure def ancestorsCache[T](
       poset: Poset[T],
       n: Index,
-      acc: HashMap[Index, HashSet[Index]]
-    ): (HashSet[Index], HashMap[Index, HashSet[Index]]) = {
+      acc: HashSMap[Index, HashSSet[Index]]
+    ): (HashSSet[Index], HashSMap[Index, HashSSet[Index]]) = {
       var mAcc = acc
       var r = emptySet
       for (nParent <- parentsOf(poset, n).elements) {
@@ -166,8 +166,8 @@ object Poset {
     @pure def ancestorsRec[T](
       poset: Poset[T],
       m: Index,
-      acc: HashMap[Index, HashSet[Index]]
-    ): HashMap[Index, HashSet[Index]] = {
+      acc: HashSMap[Index, HashSSet[Index]]
+    ): HashSMap[Index, HashSSet[Index]] = {
       if (acc.contains(m)) {
         return acc
       }
@@ -183,10 +183,10 @@ object Poset {
         case z"1" => return Some(ns(0))
         case _ =>
       }
-      if ((HashSet ++ ns).size == 1) {
+      if ((HashSSet ++ ns).size == 1) {
         return Some(ns(0))
       }
-      val p0 = ancestorsCache[T](poset, ns(0), HashMap.empty)
+      val p0 = ancestorsCache[T](poset, ns(0), HashSMap.empty)
       var commons = p0._1 + ns(0)
       var acc = p0._2
       for (i <- z"1" until ns.size) {
@@ -211,15 +211,15 @@ object Poset {
       }
     }
 
-    @pure def descendantsOf[T](poset: Poset[T], n: Index): HashSet[Index] = {
-      return descendantsCache[T](poset, n, HashMap.empty)._1
+    @pure def descendantsOf[T](poset: Poset[T], n: Index): HashSSet[Index] = {
+      return descendantsCache[T](poset, n, HashSMap.empty)._1
     }
 
     @pure def descendantsCache[T](
       poset: Poset[T],
       n: Index,
-      acc: HashMap[Index, HashSet[Index]]
-    ): (HashSet[Index], HashMap[Index, HashSet[Index]]) = {
+      acc: HashSMap[Index, HashSSet[Index]]
+    ): (HashSSet[Index], HashSMap[Index, HashSSet[Index]]) = {
       var mAcc = acc
       var r = emptySet
       for (nChild <- childrenOf(poset, n).elements) {
@@ -232,8 +232,8 @@ object Poset {
     @pure def descendantsRec[T](
       poset: Poset[T],
       m: Index,
-      acc: HashMap[Index, HashSet[Index]]
-    ): HashMap[Index, HashSet[Index]] = {
+      acc: HashSMap[Index, HashSSet[Index]]
+    ): HashSMap[Index, HashSSet[Index]] = {
       if (acc.contains(m)) {
         return acc
       }
@@ -249,10 +249,10 @@ object Poset {
         case z"1" => return Some(ns(0))
         case _ =>
       }
-      if ((HashSet.empty[Index] ++ ns).size == 1) {
+      if ((HashSSet.empty[Index] ++ ns).size == 1) {
         return Some(ns(0))
       }
-      val p0 = descendantsCache[T](poset, ns(0), HashMap.empty)
+      val p0 = descendantsCache[T](poset, ns(0), HashSMap.empty)
       var commons = p0._1 + ns(0)
       var acc = p0._2
       for (i <- z"1" until ns.size) {
@@ -279,20 +279,20 @@ object Poset {
   }
 
   def empty[T]: Poset[T] = {
-    return Poset[T](HashMap.empty, ISZ(), HashMap.empty, HashMap.empty)
+    return Poset[T](HashSMap.empty, ISZ(), HashSMap.empty, HashSMap.empty)
   }
 }
 
 import Poset._
 
 @datatype class Poset[T](
-  nodes: HashMap[T, Z],
+  nodes: HashSMap[T, Z],
   nodesInverse: IS[Z, T],
-  parents: HashMap[Z, HashSet[Z]],
-  children: HashMap[Z, HashSet[Z]]
+  parents: HashSMap[Z, HashSSet[Z]],
+  children: HashSMap[Z, HashSSet[Z]]
 ) {
 
-  val emptySet: HashSet[T] = HashSet.empty
+  val emptySet: HashSSet[T] = HashSSet.empty
 
   @pure def size: Z = {
     return nodes.size
@@ -309,8 +309,8 @@ import Poset._
     for (node <- nodes.keys) {
       val n = nodes.get(node).get
       val m = other.nodes.get(node).get
-      val nParents = HashSet ++ parents.get(n).get.elements.map[T](np => nodesInverse(np))
-      val mParents = HashSet ++ other.parents.get(m).get.elements.map[T](mp => other.nodesInverse(mp))
+      val nParents = HashSSet ++ parents.get(n).get.elements.map[T](np => nodesInverse(np))
+      val mParents = HashSSet ++ other.parents.get(m).get.elements.map[T](mp => other.nodesInverse(mp))
       if (nParents != mParents) {
         return F
       }
@@ -367,9 +367,9 @@ import Poset._
     return Poset.Internal.addChildren(r, n, ns)
   }
 
-  @pure def childrenOf(node: T): HashSet[T] = {
+  @pure def childrenOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSet ++ Poset.Internal.childrenOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => HashSSet ++ Poset.Internal.childrenOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -381,9 +381,9 @@ import Poset._
     }
   }
 
-  @pure def parentsOf(node: T): HashSet[T] = {
+  @pure def parentsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSet ++ Poset.Internal.parentsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => HashSSet ++ Poset.Internal.parentsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -392,9 +392,9 @@ import Poset._
     return isChildOf(node2, node1)
   }
 
-  @pure def ancestorsOf(node: T): HashSet[T] = {
+  @pure def ancestorsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSet ++ Poset.Internal.ancestorsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => HashSSet ++ Poset.Internal.ancestorsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -404,9 +404,9 @@ import Poset._
     return Poset.Internal.lub(this, ns).map(n => nodesInverse(n))
   }
 
-  @pure def descendantsOf(node: T): HashSet[T] = {
+  @pure def descendantsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSet ++ Poset.Internal.descendantsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => HashSSet ++ Poset.Internal.descendantsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }

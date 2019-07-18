@@ -65,13 +65,13 @@ class JsonTest extends TestSuite {
 
     * - {
       for (is <- (0 until 3).map(i =>
-             (z"0" until i).map(_ => (String.random, Z.random)))) {
+        (z"0" until i).map(_ => (String.random, Z.random)))) {
         val o = Map ++ is
         val s = Json.Printer
           .printMap(B.random,
-                    o,
-                    Json.Printer.printString _,
-                    Json.Printer.printZ _)
+            o,
+            Json.Printer.printString _,
+            Json.Printer.printZ _)
           .render
         val p = Json.Parser.create(s)
         val o2 = p.parseMap[String, Z](p.parseString _, p.parseZ _)
@@ -94,16 +94,16 @@ class JsonTest extends TestSuite {
 
     * - {
       for (is <- (0 until 3).map(i =>
-             (z"0" until i).map(_ => (String.random, Z.random)))) {
-        val o = HashMap ++ is
+        (z"0" until i).map(_ => (String.random, Z.random)))) {
+        val o = HashSMap ++ is
         val s = Json.Printer
-          .printHashMap(B.random,
-                        o,
-                        Json.Printer.printString _,
-                        Json.Printer.printZ _)
+          .printHashSMap(B.random,
+            o,
+            Json.Printer.printString _,
+            Json.Printer.printZ _)
           .render
         val p = Json.Parser.create(s)
-        val o2 = p.parseHashMap[String, Z](p.parseString _, p.parseZ _)
+        val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
         assert(p.errorOpt.isEmpty)
         assert(o == o2)
       }
@@ -124,13 +124,13 @@ class JsonTest extends TestSuite {
 
     * - {
       for (is <- (0 until 3).map(i =>
-             (z"0" until i).map(_ => (String.random, Z.random)))) {
+        (z"0" until i).map(_ => (String.random, Z.random)))) {
         val o = HashSMap ++ is
         val s = Json.Printer
           .printHashSMap(B.random,
-                         o,
-                         Json.Printer.printString _,
-                         Json.Printer.printZ _)
+            o,
+            Json.Printer.printString _,
+            Json.Printer.printZ _)
           .render
         val p = Json.Parser.create(s)
         val o2 = p.parseHashSMap[String, Z](p.parseString _, p.parseZ _)
@@ -179,12 +179,12 @@ class JsonTest extends TestSuite {
 
     * - {
       for (is <- (0 until 3).map(i => (z"0" until i).map(_ => String.random))) {
-        val o = HashBag ++ is
+        val o = HashSBag ++ is
         val s = Json.Printer
-          .printHashBag(B.random, o, Json.Printer.printString _)
+          .printHashSBag(B.random, o, Json.Printer.printString _)
           .render
         val p = Json.Parser.create(s)
-        val o2 = p.parseHashBag[String](p.parseString _)
+        val o2 = p.parseHashSBag[String](p.parseString _)
         assert(p.errorOpt.isEmpty)
         assert(o == o2)
       }
@@ -212,9 +212,9 @@ class JsonTest extends TestSuite {
       }
       val s = Json.Printer
         .printGraph(B.random,
-                    o,
-                    Json.Printer.printZ _,
-                    Json.Printer.printString _)
+          o,
+          Json.Printer.printZ _,
+          Json.Printer.printString _)
         .render
       val p = Json.Parser.create(s)
       val o2 = p.parseGraph[Z, String](p.parseZ _, p.parseString _)
@@ -241,12 +241,12 @@ class JsonTest extends TestSuite {
     * - {
       import org.sireum.U32._
       val o = message.FlatPos(Some("Hi.txt"),
-                              u32"1",
-                              u32"1",
-                              u32"1",
-                              u32"1",
-                              u32"1",
-                              u32"1")
+        u32"1",
+        u32"1",
+        u32"1",
+        u32"1",
+        u32"1",
+        u32"1")
       val s = Json.Printer.printPosition(o).render
       val p = Json.Parser.create(s)
       val o2 = p.parsePosition()

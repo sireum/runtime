@@ -1,7 +1,6 @@
 // #Sireum
-package org.sireum
 /*
- Copyright (c) 2018, Robby, Kansas State University
+ Copyright (c) 2019, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -24,6 +23,7 @@ package org.sireum
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package org.sireum
 
 object UnionFind {
 
@@ -72,7 +72,7 @@ object UnionFind {
 
   @pure def create[T](elements: ISZ[T]): UnionFind[T] = {
     val size = elements.size
-    var es = HashMap.emptyInit[T, Index](size)
+    var es = HashSMap.emptyInit[T, Index](size)
     for (e <- elements) {
       es = es + e ~> es.size
     }
@@ -83,7 +83,7 @@ object UnionFind {
 }
 
 @datatype class UnionFind[T](
-  elements: HashMap[T, UnionFind.Index],
+  elements: HashSMap[T, UnionFind.Index],
   elementsInverse: IS[UnionFind.Index, T],
   parentOf: IS[UnionFind.Index, UnionFind.Index],
   sizeOf: IS[UnionFind.Index, UnionFind.Index]
@@ -101,10 +101,10 @@ object UnionFind {
     if (elementsInverse.size != other.elementsInverse.size) {
       return F
     }
-    if ((HashSet ++ elementsInverse) != (HashSet ++ other.elementsInverse)) {
+    if ((HashSSet ++ elementsInverse) != (HashSSet ++ other.elementsInverse)) {
       return F
     }
-    var seen = HashSet.emptyInit[(T, T)](size)
+    var seen = HashSSet.emptyInit[(T, T)](size)
     for (element1 <- elementsInverse; element2 <- elementsInverse if element1 != element2) {
       val p = (element1, element2)
       if (!seen.contains(p)) {
@@ -158,7 +158,7 @@ object UnionFind {
   }
 
   @pure def toST(f: T => ST): ST = {
-    var map = HashMap.emptyInit[UnionFind.Index, ISZ[ST]](size)
+    var map = HashSMap.emptyInit[UnionFind.Index, ISZ[ST]](size)
     for (element <- elementsInverse) {
       val rep = UnionFind.Internal.find(this, elements.get(element).get)
       map = map + rep ~> (map.get(rep).getOrElse(ISZ[ST]()) :+ f(element))

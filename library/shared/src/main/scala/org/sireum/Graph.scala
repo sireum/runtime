@@ -33,14 +33,14 @@ object Graph {
   @datatype trait Edge[W, E] {
     @pure def source: W
     @pure def dest: W
-    @pure def toInternal(map: HashMap[W, Graph.Index]): Internal.Edge[E]
+    @pure def toInternal(map: HashSMap[W, Graph.Index]): Internal.Edge[E]
   }
 
   object Edge {
 
     @datatype class Plain[W, E](val source: W, val dest: W) extends Edge[W, E] {
 
-      @pure override def toInternal(map: HashMap[W, Graph.Index]): Internal.Edge[E] = {
+      @pure override def toInternal(map: HashSMap[W, Graph.Index]): Internal.Edge[E] = {
         return Internal.Edge.Plain(map.get(source).get, map.get(dest).get)
       }
 
@@ -48,7 +48,7 @@ object Graph {
 
     @datatype class Data[W, E](val source: W, val dest: W, val data: E) extends Edge[W, E] {
 
-      @pure override def toInternal(map: HashMap[W, Graph.Index]): Internal.Edge[E] = {
+      @pure override def toInternal(map: HashSMap[W, Graph.Index]): Internal.Edge[E] = {
         return Internal.Edge.Data(map.get(source).get, map.get(dest).get, data)
       }
 
@@ -97,7 +97,7 @@ object Graph {
         }
       }
 
-      @datatype class Bag[E](set: HashBag[Internal.Edge[E]]) extends Edges[E] {
+      @datatype class Bag[E](set: HashSBag[Internal.Edge[E]]) extends Edges[E] {
 
         @pure override def elements: ISZ[Internal.Edge[E]] = {
           return set.elements
@@ -121,7 +121,7 @@ object Graph {
       }
 
       @pure def empty[E](multi: B): Edges[E] = {
-        return if (multi) Bag(HashBag.empty) else Set(HashSet.empty)
+        return if (multi) Bag(HashSBag.empty) else Set(HashSet.empty)
       }
 
     }
@@ -192,19 +192,19 @@ object Graph {
   }
 
   @pure def empty[W, E]: Graph[W, E] = {
-    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0, F)
+    return Graph(HashSMap.empty, ISZ(), HashSMap.empty, HashSMap.empty, 0, F)
   }
 
   @pure def emptyMulti[W, E]: Graph[W, E] = {
-    return Graph(HashMap.empty, ISZ(), HashMap.empty, HashMap.empty, 0, T)
+    return Graph(HashSMap.empty, ISZ(), HashSMap.empty, HashSMap.empty, 0, T)
   }
 }
 
 @datatype class Graph[W, E](
-  val nodes: HashMap[W, Graph.Index],
+  val nodes: HashSMap[W, Graph.Index],
   val nodesInverse: IS[Graph.Index, W],
-  val incomingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
-  val outgoingEdges: HashMap[Graph.Index, Graph.Internal.Edges[E]],
+  val incomingEdges: HashSMap[Graph.Index, Graph.Internal.Edges[E]],
+  val outgoingEdges: HashSMap[Graph.Index, Graph.Internal.Edges[E]],
   val nextNodeId: Graph.Index,
   val multi: B
 ) {

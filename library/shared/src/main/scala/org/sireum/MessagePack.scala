@@ -610,12 +610,16 @@ object MessagePack {
       writeHashMap(o.map, f, writeZ _)
     }
 
+    def writeHashSBag[T](o: HashSBag[T], f: T => Unit): Unit = {
+      writeHashSMap(o.map, f, writeZ _)
+    }
+
     def writePoset[T](o: Poset[T], f: T => Unit): Unit = {
-      def g(s: HashSet[Poset.Index]): Unit = {
-        writeHashSet(s, writeZ _)
+      def g(s: HashSSet[Poset.Index]): Unit = {
+        writeHashSSet(s, writeZ _)
       }
       writeISZ(o.nodesInverse, f)
-      writeHashMap(o.parents, writeZ _, g _)
+      writeHashSMap(o.parents, writeZ _, g _)
     }
 
     def writeGraph[W, E](o: Graph[W, E], f: W => Unit, g: E => Unit): Unit = {
@@ -1818,17 +1822,22 @@ object MessagePack {
       return HashBag(map)
     }
 
+    def readHashSBag[T](f: () => T): HashSBag[T] = {
+      val map = readHashSMap(f, readZ _)
+      return HashSBag(map)
+    }
+
     def readPoset[T](f: () => T): Poset[T] = {
-      def g(): HashSet[Poset.Index] = {
-        val r = readHashSet(readZ _)
+      def g(): HashSSet[Poset.Index] = {
+        val r = readHashSSet(readZ _)
         return r
       }
       val nodesInverse = readISZ(f)
-      val map = readHashMap(readZ _, g _)
+      val map = readHashSMap(readZ _, g _)
       val size = nodesInverse.size
-      var nodes = HashMap.emptyInit[T, Poset.Index](size)
-      var parents = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
-      var children = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var nodes = HashSMap.emptyInit[T, Poset.Index](size)
+      var parents = HashSMap.emptyInit[Poset.Index, HashSSet[Poset.Index]](size)
+      var children = HashSMap.emptyInit[Poset.Index, HashSSet[Poset.Index]](size)
       var i: Z = 0
       for (node <- nodesInverse) {
         nodes = nodes + node ~> nodes.size
@@ -1873,7 +1882,7 @@ object MessagePack {
       val elementsInverse = readISZ(f)
       val parentOf = readISZ(readZ _)
       val sizeOf = readISZ(readZ _)
-      var elements = HashMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
+      var elements = HashSMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
       for (e <- elementsInverse) {
         elements = elements + e ~> elements.size
       }

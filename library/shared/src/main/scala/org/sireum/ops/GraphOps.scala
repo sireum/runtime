@@ -57,13 +57,13 @@ import org.sireum._
 
   }
 
-  @pure def getSCC: ISZ[HashSet[W]] = {
-    var result = ISZ[HashSet[W]]()
-    var discoveryMap: HashMap[W, (B, B)] =
-      HashMap ++ (for (v <- graph.nodes.keys) yield (v, (F, F)))
+  @pure def getSCC: ISZ[HashSSet[W]] = {
+    var result = ISZ[HashSSet[W]]()
+    var discoveryMap: HashSMap[W, (B, B)] =
+      HashSMap ++ (for (v <- graph.nodes.keys) yield (v, (F, F)))
 
     def resetDiscoveryMap(): Unit = {
-      discoveryMap = HashMap ++ (for (e <- discoveryMap.entries) yield (e._1, (F, F)))
+      discoveryMap = HashSMap ++ (for (e <- discoveryMap.entries) yield (e._1, (F, F)))
     }
 
     def setDiscovered(v: W): B = {
@@ -124,7 +124,7 @@ import org.sireum._
     resetDiscoveryMap()
     for (k <- orderedNodes) {
       if (!discoveryMap.get(k).get._1) {
-        result = result :+ HashSet.empty[W] ++ dfs(k, F)
+        result = result :+ HashSSet.empty[W] ++ dfs(k, F)
       }
     }
     return result
@@ -133,12 +133,12 @@ import org.sireum._
   @pure def getCycles: ISZ[ISZ[W]] = {
     val sccs = getSCC
     var loops = ISZ[ISZ[W]]()
-    var bSets = HashMap.empty[W, Set[W]]
+    var bSets = HashSMap.empty[W, Set[W]]
     var stack = Stack.empty[W]
     var marked = Set.empty[W]
-    var removed = HashMap.empty[W, Set[W]]
-    var position = HashMap.empty[W, Z]
-    var reach = HashMap.empty[W, B] ++ (for (k <- graph.nodes.keys) yield (k, F))
+    var removed = HashSMap.empty[W, Set[W]]
+    var position = HashSMap.empty[W, Z]
+    var reach = HashSMap.empty[W, B] ++ (for (k <- graph.nodes.keys) yield (k, F))
 
     def cycle(v: W, tq: Z): B = {
       var q = tq
@@ -271,7 +271,7 @@ import org.sireum._
   @pure def reachable(criteria: ISZ[W], isForward: B): ISZ[W] = {
     var workList = ISZ[W]()
     workList = workList ++ criteria
-    var result = HashSet.empty[W]
+    var result = HashSSet.empty[W]
 
     while (workList.nonEmpty) {
       val current = ISZOps(workList).first

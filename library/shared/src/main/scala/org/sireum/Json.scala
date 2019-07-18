@@ -510,13 +510,17 @@ object Json {
       return printHashMap(isSimple, o.map, f, printZ _)
     }
 
+    @pure def printHashSBag[T](isSimple: B, o: HashSBag[T], f: T => ST): ST = {
+      return printHashSMap(isSimple, o.map, f, printZ _)
+    }
+
     @pure def printPoset[T](isSimple: B, o: Poset[T], f: T => ST): ST = {
-      val g: HashSet[Poset.Index] => ST = (s) => printHashSet(isSimple, s, printZ _)
+      val g: HashSSet[Poset.Index] => ST = s => printHashSSet(isSimple, s, printZ _)
       return printObject(
         ISZ(
           ("type", printString("Poset")),
           ("nodes", printISZ(isSimple, o.nodesInverse, f)),
-          ("parents", printHashMap(isSimple, o.parents, printZ _, g))
+          ("parents", printHashSMap(isSimple, o.parents, printZ _, g))
         )
       )
     }
@@ -1713,9 +1717,14 @@ object Json {
       return HashBag(map)
     }
 
+    def parseHashSBag[T](f: () => T): HashSBag[T] = {
+      val map = parseHashSMap(f, parseZ _)
+      return HashSBag(map)
+    }
+
     def parsePoset[T](f: () => T): Poset[T] = {
-      def g(): HashSet[Poset.Index] = {
-        val r = parseHashSet(parseZ _)
+      def g(): HashSSet[Poset.Index] = {
+        val r = parseHashSSet(parseZ _)
         return r
       }
       parseObjectType("Poset")
@@ -1723,12 +1732,12 @@ object Json {
       val nodesInverse = parseISZ(f)
       parseObjectNext()
       parseObjectKey("parents")
-      val map = parseHashMap(parseZ _, g _)
+      val map = parseHashSMap(parseZ _, g _)
       parseObjectNext()
       val size = nodesInverse.size
-      var nodes = HashMap.emptyInit[T, Poset.Index](size)
-      var parents = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
-      var children = HashMap.emptyInit[Poset.Index, HashSet[Poset.Index]](size)
+      var nodes = HashSMap.emptyInit[T, Poset.Index](size)
+      var parents = HashSMap.emptyInit[Poset.Index, HashSSet[Poset.Index]](size)
+      var children = HashSMap.emptyInit[Poset.Index, HashSSet[Poset.Index]](size)
       var i: Z = 0
       for (node <- nodesInverse) {
         nodes = nodes + node ~> nodes.size
@@ -1793,7 +1802,7 @@ object Json {
       parseObjectKey("sizeOf")
       val sizeOf = parseISZ(parseZ _)
       parseObjectNext()
-      var elements = HashMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
+      var elements = HashSMap.emptyInit[T, UnionFind.Index](elementsInverse.size)
       for (e <- elementsInverse) {
         elements = elements + e ~> elements.size
       }
