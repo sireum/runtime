@@ -213,7 +213,12 @@ import org.sireum._
   @pure def contains(e: T): B = {
 //    l""" ensures result ≡ (∃i: [0, s.size) s(i) ≡ e) """
 
-    return exists((x: T) => x == e)
+    for (v <- s) {
+      if (v == e) {
+        return T
+      }
+    }
+    return F
   }
 
   @pure def drop(size: Z): IS[Z, T] = {
@@ -528,7 +533,12 @@ import org.sireum._
   @pure def contains(e: T): B = {
 //    l""" ensures result ≡ (∃i: [0, s.size) s(i) ≡ e) """
 
-    return exists((x: T) => x == e)
+    for (v <- s) {
+      if (v == e) {
+        return T
+      }
+    }
+    return F
   }
 
   @pure def drop(size: Z): MS[Z, T] = {
