@@ -65,43 +65,43 @@ object Option {
 @datatype class None[T] extends Option[T] {
 
   @pure def isEmpty: B = {
-    Contract(Ensures(Result))
+    Contract(Ensures(Res))
 
     return T
   }
 
   @pure def nonEmpty: B = {
-    Contract(Ensures(!Result[B]))
+    Contract(Ensures(!Res[B]))
     return F
   }
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = {
-    Contract(Ensures(Result == None[T2]()))
+    Contract(Ensures(Res == None[T2]()))
     return None[T2]()
   }
 
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    Contract(Ensures(Result == None[T2]()))
+    Contract(Ensures(Res == None[T2]()))
     return None[T2]()
   }
 
   @pure def forall(f: T => B @pure): B = {
-    Contract(Ensures(Result))
+    Contract(Ensures(Res))
     return T
   }
 
   @pure def exists(f: T => B @pure): B = {
-    Contract(Ensures(!Result[B]))
+    Contract(Ensures(!Res[B]))
     return F
   }
 
   @pure def getOrElse(default: => T): T = {
-    Contract(Ensures(Result == default))
+    Contract(Ensures(Res == default))
     return default
   }
 
   @pure def getOrElseEager(default: T): T = {
-    Contract(Ensures(Result == default))
+    Contract(Ensures(Res == default))
     return default
   }
 
@@ -111,7 +111,7 @@ object Option {
   }
 
   @pure def toIS: IS[Z, T] = {
-    Contract(Ensures(Result[ISZ[T]].size == 0))
+    Contract(Ensures(Res[ISZ[T]].size == 0))
     return IS[Z, T]()
   }
 
@@ -121,52 +121,52 @@ object Option {
 @datatype class Some[T](value: T) extends Option[T] {
 
   @pure def isEmpty: B = {
-    Contract(Ensures(!Result[B]))
+    Contract(Ensures(!Res[B]))
     return F
   }
 
   @pure def nonEmpty: B = {
-    Contract(Ensures(Result))
+    Contract(Ensures(Res))
     return T
   }
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = {
-    Contract(Ensures(Result == f(value)))
+    Contract(Ensures(Res == f(value)))
     return Some(f(value))
   }
 
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    Contract(Ensures(Result == f(value)))
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
   @pure def forall(f: T => B @pure): B = {
-    Contract(Ensures(Result == f(value)))
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
   @pure def exists(f: T => B @pure): B = {
-    Contract(Ensures(Result == f(value)))
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
   @pure def getOrElse(default: => T): T = {
-    Contract(Ensures(Result == value))
+    Contract(Ensures(Res == value))
     return value
   }
 
   @pure def getOrElseEager(default: T): T = {
-    Contract(Ensures(Result == value))
+    Contract(Ensures(Res == value))
     return value
   }
 
   @pure def get: T = {
-    Contract(Ensures(Result == value))
+    Contract(Ensures(Res == value))
     return value
   }
 
   @pure def toIS: IS[Z, T] = {
-    Contract(Ensures(Result == ISZ(value)))
+    Contract(Ensures(Res == ISZ(value)))
 
     return ISZ(value)
   }

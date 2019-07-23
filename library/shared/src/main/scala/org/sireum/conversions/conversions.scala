@@ -34,17 +34,17 @@ import org.sireum.Z64._
 
 @ext object B {
 
-  @pure def toB(b: B): B = Contract.Only(Ensures(Result == b))
+  @pure def toB(b: B): B = Contract.Only(Ensures(Res == b))
 
-  @pure def toZ(b: B): Z = Contract.Only(Ensures(Result == (if (b) 1 else 0)))
+  @pure def toZ(b: B): Z = Contract.Only(Ensures(Res == (if (b) 1 else 0)))
 
-  @pure def toZ8(b: B): Z8 = Contract.Only(Ensures(Result == (if (b) z8"1" else z8"0")))
+  @pure def toZ8(b: B): Z8 = Contract.Only(Ensures(Res == (if (b) z8"1" else z8"0")))
 
-  @pure def toZ16(b: B): Z16 = Contract.Only(Ensures(Result == (if (b) z16"1" else z16"0")))
+  @pure def toZ16(b: B): Z16 = Contract.Only(Ensures(Res == (if (b) z16"1" else z16"0")))
 
-  @pure def toZ32(b: B): Z32 = Contract.Only(Ensures(Result == (if (b) z32"1" else z32"0")))
+  @pure def toZ32(b: B): Z32 = Contract.Only(Ensures(Res == (if (b) z32"1" else z32"0")))
 
-  @pure def toZ64(b: B): Z64 = Contract.Only(Ensures(Result == (if (b) z64"1" else z64"0")))
+  @pure def toZ64(b: B): Z64 = Contract.Only(Ensures(Res == (if (b) z64"1" else z64"0")))
 
   @pure def toN(b: B): N =
     $ // l""" ensures result ≡ (if (b) n"1" else n"0") """
