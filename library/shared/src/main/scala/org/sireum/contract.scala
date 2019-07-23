@@ -114,6 +114,19 @@ trait contract {
       def apply[T](reads: Reads, modifies: Modifies, case0: Case, cases: Case*): T = ???
     }
 
+    trait State {
+      def apply[T](o: T): T
+      def ~[T](o: T): StatePost
+    }
+
+    trait StateCont {
+      def ~[T](o: T): StatePost
+    }
+
+    trait StatePost {
+      def ~(post: State): StateCont
+    }
+
     trait Case
 
     trait Requires
@@ -259,7 +272,7 @@ trait contract {
 
   def At[T](n: Z, v: T): T = ???
 
-  def Result[T]: T = ???
+  def Res[T]: T = ???
 
   def |-(conclusion: B): Contract.Sequent = ???
 
@@ -1266,6 +1279,8 @@ trait contract {
   implicit def $toJustificationBuilder(name: String): Contract.JustificationBuilder = ???
 
   implicit def $toJustification(name: String): Contract.Justification = ???
+
+  implicit def $toB(state: Contract.StateCont): B = ???
 
   implicit def $toSequent(bs: B): Contract.SequentBuilder = ???
   implicit def $toSequent(bs: (B, B)): Contract.SequentBuilder = ???
