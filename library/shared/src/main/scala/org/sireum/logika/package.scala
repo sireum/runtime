@@ -273,4 +273,57 @@ package object logika {
   final def Z(n: scala.BigInt): Z = org.sireum.Z(n)
 
   final def String(s: Predef.String): String = org.sireum.String(s)
+
+
+  final implicit class $Int2Z(val value: scala.Int) extends AnyVal {
+
+    @inline def <(other: Z): B = Z(value) < other
+
+    @inline def <=(other: Z): B = Z(value) <= other
+
+    @inline def >(other: Z): B = Z(value) > other
+
+    @inline def >=(other: Z): B = Z(value) >= other
+
+    @inline def +(other: Z): Z = Z(value) + other
+
+    @inline def -(other: Z): Z = Z(value) - other
+
+    @inline def *(other: Z): Z = Z(value) * other
+
+    @inline def /(other: Z): Z = Z(value) / other
+
+    @inline def %(other: Z): Z = Z(value) % other
+
+    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+
+    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+  }
+
+  final implicit class $Long2Z(val value: scala.Long) extends AnyVal {
+
+    @inline def <(other: Z): B = Z(value) < other
+
+    @inline def <=(other: Z): B = Z(value) <= other
+
+    @inline def >(other: Z): B = Z(value) > other
+
+    @inline def >=(other: Z): B = Z(value) >= other
+
+    @inline def +(other: Z): Z = Z(value) + other
+
+    @inline def -(other: Z): Z = Z(value) - other
+
+    @inline def *(other: Z): Z = Z(value) * other
+
+    @inline def /(other: Z): Z = Z(value) / other
+
+    @inline def %(other: Z): Z = Z(value) % other
+
+    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+
+    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+
+  }
+
 }
