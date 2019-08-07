@@ -131,7 +131,7 @@ object Option {
   }
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(Res == Some(f(value))))
     return Some(f(value))
   }
 

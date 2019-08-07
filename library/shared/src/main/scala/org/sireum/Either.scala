@@ -60,7 +60,7 @@ object Either {
     }
 
     @pure override def rightOpt: Option[R] = {
-      Contract(Ensures(Res == None()))
+      Contract(Ensures(Res == None[R]()))
       return None()
     }
 
@@ -84,7 +84,7 @@ object Either {
     }
 
     @pure override def leftOpt: Option[L] = {
-      Contract(Ensures(Res == None()))
+      Contract(Ensures(Res == None[L]()))
       return None()
     }
 
@@ -94,12 +94,12 @@ object Either {
     }
 
     @pure override def rightOpt: Option[R] = {
-      Contract(Requires(Res == Some(value)))
+      Contract(Ensures(Res == Some(value)))
       return Some(value)
     }
 
     @pure override def right: R = {
-      Contract(Requires(Res == value))
+      Contract(Ensures(Res == value))
       return value
     }
 
