@@ -311,8 +311,8 @@ package org.sireum
   @pure def toMS: MS[I, E]
 //    Contract.Only(
 //      Ensures(
-//        result.size == s.size,
-//        ∀(result.indices)(i => result(i) == s(i))
+//        Res.size == s.size,
+//        ∀(Res.indices)(i => Res(i) == s(i))
 //      )
 //    )
 
@@ -323,8 +323,8 @@ package org.sireum
   def create[E](size: Z, default: E): ISZ[E] =
     Contract.Only(
       Ensures(
-        result.size == s.size,
-        ∀(result.indices)(i => result(i) == default)
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == default)
       )
     )
 
@@ -375,8 +375,8 @@ package org.sireum
   @pure def toIS: IS[I, E]
 //    Contract.Only(
 //      Ensures(
-//        result.size == s.size,
-//        ∀(result.indices)(i => result(i) == s(i))
+//        Res.size == s.size,
+//        ∀(Res.indices)(i => Res(i) == s(i))
 //      )
 //    )
 
@@ -387,8 +387,8 @@ package org.sireum
   def create[E](size: Z, default: E): MSZ[E] =
     Contract.Only(
       Ensures(
-        result.size == s.size,
-        ∀(result.indices)(i => result(i) == default)
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == default)
       )
     )
 
@@ -401,8 +401,8 @@ package org.sireum
   def create(size: Z, default: Z): ZS =
     Contract.Only(
       Ensures(
-        result.size == s.size,
-        ∀(result.indices)(i => result(i) == default)
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == default)
       )
     )
 }
