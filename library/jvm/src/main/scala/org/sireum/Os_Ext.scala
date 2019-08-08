@@ -442,7 +442,13 @@ object Os_Ext {
     catch {
       case _: Throwable =>
     }
-    System.getenv("SLASH_DIR")
+    val r = System.getenv("SLASH_DIR")
+    if (r == null) {
+      eprintln("Could not detect Slash directory")
+      eprintln("Please run the script using the Sireum Slang runner or define SLASH_DIR env var to point to the script directory")
+      System.exit(-1)
+    }
+    return r
   }
 
   def temp(prefix: String, suffix: String): String = {
