@@ -75,6 +75,8 @@ trait contract {
 
     def apply(arg0: String): Unit = macro Macro.lUnit1
 
+    def Havoc(arg0: Any, arg1: Any*): Unit = macro Macro.lUnit1S
+
     object Only {
 
       def apply[T](reads: Reads): T = ???
@@ -275,8 +277,6 @@ trait contract {
   def Res[T]: T = ???
 
   def |-(conclusion: B): Contract.Sequent = ???
-
-  def ⊢(conclusion: B): Contract.Sequent = ???
 
   object All {
 
