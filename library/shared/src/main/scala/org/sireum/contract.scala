@@ -231,6 +231,8 @@ trait contract {
 
   def Deduce(arg0: Contract.Sequent, arg1: Contract.Sequent*): Unit = macro Macro.lUnit1S
 
+  def Deduce(arg0: String, arg1: Contract.Sequent, arg2: Contract.Sequent*): Unit = macro Macro.lUnit2S
+
   def Step(no: Int, claim: B): Contract.ProofStep = ???
 
   def Step(no: Int, claim: B, just: Contract.Justification): Contract.ProofStep = ???
