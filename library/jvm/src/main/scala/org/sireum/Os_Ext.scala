@@ -576,6 +576,14 @@ object Os_Ext {
         val value = v.toString
         m(key) = value
       }
+      if (e.outputEnv) {
+        for ((k, v) <- m) {
+          println(s"$k = $v")
+        }
+      }
+      if (e.outputCommands) {
+        println(e.cmds.elements.mkString(" "))
+      }
       val (stdout, stderr) =
         if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
         else (_root_.os.Pipe: _root_.os.ProcessOutput, _root_.os.Pipe: _root_.os.ProcessOutput)
