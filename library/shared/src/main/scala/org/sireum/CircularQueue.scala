@@ -184,7 +184,11 @@ object CircularQueue {
 
     def enqueue(element: E): Unit = {
       if (isFull) {
-        queue((rear - 1) % queue.size) = element
+        var idx = rear - 1
+        if (idx < 0) {
+          idx = idx + queue.size
+        }
+        queue(idx % queue.size) = element
       } else {
         queue(rear) = element
         rear = (rear + 1) % queue.size

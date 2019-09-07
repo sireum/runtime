@@ -279,7 +279,6 @@ class CircularQueueTest extends TestSuite {
         assert(r1 == x1)
       }
 
-
       * - {
         val cq3 = create
 
@@ -429,6 +428,47 @@ class CircularQueueTest extends TestSuite {
 
         val r3: Z = cq3.dequeue()
         assert(r3 == x6 && cq3.elements == MSZ())
+      }
+
+      * - {
+        val cq3 = create
+
+        val x1: Z = Z.random
+        val x2: Z = Z.random
+        val x3: Z = Z.random
+        val x4: Z = Z.random
+        val x5: Z = Z.random
+        val x6: Z = Z.random
+
+        cq3.enqueue(x1)
+        assert(cq3.elements == MSZ(x1))
+
+        val r1 = cq3.dequeue()
+        assert(cq3.elements == MSZ() && r1 == x1)
+
+        cq3.enqueue(x2)
+        assert(cq3.elements == MSZ(x2))
+
+        cq3.enqueue(x3)
+        assert(cq3.elements == MSZ(x2, x3))
+
+        cq3.enqueue(x4)
+        assert(cq3.elements == MSZ(x2, x3, x4))
+
+        cq3.enqueue(x5)
+        assert(cq3.elements == MSZ(x2, x3, x5))
+
+        cq3.enqueue(x6)
+        assert(cq3.elements == MSZ(x2, x3, x6))
+
+        val r2 = cq3.dequeue()
+        assert(cq3.elements == MSZ(x3, x6) && r2 == x2)
+
+        val r3 = cq3.dequeue()
+        assert(cq3.elements == MSZ(x6) && r3 == x3)
+
+        val r4 = cq3.dequeue()
+        assert(cq3.elements == MSZ() && r4 == x6)
       }
 
     }
