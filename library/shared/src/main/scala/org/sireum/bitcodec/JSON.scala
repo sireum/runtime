@@ -45,14 +45,14 @@ object JSON {
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
-        case o: Spec.Repeat[_] => return printSpecRepeat(o)
-        case o: Spec.Raw[_] => return printSpecRaw(o)
+        case o: Spec.RepeatImpl[_] => return printSpecRepeat(o)
+        case o: Spec.RawImpl[_] => return printSpecRaw(o)
         case o: Spec.PredUnion => return printSpecPredUnion(o)
-        case o: Spec.PredRepeatWhile => return printSpecPredRepeatWhile(o)
-        case o: Spec.PredRepeatUntil => return printSpecPredRepeatUntil(o)
+        case o: Spec.PredRepeatWhileImpl => return printSpecPredRepeatWhile(o)
+        case o: Spec.PredRepeatUntilImpl => return printSpecPredRepeatUntil(o)
         case o: Spec.GenUnion => return printSpecGenUnion(o)
-        case o: Spec.GenRepeat => return printSpecGenRepeat(o)
-        case o: Spec.GenRaw => return printSpecGenRaw(o)
+        case o: Spec.GenRepeatImpl => return printSpecGenRepeat(o)
+        case o: Spec.GenRawImpl => return printSpecGenRaw(o)
         case o: Spec.Pads => return printSpecPads(o)
       }
     }
@@ -146,20 +146,22 @@ object JSON {
       ))
     }
 
-    @pure def printSpecRepeat(o: Spec.Repeat[_]): ST = {
+    @pure def printSpecRepeat(o: Spec.RepeatImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Repeat""""),
         ("name", printString(o.name)),
+        ("maxElements", printZ(o.maxElements)),
         ("dependsOn", printISZ(T, o.dependsOn, printString _)),
         ("size", printString("")),
         ("element", printSpec(o.element))
       ))
     }
 
-    @pure def printSpecRaw(o: Spec.Raw[_]): ST = {
+    @pure def printSpecRaw(o: Spec.RawImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Raw""""),
         ("name", printString(o.name)),
+        ("maxSize", printZ(o.maxSize)),
         ("dependsOn", printISZ(T, o.dependsOn, printString _)),
         ("size", printString(""))
       ))
@@ -173,19 +175,21 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredRepeatWhile(o: Spec.PredRepeatWhile): ST = {
+    @pure def printSpecPredRepeatWhile(o: Spec.PredRepeatWhileImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatWhile""""),
         ("name", printString(o.name)),
+        ("maxElements", printZ(o.maxElements)),
         ("preds", printISZ(F, o.preds, printSpecPred _)),
         ("element", printSpecBase(o.element))
       ))
     }
 
-    @pure def printSpecPredRepeatUntil(o: Spec.PredRepeatUntil): ST = {
+    @pure def printSpecPredRepeatUntil(o: Spec.PredRepeatUntilImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatUntil""""),
         ("name", printString(o.name)),
+        ("maxElements", printZ(o.maxElements)),
         ("preds", printISZ(F, o.preds, printSpecPred _)),
         ("element", printSpecBase(o.element))
       ))
@@ -199,18 +203,20 @@ object JSON {
       ))
     }
 
-    @pure def printSpecGenRepeat(o: Spec.GenRepeat): ST = {
+    @pure def printSpecGenRepeat(o: Spec.GenRepeatImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenRepeat""""),
         ("name", printString(o.name)),
+        ("maxElements", printZ(o.maxElements)),
         ("element", printSpec(o.element))
       ))
     }
 
-    @pure def printSpecGenRaw(o: Spec.GenRaw): ST = {
+    @pure def printSpecGenRaw(o: Spec.GenRawImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenRaw""""),
-        ("name", printString(o.name))
+        ("name", printString(o.name)),
+        ("maxSize", printZ(o.maxSize)),
       ))
     }
 
@@ -534,17 +540,20 @@ object JSON {
       return Spec.Union[Any](name, dependsOn, _ => ???, subs)
     }
 
-    def parseSpecRepeat(): Spec.Repeat[_] = {
+    def parseSpecRepeat(): Spec.RepeatImpl[_] = {
       val r = parseSpecRepeatT(F)
       return r
     }
 
-    def parseSpecRepeatT(typeParsed: B): Spec.Repeat[_] = {
+    def parseSpecRepeatT(typeParsed: B): Spec.RepeatImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Repeat")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("maxElements")
+      val maxElements = parser.parseZ()
       parser.parseObjectNext()
       parser.parseObjectKey("dependsOn")
       val dependsOn = parser.parseISZ(parser.parseString _)
@@ -555,20 +564,23 @@ object JSON {
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.Repeat[Any](name, dependsOn, _ => ???, element)
+      return Spec.RepeatImpl[Any](name, maxElements, dependsOn, _ => ???, element)
     }
 
-    def parseSpecRaw(): Spec.Raw[_] = {
+    def parseSpecRaw(): Spec.RawImpl[_] = {
       val r = parseSpecRawT(F)
       return r
     }
 
-    def parseSpecRawT(typeParsed: B): Spec.Raw[_] = {
+    def parseSpecRawT(typeParsed: B): Spec.RawImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Raw")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("maxSize")
+      val maxSize = parser.parseZ()
       parser.parseObjectNext()
       parser.parseObjectKey("dependsOn")
       val dependsOn = parser.parseISZ(parser.parseString _)
@@ -576,7 +588,7 @@ object JSON {
       parser.parseObjectKey("size")
       parser.parseString()
       parser.parseObjectNext()
-      return Spec.Raw[Any](name, dependsOn, _ => ???)
+      return Spec.RawImpl[Any](name, maxSize, dependsOn, _ => ???)
     }
 
     def parseSpecPredUnion(): Spec.PredUnion = {
@@ -597,48 +609,53 @@ object JSON {
       return Spec.PredUnion(name, subs)
     }
 
-    def parseSpecPredRepeatWhile(): Spec.PredRepeatWhile = {
+    def parseSpecPredRepeatWhile(): Spec.PredRepeatWhileImpl = {
       val r = parseSpecPredRepeatWhileT(F)
       return r
     }
 
-    def parseSpecPredRepeatWhileT(typeParsed: B): Spec.PredRepeatWhile = {
+    def parseSpecPredRepeatWhileT(typeParsed: B): Spec.PredRepeatWhileImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredRepeatWhile")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("maxElements")
+      val maxElements = parser.parseZ()
+      parser.parseObjectNext()
       parser.parseObjectKey("preds")
       val preds = parser.parseISZ(parseSpecPred _)
       parser.parseObjectNext()
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.PredRepeatWhile(name, preds, element)
+      return Spec.PredRepeatWhileImpl(name, maxElements, preds, element)
     }
 
-    def parseSpecPredRepeatUntil(): Spec.PredRepeatUntil = {
+    def parseSpecPredRepeatUntil(): Spec.PredRepeatUntilImpl = {
       val r = parseSpecPredRepeatUntilT(F)
       return r
     }
 
-    def parseSpecPredRepeatUntilT(typeParsed: B): Spec.PredRepeatUntil = {
+    def parseSpecPredRepeatUntilT(typeParsed: B): Spec.PredRepeatUntilImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredRepeatUntil")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("maxElements")
+      val maxElements = parser.parseZ()
+      parser.parseObjectNext()
       parser.parseObjectKey("preds")
       val preds = parser.parseISZ(parseSpecPred _)
       parser.parseObjectNext()
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.PredRepeatUntil(name, preds, element)
+      return Spec.PredRepeatUntilImpl(name, maxElements, preds, element)
     }
-
 
     def parseSpecGenUnion(): Spec.GenUnion = {
       val r = parseSpecGenUnionT(F)
@@ -658,37 +675,43 @@ object JSON {
       return Spec.GenUnion(name, subs)
     }
 
-    def parseSpecGenRepeat(): Spec.GenRepeat = {
+    def parseSpecGenRepeat(): Spec.GenRepeatImpl = {
       val r = parseSpecGenRepeatT(F)
       return r
     }
 
-    def parseSpecGenRepeatT(typeParsed: B): Spec.GenRepeat = {
+    def parseSpecGenRepeatT(typeParsed: B): Spec.GenRepeatImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenRepeat")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("maxElements")
+      val maxElements = parser.parseZ()
+      parser.parseObjectNext()
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.GenRepeat(name, element)
+      return Spec.GenRepeatImpl(name, maxElements, element)
     }
 
-    def parseSpecGenRaw(): Spec.GenRaw = {
+    def parseSpecGenRaw(): Spec.GenRawImpl = {
       val r = parseSpecGenRawT(F)
       return r
     }
 
-    def parseSpecGenRawT(typeParsed: B): Spec.GenRaw = {
+    def parseSpecGenRawT(typeParsed: B): Spec.GenRawImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenRaw")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      return Spec.GenRaw(name)
+      parser.parseObjectKey("maxSize")
+      val maxSize = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.GenRawImpl(name, maxSize)
     }
 
     def parseSpecPads(): Spec.Pads = {

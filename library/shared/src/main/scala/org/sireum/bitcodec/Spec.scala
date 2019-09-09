@@ -29,11 +29,19 @@ import org.sireum._
 
 
 @datatype trait Spec {
+
   def name: String
+
+  def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z]
+
+  @memoize def maxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+    return computeMaxSizeOpt(enumMaxSize)
+  }
 
   def toJSON(isCompact: B): String = {
     return Spec.Ext.toJSON(this, isCompact)
   }
+
 }
 
 object Spec {
@@ -42,67 +50,248 @@ object Spec {
 
   @datatype trait Composite extends Base
 
-  @datatype class Boolean(val name: String) extends Base
+  @datatype class Boolean(val name: String) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(1)
+    }
+  }
 
-  @datatype class Bits(val name: String, size: Z) extends Base
+  @datatype class Bits(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size)
+    }
+  }
 
-  @datatype class Bytes(val name: String, size: Z) extends Base
+  @datatype class Bytes(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size * 8)
+    }
+  }
 
-  @datatype class Shorts(val name: String, size: Z) extends Base
+  @datatype class Shorts(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size * 16)
+    }
+  }
 
-  @datatype class Ints(val name: String, size: Z) extends Base
+  @datatype class Ints(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size * 32)
+    }
+  }
 
-  @datatype class Longs(val name: String, size: Z) extends Base
+  @datatype class Longs(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(64)
+    }
+  }
 
-  @datatype class Enum(val name: String, objectName: String) extends Base
+  @datatype class Enum(val name: String, objectName: String) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(enumMaxSize(objectName))
+    }
+  }
 
-  @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Composite
+  @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Composite {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      var r: Z = 0
+      for (e <- elements) {
+        e.computeMaxSizeOpt(enumMaxSize) match {
+          case Some(maxSize) => r = r + maxSize
+          case _ => return None()
+        }
+      }
+      return Some(r)
+    }
+  }
 
   @datatype trait Poly {
     def polyDesc: Spec.PolyDesc
   }
 
-  @datatype class PolyDesc(compName: String, name: String, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]])
+  @datatype class PolyDesc(compName: String, name: String, max: Z, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]])
 
   @datatype class Union[T](val name: String,
                            dependsOn: ISZ[String],
                            @hidden choice: T => Z@pure,
                            subs: ISZ[Spec]) extends Composite with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Union", name, dependsOn, Some(subs))
+    val polyDesc: Spec.PolyDesc = PolyDesc("Union", name, -1, dependsOn, Some(subs))
+
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      var max: Z = 0
+      for (sub <- subs) {
+        sub.computeMaxSizeOpt(enumMaxSize) match {
+          case Some(subMaxSize) =>
+            if (subMaxSize > max) {
+              max = subMaxSize
+            }
+          case _ => return None()
+        }
+      }
+      return Some(max)
+    }
   }
 
-  @datatype class Repeat[T](val name: String,
-                            dependsOn: ISZ[String],
-                            @hidden size: T => Z@pure,
-                            element: Base) extends Spec with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, dependsOn, Some(ISZ(element)))
+  @datatype class RepeatImpl[T](val name: String,
+                                maxElements: Z,
+                                dependsOn: ISZ[String],
+                                @hidden size: T => Z@pure,
+                                element: Base) extends Spec with Poly {
+    val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, maxElements, dependsOn, Some(ISZ(element)))
+
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      element.computeMaxSizeOpt(enumMaxSize) match {
+        case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
+        case _ => return None()
+      }
+    }
   }
 
-  @datatype class Raw[T](val name: String,
-                         dependsOn: ISZ[String],
-                         @hidden size: T => Z@pure) extends Spec with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, dependsOn, None())
+  @pure def Repeat[T](name: String, dependsOn: ISZ[String], size: T => Z@pure, element: Base): RepeatImpl[T] = {
+    return RepeatImpl(name, -1, dependsOn, size, element)
   }
 
-  @datatype class PredUnion(val name: String, subs: ISZ[PredSpec]) extends Composite
+  @pure def BoundedRepeat[T](name: String, maxElements: Z, dependsOn: ISZ[String], size: T => Z@pure, element: Base): RepeatImpl[T] = {
+    assert(maxElements >= 0, s"BoundedRepeat '$name' maxElements must be non-negative")
+    return RepeatImpl(name, maxElements, dependsOn, size, element)
+  }
 
-  @datatype class PredRepeatWhile(val name: String, preds: ISZ[Pred], element: Base) extends Spec
+  @datatype class RawImpl[T](val name: String,
+                             maxSize: Z,
+                             dependsOn: ISZ[String],
+                             @hidden size: T => Z@pure) extends Spec with Poly {
+    val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, maxSize, dependsOn, None())
 
-  @datatype class PredRepeatUntil(val name: String, preds: ISZ[Pred], element: Base) extends Spec
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return if (maxSize >= 0) Some(maxSize) else None()
+    }
+  }
 
-  @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite
+  @pure def Raw[T](name: String, dependsOn: ISZ[String], size: T => Z@pure): RawImpl[T] = {
+    return RawImpl[T](name, -1, dependsOn, size)
+  }
 
-  @datatype class GenRepeat(val name: String, element: Base) extends Spec
+  @pure def BoundedRaw[T](name: String, maxSize: Z, dependsOn: ISZ[String], size: T => Z@pure): RawImpl[T] = {
+    assert(maxSize >= 0, s"BoundedRaw '$name' maxSize must be non-negative")
+    return RawImpl[T](name, maxSize, dependsOn, size)
+  }
 
-  @datatype class GenRaw(val name: String) extends Spec
+  @datatype class PredUnion(val name: String, subs: ISZ[PredSpec]) extends Composite {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      var max: Z = 0
+      for (sub <- subs) {
+        sub.maxSizeOpt(enumMaxSize) match {
+          case Some(subMaxSize) =>
+            if (subMaxSize > max) {
+              max = subMaxSize
+            }
+          case _ => return None()
+        }
+      }
+      return Some(max)
+    }
+  }
+
+  @datatype class PredRepeatWhileImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      element.computeMaxSizeOpt(enumMaxSize) match {
+        case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
+        case _ => return None()
+      }
+    }
+  }
+
+  @pure def PredRepeatWhile(name: String, preds: ISZ[Pred], element: Base): PredRepeatWhileImpl = {
+    return PredRepeatWhileImpl(name, -1, preds, element)
+  }
+
+  @pure def BoundedPredRepeatWhile(name: String, maxElements: Z, preds: ISZ[Pred], element: Base): PredRepeatWhileImpl = {
+    assert(maxElements >= 0, s"BoundedPredRepeatWhile '$name' maxElements must be non-negative")
+    return PredRepeatWhileImpl(name, maxElements, preds, element)
+  }
+
+  @datatype class PredRepeatUntilImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      element.computeMaxSizeOpt(enumMaxSize) match {
+        case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
+        case _ => return None()
+      }
+    }
+  }
+
+  @pure def PredRepeatUntil(name: String, preds: ISZ[Pred], element: Base): PredRepeatUntilImpl = {
+    return PredRepeatUntilImpl(name, -1, preds, element)
+  }
+
+  @pure def BoundedPredRepeatUntil(name: String, maxElements: Z, preds: ISZ[Pred], element: Base): PredRepeatUntilImpl = {
+    assert(maxElements >= 0, s"BoundedPredRepeatWhile '$name' maxElements must be non-negative")
+    return PredRepeatUntilImpl(name, maxElements, preds, element)
+  }
+
+  @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      var max: Z = 0
+      for (sub <- subs) {
+        sub.computeMaxSizeOpt(enumMaxSize) match {
+          case Some(subMaxSize) =>
+            if (subMaxSize > max) {
+              max = subMaxSize
+            }
+          case _ => return None()
+        }
+      }
+      return Some(max)
+    }
+  }
+
+  @datatype class GenRepeatImpl(val name: String, maxElements: Z, element: Base) extends Spec {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      element.computeMaxSizeOpt(enumMaxSize) match {
+        case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
+        case _ => return None()
+      }
+    }
+  }
+
+  @pure def GenRepeat(name: String, element: Base): GenRepeatImpl = {
+    return GenRepeatImpl(name, -1, element)
+  }
+
+  @pure def BoundedGenRepeat(name: String, maxElements: Z, element: Base): GenRepeatImpl = {
+    assert(maxElements >= 0, s"BoundedGenRepeat '$name' maxElements must be non-negative")
+    return GenRepeatImpl(name, maxElements, element)
+  }
+
+  @datatype class GenRawImpl(val name: String, maxSize: Z) extends Spec {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return if (maxSize >= 0) Some(maxSize) else None()
+    }
+  }
+
+  @pure def GenRaw(name: String): GenRawImpl = {
+    return GenRawImpl(name, -1)
+  }
+
+  @pure def BoundedGenRaw(name: String, maxSize: Z): GenRawImpl = {
+    assert(maxSize >= 0, s"BoundedGenRaw '$name' maxSize must be non-negative")
+    return GenRawImpl(name, maxSize)
+  }
 
   @datatype class Pads(size: Z) extends Spec {
     def name: String = {
       return ""
     }
+
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size)
+    }
   }
 
-  @datatype class PredSpec(preds: ISZ[Pred], spec: Spec)
+  @datatype class PredSpec(preds: ISZ[Pred], spec: Spec) {
+    def maxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return spec.computeMaxSizeOpt(enumMaxSize)
+    }
+  }
 
   @datatype trait Pred
 
