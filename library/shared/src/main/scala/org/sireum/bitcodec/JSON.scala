@@ -38,10 +38,10 @@ object JSON {
       o match {
         case o: Spec.Boolean => return printSpecBoolean(o)
         case o: Spec.Bits => return printSpecBits(o)
-        case o: Spec.Bytes => return printSpecBytes(o)
-        case o: Spec.Shorts => return printSpecShorts(o)
-        case o: Spec.Ints => return printSpecInts(o)
-        case o: Spec.Longs => return printSpecLongs(o)
+        case o: Spec.BytesImpl => return printSpecBytes(o)
+        case o: Spec.ShortsImpl => return printSpecShorts(o)
+        case o: Spec.IntsImpl => return printSpecInts(o)
+        case o: Spec.LongsImpl => return printSpecLongs(o)
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
@@ -61,10 +61,10 @@ object JSON {
       o match {
         case o: Spec.Boolean => return printSpecBoolean(o)
         case o: Spec.Bits => return printSpecBits(o)
-        case o: Spec.Bytes => return printSpecBytes(o)
-        case o: Spec.Shorts => return printSpecShorts(o)
-        case o: Spec.Ints => return printSpecInts(o)
-        case o: Spec.Longs => return printSpecLongs(o)
+        case o: Spec.BytesImpl => return printSpecBytes(o)
+        case o: Spec.ShortsImpl => return printSpecShorts(o)
+        case o: Spec.IntsImpl => return printSpecInts(o)
+        case o: Spec.LongsImpl => return printSpecLongs(o)
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
@@ -88,35 +88,39 @@ object JSON {
       ))
     }
 
-    @pure def printSpecBytes(o: Spec.Bytes): ST = {
+    @pure def printSpecBytes(o: Spec.BytesImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Bytes""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("signed", printB(o.signed))
       ))
     }
 
-    @pure def printSpecShorts(o: Spec.Shorts): ST = {
+    @pure def printSpecShorts(o: Spec.ShortsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Shorts""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("signed", printB(o.signed))
       ))
     }
 
-    @pure def printSpecInts(o: Spec.Ints): ST = {
+    @pure def printSpecInts(o: Spec.IntsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Ints""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("signed", printB(o.signed))
       ))
     }
 
-    @pure def printSpecLongs(o: Spec.Longs): ST = {
+    @pure def printSpecLongs(o: Spec.LongsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Longs""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("signed", printB(o.signed))
       ))
     }
 
@@ -408,12 +412,12 @@ object JSON {
       return Spec.Bits(name, size)
     }
 
-    def parseSpecBytes(): Spec.Bytes = {
+    def parseSpecBytes(): Spec.BytesImpl = {
       val r = parseSpecBytesT(F)
       return r
     }
 
-    def parseSpecBytesT(typeParsed: B): Spec.Bytes = {
+    def parseSpecBytesT(typeParsed: B): Spec.BytesImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Bytes")
       }
@@ -423,15 +427,18 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Bytes(name, size)
+      parser.parseObjectKey("signed")
+      val signed = parser.parseB()
+      parser.parseObjectNext()
+      return Spec.BytesImpl(name, size, signed)
     }
 
-    def parseSpecShorts(): Spec.Shorts = {
+    def parseSpecShorts(): Spec.ShortsImpl = {
       val r = parseSpecShortsT(F)
       return r
     }
 
-    def parseSpecShortsT(typeParsed: B): Spec.Shorts = {
+    def parseSpecShortsT(typeParsed: B): Spec.ShortsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Shorts")
       }
@@ -441,15 +448,18 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Shorts(name, size)
+      parser.parseObjectKey("signed")
+      val signed = parser.parseB()
+      parser.parseObjectNext()
+      return Spec.ShortsImpl(name, size, signed)
     }
 
-    def parseSpecInts(): Spec.Ints = {
+    def parseSpecInts(): Spec.IntsImpl = {
       val r = parseSpecIntsT(F)
       return r
     }
 
-    def parseSpecIntsT(typeParsed: B): Spec.Ints = {
+    def parseSpecIntsT(typeParsed: B): Spec.IntsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Ints")
       }
@@ -459,15 +469,18 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Ints(name, size)
+      parser.parseObjectKey("signed")
+      val signed = parser.parseB()
+      parser.parseObjectNext()
+      return Spec.IntsImpl(name, size, signed)
     }
 
-    def parseSpecLongs(): Spec.Longs = {
+    def parseSpecLongs(): Spec.LongsImpl = {
       val r = parseSpecLongsT(F)
       return r
     }
 
-    def parseSpecLongsT(typeParsed: B): Spec.Longs = {
+    def parseSpecLongsT(typeParsed: B): Spec.LongsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Longs")
       }
@@ -477,7 +490,10 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Longs(name, size)
+      parser.parseObjectKey("signed")
+      val signed = parser.parseB()
+      parser.parseObjectNext()
+      return Spec.LongsImpl(name, size, signed)
     }
 
     def parseSpecEnum(): Spec.Enum = {

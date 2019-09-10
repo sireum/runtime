@@ -199,6 +199,18 @@ object Bits {
         }
       }
 
+      def beS8S(input: ISZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
+        if (context.offset + size * 8 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS8(input, context)
+        }
+      }
+
       def beU16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -208,6 +220,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = beU16(input, context)
+        }
+      }
+
+      def beS16S(input: ISZ[B], context: Context, result: MSZ[S16], size: Z): Unit = {
+        if (context.offset + size * 16 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS16(input, context)
         }
       }
 
@@ -223,6 +247,18 @@ object Bits {
         }
       }
 
+      def beS32S(input: ISZ[B], context: Context, result: MSZ[S32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS32(input, context)
+        }
+      }
+
       def beU64S(input: ISZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -232,6 +268,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = beU64(input, context)
+        }
+      }
+
+      def beS64S(input: ISZ[B], context: Context, result: MSZ[S64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS64(input, context)
         }
       }
 
@@ -247,7 +295,19 @@ object Bits {
         }
       }
 
-      def le16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
+      def leS8S(input: ISZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
+        if (context.offset + size * 8 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS8(input, context)
+        }
+      }
+
+      def leU16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -259,7 +319,19 @@ object Bits {
         }
       }
 
-      def le32S(input: ISZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
+      def leS16S(input: ISZ[B], context: Context, result: MSZ[S16], size: Z): Unit = {
+        if (context.offset + size * 16 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS16(input, context)
+        }
+      }
+
+      def leU32S(input: ISZ[B], context: Context, result: MSZ[U32], size: Z): Unit = {
         if (context.offset + size * 32 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -271,7 +343,19 @@ object Bits {
         }
       }
 
-      def le64S(input: ISZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
+      def leS32S(input: ISZ[B], context: Context, result: MSZ[S32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS32(input, context)
+        }
+      }
+
+      def leU64S(input: ISZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -280,6 +364,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = leU64(input, context)
+        }
+      }
+
+      def leS64S(input: ISZ[B], context: Context, result: MSZ[S64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS64(input, context)
         }
       }
 
@@ -473,6 +569,10 @@ object Bits {
         return r
       }
 
+      def beS8(input: ISZ[B], context: Context): S8 = {
+        return conversions.U8.toS8(beU8(input, context))
+      }
+
       def beU9(input: ISZ[B], context: Context): U9 = {
         val offset = context.offset
         if (offset + 9 > input.size) {
@@ -655,6 +755,10 @@ object Bits {
         }
         context.offset = offset + 16
         return r
+      }
+
+      def beS16(input: ISZ[B], context: Context): S16 = {
+        return conversions.U16.toS16(beU16(input, context))
       }
 
       def beU17(input: ISZ[B], context: Context): U17 = {
@@ -1023,6 +1127,10 @@ object Bits {
         }
         context.offset = offset + 32
         return r
+      }
+
+      def beS32(input: ISZ[B], context: Context): S32 = {
+        return conversions.U32.toS32(beU32(input, context))
       }
 
       def beU33(input: ISZ[B], context: Context): U33 = {
@@ -1761,6 +1869,10 @@ object Bits {
         return r
       }
 
+      def beS64(input: ISZ[B], context: Context): S64 = {
+        return conversions.U64.toS64(beU64(input, context))
+      }
+
       // Slang script gen:
       // for (i <- 2 to 64) {
       //   val sizeM1 = i - 1
@@ -1951,6 +2063,10 @@ object Bits {
         return r
       }
 
+      def leS8(input: ISZ[B], context: Context): S8 = {
+        return conversions.U8.toS8(leU8(input, context))
+      }
+
       def leU9(input: ISZ[B], context: Context): U9 = {
         val offset = context.offset
         if (offset + 9 > input.size) {
@@ -2133,6 +2249,10 @@ object Bits {
         }
         context.offset = offset + 16
         return r
+      }
+
+      def leS16(input: ISZ[B], context: Context): S16 = {
+        return conversions.U16.toS16(leU16(input, context))
       }
 
       def leU17(input: ISZ[B], context: Context): U17 = {
@@ -2501,6 +2621,10 @@ object Bits {
         }
         context.offset = offset + 32
         return r
+      }
+
+      def leS32(input: ISZ[B], context: Context): S32 = {
+        return conversions.U32.toS32(leU32(input, context))
       }
 
       def leU33(input: ISZ[B], context: Context): U33 = {
@@ -3238,6 +3362,10 @@ object Bits {
         context.offset = offset + 64
         return r
       }
+
+      def leS64(input: ISZ[B], context: Context): S64 = {
+        return conversions.U64.toS64(leU64(input, context))
+      }
     }
 
     object MS {
@@ -3307,6 +3435,18 @@ object Bits {
         }
       }
 
+      def beS8S(input: MSZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
+        if (context.offset + size * 8 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS8(input, context)
+        }
+      }
+
       def beU16S(input: MSZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3316,6 +3456,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = beU16(input, context)
+        }
+      }
+
+      def beS16S(input: MSZ[B], context: Context, result: MSZ[S16], size: Z): Unit = {
+        if (context.offset + size * 16 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS16(input, context)
         }
       }
 
@@ -3331,6 +3483,18 @@ object Bits {
         }
       }
 
+      def beS32S(input: MSZ[B], context: Context, result: MSZ[S32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS32(input, context)
+        }
+      }
+
       def beU64S(input: MSZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3340,6 +3504,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = beU64(input, context)
+        }
+      }
+
+      def beS64S(input: MSZ[B], context: Context, result: MSZ[S64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beS64(input, context)
         }
       }
 
@@ -3355,6 +3531,18 @@ object Bits {
         }
       }
 
+      def leS8S(input: MSZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
+        if (context.offset + size * 8 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS8(input, context)
+        }
+      }
+
       def leU16S(input: MSZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
         if (context.offset + size * 16 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3364,6 +3552,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = leU16(input, context)
+        }
+      }
+
+      def leS16S(input: MSZ[B], context: Context, result: MSZ[S16], size: Z): Unit = {
+        if (context.offset + size * 16 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS16(input, context)
         }
       }
 
@@ -3379,6 +3579,18 @@ object Bits {
         }
       }
 
+      def leS32S(input: MSZ[B], context: Context, result: MSZ[S32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS32(input, context)
+        }
+      }
+
       def leU64S(input: MSZ[B], context: Context, result: MSZ[U64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3388,6 +3600,18 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = leU64(input, context)
+        }
+      }
+
+      def leS64S(input: MSZ[B], context: Context, result: MSZ[S64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leS64(input, context)
         }
       }
 
@@ -3581,6 +3805,10 @@ object Bits {
         return r
       }
 
+      def beS8(input: MSZ[B], context: Context): S8 = {
+        return conversions.U8.toS8(beU8(input, context))
+      }
+
       def beU9(input: MSZ[B], context: Context): U9 = {
         val offset = context.offset
         if (offset + 9 > input.size) {
@@ -3763,6 +3991,10 @@ object Bits {
         }
         context.offset = offset + 16
         return r
+      }
+
+      def beS16(input: MSZ[B], context: Context): S16 = {
+        return conversions.U16.toS16(beU16(input, context))
       }
 
       def beU17(input: MSZ[B], context: Context): U17 = {
@@ -4131,6 +4363,10 @@ object Bits {
         }
         context.offset = offset + 32
         return r
+      }
+
+      def beS32(input: MSZ[B], context: Context): S32 = {
+        return conversions.U32.toS32(beU32(input, context))
       }
 
       def beU33(input: MSZ[B], context: Context): U33 = {
@@ -4869,6 +5105,10 @@ object Bits {
         return r
       }
 
+      def beS64(input: MSZ[B], context: Context): S64 = {
+        return conversions.U64.toS64(beU64(input, context))
+      }
+
       // Slang script gen:
       // for (i <- 2 to 64) {
       //   val sizeM1 = i - 1
@@ -5059,6 +5299,10 @@ object Bits {
         return r
       }
 
+      def leS8(input: MSZ[B], context: Context): S8 = {
+        return conversions.U8.toS8(leU8(input, context))
+      }
+
       def leU9(input: MSZ[B], context: Context): U9 = {
         val offset = context.offset
         if (offset + 9 > input.size) {
@@ -5241,6 +5485,10 @@ object Bits {
         }
         context.offset = offset + 16
         return r
+      }
+
+      def leS16(input: MSZ[B], context: Context): S16 = {
+        return conversions.U16.toS16(leU16(input, context))
       }
 
       def leU17(input: MSZ[B], context: Context): U17 = {
@@ -5609,6 +5857,10 @@ object Bits {
         }
         context.offset = offset + 32
         return r
+      }
+
+      def leS32(input: MSZ[B], context: Context): S32 = {
+        return conversions.U32.toS32(leU32(input, context))
       }
 
       def leU33(input: MSZ[B], context: Context): U33 = {
@@ -6346,6 +6598,10 @@ object Bits {
         context.offset = offset + 64
         return r
       }
+
+      def leS64(input: MSZ[B], context: Context): S64 = {
+        return conversions.U64.toS64(leU64(input, context))
+      }
     }
   }
 
@@ -6429,6 +6685,20 @@ object Bits {
       }
     }
 
+    def beS8S(output: MSZ[B], context: Context, v: MSZ[S8]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 8 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beS8(output, context, v(i))
+      }
+    }
+
     def beU16S(output: MSZ[B], context: Context, v: MSZ[U16]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6457,6 +6727,20 @@ object Bits {
       }
     }
 
+    def beS32S(output: MSZ[B], context: Context, v: MSZ[S32]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 32 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beS32(output, context, v(i))
+      }
+    }
+
     def beU64S(output: MSZ[B], context: Context, v: MSZ[U64]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6468,6 +6752,20 @@ object Bits {
       }
       for (i <- 0 until size) {
         beU64(output, context, v(i))
+      }
+    }
+
+    def beS64S(output: MSZ[B], context: Context, v: MSZ[S64]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 64 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beS64(output, context, v(i))
       }
     }
 
@@ -6485,6 +6783,20 @@ object Bits {
       }
     }
 
+    def leS8S(output: MSZ[B], context: Context, v: MSZ[S8]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 8 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leS8(output, context, v(i))
+      }
+    }
+
     def leU16S(output: MSZ[B], context: Context, v: MSZ[U16]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6496,6 +6808,20 @@ object Bits {
       }
       for (i <- 0 until size) {
         leU16(output, context, v(i))
+      }
+    }
+
+    def leS16S(output: MSZ[B], context: Context, v: MSZ[S16]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 16 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leS16(output, context, v(i))
       }
     }
 
@@ -6513,6 +6839,20 @@ object Bits {
       }
     }
 
+    def leS32S(output: MSZ[B], context: Context, v: MSZ[S32]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 32 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leS32(output, context, v(i))
+      }
+    }
+
     def leU64S(output: MSZ[B], context: Context, v: MSZ[U64]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6524,6 +6864,20 @@ object Bits {
       }
       for (i <- 0 until size) {
         leU64(output, context, v(i))
+      }
+    }
+
+    def leS64S(output: MSZ[B], context: Context, v: MSZ[S64]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 64 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leS64(output, context, v(i))
       }
     }
 
@@ -6733,6 +7087,10 @@ object Bits {
       context.offset = offset + 8
     }
 
+    def beS8(output: MSZ[B], context: Context, v: S8): Unit = {
+      beU8(output, context, conversions.S8.toU8(v))
+    }
+
     def beU9(output: MSZ[B], context: Context, v: U9): Unit = {
       val offset = context.offset
       if (offset + 9 > output.size) {
@@ -6931,6 +7289,10 @@ object Bits {
         output(offset + 15) = F
       }
       context.offset = offset + 16
+    }
+
+    def beS16(output: MSZ[B], context: Context, v: S16): Unit = {
+      beU16(output, context, conversions.S16.toU16(v))
     }
 
     def beU17(output: MSZ[B], context: Context, v: U17): Unit = {
@@ -7331,6 +7693,10 @@ object Bits {
         output(offset + 31) = F
       }
       context.offset = offset + 32
+    }
+
+    def beS32(output: MSZ[B], context: Context, v: S32): Unit = {
+      beU32(output, context, conversions.S32.toU32(v))
     }
 
     def beU33(output: MSZ[B], context: Context, v: U33): Unit = {
@@ -8133,6 +8499,10 @@ object Bits {
       context.offset = offset + 64
     }
 
+    def beS64(output: MSZ[B], context: Context, v: S64): Unit = {
+      beU64(output, context, conversions.S64.toU64(v))
+    }
+
     // Slang script gen:
     // for (i <- 2 to 64) {
     //   val sizeM1 = i - 1
@@ -8339,6 +8709,10 @@ object Bits {
       context.offset = offset + 8
     }
 
+    def leS8(output: MSZ[B], context: Context, v: S8): Unit = {
+      leU8(output, context, conversions.S8.toU8(v))
+    }
+
     def leU9(output: MSZ[B], context: Context, v: U9): Unit = {
       val offset = context.offset
       if (offset + 9 > output.size) {
@@ -8537,6 +8911,10 @@ object Bits {
         output(offset + 15) = F
       }
       context.offset = offset + 16
+    }
+
+    def leS16(output: MSZ[B], context: Context, v: S16): Unit = {
+      leU16(output, context, conversions.S16.toU16(v))
     }
 
     def leU17(output: MSZ[B], context: Context, v: U17): Unit = {
@@ -8937,6 +9315,10 @@ object Bits {
         output(offset + 31) = F
       }
       context.offset = offset + 32
+    }
+
+    def leS32(output: MSZ[B], context: Context, v: S32): Unit = {
+      leU32(output, context, conversions.S32.toU32(v))
     }
 
     def leU33(output: MSZ[B], context: Context, v: U33): Unit = {
@@ -9737,6 +10119,10 @@ object Bits {
         output(offset + 63) = F
       }
       context.offset = offset + 64
+    }
+
+    def leS64(output: MSZ[B], context: Context, v: S64): Unit = {
+      leU64(output, context, conversions.S64.toU64(v))
     }
   }
 }

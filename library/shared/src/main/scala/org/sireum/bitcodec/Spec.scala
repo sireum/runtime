@@ -62,28 +62,60 @@ object Spec {
     }
   }
 
-  @datatype class Bytes(val name: String, size: Z) extends Base {
+  @datatype class BytesImpl(val name: String, size: Z, signed: B) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 8)
     }
   }
 
-  @datatype class Shorts(val name: String, size: Z) extends Base {
+  @pure def Bytes(name: String, size: Z): BytesImpl = {
+    return BytesImpl(name, size, T)
+  }
+
+  @pure def UBytes(name: String, size: Z): BytesImpl = {
+    return BytesImpl(name, size, F)
+  }
+
+  @datatype class ShortsImpl(val name: String, size: Z, signed: B) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 16)
     }
   }
 
-  @datatype class Ints(val name: String, size: Z) extends Base {
+  @pure def Shorts(name: String, size: Z): ShortsImpl = {
+    return ShortsImpl(name, size, T)
+  }
+
+  @pure def UShorts(name: String, size: Z): ShortsImpl = {
+    return ShortsImpl(name, size, F)
+  }
+
+  @datatype class IntsImpl(val name: String, size: Z, signed: B) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
   }
 
-  @datatype class Longs(val name: String, size: Z) extends Base {
+  @pure def Ints(name: String, size: Z): IntsImpl = {
+    return IntsImpl(name, size, T)
+  }
+
+  @pure def UInts(name: String, size: Z): IntsImpl = {
+    return IntsImpl(name, size, F)
+  }
+
+  @datatype class LongsImpl(val name: String, size: Z, signed: B) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(64)
     }
+  }
+
+  @pure def Longs(name: String, size: Z): LongsImpl = {
+    return LongsImpl(name, size, T)
+  }
+
+  @pure def ULongs(name: String, size: Z): LongsImpl = {
+    return LongsImpl(name, size, F)
   }
 
   @datatype class Enum(val name: String, objectName: String) extends Base {
