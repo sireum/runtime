@@ -6713,6 +6713,20 @@ object Bits {
       }
     }
 
+    def beS16S(output: MSZ[B], context: Context, v: MSZ[S16]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 16 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beS16(output, context, v(i))
+      }
+    }
+
     def beU32S(output: MSZ[B], context: Context, v: MSZ[U32]): Unit = {
       val size = v.size
       val offset = context.offset
