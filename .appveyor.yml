@@ -12,4 +12,4 @@ cache:
 
 build_script:
   - ps: bin\init.ps1
-  - cmd: bin\build.cmd jitpack test
+  - cmd: bin\build.cmd jitpack test test-js
