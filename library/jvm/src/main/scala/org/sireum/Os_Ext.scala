@@ -218,6 +218,17 @@ object Os_Ext {
     else JFiles.createDirectory(toNIO(path))
   }
 
+  def mklink(path: String, target: String): Unit = {
+    removeAll(path)
+    val f = toIO(path)
+    val fParent = f.getParent
+    if (Os.isWin) {
+      Os.proc(ISZ("cmd", "/c", s"""cd /d $fParent && dir && mklink ${f.getName} "${toNIO(relativize(fParent, target))}"""")).runCheck()
+    } else {
+      JFiles.createSymbolicLink(toNIO(path), toNIO(relativize(fParent, target)))
+    }
+  }
+
   def name(path: String): String = toIO(path).getName
 
   @pure def norm(path: String): String = toIO(path).getPath
@@ -241,7 +252,8 @@ object Os_Ext {
     }
   }
 
-  def relativize(path: String, other: String): String = toNIO(path).relativize(toNIO(other)).toString
+  def relativize(path: String, other: String): String =
+    toIO(path).getCanonicalFile.toPath.relativize(toIO(other).getCanonicalFile.toPath).toString
 
   def read(path: String): String = new Predef.String(JFiles.readAllBytes(toNIO(path)), SC.UTF_8)
 

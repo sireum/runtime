@@ -446,6 +446,10 @@ object Os {
       Ext.mkdir(value, T)
     }
 
+    def mklink(target: Path): Unit = {
+      Ext.mklink(value, target.value)
+    }
+
     @pure def name: String = {
       return Ext.name(value)
     }
@@ -715,6 +719,8 @@ object Os {
     def move(path: String, target: String, over: B): Unit = $
 
     def mkdir(path: String, all: B): Unit = $
+
+    def mklink(path: String, target: String): Unit = $
 
     @pure def name(path: String): String = $
 
