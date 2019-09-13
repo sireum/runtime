@@ -93,23 +93,27 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $
 
   def native: scala.Float = value
 
-  def <(other: F32): B = value < other.value
+  @inline def <(other: F32): B = value < other.value
 
-  def <=(other: F32): B = value <= other.value
+  @inline def <=(other: F32): B = value <= other.value
 
-  def >(other: F32): B = value > other.value
+  @inline def >(other: F32): B = value > other.value
 
-  def >=(other: F32): B = value >= other.value
+  @inline def >=(other: F32): B = value >= other.value
 
-  def +(other: F32): F32 = value + other.value
+  @inline def ===(other: F32): B = value == other.value
 
-  def -(other: F32): F32 = value - other.value
+  @inline def =!=(other: F32): B = value != other.value
 
-  def *(other: F32): F32 = value * other.value
+  @inline def +(other: F32): F32 = value + other.value
 
-  def /(other: F32): F32 = value / other.value
+  @inline def -(other: F32): F32 = value - other.value
 
-  def %(other: F32): F32 = value % other.value
+  @inline def *(other: F32): F32 = value * other.value
+
+  @inline def /(other: F32): F32 = value / other.value
+
+  @inline def %(other: F32): F32 = value % other.value
 
   def string: String = toString
 
@@ -175,23 +179,27 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with 
 
   def native: scala.Double = value
 
-  def <(other: F64): B = value < other.value
+  @inline def <(other: F64): B = value < other.value
 
-  def <=(other: F64): B = value <= other.value
+  @inline def <=(other: F64): B = value <= other.value
 
-  def >(other: F64): B = value > other.value
+  @inline def >(other: F64): B = value > other.value
 
-  def >=(other: F64): B = value >= other.value
+  @inline def >=(other: F64): B = value >= other.value
 
-  def +(other: F64): F64 = value + other.value
+  @inline def ===(other: F64): B = value == other.value
 
-  def -(other: F64): F64 = value - other.value
+  @inline def =!=(other: F64): B = value != other.value
 
-  def *(other: F64): F64 = value * other.value
+  @inline def +(other: F64): F64 = value + other.value
 
-  def /(other: F64): F64 = value / other.value
+  @inline def -(other: F64): F64 = value - other.value
 
-  def %(other: F64): F64 = value % other.value
+  @inline def *(other: F64): F64 = value * other.value
+
+  @inline def /(other: F64): F64 = value / other.value
+
+  @inline def %(other: F64): F64 = value % other.value
 
   def string: String = toString
 

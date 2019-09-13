@@ -275,6 +275,16 @@ package object logika {
   final def String(s: Predef.String): String = org.sireum.String(s)
 
 
+  final implicit class $Boolean2B(val value: scala.Boolean) extends AnyVal {
+
+    @inline def |^(other: B): B = value ^ other.value
+
+    @inline def ===(other: B): B = value == other.value
+
+    @inline def =!=(other: B): B = value != other.value
+
+  }
+
   final implicit class $Int2Z(val value: scala.Int) extends AnyVal {
 
     @inline def <(other: Z): B = Z(value) < other
@@ -284,6 +294,10 @@ package object logika {
     @inline def >(other: Z): B = Z(value) > other
 
     @inline def >=(other: Z): B = Z(value) >= other
+
+    @inline def ===(other: Z): B = Z(value) == other
+
+    @inline def =!=(other: Z): B = Z(value) != other
 
     @inline def +(other: Z): Z = Z(value) + other
 
@@ -309,6 +323,10 @@ package object logika {
     @inline def >(other: Z): B = Z(value) > other
 
     @inline def >=(other: Z): B = Z(value) >= other
+
+    @inline def ===(other: Z): B = Z(value) == other
+
+    @inline def =!=(other: Z): B = Z(value) != other
 
     @inline def +(other: Z): Z = Z(value) + other
 

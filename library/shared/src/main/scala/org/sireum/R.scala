@@ -79,6 +79,10 @@ final class R(val value: BigDecimal) extends AnyVal with Number with $internal.H
 
   @inline def >=(other: R): B = value.compare(other.value) >= 0
 
+  @inline def ===(other: R): B = value == other.value
+
+  @inline def =!=(other: R): B = value != other.value
+
   @inline def +(other: R): R = value + other.value
 
   @inline def -(other: R): R = value - other.value

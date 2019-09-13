@@ -156,6 +156,11 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def nonEmpty: B = length != Z.MP.zero
 
+  def isInBound(i: I): B = {
+    val iMP = i.asInstanceOf[ZLike[_]].toMP
+    0 <= iMP && iMP < length
+  }
+
   def :+(e: V): MS[I, V] =
     if (isEmpty) MS[I, V](e)(companion)
     else {

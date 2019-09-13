@@ -155,6 +155,10 @@ final class B(val value: Boolean) extends AnyVal with Immutable with $internal.H
 
   @inline def unary_~ : B = !value
 
+  @inline def ===(other: B): B = value == other.value
+
+  @inline def =!=(other: B): B = value != other.value
+
   @inline def string: String = toString
 
   @inline override def toString: Predef.String = value.toString

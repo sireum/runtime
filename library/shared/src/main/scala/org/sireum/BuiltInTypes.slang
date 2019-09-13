@@ -46,6 +46,10 @@ package org.sireum
 
   @pure def imply_:(other: B): B
 
+  @pure def =!=(other: B): B
+
+  @pure def ===(other: B): B
+
   @pure def &&(other: => B): B
 
   @pure def ||(other: => B): B
@@ -78,6 +82,10 @@ package org.sireum
   @pure def >(other: C): B
 
   @pure def >=(other: C): B
+
+  @pure def ===(other: C): B
+
+  @pure def =!=(other: C): B
 
   @pure def >>>(other: C): C
 
@@ -112,6 +120,10 @@ package org.sireum
   @pure def >(other: Z): B
 
   @pure def >=(other: Z): B
+
+  @pure def ===(other: Z): B
+
+  @pure def =!=(other: Z): B
 
   @pure def +(other: Z): Z
 
@@ -222,6 +234,10 @@ package org.sireum
 
   @pure def >=(other: R): B
 
+  @pure def ===(other: R): B
+
+  @pure def =!=(other: R): B
+
   @pure def +(other: R): R
 
   @pure def -(other: R): R
@@ -243,6 +259,10 @@ package org.sireum
 }
 
 @ext trait String {
+
+  @pure def ===(other: String): B
+
+  @pure def =!=(other: String): B
 
   @pure def hash: Z
 
@@ -283,6 +303,8 @@ package org.sireum
   @pure def isEmpty: B
 
   @pure def nonEmpty: B
+
+  @pure def isInBound(i: I): B
 
   @pure def :+(e: E): IS[I, E]
 
@@ -347,6 +369,8 @@ package org.sireum
   @pure def isEmpty: B
 
   @pure def nonEmpty: B
+
+  @pure def isInBound(i: I): B
 
   @pure def :+(e: E): MS[I, E]
 

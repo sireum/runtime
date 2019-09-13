@@ -122,6 +122,10 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def |^(other: B): B = value ^ other.value
 
+    @inline def ===(other: B): B = value == other.value
+
+    @inline def =!=(other: B): B = value != other.value
+
     @inline def imply_:(other: B): B = !other.value | value
 
     @inline def simply_:(other: => B): B = !other.value || value
@@ -160,6 +164,10 @@ package object sireum extends $internal.PackageTrait with contract {
     @inline def >(other: C): B = C(value) > other
 
     @inline def >=(other: C): B = C(value) >= other
+
+    @inline def ===(other: C): B = value == other.value
+
+    @inline def =!=(other: C): B = value != other.value
 
     @inline def >>>(other: C): C = C(value) >>> other
 
@@ -201,6 +209,10 @@ package object sireum extends $internal.PackageTrait with contract {
     @inline def >(other: Z): B = Z(value) > other
 
     @inline def >=(other: Z): B = Z(value) >= other
+
+    @inline def ===(other: Z): B = Z(value) == other
+
+    @inline def =!=(other: Z): B = Z(value) != other
 
     @inline def +(other: Z): Z = Z(value) + other
 
@@ -251,6 +263,10 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def >=(other: Z): B = Z(value) >= other
 
+    @inline def ===(other: Z): B = Z(value) == other
+
+    @inline def =!=(other: Z): B = Z(value) != other
+
     @inline def +(other: Z): Z = Z(value) + other
 
     @inline def -(other: Z): Z = Z(value) - other
@@ -292,23 +308,27 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def string: String = F32(value).string
 
-    @inline def <(other: F32): B = F32(value) < other
+    @inline def <(other: F32): B = value < other.value
 
-    @inline def <=(other: F32): B = F32(value) <= other
+    @inline def <=(other: F32): B = value <= other.value
 
-    @inline def >(other: F32): B = F32(value) > other
+    @inline def >(other: F32): B = value > other.value
 
-    @inline def >=(other: F32): B = F32(value) >= other
+    @inline def >=(other: F32): B = value >= other.value
 
-    @inline def +(other: F32): F32 = F32(value) + other
+    @inline def ===(other: F32): B = value == other.value
 
-    @inline def -(other: F32): F32 = F32(value) - other
+    @inline def =!=(other: F32): B = value != other.value
 
-    @inline def *(other: F32): F32 = F32(value) * other
+    @inline def +(other: F32): F32 = value + other.value
 
-    @inline def /(other: F32): F32 = F32(value) / other
+    @inline def -(other: F32): F32 = value - other.value
 
-    @inline def %(other: F32): F32 = F32(value) % other
+    @inline def *(other: F32): F32 = value * other.value
+
+    @inline def /(other: F32): F32 = value / other.value
+
+    @inline def %(other: F32): F32 = value % other.value
 
     @inline def ~>(o: scala.Boolean): (F32, B) = (F32(value), B(o))
 
@@ -333,13 +353,17 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def string: String = F64(value).string
 
-    @inline def <(other: F64): B = F64(value) < other
+    @inline def <(other: F64): B = value < other.value
 
-    @inline def <=(other: F64): B = F64(value) <= other
+    @inline def <=(other: F64): B = value <= other.value
 
-    @inline def >(other: F64): B = F64(value) > other
+    @inline def >(other: F64): B = value > other.value
 
-    @inline def >=(other: F64): B = F64(value) >= other
+    @inline def >=(other: F64): B = value >= other.value
+
+    @inline def ===(other: F64): B = value == other.value
+
+    @inline def =!=(other: F64): B = value != other.value
 
     @inline def +(other: F64): F64 = F64(value) + other
 
@@ -375,6 +399,10 @@ package object sireum extends $internal.PackageTrait with contract {
     @inline def string: String = String(value)
 
     @inline def size: Z = String(value).size
+
+    @inline def ===(other: String): B = value == other.value
+
+    @inline def =!=(other: String): B = value != other.value
 
     @inline def ~>(o: scala.Boolean): (String, B) = (String(value), B(o))
 

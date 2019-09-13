@@ -1313,6 +1313,10 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def >=(other: T): B
 
+  @inline def ===(other: Z): B = this == other
+
+  @inline def =!=(other: Z): B = this != other
+
   def +(other: T): T
 
   def -(other: T): T

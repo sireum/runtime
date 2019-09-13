@@ -94,6 +94,10 @@ final class C(val value: scala.Int) extends AnyVal with Immutable with $internal
 
   @inline def >=(other: C): B = value >= other.value
 
+  @inline def ===(other: C): B = value == other.value
+
+  @inline def =!=(other: C): B = value != other.value
+
   @inline def >>>(other: C): C = C(value >>> other.value)
 
   @inline def >>(other: C): C = C(value >>> other.value)
