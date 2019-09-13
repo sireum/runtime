@@ -31,6 +31,8 @@ import ContractUtil._
 
   @spec var rep: MSZ[E] = $
 
+  @spec def repInv = Invariant(rep.size <= max)
+
   @pure def max: Z
 
   @pure def default: E
@@ -82,7 +84,8 @@ import ContractUtil._
     Modifies(rep),
     Ensures(
       rep.size == In(rep).size - 1,
-      All(1 until In(rep).size)(i => rep(i - 1) == In(rep)(i))
+      All(1 until In(rep).size)(i => rep(i - 1) == In(rep)(i)),
+      Res == In(rep)(0)
     )
   )
 
