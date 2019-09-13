@@ -75,6 +75,8 @@ trait contract {
 
     def apply(arg0: String): Unit = macro Macro.lUnit1
 
+    def apply(arg0: DataRefinement): Unit = macro Macro.lUnit1
+
     def Havoc(arg0: Any, arg1: Any*): Unit = macro Macro.lUnit1S
 
     object Only {
@@ -153,6 +155,8 @@ trait contract {
 
     trait Invariant
 
+    trait DataRefinement
+
     trait Lemma
 
     trait Theorem
@@ -198,6 +202,8 @@ trait contract {
   def Invariant(claims: B*): Contract.Invariant = ???
 
   def Invariant(desc: String, claims: B*): Contract.Invariant = ???
+
+  def DataRefinement(rep: Any)(refs: Any*)(claims: B*): Contract.DataRefinement = ???
 
   def Case(requires: Contract.Requires): Contract.Case = ???
 
