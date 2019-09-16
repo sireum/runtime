@@ -123,8 +123,7 @@ object CircularQueue {
     res.max == max &
       res.default == default &
       res.scrub == scrub &
-      res.policy == policy &
-      res.size == 0
+      res.policy == policy
 
   object NoDrop {
 
