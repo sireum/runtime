@@ -6608,8 +6608,8 @@ object Bits {
   object Writer {
     val INSUFFICIENT_BUFFER_SIZE: Z = 1
 
-    def resultIS(output: MSZ[B], context: Context): ISZ[B] = {
-      return ops.ISZOps(output.toIS).slice(0, context.offset)
+    def resultIS(output: ISZ[B], context: Context): ISZ[B] = {
+      return ops.ISZOps(output).slice(0, context.offset)
     }
 
     def resultMS(output: MSZ[B], context: Context): MSZ[B] = {
