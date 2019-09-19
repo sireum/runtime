@@ -34,7 +34,7 @@ object Runtime {
 
     def wellFormed: Z
 
-    def decode(input: MSZ[B], context: Context): Unit
+    def decode(input: ISZ[B], context: Context): Unit
 
     def encode(output: MSZ[B], context: Context): Unit
 
