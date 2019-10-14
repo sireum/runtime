@@ -95,6 +95,11 @@ object Map {
     return if (index < 0) default else entries(index)._2
   }
 
+  @pure def getOrElseEager(key: K, default: T): T = {
+    val index = indexOf(key)
+    return if (index < 0) default else entries(index)._2
+  }
+
   @pure def entry(key: K): Option[(K, T)] = {
     val index = indexOf(key)
     return if (index < 0) None[(K, T)]() else Some(entries(index))
