@@ -32,6 +32,6 @@ trait SireumRcSpec extends SireumSpec {
 
   for (r <- textResources.toSeq.map(p => (p._1.mkString("/"), p._1, p._2)).
     sortWith((p1, p2) => p1._1.compareTo(p2._1) < 0)) {
-    registerTest(s"${r._1}", ts: _*)(assert(check(r._2, r._3)))
+    registerTest(s"${r._1}", ts: _*)(assert(check(r._2, r._3), s"[${r._1}]"))
   }
 }
