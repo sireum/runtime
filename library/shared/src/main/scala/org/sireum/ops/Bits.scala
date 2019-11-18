@@ -283,6 +283,30 @@ object Bits {
         }
       }
 
+      def beF32S(input: ISZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beF32(input, context)
+        }
+      }
+
+      def beF64S(input: ISZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beF64(input, context)
+        }
+      }
+
       def leU8S(input: ISZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
         if (context.offset + size * 8 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -376,6 +400,30 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = leS64(input, context)
+        }
+      }
+
+      def leF32S(input: ISZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leF32(input, context)
+        }
+      }
+
+      def leF64S(input: ISZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leF64(input, context)
         }
       }
 
@@ -1873,6 +1921,14 @@ object Bits {
         return conversions.U64.toS64(beU64(input, context))
       }
 
+      def beF32(input: ISZ[B], context: Context): F32 = {
+        return conversions.U32.toRawF32(beU32(input, context))
+      }
+
+      def beF64(input: ISZ[B], context: Context): F64 = {
+        return conversions.U64.toRawF64(beU64(input, context))
+      }
+
       // Slang script gen:
       // for (i <- 2 to 64) {
       //   val sizeM1 = i - 1
@@ -3366,6 +3422,14 @@ object Bits {
       def leS64(input: ISZ[B], context: Context): S64 = {
         return conversions.U64.toS64(leU64(input, context))
       }
+
+      def leF32(input: ISZ[B], context: Context): F32 = {
+        return conversions.U32.toRawF32(leU32(input, context))
+      }
+
+      def leF64(input: ISZ[B], context: Context): F64 = {
+        return conversions.U64.toRawF64(leU64(input, context))
+      }
     }
 
     object MS {
@@ -3519,6 +3583,30 @@ object Bits {
         }
       }
 
+      def beF32S(input: MSZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beF32(input, context)
+        }
+      }
+
+      def beF64S(input: MSZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = beF64(input, context)
+        }
+      }
+
       def leU8S(input: MSZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
         if (context.offset + size * 8 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3612,6 +3700,30 @@ object Bits {
         }
         for (i <- 0 until size) {
           result(i) = leS64(input, context)
+        }
+      }
+
+      def leSF32S(input: MSZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
+        if (context.offset + size * 32 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leF32(input, context)
+        }
+      }
+
+      def leSF64S(input: MSZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
+        if (context.offset + size * 64 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return
+        }
+        for (i <- 0 until size) {
+          result(i) = leF64(input, context)
         }
       }
 
@@ -5109,6 +5221,14 @@ object Bits {
         return conversions.U64.toS64(beU64(input, context))
       }
 
+      def beF32(input: MSZ[B], context: Context): F32 = {
+        return conversions.U32.toRawF32(beU32(input, context))
+      }
+
+      def beF64(input: MSZ[B], context: Context): F64 = {
+        return conversions.U64.toRawF64(beU64(input, context))
+      }
+
       // Slang script gen:
       // for (i <- 2 to 64) {
       //   val sizeM1 = i - 1
@@ -6602,6 +6722,14 @@ object Bits {
       def leS64(input: MSZ[B], context: Context): S64 = {
         return conversions.U64.toS64(leU64(input, context))
       }
+
+      def leF32(input: MSZ[B], context: Context): F32 = {
+        return conversions.U32.toRawF32(leU32(input, context))
+      }
+
+      def leF64(input: MSZ[B], context: Context): F64 = {
+        return conversions.U64.toRawF64(leU64(input, context))
+      }
     }
   }
 
@@ -6783,6 +6911,34 @@ object Bits {
       }
     }
 
+    def beF32S(output: MSZ[B], context: Context, v: MSZ[F32]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 32 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beF32(output, context, v(i))
+      }
+    }
+
+    def beF64S(output: MSZ[B], context: Context, v: MSZ[F64]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 64 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        beF64(output, context, v(i))
+      }
+    }
+
     def leU8S(output: MSZ[B], context: Context, v: MSZ[U8]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6892,6 +7048,34 @@ object Bits {
       }
       for (i <- 0 until size) {
         leS64(output, context, v(i))
+      }
+    }
+
+    def leF32S(output: MSZ[B], context: Context, v: MSZ[F32]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 32 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leF32(output, context, v(i))
+      }
+    }
+
+    def leF64S(output: MSZ[B], context: Context, v: MSZ[F64]): Unit = {
+      val size = v.size
+      val offset = context.offset
+      if (offset + size * 64 >= output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      for (i <- 0 until size) {
+        leF64(output, context, v(i))
       }
     }
 
@@ -8517,6 +8701,14 @@ object Bits {
       beU64(output, context, conversions.S64.toU64(v))
     }
 
+    def beF32(output: MSZ[B], context: Context, v: F32): Unit = {
+      beU32(output, context, conversions.F32.toRawU32(v))
+    }
+
+    def beF64(output: MSZ[B], context: Context, v: F64): Unit = {
+      beU64(output, context, conversions.F64.toRawU64(v))
+    }
+
     // Slang script gen:
     // for (i <- 2 to 64) {
     //   val sizeM1 = i - 1
@@ -10137,6 +10329,14 @@ object Bits {
 
     def leS64(output: MSZ[B], context: Context, v: S64): Unit = {
       leU64(output, context, conversions.S64.toU64(v))
+    }
+
+    def leF32(output: MSZ[B], context: Context, v: F32): Unit = {
+      leU32(output, context, conversions.F32.toRawU32(v))
+    }
+
+    def leF64(output: MSZ[B], context: Context, v: F64): Unit = {
+      leU64(output, context, conversions.F64.toRawU64(v))
     }
   }
 }
