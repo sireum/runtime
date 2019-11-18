@@ -373,7 +373,7 @@ object JSON {
     }
 
     def parseSpec(): Spec = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Floats", "Spec.Doubles", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -400,7 +400,7 @@ object JSON {
     }
 
     def parseSpecBase(): Spec.Base = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.PredUnion", "Spec.GenUnion"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Floats", "Spec.Doubles", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.PredUnion", "Spec.GenUnion"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
         case "Spec.Bits" => val r = parseSpecBitsT(T); return r
@@ -840,7 +840,7 @@ object JSON {
     }
 
     def parseSpecPred(): Spec.Pred = {
-      val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Skip", "Spec.Pred.Between", "Spec.Pred.Not", "Spec.Pred.Or"))
+      val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Floats", "Spec.Pred.Doubles", "Spec.Pred.Skip", "Spec.Pred.Between", "Spec.Pred.Not", "Spec.Pred.Or"))
       t.native match {
         case "Spec.Pred.Boolean" => val r = parseSpecPredBooleanT(T); return r
         case "Spec.Pred.Bits" => val r = parseSpecPredBitsT(T); return r
