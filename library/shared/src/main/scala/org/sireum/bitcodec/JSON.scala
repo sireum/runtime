@@ -42,6 +42,8 @@ object JSON {
         case o: Spec.ShortsImpl => return printSpecShorts(o)
         case o: Spec.IntsImpl => return printSpecInts(o)
         case o: Spec.LongsImpl => return printSpecLongs(o)
+        case o: Spec.FloatsImpl => return printSpecFloats(o)
+        case o: Spec.DoublesImpl => return printSpecDoubles(o)
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
@@ -65,6 +67,8 @@ object JSON {
         case o: Spec.ShortsImpl => return printSpecShorts(o)
         case o: Spec.IntsImpl => return printSpecInts(o)
         case o: Spec.LongsImpl => return printSpecLongs(o)
+        case o: Spec.FloatsImpl => return printSpecFloats(o)
+        case o: Spec.DoublesImpl => return printSpecDoubles(o)
         case o: Spec.Enum => return printSpecEnum(o)
         case o: Spec.Concat => return printSpecConcat(o)
         case o: Spec.Union[_] => return printSpecUnion(o)
@@ -121,6 +125,22 @@ object JSON {
         ("name", printString(o.name)),
         ("size", printZ(o.size)),
         ("signed", printB(o.signed))
+      ))
+    }
+
+    @pure def printSpecFloats(o: Spec.FloatsImpl): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Floats""""),
+        ("name", printString(o.name)),
+        ("size", printZ(o.size))
+      ))
+    }
+
+    @pure def printSpecDoubles(o: Spec.DoublesImpl): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Doubles""""),
+        ("name", printString(o.name)),
+        ("size", printZ(o.size))
       ))
     }
 
@@ -247,6 +267,8 @@ object JSON {
         case o: Spec.Pred.Shorts => printSpecPredShorts(o)
         case o: Spec.Pred.Ints => printSpecPredInts(o)
         case o: Spec.Pred.Longs => printSpecPredLongs(o)
+        case o: Spec.Pred.Floats => printSpecPredFloats(o)
+        case o: Spec.Pred.Doubles => printSpecPredDoubles(o)
         case o: Spec.Pred.Skip => printSpecPredSkip(o)
         case o: Spec.Pred.Between => printSpecPredBetween(o)
         case o: Spec.Pred.Not => printSpecPredNot(o)
@@ -294,6 +316,20 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Longs""""),
         ("value", printISZ(T, o.value, printZ _))
+      ))
+    }
+
+    @pure def printSpecPredFloats(o: Spec.Pred.Floats): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Floats""""),
+        ("value", printISZ(T, o.value, printF32 _))
+      ))
+    }
+
+    @pure def printSpecPredDoubles(o: Spec.Pred.Doubles): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spec.Pred.Doubles""""),
+        ("value", printISZ(T, o.value, printF64 _))
       ))
     }
 
@@ -345,6 +381,8 @@ object JSON {
         case "Spec.Shorts" => val r = parseSpecShortsT(T); return r
         case "Spec.Ints" => val r = parseSpecIntsT(T); return r
         case "Spec.Longs" => val r = parseSpecLongsT(T); return r
+        case "Spec.Floats" => val r = parseSpecFloatsT(T); return r
+        case "Spec.Doubles" => val r = parseSpecDoublesT(T); return r
         case "Spec.Enum" => val r = parseSpecEnumT(T); return r
         case "Spec.Concat" => val r = parseSpecConcatT(T); return r
         case "Spec.Union" => val r = parseSpecUnionT(T); return r
@@ -370,6 +408,8 @@ object JSON {
         case "Spec.Shorts" => val r = parseSpecShortsT(T); return r
         case "Spec.Ints" => val r = parseSpecIntsT(T); return r
         case "Spec.Longs" => val r = parseSpecLongsT(T); return r
+        case "Spec.Floats" => val r = parseSpecFloatsT(T); return r
+        case "Spec.Doubles" => val r = parseSpecDoublesT(T); return r
         case "Spec.Enum" => val r = parseSpecEnumT(T); return r
         case "Spec.Concat" => val r = parseSpecConcatT(T); return r
         case "Spec.Union" => val r = parseSpecUnionT(T); return r
@@ -494,6 +534,42 @@ object JSON {
       val signed = parser.parseB()
       parser.parseObjectNext()
       return Spec.LongsImpl(name, size, signed)
+    }
+
+    def parseSpecFloats(): Spec.FloatsImpl = {
+      val r = parseSpecFloatsT(F)
+      return r
+    }
+
+    def parseSpecFloatsT(typeParsed: B): Spec.FloatsImpl = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Floats")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.FloatsImpl(name, size)
+    }
+
+    def parseSpecDoubles(): Spec.DoublesImpl = {
+      val r = parseSpecDoublesT(F)
+      return r
+    }
+
+    def parseSpecDoublesT(typeParsed: B): Spec.DoublesImpl = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Doubles")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("size")
+      val size = parser.parseZ()
+      parser.parseObjectNext()
+      return Spec.DoublesImpl(name, size)
     }
 
     def parseSpecEnum(): Spec.Enum = {
@@ -772,6 +848,8 @@ object JSON {
         case "Spec.Pred.Shorts" => val r = parseSpecPredShortsT(T); return r
         case "Spec.Pred.Ints" => val r = parseSpecPredIntsT(T); return r
         case "Spec.Pred.Longs" => val r = parseSpecPredLongsT(T); return r
+        case "Spec.Pred.Floats" => val r = parseSpecPredFloatsT(T); return r
+        case "Spec.Pred.Doubles" => val r = parseSpecPredDoublesT(T); return r
         case "Spec.Pred.Skip" => val r = parseSpecPredSkipT(T); return r
         case "Spec.Pred.Between" => val r = parseSpecPredBetweenT(T); return r
         case "Spec.Pred.Not" => val r = parseSpecPredNotT(T); return r
@@ -871,6 +949,36 @@ object JSON {
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
       return Spec.Pred.Longs(value)
+    }
+
+    def parseSpecPredFloats(): Spec.Pred.Floats = {
+      val r = parseSpecPredFloatsT(F)
+      return r
+    }
+
+    def parseSpecPredFloatsT(typeParsed: B): Spec.Pred.Floats = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Floats")
+      }
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseF32 _)
+      parser.parseObjectNext()
+      return Spec.Pred.Floats(value)
+    }
+
+    def parseSpecPredDoubles(): Spec.Pred.Doubles = {
+      val r = parseSpecPredDoublesT(F)
+      return r
+    }
+
+    def parseSpecPredDoublesT(typeParsed: B): Spec.Pred.Doubles = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spec.Pred.Doubles")
+      }
+      parser.parseObjectKey("value")
+      val value = parser.parseISZ(parser.parseF64 _)
+      parser.parseObjectNext()
+      return Spec.Pred.Doubles(value)
     }
 
     def parseSpecPredSkip(): Spec.Pred.Skip = {

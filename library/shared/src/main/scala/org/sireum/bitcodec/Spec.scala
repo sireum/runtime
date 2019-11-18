@@ -68,6 +68,14 @@ object Spec {
     }
   }
 
+  @pure def Byte(name: String): BytesImpl = {
+    return BytesImpl(name, 1, T)
+  }
+
+  @pure def UByte(name: String): BytesImpl = {
+    return BytesImpl(name, 1, F)
+  }
+
   @pure def Bytes(name: String, size: Z): BytesImpl = {
     return BytesImpl(name, size, T)
   }
@@ -80,6 +88,14 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 16)
     }
+  }
+
+  @pure def Short(name: String): ShortsImpl = {
+    return ShortsImpl(name, 1, T)
+  }
+
+  @pure def UShort(name: String): ShortsImpl = {
+    return ShortsImpl(name, 1, F)
   }
 
   @pure def Shorts(name: String, size: Z): ShortsImpl = {
@@ -96,6 +112,14 @@ object Spec {
     }
   }
 
+  @pure def Int(name: String): IntsImpl = {
+    return IntsImpl(name, 1, T)
+  }
+
+  @pure def UInt(name: String): IntsImpl = {
+    return IntsImpl(name, 1, F)
+  }
+
   @pure def Ints(name: String, size: Z): IntsImpl = {
     return IntsImpl(name, size, T)
   }
@@ -106,8 +130,16 @@ object Spec {
 
   @datatype class LongsImpl(val name: String, size: Z, signed: B) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
-      return Some(64)
+      return Some(size * 64)
     }
+  }
+
+  @pure def Long(name: String): LongsImpl = {
+    return LongsImpl(name, 1, T)
+  }
+
+  @pure def ULong(name: String): LongsImpl = {
+    return LongsImpl(name, 1, F)
   }
 
   @pure def Longs(name: String, size: Z): LongsImpl = {
@@ -116,6 +148,34 @@ object Spec {
 
   @pure def ULongs(name: String, size: Z): LongsImpl = {
     return LongsImpl(name, size, F)
+  }
+
+  @datatype class FloatsImpl(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size * 32)
+    }
+  }
+
+  @pure def Float(name: String): FloatsImpl = {
+    return FloatsImpl(name, 1)
+  }
+
+  @pure def Floats(name: String, size: Z): FloatsImpl = {
+    return FloatsImpl(name, size)
+  }
+
+  @datatype class DoublesImpl(val name: String, size: Z) extends Base {
+    override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
+      return Some(size * 64)
+    }
+  }
+
+  @pure def Double(name: String): DoublesImpl = {
+    return DoublesImpl(name, 1)
+  }
+
+  @pure def Doubles(name: String, size: Z): DoublesImpl = {
+    return DoublesImpl(name, size)
   }
 
   @datatype class Enum(val name: String, objectName: String) extends Base {
@@ -340,6 +400,10 @@ object Spec {
     @datatype class Ints(value: ISZ[Z]) extends Pred
 
     @datatype class Longs(value: ISZ[Z]) extends Pred
+
+    @datatype class Floats(value: ISZ[F32]) extends Pred
+
+    @datatype class Doubles(value: ISZ[F64]) extends Pred
 
     @datatype class Skip(size: Z) extends Pred
 
