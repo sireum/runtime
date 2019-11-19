@@ -293,6 +293,10 @@ object Spec {
     }
   }
 
+  def FixedRepeat(name: String, numOfElements: Z, element: Base): PredRepeatWhileImpl = {
+    return PredRepeatWhileImpl(name, numOfElements, ISZ(), element)
+  }
+
   @pure def PredRepeatWhile(name: String, preds: ISZ[Pred], element: Base): PredRepeatWhileImpl = {
     return PredRepeatWhileImpl(name, -1, preds, element)
   }
