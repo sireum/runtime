@@ -207,14 +207,15 @@ object Os {
       var rSet = HashSSet.empty[Os.Path]
       var rIS = ISZ[Os.Path]()
       def add(p: Os.Path): Unit = {
+        val pCanon = p.canon
         if (followLink) {
-          rSet = rSet + p
+          rSet = rSet + pCanon
         } else {
-          rIS = rIS :+ p
+          rIS = rIS :+ pCanon
         }
       }
       def rec(p: Os.Path): Unit = {
-        if (!followLink && rSet.contains(p)) {
+        if (!followLink && rSet.contains(p.canon)) {
           return
         }
         p.kind match {
