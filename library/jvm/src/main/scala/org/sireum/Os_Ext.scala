@@ -223,7 +223,8 @@ object Os_Ext {
     val f = toIO(path)
     val fParent = f.getParent
     if (Os.isWin) {
-      Os.proc(ISZ("cmd", "/c", s"""cd /d $fParent && dir && mklink ${f.getName} "${toNIO(relativize(fParent, target))}"""")).runCheck()
+      val mklinkOption: String = if (isDir(target)) "/J " else ""
+      Os.proc(ISZ("cmd", "/c", s"""cd /d $fParent && mklink $mklinkOption${f.getName} "${toNIO(relativize(fParent, target))}"""")).runCheck()
     } else {
       JFiles.createSymbolicLink(toNIO(path), toNIO(relativize(fParent, target)))
     }
