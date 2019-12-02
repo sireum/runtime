@@ -205,53 +205,53 @@ package object logika {
     def create(size: Z, default: R): RS = org.sireum.MSZ.create(size, default)
   }
 
-  final implicit class _MSClone[I, V](val ms: MS[I, V]) extends AnyVal {
-    def clone: MS[I, V] = ms.$clone
+  final implicit class _MSClone[I, V](val _ms: MS[I, V]) extends AnyVal {
+    def clone: MS[I, V] = _ms.$clone
   }
 
-  final implicit class _Slang(val sc: StringContext) extends AnyVal {
+  final implicit class _Slang(val _sc: StringContext) extends AnyVal {
 
-    def z(args: scala.Any*): Z = org.sireum.Z.$String(sc.parts.mkString(""))
+    def z(args: scala.Any*): Z = org.sireum.Z.$String(_sc.parts.mkString(""))
 
-    def z8(args: scala.Any*): Z8 = org.sireum.Z8.$String(sc.parts.mkString(""))
+    def z8(args: scala.Any*): Z8 = org.sireum.Z8.$String(_sc.parts.mkString(""))
 
-    def z16(args: scala.Any*): Z16 = org.sireum.Z16.$String(sc.parts.mkString(""))
+    def z16(args: scala.Any*): Z16 = org.sireum.Z16.$String(_sc.parts.mkString(""))
 
-    def z32(args: scala.Any*): Z32 = org.sireum.Z32.$String(sc.parts.mkString(""))
+    def z32(args: scala.Any*): Z32 = org.sireum.Z32.$String(_sc.parts.mkString(""))
 
-    def z64(args: scala.Any*): Z64 = org.sireum.Z64.$String(sc.parts.mkString(""))
+    def z64(args: scala.Any*): Z64 = org.sireum.Z64.$String(_sc.parts.mkString(""))
 
-    def n(args: scala.Any*): N = org.sireum.N.$String(sc.parts.mkString(""))
+    def n(args: scala.Any*): N = org.sireum.N.$String(_sc.parts.mkString(""))
 
-    def n8(args: scala.Any*): N8 = org.sireum.N8.$String(sc.parts.mkString(""))
+    def n8(args: scala.Any*): N8 = org.sireum.N8.$String(_sc.parts.mkString(""))
 
-    def n16(args: scala.Any*): N16 = org.sireum.N16.$String(sc.parts.mkString(""))
+    def n16(args: scala.Any*): N16 = org.sireum.N16.$String(_sc.parts.mkString(""))
 
-    def n32(args: scala.Any*): N32 = org.sireum.N32.$String(sc.parts.mkString(""))
+    def n32(args: scala.Any*): N32 = org.sireum.N32.$String(_sc.parts.mkString(""))
 
-    def n64(args: scala.Any*): N64 = org.sireum.N64.$String(sc.parts.mkString(""))
+    def n64(args: scala.Any*): N64 = org.sireum.N64.$String(_sc.parts.mkString(""))
 
-    def s8(args: scala.Any*): S8 = org.sireum.S8.$String(sc.parts.mkString(""))
+    def s8(args: scala.Any*): S8 = org.sireum.S8.$String(_sc.parts.mkString(""))
 
-    def s16(args: scala.Any*): S16 = org.sireum.S16.$String(sc.parts.mkString(""))
+    def s16(args: scala.Any*): S16 = org.sireum.S16.$String(_sc.parts.mkString(""))
 
-    def s32(args: scala.Any*): S32 = org.sireum.S32.$String(sc.parts.mkString(""))
+    def s32(args: scala.Any*): S32 = org.sireum.S32.$String(_sc.parts.mkString(""))
 
-    def s64(args: scala.Any*): S64 = org.sireum.S64.$String(sc.parts.mkString(""))
+    def s64(args: scala.Any*): S64 = org.sireum.S64.$String(_sc.parts.mkString(""))
 
-    def u8(args: scala.Any*): U8 = org.sireum.U8.$String(sc.parts.mkString(""))
+    def u8(args: scala.Any*): U8 = org.sireum.U8.$String(_sc.parts.mkString(""))
 
-    def u16(args: scala.Any*): U16 = org.sireum.U16.$String(sc.parts.mkString(""))
+    def u16(args: scala.Any*): U16 = org.sireum.U16.$String(_sc.parts.mkString(""))
 
-    def u32(args: scala.Any*): U32 = org.sireum.U32.$String(sc.parts.mkString(""))
+    def u32(args: scala.Any*): U32 = org.sireum.U32.$String(_sc.parts.mkString(""))
 
-    def u64(args: scala.Any*): U64 = org.sireum.U64.$String(sc.parts.mkString(""))
+    def u64(args: scala.Any*): U64 = org.sireum.U64.$String(_sc.parts.mkString(""))
 
-    def f32(args: scala.Any*): F32 = org.sireum.F32.$String(sc.parts.mkString(""))
+    def f32(args: scala.Any*): F32 = org.sireum.F32.$String(_sc.parts.mkString(""))
 
-    def f64(args: scala.Any*): F64 = org.sireum.F64.$String(sc.parts.mkString(""))
+    def f64(args: scala.Any*): F64 = org.sireum.F64.$String(_sc.parts.mkString(""))
 
-    def r(args: scala.Any*): R = org.sireum.R.$String(sc.parts.mkString(""))
+    def r(args: scala.Any*): R = org.sireum.R.$String(_sc.parts.mkString(""))
 
     import scala.language.experimental.macros
 
@@ -275,72 +275,72 @@ package object logika {
   final def String(s: Predef.String): String = org.sireum.String(s)
 
 
-  final implicit class $Boolean2B(val value: scala.Boolean) extends AnyVal {
+  final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {
 
-    @inline def |^(other: B): B = value ^ other.value
+    @inline def |^(other: B): B = _value ^ other.value
 
-    @inline def ===(other: B): B = value == other.value
+    @inline def ===(other: B): B = _value == other.value
 
-    @inline def =!=(other: B): B = value != other.value
+    @inline def =!=(other: B): B = _value != other.value
 
   }
 
-  final implicit class $Int2Z(val value: scala.Int) extends AnyVal {
+  final implicit class $Int2Z(val _value: scala.Int) extends AnyVal {
 
-    @inline def <(other: Z): B = Z(value) < other
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z(value) <= other
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z(value) > other
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z(value) >= other
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z(value) == other
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = Z(value) != other
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z(value) + other
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z(value) - other
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z(value) * other
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z(value) / other
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z(value) % other
+    @inline def %(other: Z): Z = Z(_value) % other
 
-    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+    @inline def to(other: Z): ZRange[Z] = Z(_value) to other
 
-    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+    @inline def until(other: Z): ZRange[Z] = Z(_value) until other
   }
 
-  final implicit class $Long2Z(val value: scala.Long) extends AnyVal {
+  final implicit class $Long2Z(val _value: scala.Long) extends AnyVal {
 
-    @inline def <(other: Z): B = Z(value) < other
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z(value) <= other
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z(value) > other
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z(value) >= other
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z(value) == other
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = Z(value) != other
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z(value) + other
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z(value) - other
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z(value) * other
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z(value) / other
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z(value) % other
+    @inline def %(other: Z): Z = Z(_value) % other
 
-    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+    @inline def to(other: Z): ZRange[Z] = Z(_value) to other
 
-    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+    @inline def until(other: Z): ZRange[Z] = Z(_value) until other
 
   }
 

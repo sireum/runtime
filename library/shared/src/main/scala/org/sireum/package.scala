@@ -31,26 +31,26 @@ package object sireum extends $internal.PackageTrait with contract {
 
   import $internal.Macro
 
-  final implicit class $Arrow[T1](val t1: T1) extends AnyVal {
+  final implicit class $Arrow[T1](val _t1: T1) extends AnyVal {
 
-    @inline def ~>(o: scala.Boolean): (T1, B) = (t1, B(o))
+    @inline def ~>(o: scala.Boolean): (T1, B) = (_t1, B(o))
 
-    @inline def ~>(o: scala.Char): (T1, C) = (t1, C(o))
+    @inline def ~>(o: scala.Char): (T1, C) = (_t1, C(o))
 
-    @inline def ~>(o: scala.Int): (T1, Z) = (t1, Z(o))
+    @inline def ~>(o: scala.Int): (T1, Z) = (_t1, Z(o))
 
-    @inline def ~>(o: scala.Long): (T1, Z) = (t1, Z(o))
+    @inline def ~>(o: scala.Long): (T1, Z) = (_t1, Z(o))
 
-    @inline def ~>(o: scala.Float): (T1, F32) = (t1, F32(o))
+    @inline def ~>(o: scala.Float): (T1, F32) = (_t1, F32(o))
 
-    @inline def ~>(o: scala.Double): (T1, F64) = (t1, F64(o))
+    @inline def ~>(o: scala.Double): (T1, F64) = (_t1, F64(o))
 
-    @inline def ~>(o: Predef.String): (T1, String) = (t1, String(o))
+    @inline def ~>(o: Predef.String): (T1, String) = (_t1, String(o))
 
-    def ~>[T2](t2: T2): (T1, T2) = (t1, t2)
+    def ~>[T2](t2: T2): (T1, T2) = (_t1, t2)
   }
 
-  final implicit class $Slang(val sc: StringContext) {
+  final implicit class $Slang(val $sc: StringContext) {
 
     def l[T](args: Any*): T = macro Macro.l[T]
 
@@ -61,16 +61,16 @@ package object sireum extends $internal.PackageTrait with contract {
     final object z {
       def apply(args: Any*): Z = macro Macro.zApply
       def unapply(n: Z): scala.Boolean = {
-        assume(n.isInstanceOf[Z] && sc.parts.size == 1)
-        n == Z.$String(sc.parts.head)
+        assume(n.isInstanceOf[Z] && $sc.parts.size == 1)
+        n == Z.$String($sc.parts.head)
       }
     }
 
     final object c {
       def apply(args: Any*): C = macro Macro.cApply
       def unapply(c: C): scala.Boolean = {
-        require(sc.parts.length == 1)
-        val part = StringContext.processEscapes(sc.parts.head)
+        require($sc.parts.length == 1)
+        val part = StringContext.processEscapes($sc.parts.head)
         require(part.codePointCount(0, part.length) == 1)
         c.value == part.codePointAt(0)
       }
@@ -79,32 +79,32 @@ package object sireum extends $internal.PackageTrait with contract {
     final object r {
       def apply(args: Any*): R = macro Macro.rApply
       def unapply(n: R): scala.Boolean = {
-        assume(sc.parts.size == 1)
-        n == R.$String(sc.parts.head)
+        assume($sc.parts.size == 1)
+        n == R.$String($sc.parts.head)
       }
     }
 
     final  object f32 {
       def apply(args: Any*): F32 = macro Macro.f32Apply
       def unapply(n: F32): scala.Boolean = {
-        assume(sc.parts.size == 1)
-        n == F32.$String(sc.parts.head)
+        assume($sc.parts.size == 1)
+        n == F32.$String($sc.parts.head)
       }
     }
 
     final object f64 {
       def apply(args: Any*): F64 = macro Macro.f64Apply
       def unapply(n: F64): scala.Boolean = {
-        assume(sc.parts.size == 1)
-        n == F64.$String(sc.parts.head)
+        assume($sc.parts.size == 1)
+        n == F64.$String($sc.parts.head)
       }
     }
 
     final object string {
       def apply(args: Any*): String = macro Macro.stringApply
       def unapply(s: String): scala.Boolean = {
-        assume(sc.parts.size == 1)
-        val other = StringContext.processEscapes(sc.parts.head)
+        assume($sc.parts.size == 1)
+        val other = StringContext.processEscapes($sc.parts.head)
         val r = s.value == other
         r
       }
@@ -113,312 +113,312 @@ package object sireum extends $internal.PackageTrait with contract {
     final def st(args: Any*): ST = macro Macro.st
   }
 
-  final implicit class Any2HashString(val o: Any) extends AnyVal {
-    def hash: Z = o.hashCode
-    def string: String = o.toString
+  final implicit class Any2HashString(val _o: Any) extends AnyVal {
+    def hash: Z = _o.hashCode
+    def string: String = _o.toString
   }
 
-  final implicit class $Boolean2B(val value: scala.Boolean) extends AnyVal {
+  final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {
 
-    @inline def |^(other: B): B = value ^ other.value
+    @inline def |^(other: B): B = _value ^ other.value
 
-    @inline def ===(other: B): B = value == other.value
+    @inline def ===(other: B): B = _value == other.value
 
-    @inline def =!=(other: B): B = value != other.value
+    @inline def =!=(other: B): B = _value != other.value
 
-    @inline def imply_:(other: B): B = !other.value | value
+    @inline def imply_:(other: B): B = !other.value | _value
 
-    @inline def simply_:(other: => B): B = !other.value || value
+    @inline def simply_:(other: => B): B = !other.value || _value
 
-    @inline def hash: Z = B(value).hash
+    @inline def hash: Z = B(_value).hash
 
-    @inline def string: String = value.toString
+    @inline def string: String = _value.toString
 
-    @inline def ~>(o: scala.Boolean): (B, B) = (B(value), B(o))
+    @inline def ~>(o: scala.Boolean): (B, B) = (B(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (B, C) = (B(value), C(o))
+    @inline def ~>(o: scala.Char): (B, C) = (B(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (B, Z) = (B(value), Z(o))
+    @inline def ~>(o: scala.Int): (B, Z) = (B(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (B, Z) = (B(value), Z(o))
+    @inline def ~>(o: scala.Long): (B, Z) = (B(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (B, F32) = (B(value), F32(o))
+    @inline def ~>(o: scala.Float): (B, F32) = (B(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (B, F64) = (B(value), F64(o))
+    @inline def ~>(o: scala.Double): (B, F64) = (B(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (B, String) = (B(value), String(o))
+    @inline def ~>(o: Predef.String): (B, String) = (B(_value), String(o))
 
-    @inline def ~>[T](o: T): (B, T) = (B(value), o)
+    @inline def ~>[T](o: T): (B, T) = (B(_value), o)
   }
 
-  final implicit class $Char2C(val value: scala.Char) extends AnyVal {
+  final implicit class $Char2C(val _value: scala.Char) extends AnyVal {
 
-    @inline def hash: Z = C(value).hash
+    @inline def hash: Z = C(_value).hash
 
-    @inline def string: String = C(value).string
+    @inline def string: String = C(_value).string
 
-    @inline def <(other: C): B = C(value) < other
+    @inline def <(other: C): B = C(_value) < other
 
-    @inline def <=(other: C): B = C(value) <= other
+    @inline def <=(other: C): B = C(_value) <= other
 
-    @inline def >(other: C): B = C(value) > other
+    @inline def >(other: C): B = C(_value) > other
 
-    @inline def >=(other: C): B = C(value) >= other
+    @inline def >=(other: C): B = C(_value) >= other
 
-    @inline def ===(other: C): B = value == other.value
+    @inline def ===(other: C): B = _value == other.value
 
-    @inline def =!=(other: C): B = value != other.value
+    @inline def =!=(other: C): B = _value != other.value
 
-    @inline def >>>(other: C): C = C(value) >>> other
+    @inline def >>>(other: C): C = C(_value) >>> other
 
-    @inline def <<(other: C): C = C(value) << other
+    @inline def <<(other: C): C = C(_value) << other
 
-    @inline def &(other: C): C = C(value) & other
+    @inline def &(other: C): C = C(_value) & other
 
-    @inline def |(other: C): C = C(value) | other
+    @inline def |(other: C): C = C(_value) | other
 
-    @inline def |^(other: C): C = C(value) |^ other
+    @inline def |^(other: C): C = C(_value) |^ other
 
-    @inline def ~>(o: scala.Boolean): (C, B) = (C(value), B(o))
+    @inline def ~>(o: scala.Boolean): (C, B) = (C(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (C, C) = (C(value), C(o))
+    @inline def ~>(o: scala.Char): (C, C) = (C(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (C, Z) = (C(value), Z(o))
+    @inline def ~>(o: scala.Int): (C, Z) = (C(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (C, Z) = (C(value), Z(o))
+    @inline def ~>(o: scala.Long): (C, Z) = (C(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (C, F32) = (C(value), F32(o))
+    @inline def ~>(o: scala.Float): (C, F32) = (C(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (C, F64) = (C(value), F64(o))
+    @inline def ~>(o: scala.Double): (C, F64) = (C(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (C, String) = (C(value), String(o))
+    @inline def ~>(o: Predef.String): (C, String) = (C(_value), String(o))
 
-    @inline def ~>[T](o: T): (C, T) = (C(value), o)
+    @inline def ~>[T](o: T): (C, T) = (C(_value), o)
   }
 
-  final implicit class $Int2Z(val value: scala.Int) extends AnyVal {
+  final implicit class $Int2Z(val _value: scala.Int) extends AnyVal {
 
-    @inline def hash: Z = Z(value).hash
+    @inline def hash: Z = Z(_value).hash
 
-    @inline def string: String = Z(value).string
+    @inline def string: String = Z(_value).string
 
-    @inline def <(other: Z): B = Z(value) < other
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z(value) <= other
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z(value) > other
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z(value) >= other
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z(value) == other
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = Z(value) != other
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z(value) + other
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z(value) - other
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z(value) * other
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z(value) / other
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z(value) % other
+    @inline def %(other: Z): Z = Z(_value) % other
 
-    @inline def increase: Z = Z(value).increase
+    @inline def increase: Z = Z(_value).increase
 
-    @inline def decrease: Z = Z(value).decrease
+    @inline def decrease: Z = Z(_value).decrease
 
-    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+    @inline def to(other: Z): ZRange[Z] = Z(_value) to other
 
-    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+    @inline def until(other: Z): ZRange[Z] = Z(_value) until other
 
-    @inline def ~>(o: scala.Boolean): (Z, B) = (Z(value), B(o))
+    @inline def ~>(o: scala.Boolean): (Z, B) = (Z(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (Z, C) = (Z(value), C(o))
+    @inline def ~>(o: scala.Char): (Z, C) = (Z(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (Z, Z) = (Z(value), Z(o))
+    @inline def ~>(o: scala.Int): (Z, Z) = (Z(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (Z, Z) = (Z(value), Z(o))
+    @inline def ~>(o: scala.Long): (Z, Z) = (Z(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (Z, F32) = (Z(value), F32(o))
+    @inline def ~>(o: scala.Float): (Z, F32) = (Z(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (Z, F64) = (Z(value), F64(o))
+    @inline def ~>(o: scala.Double): (Z, F64) = (Z(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (Z, String) = (Z(value), String(o))
+    @inline def ~>(o: Predef.String): (Z, String) = (Z(_value), String(o))
 
-    @inline def ~>[T](o: T): (Z, T) = (Z(value), o)
+    @inline def ~>[T](o: T): (Z, T) = (Z(_value), o)
   }
 
-  final implicit class $Long2Z(val value: scala.Long) extends AnyVal {
+  final implicit class $Long2Z(val _value: scala.Long) extends AnyVal {
 
-    @inline def hash: Z = Z(value).hash
+    @inline def hash: Z = Z(_value).hash
 
-    @inline def string: String = Z(value).string
+    @inline def string: String = Z(_value).string
 
-    @inline def <(other: Z): B = Z(value) < other
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z(value) <= other
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z(value) > other
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z(value) >= other
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z(value) == other
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = Z(value) != other
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z(value) + other
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z(value) - other
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z(value) * other
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z(value) / other
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z(value) % other
+    @inline def %(other: Z): Z = Z(_value) % other
 
-    @inline def increase: Z = Z(value).increase
+    @inline def increase: Z = Z(_value).increase
 
-    @inline def decrease: Z = Z(value).decrease
+    @inline def decrease: Z = Z(_value).decrease
 
-    @inline def to(other: Z): ZRange[Z] = Z(value) to other
+    @inline def to(other: Z): ZRange[Z] = Z(_value) to other
 
-    @inline def until(other: Z): ZRange[Z] = Z(value) until other
+    @inline def until(other: Z): ZRange[Z] = Z(_value) until other
 
-    @inline def ~>(o: scala.Boolean): (Z, B) = (Z(value), B(o))
+    @inline def ~>(o: scala.Boolean): (Z, B) = (Z(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (Z, C) = (Z(value), C(o))
+    @inline def ~>(o: scala.Char): (Z, C) = (Z(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (Z, Z) = (Z(value), Z(o))
+    @inline def ~>(o: scala.Int): (Z, Z) = (Z(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (Z, Z) = (Z(value), Z(o))
+    @inline def ~>(o: scala.Long): (Z, Z) = (Z(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (Z, F32) = (Z(value), F32(o))
+    @inline def ~>(o: scala.Float): (Z, F32) = (Z(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (Z, F64) = (Z(value), F64(o))
+    @inline def ~>(o: scala.Double): (Z, F64) = (Z(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (Z, String) = (Z(value), String(o))
+    @inline def ~>(o: Predef.String): (Z, String) = (Z(_value), String(o))
 
-    @inline def ~>[T](o: T): (Z, T) = (Z(value), o)
+    @inline def ~>[T](o: T): (Z, T) = (Z(_value), o)
   }
 
-  final implicit class $Float2F32(val value: scala.Float) extends AnyVal {
+  final implicit class $Float2F32(val _value: scala.Float) extends AnyVal {
 
-    @inline def hash: Z = F32(value).hash
+    @inline def hash: Z = F32(_value).hash
 
-    @inline def string: String = F32(value).string
+    @inline def string: String = F32(_value).string
 
-    @inline def <(other: F32): B = value < other.value
+    @inline def <(other: F32): B = _value < other.value
 
-    @inline def <=(other: F32): B = value <= other.value
+    @inline def <=(other: F32): B = _value <= other.value
 
-    @inline def >(other: F32): B = value > other.value
+    @inline def >(other: F32): B = _value > other.value
 
-    @inline def >=(other: F32): B = value >= other.value
+    @inline def >=(other: F32): B = _value >= other.value
 
-    @inline def ===(other: F32): B = value == other.value
+    @inline def ===(other: F32): B = _value == other.value
 
-    @inline def =!=(other: F32): B = value != other.value
+    @inline def =!=(other: F32): B = _value != other.value
 
-    @inline def +(other: F32): F32 = value + other.value
+    @inline def +(other: F32): F32 = _value + other.value
 
-    @inline def -(other: F32): F32 = value - other.value
+    @inline def -(other: F32): F32 = _value - other.value
 
-    @inline def *(other: F32): F32 = value * other.value
+    @inline def *(other: F32): F32 = _value * other.value
 
-    @inline def /(other: F32): F32 = value / other.value
+    @inline def /(other: F32): F32 = _value / other.value
 
-    @inline def %(other: F32): F32 = value % other.value
+    @inline def %(other: F32): F32 = _value % other.value
 
-    @inline def ~>(o: scala.Boolean): (F32, B) = (F32(value), B(o))
+    @inline def ~>(o: scala.Boolean): (F32, B) = (F32(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (F32, C) = (F32(value), C(o))
+    @inline def ~>(o: scala.Char): (F32, C) = (F32(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (F32, Z) = (F32(value), Z(o))
+    @inline def ~>(o: scala.Int): (F32, Z) = (F32(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (F32, Z) = (F32(value), Z(o))
+    @inline def ~>(o: scala.Long): (F32, Z) = (F32(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (F32, F32) = (F32(value), F32(o))
+    @inline def ~>(o: scala.Float): (F32, F32) = (F32(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (F32, F64) = (F32(value), F64(o))
+    @inline def ~>(o: scala.Double): (F32, F64) = (F32(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (F32, String) = (F32(value), String(o))
+    @inline def ~>(o: Predef.String): (F32, String) = (F32(_value), String(o))
 
-    @inline def ~>[T](o: T): (F32, T) = (F32(value), o)
+    @inline def ~>[T](o: T): (F32, T) = (F32(_value), o)
   }
 
-  final implicit class $Double2F64(val value: scala.Double) extends AnyVal {
+  final implicit class $Double2F64(val _value: scala.Double) extends AnyVal {
 
-    @inline def hash: Z = F64(value).hash
+    @inline def hash: Z = F64(_value).hash
 
-    @inline def string: String = F64(value).string
+    @inline def string: String = F64(_value).string
 
-    @inline def <(other: F64): B = value < other.value
+    @inline def <(other: F64): B = _value < other.value
 
-    @inline def <=(other: F64): B = value <= other.value
+    @inline def <=(other: F64): B = _value <= other.value
 
-    @inline def >(other: F64): B = value > other.value
+    @inline def >(other: F64): B = _value > other.value
 
-    @inline def >=(other: F64): B = value >= other.value
+    @inline def >=(other: F64): B = _value >= other.value
 
-    @inline def ===(other: F64): B = value == other.value
+    @inline def ===(other: F64): B = _value == other.value
 
-    @inline def =!=(other: F64): B = value != other.value
+    @inline def =!=(other: F64): B = _value != other.value
 
-    @inline def +(other: F64): F64 = F64(value) + other
+    @inline def +(other: F64): F64 = F64(_value) + other
 
-    @inline def -(other: F64): F64 = F64(value) - other
+    @inline def -(other: F64): F64 = F64(_value) - other
 
-    @inline def *(other: F64): F64 = F64(value) * other
+    @inline def *(other: F64): F64 = F64(_value) * other
 
-    @inline def /(other: F64): F64 = F64(value) / other
+    @inline def /(other: F64): F64 = F64(_value) / other
 
-    @inline def %(other: F64): F64 = F64(value) % other
+    @inline def %(other: F64): F64 = F64(_value) % other
 
-    @inline def ~>(o: scala.Boolean): (F64, B) = (F64(value), B(o))
+    @inline def ~>(o: scala.Boolean): (F64, B) = (F64(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (F64, C) = (F64(value), C(o))
+    @inline def ~>(o: scala.Char): (F64, C) = (F64(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (F64, Z) = (F64(value), Z(o))
+    @inline def ~>(o: scala.Int): (F64, Z) = (F64(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (F64, Z) = (F64(value), Z(o))
+    @inline def ~>(o: scala.Long): (F64, Z) = (F64(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (F64, F32) = (F64(value), F32(o))
+    @inline def ~>(o: scala.Float): (F64, F32) = (F64(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (F64, F64) = (F64(value), F64(o))
+    @inline def ~>(o: scala.Double): (F64, F64) = (F64(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (F64, String) = (F64(value), String(o))
+    @inline def ~>(o: Predef.String): (F64, String) = (F64(_value), String(o))
 
-    @inline def ~>[T](o: T): (F64, T) = (F64(value), o)
+    @inline def ~>[T](o: T): (F64, T) = (F64(_value), o)
   }
 
-  final implicit class $PredefString2String(val value: Predef.String) extends AnyVal {
+  final implicit class $PredefString2String(val _value: Predef.String) extends AnyVal {
 
-    @inline def hash: Z = String(value).hash
+    @inline def hash: Z = String(_value).hash
 
-    @inline def string: String = String(value)
+    @inline def string: String = String(_value)
 
-    @inline def size: Z = String(value).size
+    @inline def size: Z = String(_value).size
 
-    @inline def ===(other: String): B = value == other.value
+    @inline def ===(other: String): B = _value == other.value
 
-    @inline def =!=(other: String): B = value != other.value
+    @inline def =!=(other: String): B = _value != other.value
 
-    @inline def ~>(o: scala.Boolean): (String, B) = (String(value), B(o))
+    @inline def ~>(o: scala.Boolean): (String, B) = (String(_value), B(o))
 
-    @inline def ~>(o: scala.Char): (String, C) = (String(value), C(o))
+    @inline def ~>(o: scala.Char): (String, C) = (String(_value), C(o))
 
-    @inline def ~>(o: scala.Int): (String, Z) = (String(value), Z(o))
+    @inline def ~>(o: scala.Int): (String, Z) = (String(_value), Z(o))
 
-    @inline def ~>(o: scala.Long): (String, Z) = (String(value), Z(o))
+    @inline def ~>(o: scala.Long): (String, Z) = (String(_value), Z(o))
 
-    @inline def ~>(o: scala.Float): (String, F32) = (String(value), F32(o))
+    @inline def ~>(o: scala.Float): (String, F32) = (String(_value), F32(o))
 
-    @inline def ~>(o: scala.Double): (String, F64) = (String(value), F64(o))
+    @inline def ~>(o: scala.Double): (String, F64) = (String(_value), F64(o))
 
-    @inline def ~>(o: Predef.String): (String, String) = (String(value), String(o))
+    @inline def ~>(o: Predef.String): (String, String) = (String(_value), String(o))
 
-    @inline def ~>[T](o: T): (String, T) = (String(value), o)
+    @inline def ~>[T](o: T): (String, T) = (String(_value), o)
   }
 
 }
