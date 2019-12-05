@@ -96,7 +96,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, 0, F)
+    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F)
   }
 
   @memoize def roots: ISZ[Path] = {
@@ -285,6 +285,7 @@ object Os {
                        in: Option[String],
                        errAsOut: B,
                        outputConsole: B,
+                       errBuffered: B,
                        outputEnv: B,
                        outputCommands: B,
                        timeoutInMillis: Z,
@@ -316,6 +317,10 @@ object Os {
 
     @pure def redirectErr: Proc = {
       return this(errAsOut = T)
+    }
+
+    @pure def bufferErr: Proc = {
+      return this(errBuffered = T)
     }
 
     @pure def console: Proc = {

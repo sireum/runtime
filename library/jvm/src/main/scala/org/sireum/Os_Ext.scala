@@ -597,9 +597,18 @@ object Os_Ext {
       if (e.outputCommands) {
         println(e.cmds.elements.mkString(" "))
       }
+      val out = new java.io.ByteArrayOutputStream()
+      val err = new java.io.ByteArrayOutputStream()
+      def f(baos: java.io.ByteArrayOutputStream)(bytes: Array[Byte], n: Int): Unit = {
+        baos.write(bytes, 0, n)
+      }
+      val pOut = _root_.os.ProcessOutput(f(out))
+      def fErr: _root_.os.ProcessOutput = if (e.errAsOut) pOut else _root_.os.ProcessOutput(f(err))
       val (stdout, stderr) =
-        if (e.outputConsole) (_root_.os.Inherit: _root_.os.ProcessOutput, _root_.os.Inherit: _root_.os.ProcessOutput)
-        else (_root_.os.Pipe: _root_.os.ProcessOutput, _root_.os.Pipe: _root_.os.ProcessOutput)
+        if (e.outputConsole)
+          (_root_.os.Inherit: _root_.os.ProcessOutput,
+           if (e.errBuffered && !e.errAsOut) fErr else _root_.os.Inherit: _root_.os.ProcessOutput)
+        else (pOut, fErr)
       val stdin: _root_.os.ProcessInput = e.in match {
         case Some(s) => s.value
         case _ => _root_.os.Pipe
@@ -609,8 +618,8 @@ object Os_Ext {
           env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
           mergeErrIntoOut = e.errAsOut, propagateEnv = false)
       val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
-      if (term) return Os.Proc.Result.Normal(sp.exitCode, new Predef.String(sp.stdout.bytes(), SC.UTF_8),
-        new Predef.String(sp.stderr.bytes(), SC.UTF_8))
+      if (term) 
+        return Os.Proc.Result.Normal(sp.exitCode, out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
       if (sp.isAlive()) {
         try {
           sp.destroy()
@@ -624,8 +633,7 @@ object Os_Ext {
             case _: Throwable =>
           }
       }
-      Os.Proc.Result.Timeout(new Predef.String(sp.stdout.bytes(), SC.UTF_8),
-        new Predef.String(sp.stderr.bytes(), SC.UTF_8))
+      Os.Proc.Result.Timeout(out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
     }
     def jvm(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
@@ -644,16 +652,27 @@ object Os_Ext {
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
       npb.setCwd(toNIO(e.wd.value))
-      val out = new java.lang.StringBuilder()
-      val err = new java.lang.StringBuilder()
+      val out = new java.io.ByteArrayOutputStream()
+      val err = new java.io.ByteArrayOutputStream()
       npb.setProcessListener(new NuAbstractProcessHandler {
         def append(isOut: B, buffer: BB): Unit = {
-          val bytes = new Array[Byte](buffer.remaining)
-          buffer.get(bytes)
-          val s = new Predef.String(bytes, SC.UTF_8)
-          if (isOut || e.errAsOut)
-            if (e.outputConsole) System.out.print(s) else out.append(s)
-          else if (e.outputConsole) System.err.print(s) else err.append(s)
+          if (e.outputConsole) {
+            val bytes = new Array[Byte](buffer.remaining)
+            buffer.get(bytes)
+            val s = new Predef.String(bytes, SC.UTF_8)
+            if (isOut) System.out.print(s)
+            else if (e.errBuffered && !e.errAsOut) err.write(buffer.get) else System.err.print(s)
+          } else {
+            if (isOut || e.errAsOut) {
+              for (_ <- 0 until buffer.remaining()) {
+                out.write(buffer.get)
+              }
+            } else {
+              for (_ <- 0 until buffer.remaining()) {
+                err.write(buffer.get)
+              }
+            }
+          }
         }
 
         override def onStderr(buffer: BB, closed: Boolean): Unit = {
@@ -672,7 +691,8 @@ object Os_Ext {
         }
         p.closeStdin(false)
         val exitCode = p.waitFor(e.timeoutInMillis.toLong, TU.MILLISECONDS)
-        if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode, out.toString, err.toString)
+        if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode,
+          out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
         if (p.isRunning) try {
           p.destroy(false)
           p.waitFor(500, TU.MICROSECONDS)
