@@ -657,21 +657,17 @@ object Os_Ext {
       npb.setProcessListener(new NuAbstractProcessHandler {
         def append(isOut: B, buffer: BB): Unit = {
           if (e.outputConsole) {
-            val bytes = new Array[Byte](buffer.remaining)
-            buffer.get(bytes)
-            val s = new Predef.String(bytes, SC.UTF_8)
-            if (isOut) System.out.print(s)
-            else if (e.errBuffered && !e.errAsOut) err.write(buffer.get) else System.err.print(s)
-          } else {
-            if (isOut || e.errAsOut) {
-              for (_ <- 0 until buffer.remaining()) {
-                out.write(buffer.get)
-              }
-            } else {
-              for (_ <- 0 until buffer.remaining()) {
-                err.write(buffer.get)
-              }
+            lazy val s = {
+              val bytes = new Array[Byte](buffer.remaining)
+              buffer.get(bytes)
+              new Predef.String(bytes, SC.UTF_8)
             }
+            if (isOut) System.out.print(s)
+            else if (e.errBuffered && !e.errAsOut) for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
+            else System.err.print(s)
+          } else {
+            if (isOut || e.errAsOut) for (_ <- 0 until buffer.remaining()) out.write(buffer.get)
+            else for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
           }
         }
 
