@@ -59,7 +59,7 @@ object Option {
 
   @pure def toIS: IS[Z, T]
 
-  def foreach(f: T => Unit): Unit
+  def foreach[V](f: T => V): Unit
 }
 
 @datatype class None[T] extends Option[T] {
@@ -115,7 +115,7 @@ object Option {
     return IS[Z, T]()
   }
 
-  def foreach(f: T => Unit): Unit = {}
+  def foreach[V](f: T => V): Unit = {}
 }
 
 @datatype class Some[T](value: T) extends Option[T] {
@@ -171,7 +171,7 @@ object Option {
     return ISZ(value)
   }
 
-  def foreach(f: T => Unit): Unit = {
+  def foreach[V](f: T => V): Unit = {
     f(value)
   }
 }

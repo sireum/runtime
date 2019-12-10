@@ -1446,7 +1446,7 @@ final case class ZRange[I](
   cid: ZRange.CondIncDec[I]
 ) {
 
-  def foreach(f: I => Unit): Unit = {
+  def foreach[V](f: I => V): Unit = {
     val initZ = init.asInstanceOf[ZLike[_]].toMP
     val toZ = to.asInstanceOf[ZLike[_]].toMP
     var iZ = initZ

@@ -59,7 +59,7 @@ object MOption {
 
   @pure def toMS: MS[Z, T]
 
-  def foreach(f: T => Unit): Unit
+  def foreach[V](f: T => V): Unit
 }
 
 @record class MNone[T] extends MOption[T] {
@@ -115,7 +115,7 @@ object MOption {
     return MS[Z, T]()
   }
 
-  def foreach(f: T => Unit): Unit = {}
+  def foreach[V](f: T => V): Unit = {}
 }
 
 @record class MSome[T](value: T) extends MOption[T] {
@@ -172,7 +172,7 @@ object MOption {
     return MSZ(value)
   }
 
-  def foreach(f: T => Unit): Unit = {
+  def foreach[V](f: T => V): Unit = {
     f(value)
   }
 }

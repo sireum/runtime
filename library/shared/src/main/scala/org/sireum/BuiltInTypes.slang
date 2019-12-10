@@ -322,7 +322,7 @@ package org.sireum
 
   @pure def filter(p: E => B @pure): IS[I, E]
 
-  @pure def foreach(p: E => Unit): Unit
+  def foreach[V](p: E => V): Unit
 
   @pure def size: I
 
@@ -388,7 +388,7 @@ package org.sireum
 
   @pure def filter(p: E => B @pure): MS[I, E]
 
-  @pure def foreach(p: E => Unit): Unit
+  def foreach[V](p: E => V): Unit
 
   @pure def size: I
 

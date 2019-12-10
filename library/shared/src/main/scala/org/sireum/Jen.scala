@@ -31,7 +31,7 @@ package org.sireum
 
   def generate(f: T => Jen.Action): Jen.Action
 
-  def foreach(f: T => Unit): Unit = {
+  def foreach[V](f: T => V): Unit = {
     def ap(o: T): Jen.Action = {
       f(o)
       return Jen.Continue
