@@ -14,7 +14,6 @@ build:
       if [[ ! `git show -s HEAD | grep -F -q "[skip shippable]"` ]]; then
         export COURSIER_CACHE=$SHIPPABLE_BUILD_DIR/cache/coursier &&
         git submodule update --init --recursive &&
-        bin/init.sh &&
         bin/build.cmd test test-js;
       fi
   post_ci:
