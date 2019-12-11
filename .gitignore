@@ -16,5 +16,6 @@ target
 /bin/win
 /bin/scala
 /lib
+/cache
 *.cmd.jar
 *.cmd.com
