@@ -25,9 +25,10 @@
 
 package org.sireum.test
 
-import org.scalatest.{FreeSpec, Tag}
+import org.scalatest.Tag
+import org.scalatest.freespec.AnyFreeSpec
 
-trait SireumSpec extends FreeSpec {
+trait SireumSpec extends AnyFreeSpec {
 
   val ts: scala.Seq[Tag] = scala.Vector()
 
