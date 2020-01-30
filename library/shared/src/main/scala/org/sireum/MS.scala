@@ -81,10 +81,10 @@ object MS {
   def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
     assert(
-      !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size <= companion.Max
+      !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size - 1 <= companion.Max
         .asInstanceOf[ZLike[_]]
         .toMP,
-      s"Slang MS requires its index plus its size less than or equal to it max."
+      s"Slang IS requires its index (${companion.Index}) plus its size ($size) less than or equal to it max ${companion.Max} plus one."
     )
   }
 
