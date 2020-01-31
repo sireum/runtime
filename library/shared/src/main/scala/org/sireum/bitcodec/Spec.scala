@@ -62,132 +62,172 @@ object Spec {
     }
   }
 
-  @datatype class BytesImpl(val name: String, size: Z, signed: B, valueOpt: Option[Z]) extends Base {
+  @datatype class BytesImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 8)
     }
   }
 
   @pure def Byte(name: String): BytesImpl = {
-    return BytesImpl(name, 1, T, None())
+    return BytesImpl(name, 1, T, None(), None())
   }
 
   @pure def ByteConst(name: String, value: Z): BytesImpl = {
     assert(conversions.Z.isInRangeSigned8(value))
-    return BytesImpl(name, 1, T, Some(value))
+    return BytesImpl(name, 1, T, Some(value), Some(value))
+  }
+
+  @pure def ByteRange(name: String, min: Z, max: Z): BytesImpl = {
+    assert(conversions.Z.isInRangeSigned8(min) && conversions.Z.isInRangeSigned8(max) && min <= max)
+    return BytesImpl(name, 1, T, Some(min), Some(max))
   }
 
   @pure def UByte(name: String): BytesImpl = {
-    return BytesImpl(name, 1, F, None())
+    return BytesImpl(name, 1, F, None(), None())
   }
 
   @pure def UByteConst(name: String, value: Z): BytesImpl = {
     assert(conversions.Z.isInRangeUnsigned8(value))
-    return BytesImpl(name, 1, F, Some(value))
+    return BytesImpl(name, 1, F, Some(value), Some(value))
+  }
+
+  @pure def UByteRange(name: String, min: Z, max: Z): BytesImpl = {
+    assert(conversions.Z.isInRangeUnsigned8(min) && conversions.Z.isInRangeUnsigned8(max) && min <= max)
+    return BytesImpl(name, 1, F, Some(min), Some(max))
   }
 
   @pure def Bytes(name: String, size: Z): BytesImpl = {
-    return BytesImpl(name, size, T, None())
+    return BytesImpl(name, size, T, None(), None())
   }
 
   @pure def UBytes(name: String, size: Z): BytesImpl = {
-    return BytesImpl(name, size, F, None())
+    return BytesImpl(name, size, F, None(), None())
   }
 
-  @datatype class ShortsImpl(val name: String, size: Z, signed: B, valueOpt: Option[Z]) extends Base {
+  @datatype class ShortsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 16)
     }
   }
 
   @pure def Short(name: String): ShortsImpl = {
-    return ShortsImpl(name, 1, T, None())
+    return ShortsImpl(name, 1, T, None(), None())
   }
 
   @pure def ShortConst(name: String, value: Z): ShortsImpl = {
     assert(conversions.Z.isInRangeSigned16(value))
-    return ShortsImpl(name, 1, T, Some(value))
+    return ShortsImpl(name, 1, T, Some(value), Some(value))
+  }
+
+  @pure def ShortRange(name: String, min: Z, max: Z): ShortsImpl = {
+    assert(conversions.Z.isInRangeSigned16(min) && conversions.Z.isInRangeSigned16(max) && min <= max)
+    return ShortsImpl(name, 1, T, Some(min), Some(max))
   }
 
   @pure def UShort(name: String): ShortsImpl = {
-    return ShortsImpl(name, 1, F, None())
+    return ShortsImpl(name, 1, F, None(), None())
   }
 
   @pure def UShortConst(name: String, value: Z): ShortsImpl = {
     assert(conversions.Z.isInRangeUnsigned16(value))
-    return ShortsImpl(name, 1, F, Some(value))
+    return ShortsImpl(name, 1, F, Some(value), Some(value))
+  }
+
+  @pure def UShortRange(name: String, min: Z, max: Z): ShortsImpl = {
+    assert(conversions.Z.isInRangeUnsigned16(min) && conversions.Z.isInRangeUnsigned16(max) && min <= max)
+    return ShortsImpl(name, 1, F, Some(min), Some(max))
   }
 
   @pure def Shorts(name: String, size: Z): ShortsImpl = {
-    return ShortsImpl(name, size, T, None())
+    return ShortsImpl(name, size, T, None(), None())
   }
 
   @pure def UShorts(name: String, size: Z): ShortsImpl = {
-    return ShortsImpl(name, size, F, None())
+    return ShortsImpl(name, size, F, None(), None())
   }
 
-  @datatype class IntsImpl(val name: String, size: Z, signed: B, valueOpt: Option[Z]) extends Base {
+  @datatype class IntsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
   }
 
   @pure def Int(name: String): IntsImpl = {
-    return IntsImpl(name, 1, T, None())
+    return IntsImpl(name, 1, T, None(), None())
   }
 
   @pure def IntConst(name: String, value: Z): IntsImpl = {
     assert(conversions.Z.isInRangeSigned32(value))
-    return IntsImpl(name, 1, T, Some(value))
+    return IntsImpl(name, 1, T, Some(value), Some(value))
+  }
+
+  @pure def IntRange(name: String, min: Z, max: Z): IntsImpl = {
+    assert(conversions.Z.isInRangeSigned32(min) && conversions.Z.isInRangeSigned32(max) && min <= max)
+    return IntsImpl(name, 1, T, Some(min), Some(max))
   }
 
   @pure def UInt(name: String): IntsImpl = {
-    return IntsImpl(name, 1, F, None())
+    return IntsImpl(name, 1, F, None(), None())
   }
 
   @pure def UIntConst(name: String, value: Z): IntsImpl = {
     assert(conversions.Z.isInRangeUnsigned32(value))
-    return IntsImpl(name, 1, F, Some(value))
+    return IntsImpl(name, 1, F, Some(value), Some(value))
+  }
+
+  @pure def UIntRange(name: String, min: Z, max: Z): IntsImpl = {
+    assert(conversions.Z.isInRangeUnsigned32(min) && conversions.Z.isInRangeUnsigned32(max) && min <= max)
+    return IntsImpl(name, 1, F, Some(min), Some(max))
   }
 
   @pure def Ints(name: String, size: Z): IntsImpl = {
-    return IntsImpl(name, size, T, None())
+    return IntsImpl(name, size, T, None(), None())
   }
 
   @pure def UInts(name: String, size: Z): IntsImpl = {
-    return IntsImpl(name, size, F, None())
+    return IntsImpl(name, size, F, None(), None())
   }
 
-  @datatype class LongsImpl(val name: String, size: Z, signed: B, valueOpt: Option[Z]) extends Base {
+  @datatype class LongsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 64)
     }
   }
 
   @pure def Long(name: String): LongsImpl = {
-    return LongsImpl(name, 1, T, None())
+    return LongsImpl(name, 1, T, None(), None())
   }
 
   @pure def LongConst(name: String, value: Z): LongsImpl = {
     assert(conversions.Z.isInRangeSigned64(value))
-    return LongsImpl(name, 1, T, Some(value))
+    return LongsImpl(name, 1, T, Some(value), Some(value))
+  }
+
+  @pure def LongRange(name: String, min: Z, max: Z): LongsImpl = {
+    assert(conversions.Z.isInRangeSigned64(min) && conversions.Z.isInRangeSigned64(max) && min <= max)
+    return LongsImpl(name, 1, T, Some(min), Some(max))
   }
 
   @pure def ULong(name: String): LongsImpl = {
-    return LongsImpl(name, 1, F, None())
+    return LongsImpl(name, 1, F, None(), None())
   }
 
   @pure def ULongConst(name: String, value: Z): LongsImpl = {
     assert(conversions.Z.isInRangeUnsigned64(value))
-    return LongsImpl(name, 1, F, Some(value))
+    return LongsImpl(name, 1, F, Some(value), Some(value))
+  }
+
+  @pure def ULongRange(name: String, min: Z, max: Z): LongsImpl = {
+    assert(conversions.Z.isInRangeUnsigned64(min) && conversions.Z.isInRangeUnsigned64(max) && min <= max)
+    return LongsImpl(name, 1, F, Some(min), Some(max))
   }
 
   @pure def Longs(name: String, size: Z): LongsImpl = {
-    return LongsImpl(name, size, T, None())
+    return LongsImpl(name, size, T, None(), None())
   }
 
   @pure def ULongs(name: String, size: Z): LongsImpl = {
-    return LongsImpl(name, size, F, None())
+    return LongsImpl(name, size, F, None(), None())
   }
 
   @datatype class FloatsImpl(val name: String, size: Z) extends Base {

@@ -98,7 +98,8 @@ object JSON {
         ("name", printString(o.name)),
         ("size", printZ(o.size)),
         ("signed", printB(o.signed)),
-        ("valueOpt", printOption(T, o.valueOpt, printZ _))
+        ("minOpt", printOption(T, o.minOpt, printZ _)),
+        ("maxOpt", printOption(T, o.maxOpt, printZ _))
       ))
     }
 
@@ -108,7 +109,8 @@ object JSON {
         ("name", printString(o.name)),
         ("size", printZ(o.size)),
         ("signed", printB(o.signed)),
-        ("valueOpt", printOption(T, o.valueOpt, printZ _))
+        ("minOpt", printOption(T, o.minOpt, printZ _)),
+        ("maxOpt", printOption(T, o.maxOpt, printZ _))
       ))
     }
 
@@ -118,7 +120,8 @@ object JSON {
         ("name", printString(o.name)),
         ("size", printZ(o.size)),
         ("signed", printB(o.signed)),
-        ("valueOpt", printOption(T, o.valueOpt, printZ _))
+        ("minOpt", printOption(T, o.minOpt, printZ _)),
+        ("maxOpt", printOption(T, o.maxOpt, printZ _))
       ))
     }
 
@@ -128,7 +131,8 @@ object JSON {
         ("name", printString(o.name)),
         ("size", printZ(o.size)),
         ("signed", printB(o.signed)),
-        ("valueOpt", printOption(T, o.valueOpt, printZ _))
+        ("minOpt", printOption(T, o.minOpt, printZ _)),
+        ("maxOpt", printOption(T, o.maxOpt, printZ _))
       ))
     }
 
@@ -474,10 +478,13 @@ object JSON {
       parser.parseObjectKey("signed")
       val signed = parser.parseB()
       parser.parseObjectNext()
-      parser.parseObjectKey("valueOpt")
-      val valueOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.BytesImpl(name, size, signed, valueOpt)
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.BytesImpl(name, size, signed, minOpt, maxOpt)
     }
 
     def parseSpecShorts(): Spec.ShortsImpl = {
@@ -498,10 +505,13 @@ object JSON {
       parser.parseObjectKey("signed")
       val signed = parser.parseB()
       parser.parseObjectNext()
-      parser.parseObjectKey("valueOpt")
-      val valueOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.ShortsImpl(name, size, signed, valueOpt)
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.ShortsImpl(name, size, signed, minOpt, maxOpt)
     }
 
     def parseSpecInts(): Spec.IntsImpl = {
@@ -522,10 +532,13 @@ object JSON {
       parser.parseObjectKey("signed")
       val signed = parser.parseB()
       parser.parseObjectNext()
-      parser.parseObjectKey("valueOpt")
-      val valueOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.IntsImpl(name, size, signed, valueOpt)
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.IntsImpl(name, size, signed, minOpt, maxOpt)
     }
 
     def parseSpecLongs(): Spec.LongsImpl = {
@@ -546,10 +559,13 @@ object JSON {
       parser.parseObjectKey("signed")
       val signed = parser.parseB()
       parser.parseObjectNext()
-      parser.parseObjectKey("valueOpt")
-      val valueOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.LongsImpl(name, size, signed, valueOpt)
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      return Spec.LongsImpl(name, size, signed, minOpt, maxOpt)
     }
 
     def parseSpecFloats(): Spec.FloatsImpl = {
