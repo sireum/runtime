@@ -618,7 +618,7 @@ object Bits {
       }
 
       def beS8(input: ISZ[B], context: Context): S8 = {
-        return conversions.U8.toS8(beU8(input, context))
+        return conversions.U8.toRawS8(beU8(input, context))
       }
 
       def beU9(input: ISZ[B], context: Context): U9 = {
@@ -806,7 +806,7 @@ object Bits {
       }
 
       def beS16(input: ISZ[B], context: Context): S16 = {
-        return conversions.U16.toS16(beU16(input, context))
+        return conversions.U16.toRawS16(beU16(input, context))
       }
 
       def beU17(input: ISZ[B], context: Context): U17 = {
@@ -1178,7 +1178,7 @@ object Bits {
       }
 
       def beS32(input: ISZ[B], context: Context): S32 = {
-        return conversions.U32.toS32(beU32(input, context))
+        return conversions.U32.toRawS32(beU32(input, context))
       }
 
       def beU33(input: ISZ[B], context: Context): U33 = {
@@ -1918,7 +1918,7 @@ object Bits {
       }
 
       def beS64(input: ISZ[B], context: Context): S64 = {
-        return conversions.U64.toS64(beU64(input, context))
+        return conversions.U64.toRawS64(beU64(input, context))
       }
 
       def beF32(input: ISZ[B], context: Context): F32 = {
@@ -2120,7 +2120,7 @@ object Bits {
       }
 
       def leS8(input: ISZ[B], context: Context): S8 = {
-        return conversions.U8.toS8(leU8(input, context))
+        return conversions.U8.toRawS8(leU8(input, context))
       }
 
       def leU9(input: ISZ[B], context: Context): U9 = {
@@ -2308,7 +2308,7 @@ object Bits {
       }
 
       def leS16(input: ISZ[B], context: Context): S16 = {
-        return conversions.U16.toS16(leU16(input, context))
+        return conversions.U16.toRawS16(leU16(input, context))
       }
 
       def leU17(input: ISZ[B], context: Context): U17 = {
@@ -2680,7 +2680,7 @@ object Bits {
       }
 
       def leS32(input: ISZ[B], context: Context): S32 = {
-        return conversions.U32.toS32(leU32(input, context))
+        return conversions.U32.toRawS32(leU32(input, context))
       }
 
       def leU33(input: ISZ[B], context: Context): U33 = {
@@ -3420,7 +3420,7 @@ object Bits {
       }
 
       def leS64(input: ISZ[B], context: Context): S64 = {
-        return conversions.U64.toS64(leU64(input, context))
+        return conversions.U64.toRawS64(leU64(input, context))
       }
 
       def leF32(input: ISZ[B], context: Context): F32 = {
@@ -3918,7 +3918,7 @@ object Bits {
       }
 
       def beS8(input: MSZ[B], context: Context): S8 = {
-        return conversions.U8.toS8(beU8(input, context))
+        return conversions.U8.toRawS8(beU8(input, context))
       }
 
       def beU9(input: MSZ[B], context: Context): U9 = {
@@ -4106,7 +4106,7 @@ object Bits {
       }
 
       def beS16(input: MSZ[B], context: Context): S16 = {
-        return conversions.U16.toS16(beU16(input, context))
+        return conversions.U16.toRawS16(beU16(input, context))
       }
 
       def beU17(input: MSZ[B], context: Context): U17 = {
@@ -4478,7 +4478,7 @@ object Bits {
       }
 
       def beS32(input: MSZ[B], context: Context): S32 = {
-        return conversions.U32.toS32(beU32(input, context))
+        return conversions.U32.toRawS32(beU32(input, context))
       }
 
       def beU33(input: MSZ[B], context: Context): U33 = {
@@ -5218,7 +5218,7 @@ object Bits {
       }
 
       def beS64(input: MSZ[B], context: Context): S64 = {
-        return conversions.U64.toS64(beU64(input, context))
+        return conversions.U64.toRawS64(beU64(input, context))
       }
 
       def beF32(input: MSZ[B], context: Context): F32 = {
@@ -5420,7 +5420,7 @@ object Bits {
       }
 
       def leS8(input: MSZ[B], context: Context): S8 = {
-        return conversions.U8.toS8(leU8(input, context))
+        return conversions.U8.toRawS8(leU8(input, context))
       }
 
       def leU9(input: MSZ[B], context: Context): U9 = {
@@ -5608,7 +5608,7 @@ object Bits {
       }
 
       def leS16(input: MSZ[B], context: Context): S16 = {
-        return conversions.U16.toS16(leU16(input, context))
+        return conversions.U16.toRawS16(leU16(input, context))
       }
 
       def leU17(input: MSZ[B], context: Context): U17 = {
@@ -5980,7 +5980,7 @@ object Bits {
       }
 
       def leS32(input: MSZ[B], context: Context): S32 = {
-        return conversions.U32.toS32(leU32(input, context))
+        return conversions.U32.toRawS32(leU32(input, context))
       }
 
       def leU33(input: MSZ[B], context: Context): U33 = {
@@ -6720,7 +6720,7 @@ object Bits {
       }
 
       def leS64(input: MSZ[B], context: Context): S64 = {
-        return conversions.U64.toS64(leU64(input, context))
+        return conversions.U64.toRawS64(leU64(input, context))
       }
 
       def leF32(input: MSZ[B], context: Context): F32 = {
@@ -7286,7 +7286,7 @@ object Bits {
     }
 
     def beS8(output: MSZ[B], context: Context, v: S8): Unit = {
-      beU8(output, context, conversions.S8.toU8(v))
+      beU8(output, context, conversions.S8.toRawU8(v))
     }
 
     def beU9(output: MSZ[B], context: Context, v: U9): Unit = {
@@ -7490,7 +7490,7 @@ object Bits {
     }
 
     def beS16(output: MSZ[B], context: Context, v: S16): Unit = {
-      beU16(output, context, conversions.S16.toU16(v))
+      beU16(output, context, conversions.S16.toRawU16(v))
     }
 
     def beU17(output: MSZ[B], context: Context, v: U17): Unit = {
@@ -7894,7 +7894,7 @@ object Bits {
     }
 
     def beS32(output: MSZ[B], context: Context, v: S32): Unit = {
-      beU32(output, context, conversions.S32.toU32(v))
+      beU32(output, context, conversions.S32.toRawU32(v))
     }
 
     def beU33(output: MSZ[B], context: Context, v: U33): Unit = {
@@ -8698,7 +8698,7 @@ object Bits {
     }
 
     def beS64(output: MSZ[B], context: Context, v: S64): Unit = {
-      beU64(output, context, conversions.S64.toU64(v))
+      beU64(output, context, conversions.S64.toRawU64(v))
     }
 
     def beF32(output: MSZ[B], context: Context, v: F32): Unit = {
@@ -8916,7 +8916,7 @@ object Bits {
     }
 
     def leS8(output: MSZ[B], context: Context, v: S8): Unit = {
-      leU8(output, context, conversions.S8.toU8(v))
+      leU8(output, context, conversions.S8.toRawU8(v))
     }
 
     def leU9(output: MSZ[B], context: Context, v: U9): Unit = {
@@ -9120,7 +9120,7 @@ object Bits {
     }
 
     def leS16(output: MSZ[B], context: Context, v: S16): Unit = {
-      leU16(output, context, conversions.S16.toU16(v))
+      leU16(output, context, conversions.S16.toRawU16(v))
     }
 
     def leU17(output: MSZ[B], context: Context, v: U17): Unit = {
@@ -9524,7 +9524,7 @@ object Bits {
     }
 
     def leS32(output: MSZ[B], context: Context, v: S32): Unit = {
-      leU32(output, context, conversions.S32.toU32(v))
+      leU32(output, context, conversions.S32.toRawU32(v))
     }
 
     def leU33(output: MSZ[B], context: Context, v: U33): Unit = {
@@ -10328,7 +10328,7 @@ object Bits {
     }
 
     def leS64(output: MSZ[B], context: Context, v: S64): Unit = {
-      leU64(output, context, conversions.S64.toU64(v))
+      leU64(output, context, conversions.S64.toRawU64(v))
     }
 
     def leF32(output: MSZ[B], context: Context, v: F32): Unit = {
