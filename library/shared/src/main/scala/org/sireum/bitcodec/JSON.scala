@@ -140,7 +140,9 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.Floats""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("minOpt", printOption(T, o.minOpt, printF32 _)),
+        ("maxOpt", printOption(T, o.maxOpt, printF32 _))
       ))
     }
 
@@ -148,7 +150,9 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Spec.Doubles""""),
         ("name", printString(o.name)),
-        ("size", printZ(o.size))
+        ("size", printZ(o.size)),
+        ("minOpt", printOption(T, o.minOpt, printF64 _)),
+        ("maxOpt", printOption(T, o.maxOpt, printF64 _))
       ))
     }
 
@@ -583,7 +587,13 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.FloatsImpl(name, size)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseF32 _)
+      parser.parseObjectNext()
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseF32 _)
+      parser.parseObjectNext()
+      return Spec.FloatsImpl(name, size, minOpt, maxOpt)
     }
 
     def parseSpecDoubles(): Spec.DoublesImpl = {
@@ -601,7 +611,13 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.DoublesImpl(name, size)
+      parser.parseObjectKey("minOpt")
+      val minOpt = parser.parseOption(parser.parseF64 _)
+      parser.parseObjectNext()
+      parser.parseObjectKey("maxOpt")
+      val maxOpt = parser.parseOption(parser.parseF64 _)
+      parser.parseObjectNext()
+      return Spec.DoublesImpl(name, size, minOpt, maxOpt)
     }
 
     def parseSpecEnum(): Spec.Enum = {
