@@ -52,7 +52,7 @@ object Z extends $ZCompanion[Z] {
 
       override def toInt: scala.Int = value.toInt
 
-      override def toLong: scala.Long = value.toInt
+      override def toLong: scala.Long = value.toLong
 
       override def hashCode: scala.Int = value.toInt
 
@@ -72,7 +72,7 @@ object Z extends $ZCompanion[Z] {
 
       override def toInt: scala.Int = value.toInt
 
-      override def toLong: scala.Long = value.toInt
+      override def toLong: scala.Long = value.toLong
 
       override def toString: Predef.String = value.toString
 
