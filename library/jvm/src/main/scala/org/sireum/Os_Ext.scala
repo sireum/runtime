@@ -710,7 +710,7 @@ object Os_Ext {
         try {
           jvm()
         } catch {
-          case _: UnsatisfiedLinkError =>
+          case _: UnsatisfiedLinkError | _: NumberFormatException =>
             isNative = T
             nativ()
         }
