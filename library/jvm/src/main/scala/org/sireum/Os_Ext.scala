@@ -650,6 +650,14 @@ object Os_Ext {
         val value = v.toString
         m(key) = value
       }
+      if (e.outputEnv) {
+        for ((k, v) <- m) {
+          println(s"$k = $v")
+        }
+      }
+      if (e.outputCommands) {
+        println(e.cmds.elements.mkString(" "))
+      }
       val npb = new NuProcessBuilder(commands, m.asJava)
       npb.setCwd(toNIO(e.wd.value))
       val out = new java.io.ByteArrayOutputStream()
