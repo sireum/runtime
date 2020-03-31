@@ -91,8 +91,6 @@ final class R(val value: BigDecimal) extends AnyVal with Number with $internal.H
 
   @inline def /(other: R): R = value / other.value
 
-  @inline def %(other: R): R = value % other.value
-
   @inline def string: String = toString
 
   @inline override def toString: Predef.String = value.toString

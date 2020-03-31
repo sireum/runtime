@@ -246,8 +246,6 @@ package org.sireum
 
   @pure def /(other: R): R
 
-  @pure def %(other: R): R
-
   @pure def unary_- : R
 
 }
