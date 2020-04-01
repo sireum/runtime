@@ -37,7 +37,7 @@ object HashSet {
   }
 
   @pure def ++[I, T](s: IS[I, T]): HashSet[T] = {
-    return HashSet.emptyInit[T](s.zize) ++ s
+    return HashSet.emptyInit[T](s.size) ++ s
   }
 }
 

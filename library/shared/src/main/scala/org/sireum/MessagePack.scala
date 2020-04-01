@@ -314,119 +314,119 @@ object MessagePack {
     }
 
     def writeISZ8[E](s: IS[Z8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISZ16[E](s: IS[Z16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISZ32[E](s: IS[Z32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISZ64[E](s: IS[Z64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISN[E](s: IS[N, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISN8[E](s: IS[N8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISN16[E](s: IS[N16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISN32[E](s: IS[N32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISN64[E](s: IS[N64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISS8[E](s: IS[S8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISS16[E](s: IS[S16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISS32[E](s: IS[S32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISS64[E](s: IS[S64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISU8[E](s: IS[U8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISU16[E](s: IS[U16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISU32[E](s: IS[U32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeISU64[E](s: IS[U64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
@@ -440,119 +440,119 @@ object MessagePack {
     }
 
     def writeMSZ8[E](s: MS[Z8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSZ16[E](s: MS[Z16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSZ32[E](s: MS[Z32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSZ64[E](s: MS[Z64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.Z64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSN[E](s: MS[N, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSN8[E](s: MS[N8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSN16[E](s: MS[N16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSN32[E](s: MS[N32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSN64[E](s: MS[N64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.N64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSS8[E](s: MS[S8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSS16[E](s: MS[S16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSS32[E](s: MS[S32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSS64[E](s: MS[S64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.S64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSU8[E](s: MS[U8, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U8.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSU16[E](s: MS[U16, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U16.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSU32[E](s: MS[U32, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U32.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }
     }
 
     def writeMSU64[E](s: MS[U64, E], f: E => Unit): Unit = {
-      writeArrayHeader(conversions.U64.toZ(s.size))
+      writeArrayHeader(s.size)
       for (e <- s) {
         f(e)
       }

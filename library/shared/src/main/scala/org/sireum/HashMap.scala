@@ -38,7 +38,7 @@ object HashMap {
   }
 
   @pure def ++[I, K, T](s: IS[I, (K, T)]): HashMap[K, T] = {
-    return HashMap.emptyInit[K, T](s.zize) ++ s
+    return HashMap.emptyInit[K, T](s.size) ++ s
   }
 
 }
@@ -96,7 +96,7 @@ object HashMap {
     if (entries.isEmpty) {
       return this
     }
-    var r = ensureCapacity(size + entries.zize)
+    var r = ensureCapacity(size + entries.size)
     for (kv <- entries) {
       r = r + kv._1 ~> kv._2
     }

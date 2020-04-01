@@ -322,9 +322,11 @@ package org.sireum
 
   def foreach[V](p: E => V): Unit
 
-  @pure def size: I
+  @pure def size: Z
 
-  @pure def zize: Z
+  @pure def firstIndex: I
+
+  @pure def lastIndex: I
 
   @pure def indices: ISZ[I]
 
@@ -388,9 +390,11 @@ package org.sireum
 
   def foreach[V](p: E => V): Unit
 
-  @pure def size: I
+  @pure def size: Z
 
-  @pure def zize: Z
+  @pure def firstIndex: I
+
+  @pure def lastIndex: I
 
   @pure def indices: ISZ[I]
 
