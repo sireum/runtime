@@ -299,12 +299,15 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def firstIndex: I = if (companion.isZeroIndex) companion(0) else companion.Min
 
-  def lastIndex: I = if (companion.isZeroIndex) companion(length) else {
-    var r = companion.Min
-    for (_ <- 0 until length) {
-      r = r.asInstanceOf[ZLike[_]].increase.asInstanceOf[I]
+  def lastIndex: I = {
+    assert(nonEmpty, "lastIndex can only be used on non-empty IS")
+    if (companion.isZeroIndex) companion(length) else {
+      var r = companion.Min
+      for (_ <- 0 until length) {
+        r = r.asInstanceOf[ZLike[_]].increase.asInstanceOf[I]
+      }
+      return r
     }
-    return r
   }
 
   def toMS: MS[I, V] = {
