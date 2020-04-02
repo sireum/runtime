@@ -44,16 +44,68 @@ object helper {
     throw e
   }
 
-  def clone[T](o: T): T = o match {
-    case o: ImmutableMarker => o.$clone.asInstanceOf[T]
-    case o: MutableMarker => o.$clone.asInstanceOf[T]
-    case _ => halt(topValueError + s": $o (of ${o.getClass.getName})")
+  def clone[T](o: T): T = {
+    val r = o match {
+      case o: ImmutableMarker => o.$clone
+      case o: MutableMarker => o.$clone
+      case o: Function0[_] => o
+      case o: Function1[_, _] => o
+      case o: Function2[_, _, _] => o
+      case o: Function3[_, _, _, _] => o
+      case o: Function4[_, _, _, _, _] => o
+      case o: Function5[_, _, _, _, _, _] => o
+      case o: Function6[_, _, _, _, _, _, _] => o
+      case o: Function7[_, _, _, _, _, _, _, _] => o
+      case o: Function8[_, _, _, _, _, _, _, _, _] => o
+      case o: Function9[_, _, _, _, _, _, _, _, _, _] => o
+      case o: Function10[_, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function11[_, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function12[_, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function13[_, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case _ => halt(topValueError + s": $o (of ${o.getClass.getName})")
+    }
+    return r.asInstanceOf[T]
   }
 
-  def cloneAssign[T](o: T): T = o match {
-    case o: MutableMarker => (o.$clone.$owned = true).asInstanceOf[T]
-    case o: ImmutableMarker => o.$clone.asInstanceOf[T]
-    case _ => halt(topValueError + s": $o (of ${o.getClass.getName})")
+  def cloneAssign[T](o: T): T = {
+    val r = o match {
+      case o: MutableMarker => (o.$clone.$owned = true)
+      case o: ImmutableMarker => o.$clone
+      case o: Function0[_] => o
+      case o: Function1[_, _] => o
+      case o: Function2[_, _, _] => o
+      case o: Function3[_, _, _, _] => o
+      case o: Function4[_, _, _, _, _] => o
+      case o: Function5[_, _, _, _, _, _] => o
+      case o: Function6[_, _, _, _, _, _, _] => o
+      case o: Function7[_, _, _, _, _, _, _, _] => o
+      case o: Function8[_, _, _, _, _, _, _, _, _] => o
+      case o: Function9[_, _, _, _, _, _, _, _, _, _] => o
+      case o: Function10[_, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function11[_, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function12[_, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function13[_, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function14[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case o: Function22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] => o
+      case _ => halt(topValueError + s": $o (of ${o.getClass.getName})")
+    }
+    return r.asInstanceOf[T]
   }
 
   def assignMut[T](x: MutableMarker): T =
