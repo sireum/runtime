@@ -31,6 +31,10 @@ trait contract {
 
   import $internal.Macro
 
+  object Spec {
+    def apply(arg0: => Unit): Unit = macro Macro.lUnit1
+  }
+
   object Contract {
 
     def apply(arg0: Reads): Unit = macro Macro.lUnit1
@@ -70,8 +74,6 @@ trait contract {
     def apply(arg0: Modifies, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
 
     def apply(arg0: Reads, arg1: Modifies, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
-
-    def apply(arg0: => Unit): Unit = macro Macro.lUnit1
 
     def apply(arg0: String): Unit = macro Macro.lUnit1
 
