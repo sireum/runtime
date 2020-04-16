@@ -54,7 +54,7 @@ class STest extends TestSuite {
         * - assert((empty :+ T).data.isInstanceOf[BS])
 
         * - assert(
-          (ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[B64]")
+            (ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[6D02]")
 
       }
 
