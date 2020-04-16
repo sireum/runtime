@@ -10339,4 +10339,45 @@ object Bits {
       leU64(output, context, conversions.F64.toRawU64(v))
     }
   }
+
+  def hex2u8(n: U8): Option[U8] = {
+    if (u8"48" <= n && n <= u8"57") { // '0' .. '9'
+      return Some(n - u8"48")
+    }
+    if (u8"65" <= n && n <= u8"90") { // 'A' .. 'Z'
+      return Some(n - u8"55")
+    }
+    if (u8"97" <= n && n <= u8"122") { // 'a' .. 'z'
+      return Some(n - u8"87")
+    }
+    return None()
+  }
+
+  def fromHexString(s: String, isBigEndian: B): ISZ[B] = {
+    assert(s.size % 2 == 0)
+    val ms = MSZ.create(s.size * 4, F)
+    var i = 0
+    val sz = s.size
+    val u8s = conversions.String.toU8is(s)
+    val ctx = Bits.Context.create
+    while (i < sz) {
+      val b1Opt = hex2u8(u8s(i))
+      i = i + 1
+      val b2Opt = hex2u8(u8s(i))
+      i = i + 1
+      (b1Opt, b2Opt) match {
+        case (Some(b1), Some(b2)) =>
+          val b = b1 << u8"4" | b2
+          if (isBigEndian) {
+            Bits.Writer.beU8(ms, ctx, b)
+          } else {
+            Bits.Writer.leU8(ms, ctx, b)
+          }
+        case (_, _) =>
+          halt(s"Invalid hex input string at offset: ${i - (if (b1Opt.isEmpty) 2 else 1)}")
+      }
+    }
+    assert(ctx.errorCode == 0)
+    return Bits.Writer.resultMS(ms, ctx).toIS
+  }
 }
