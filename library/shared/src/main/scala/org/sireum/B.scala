@@ -105,13 +105,39 @@ object B {
         val bs = a.toBitMask
         sb.append('[')
         if (length > 0) {
-          var i = length
-          for (b <- bs if i > 0) {
-            var m = b
-            for (_ <- 0 until 16 if i > 0) {
-              sb.append(bigEndianHexMap(m & 0xf))
-              m = m >>> 4
-              i = i - 4
+          var i = 0
+          for (b <- bs) {
+            if (i < length) {
+              sb.append(U8(b & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 8) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 16) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 24) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 32) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 40) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 48) & 0xFFL))
+              i += 8
+            }
+            if (i < length) {
+              sb.append(U8((b >> 56) & 0xFFL))
+              i += 8
             }
           }
         }
