@@ -10344,10 +10344,10 @@ object Bits {
     if (u8"48" <= n && n <= u8"57") { // '0' .. '9'
       return Some(n - u8"48")
     }
-    if (u8"65" <= n && n <= u8"90") { // 'A' .. 'Z'
+    if (u8"65" <= n && n <= u8"70") { // 'A' .. 'F'
       return Some(n - u8"55")
     }
-    if (u8"97" <= n && n <= u8"122") { // 'a' .. 'z'
+    if (u8"97" <= n && n <= u8"102") { // 'a' .. 'f'
       return Some(n - u8"87")
     }
     return None()
