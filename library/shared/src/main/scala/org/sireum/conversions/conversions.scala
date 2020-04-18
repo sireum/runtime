@@ -1516,6 +1516,55 @@ import org.sireum.Z64._
   @pure def toRawU64(n: S64): U64 = $
 }
 
+@ext object U1 {
+  @pure def toU8(n: U1): U8 = $
+  @pure def toU16(n: U1): U16 = $
+  @pure def toU32(n: U1): U32 = $
+  @pure def toU64(n: U1): U64 = $
+}
+
+@ext object U2 {
+  @pure def toU8(n: U2): U8 = $
+  @pure def toU16(n: U2): U16 = $
+  @pure def toU32(n: U2): U32 = $
+  @pure def toU64(n: U2): U64 = $
+}
+
+@ext object U3 {
+  @pure def toU8(n: U3): U8 = $
+  @pure def toU16(n: U3): U16 = $
+  @pure def toU32(n: U3): U32 = $
+  @pure def toU64(n: U3): U64 = $
+}
+
+@ext object U4 {
+  @pure def toU8(n: U4): U8 = $
+  @pure def toU16(n: U4): U16 = $
+  @pure def toU32(n: U4): U32 = $
+  @pure def toU64(n: U4): U64 = $
+}
+
+@ext object U5 {
+  @pure def toU8(n: U5): U8 = $
+  @pure def toU16(n: U5): U16 = $
+  @pure def toU32(n: U5): U32 = $
+  @pure def toU64(n: U5): U64 = $
+}
+
+@ext object U6 {
+  @pure def toU8(n: U6): U8 = $
+  @pure def toU16(n: U6): U16 = $
+  @pure def toU32(n: U6): U32 = $
+  @pure def toU64(n: U6): U64 = $
+}
+
+@ext object U7 {
+  @pure def toU8(n: U7): U8 = $
+  @pure def toU16(n: U7): U16 = $
+  @pure def toU32(n: U7): U32 = $
+  @pure def toU64(n: U7): U64 = $
+}
+
 @ext object U8 {
 
   @pure def toB(n: U8): B =
@@ -1583,6 +1632,20 @@ import org.sireum.Z64._
   /* @first */
   @pure def toS64(n: U8): S64 = $
 
+  @pure def toU1(n: U8): U1 = $
+
+  @pure def toU2(n: U8): U2 = $
+
+  @pure def toU3(n: U8): U3 = $
+
+  @pure def toU4(n: U8): U4 = $
+
+  @pure def toU5(n: U8): U5 = $
+
+  @pure def toU6(n: U8): U6 = $
+
+  @pure def toU7(n: U8): U7 = $
+
   @pure def toU8(n: U8): U8 =
     $ // l""" ensures result ≡ n """
 
@@ -1594,6 +1657,48 @@ import org.sireum.Z64._
 
   /* @first */
   @pure def toU64(n: U8): U64 = $
+}
+
+@ext object U9 {
+  @pure def toU16(n: U9): U16 = $
+  @pure def toU32(n: U9): U32 = $
+  @pure def toU64(n: U9): U64 = $
+}
+
+@ext object U10 {
+  @pure def toU16(n: U10): U16 = $
+  @pure def toU32(n: U10): U32 = $
+  @pure def toU64(n: U10): U64 = $
+}
+
+@ext object U11 {
+  @pure def toU16(n: U11): U16 = $
+  @pure def toU32(n: U11): U32 = $
+  @pure def toU64(n: U11): U64 = $
+}
+
+@ext object U12 {
+  @pure def toU16(n: U12): U16 = $
+  @pure def toU32(n: U12): U32 = $
+  @pure def toU64(n: U12): U64 = $
+}
+
+@ext object U13 {
+  @pure def toU16(n: U13): U16 = $
+  @pure def toU32(n: U13): U32 = $
+  @pure def toU64(n: U13): U64 = $
+}
+
+@ext object U14 {
+  @pure def toU16(n: U14): U16 = $
+  @pure def toU32(n: U14): U32 = $
+  @pure def toU64(n: U14): U64 = $
+}
+
+@ext object U15 {
+  @pure def toU16(n: U15): U16 = $
+  @pure def toU32(n: U15): U32 = $
+  @pure def toU64(n: U15): U64 = $
 }
 
 @ext object U16 {
@@ -1685,6 +1790,20 @@ import org.sireum.Z64._
   /* @first */
   @pure def toU8(n: U16): U8 = $
 
+  @pure def toU9(n: U16): U9 = $
+
+  @pure def toU10(n: U16): U10 = $
+
+  @pure def toU11(n: U16): U11 = $
+
+  @pure def toU12(n: U16): U12 = $
+
+  @pure def toU13(n: U16): U13 = $
+
+  @pure def toU14(n: U16): U14 = $
+
+  @pure def toU15(n: U16): U15 = $
+
   @pure def toU16(n: U16): U16 =
     $ // l""" ensures result ≡ n """
 
@@ -1693,6 +1812,81 @@ import org.sireum.Z64._
 
   /* @first */
   @pure def toU64(n: U16): U64 = $
+}
+
+@ext object U17 {
+  @pure def toU32(n: U17): U32 = $
+  @pure def toU64(n: U17): U64 = $
+}
+
+@ext object U18 {
+  @pure def toU32(n: U18): U32 = $
+  @pure def toU64(n: U18): U64 = $
+}
+
+@ext object U19 {
+  @pure def toU32(n: U19): U32 = $
+  @pure def toU64(n: U19): U64 = $
+}
+
+@ext object U20 {
+  @pure def toU32(n: U20): U32 = $
+  @pure def toU64(n: U20): U64 = $
+}
+
+@ext object U21 {
+  @pure def toU32(n: U21): U32 = $
+  @pure def toU64(n: U21): U64 = $
+}
+
+@ext object U22 {
+  @pure def toU32(n: U22): U32 = $
+  @pure def toU64(n: U22): U64 = $
+}
+
+@ext object U23 {
+  @pure def toU32(n: U23): U32 = $
+  @pure def toU64(n: U23): U64 = $
+}
+
+@ext object U24 {
+  @pure def toU32(n: U24): U32 = $
+  @pure def toU64(n: U24): U64 = $
+}
+
+@ext object U25 {
+  @pure def toU32(n: U25): U32 = $
+  @pure def toU64(n: U25): U64 = $
+}
+
+@ext object U26 {
+  @pure def toU32(n: U26): U32 = $
+  @pure def toU64(n: U26): U64 = $
+}
+
+@ext object U27 {
+  @pure def toU32(n: U27): U32 = $
+  @pure def toU64(n: U27): U64 = $
+}
+
+@ext object U28 {
+  @pure def toU32(n: U28): U32 = $
+  @pure def toU64(n: U28): U64 = $
+}
+
+@ext object U29 {
+  @pure def toU32(n: U29): U32 = $
+  @pure def toU64(n: U29): U64 = $
+}
+
+@ext object U30 {
+  @pure def toU32(n: U30): U32 = $
+  @pure def toU64(n: U30): U64 = $
+}
+
+@ext object U31 {
+  @pure def toU32(n: U31): U32 = $
+  @pure def toU64(n: U31): U64 = $
 }
 
 @ext object U32 {
@@ -1823,6 +2017,36 @@ import org.sireum.Z64._
   @pure def toU16(n: U32): U16 =
     $ // l""" requires n ≤ u32"65535" """
 
+  @pure def toU17(n: U32): U17 = $
+
+  @pure def toU18(n: U32): U18 = $
+
+  @pure def toU19(n: U32): U19 = $
+
+  @pure def toU20(n: U32): U20 = $
+
+  @pure def toU21(n: U32): U21 = $
+
+  @pure def toU22(n: U32): U22 = $
+
+  @pure def toU23(n: U32): U23 = $
+
+  @pure def toU24(n: U32): U24 = $
+
+  @pure def toU25(n: U32): U25 = $
+
+  @pure def toU26(n: U32): U26 = $
+
+  @pure def toU27(n: U32): U27 = $
+
+  @pure def toU28(n: U32): U28 = $
+
+  @pure def toU29(n: U32): U29 = $
+
+  @pure def toU30(n: U32): U30 = $
+
+  @pure def toU31(n: U32): U31 = $
+
   @pure def toU32(n: U32): U32 =
     $ // l""" ensures result ≡ n """
 
@@ -1833,6 +2057,130 @@ import org.sireum.Z64._
   @pure def toRawF32(n: U32): F32 = $
 
   @pure def toC(n: U32): C = $
+}
+
+@ext object U33 {
+  @pure def toU64(n: U33): U64 = $
+}
+
+@ext object U34 {
+  @pure def toU64(n: U34): U64 = $
+}
+
+@ext object U35 {
+  @pure def toU64(n: U35): U64 = $
+}
+
+@ext object U36 {
+  @pure def toU64(n: U36): U64 = $
+}
+
+@ext object U37 {
+  @pure def toU64(n: U37): U64 = $
+}
+
+@ext object U38 {
+  @pure def toU64(n: U38): U64 = $
+}
+
+@ext object U39 {
+  @pure def toU64(n: U39): U64 = $
+}
+
+@ext object U40 {
+  @pure def toU64(n: U40): U64 = $
+}
+
+@ext object U41 {
+  @pure def toU64(n: U41): U64 = $
+}
+
+@ext object U42 {
+  @pure def toU64(n: U42): U64 = $
+}
+
+@ext object U43 {
+  @pure def toU64(n: U43): U64 = $
+}
+
+@ext object U44 {
+  @pure def toU64(n: U44): U64 = $
+}
+
+@ext object U45 {
+  @pure def toU64(n: U45): U64 = $
+}
+
+@ext object U46 {
+  @pure def toU64(n: U46): U64 = $
+}
+
+@ext object U47 {
+  @pure def toU64(n: U47): U64 = $
+}
+
+@ext object U48 {
+  @pure def toU64(n: U48): U64 = $
+}
+
+@ext object U49 {
+  @pure def toU64(n: U49): U64 = $
+}
+
+@ext object U50 {
+  @pure def toU64(n: U50): U64 = $
+}
+
+@ext object U51 {
+  @pure def toU64(n: U51): U64 = $
+}
+
+@ext object U52 {
+  @pure def toU64(n: U52): U64 = $
+}
+
+@ext object U53 {
+  @pure def toU64(n: U53): U64 = $
+}
+
+@ext object U54 {
+  @pure def toU64(n: U54): U64 = $
+}
+
+@ext object U55 {
+  @pure def toU64(n: U55): U64 = $
+}
+
+@ext object U56 {
+  @pure def toU64(n: U56): U64 = $
+}
+
+@ext object U57 {
+  @pure def toU64(n: U57): U64 = $
+}
+
+@ext object U58 {
+  @pure def toU64(n: U58): U64 = $
+}
+
+@ext object U59 {
+  @pure def toU64(n: U59): U64 = $
+}
+
+@ext object U60 {
+  @pure def toU64(n: U60): U64 = $
+}
+
+@ext object U61 {
+  @pure def toU64(n: U61): U64 = $
+}
+
+@ext object U62 {
+  @pure def toU64(n: U62): U64 = $
+}
+
+@ext object U63 {
+  @pure def toU64(n: U63): U64 = $
 }
 
 @ext object U64 {
@@ -2033,6 +2381,68 @@ import org.sireum.Z64._
   /* @first */
   @pure def toU32(n: U64): U32 =
     $ // l""" requires n ≤ u64"4294967295" """
+
+  @pure def toU33(n: U64): U33 = $
+
+  @pure def toU34(n: U64): U34 = $
+
+  @pure def toU35(n: U64): U35 = $
+
+  @pure def toU36(n: U64): U36 = $
+
+  @pure def toU37(n: U64): U37 = $
+
+  @pure def toU38(n: U64): U38 = $
+
+  @pure def toU39(n: U64): U39 = $
+
+  @pure def toU40(n: U64): U40 = $
+
+  @pure def toU41(n: U64): U41 = $
+
+  @pure def toU42(n: U64): U42 = $
+
+  @pure def toU43(n: U64): U43 = $
+
+  @pure def toU44(n: U64): U44 = $
+
+  @pure def toU45(n: U64): U45 = $
+
+  @pure def toU46(n: U64): U46 = $
+
+  @pure def toU47(n: U64): U47 = $
+
+  @pure def toU48(n: U64): U48 = $
+
+  @pure def toU49(n: U64): U49 = $
+
+  @pure def toU50(n: U64): U50 = $
+
+  @pure def toU51(n: U64): U51 = $
+
+  @pure def toU52(n: U64): U52 = $
+
+  @pure def toU53(n: U64): U53 = $
+
+  @pure def toU54(n: U64): U54 = $
+
+  @pure def toU55(n: U64): U55 = $
+
+  @pure def toU56(n: U64): U56 = $
+
+  @pure def toU57(n: U64): U57 = $
+
+  @pure def toU58(n: U64): U58 = $
+
+  @pure def toU59(n: U64): U59 = $
+
+  @pure def toU60(n: U64): U60 = $
+
+  @pure def toU61(n: U64): U61 = $
+
+  @pure def toU62(n: U64): U62 = $
+
+  @pure def toU63(n: U64): U63 = $
 
   /* @first */
   @pure def toU64(n: U64): U64 =
