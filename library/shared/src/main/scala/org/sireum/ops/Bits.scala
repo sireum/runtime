@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2019, Robby, Kansas State University
+ Copyright (c) 2020, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -187,28 +187,150 @@ object Bits {
         return if (r) u1"1" else u1"0"
       }
 
-      def beU8S(input: ISZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
-        if (context.offset + size * 8 > input.size) {
+      def bleU2(input: ISZ[B], context: Context): U2 = {
+        val offset = context.offset
+        if (offset + 2 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
         if (context.hasError) {
-          return
+          return u2"0"
         }
-        for (i <- 0 until size) {
-          result(i) = beU8(input, context)
+        var r = u2"0"
+        var mask = u2"1"
+        for (i <- 0 until 1) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u2"1"
         }
+        if (input(offset + 1)) {
+          r = r | mask
+        }
+        context.offset = offset + 2
+        return r
+      }
+
+      def bleU3(input: ISZ[B], context: Context): U3 = {
+        val offset = context.offset
+        if (offset + 3 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u3"0"
+        }
+        var r = u3"0"
+        var mask = u3"1"
+        for (i <- 0 until 2) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u3"1"
+        }
+        if (input(offset + 2)) {
+          r = r | mask
+        }
+        context.offset = offset + 3
+        return r
+      }
+
+      def bleU4(input: ISZ[B], context: Context): U4 = {
+        val offset = context.offset
+        if (offset + 4 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u4"0"
+        }
+        var r = u4"0"
+        var mask = u4"1"
+        for (i <- 0 until 3) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u4"1"
+        }
+        if (input(offset + 3)) {
+          r = r | mask
+        }
+        context.offset = offset + 4
+        return r
+      }
+
+      def bleU5(input: ISZ[B], context: Context): U5 = {
+        val offset = context.offset
+        if (offset + 5 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u5"0"
+        }
+        var r = u5"0"
+        var mask = u5"1"
+        for (i <- 0 until 4) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u5"1"
+        }
+        if (input(offset + 4)) {
+          r = r | mask
+        }
+        context.offset = offset + 5
+        return r
+      }
+
+      def bleU6(input: ISZ[B], context: Context): U6 = {
+        val offset = context.offset
+        if (offset + 6 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u6"0"
+        }
+        var r = u6"0"
+        var mask = u6"1"
+        for (i <- 0 until 5) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u6"1"
+        }
+        if (input(offset + 5)) {
+          r = r | mask
+        }
+        context.offset = offset + 6
+        return r
+      }
+
+      def bleU7(input: ISZ[B], context: Context): U7 = {
+        val offset = context.offset
+        if (offset + 7 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u7"0"
+        }
+        var r = u7"0"
+        var mask = u7"1"
+        for (i <- 0 until 6) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u7"1"
+        }
+        if (input(offset + 6)) {
+          r = r | mask
+        }
+        context.offset = offset + 7
+        return r
+      }
+
+      def beU8S(input: ISZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
+        leU8S(input, context, result, size)
       }
 
       def beS8S(input: ISZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
-        if (context.offset + size * 8 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return
-        }
-        for (i <- 0 until size) {
-          result(i) = beS8(input, context)
-        }
+        leS8S(input, context, result, size)
       }
 
       def beU16S(input: ISZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
@@ -315,7 +437,7 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = leU8(input, context)
+          result(i) = bleU8(input, context)
         }
       }
 
@@ -327,7 +449,7 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = leS8(input, context)
+          result(i) = bleS8(input, context)
         }
       }
 
@@ -427,174 +549,7 @@ object Bits {
         }
       }
 
-      // Slang script gen:
-      // for (i <- 2 to 64) {
-      //   val sizeM1 = i - 1
-      //   println(
-      //     st"""def beU$i(input: ISZ[B], context: Context): U$i = {
-      //         |  val offset = context.offset
-      //         |  if (offset + $i > input.size) {
-      //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      //         |  }
-      //         |  if (context.hasError) {
-      //         |    return u$i"0"
-      //         |  }
-      //         |  var r = u$i"0"
-      //         |  var mask = u$i"1"
-      //         |  for (i <- 0 until $sizeM1) {
-      //         |    if (input(offset + i)) {
-      //         |      r = r | mask
-      //         |    }
-      //         |    mask = mask << u$i"1"
-      //         |  }
-      //         |  if (input(offset + $sizeM1)) {
-      //         |    r = r | mask
-      //         |  }
-      //         |  context.offset = offset + $i
-      //         |  return r
-      //         |}""".render)
-      //   println()
-      // }
-
-      def beU2(input: ISZ[B], context: Context): U2 = {
-        val offset = context.offset
-        if (offset + 2 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u2"0"
-        }
-        var r = u2"0"
-        var mask = u2"1"
-        for (i <- 0 until 1) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u2"1"
-        }
-        if (input(offset + 1)) {
-          r = r | mask
-        }
-        context.offset = offset + 2
-        return r
-      }
-
-      def beU3(input: ISZ[B], context: Context): U3 = {
-        val offset = context.offset
-        if (offset + 3 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u3"0"
-        }
-        var r = u3"0"
-        var mask = u3"1"
-        for (i <- 0 until 2) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u3"1"
-        }
-        if (input(offset + 2)) {
-          r = r | mask
-        }
-        context.offset = offset + 3
-        return r
-      }
-
-      def beU4(input: ISZ[B], context: Context): U4 = {
-        val offset = context.offset
-        if (offset + 4 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u4"0"
-        }
-        var r = u4"0"
-        var mask = u4"1"
-        for (i <- 0 until 3) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u4"1"
-        }
-        if (input(offset + 3)) {
-          r = r | mask
-        }
-        context.offset = offset + 4
-        return r
-      }
-
-      def beU5(input: ISZ[B], context: Context): U5 = {
-        val offset = context.offset
-        if (offset + 5 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u5"0"
-        }
-        var r = u5"0"
-        var mask = u5"1"
-        for (i <- 0 until 4) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u5"1"
-        }
-        if (input(offset + 4)) {
-          r = r | mask
-        }
-        context.offset = offset + 5
-        return r
-      }
-
-      def beU6(input: ISZ[B], context: Context): U6 = {
-        val offset = context.offset
-        if (offset + 6 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u6"0"
-        }
-        var r = u6"0"
-        var mask = u6"1"
-        for (i <- 0 until 5) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u6"1"
-        }
-        if (input(offset + 5)) {
-          r = r | mask
-        }
-        context.offset = offset + 6
-        return r
-      }
-
-      def beU7(input: ISZ[B], context: Context): U7 = {
-        val offset = context.offset
-        if (offset + 7 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u7"0"
-        }
-        var r = u7"0"
-        var mask = u7"1"
-        for (i <- 0 until 6) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u7"1"
-        }
-        if (input(offset + 6)) {
-          r = r | mask
-        }
-        context.offset = offset + 7
-        return r
-      }
-
-      def beU8(input: ISZ[B], context: Context): U8 = {
+      def bleU8(input: ISZ[B], context: Context): U8 = {
         val offset = context.offset
         if (offset + 8 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -617,191 +572,215 @@ object Bits {
         return r
       }
 
-      def beS8(input: ISZ[B], context: Context): S8 = {
-        return conversions.U8.toRawS8(beU8(input, context))
+      def bleS8(input: ISZ[B], context: Context): S8 = {
+        return conversions.U8.toRawS8(bleU8(input, context))
       }
 
+      // Slang script gen:
+      /*
+      for (i <- 9 to 15) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U16.toU$i(conversions.U${i - 8}.toU16(bleU${i - 8}(input, context))) << u$i"8")
+              |        r = r | conversions.U16.toU$i(conversions.U8.toU16(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 17 to 24) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 16}.toU32(bleU${i - 16}(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 25 to 31) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 24}.toU32(bleU${i - 24}(input, context))) << u$i"24")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 33 to 40) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 32}.toU64(bleU${i - 32}(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 41 to 48) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 40}.toU64(bleU${i - 40}(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 49 to 56) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 48}.toU64(bleU${i - 48}(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 57 to 63) {
+        println(
+          st"""      def beU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 56}.toU64(bleU${i - 56}(input, context))) << u$i"56")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      */
+
       def beU9(input: ISZ[B], context: Context): U9 = {
-        val offset = context.offset
-        if (offset + 9 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u9"0"
+        r = r | (conversions.U16.toU9(conversions.U1.toU16(bleU1(input, context))) << u9"8")
+        r = r | conversions.U16.toU9(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u9"0"
         }
-        var r = u9"0"
-        var mask = u9"1"
-        for (i <- 0 until 8) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u9"1"
-        }
-        if (input(offset + 8)) {
-          r = r | mask
-        }
-        context.offset = offset + 9
         return r
       }
 
       def beU10(input: ISZ[B], context: Context): U10 = {
-        val offset = context.offset
-        if (offset + 10 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u10"0"
+        r = r | (conversions.U16.toU10(conversions.U2.toU16(bleU2(input, context))) << u10"8")
+        r = r | conversions.U16.toU10(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u10"0"
         }
-        var r = u10"0"
-        var mask = u10"1"
-        for (i <- 0 until 9) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u10"1"
-        }
-        if (input(offset + 9)) {
-          r = r | mask
-        }
-        context.offset = offset + 10
         return r
       }
 
       def beU11(input: ISZ[B], context: Context): U11 = {
-        val offset = context.offset
-        if (offset + 11 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u11"0"
+        r = r | (conversions.U16.toU11(conversions.U3.toU16(bleU3(input, context))) << u11"8")
+        r = r | conversions.U16.toU11(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u11"0"
         }
-        var r = u11"0"
-        var mask = u11"1"
-        for (i <- 0 until 10) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u11"1"
-        }
-        if (input(offset + 10)) {
-          r = r | mask
-        }
-        context.offset = offset + 11
         return r
       }
 
       def beU12(input: ISZ[B], context: Context): U12 = {
-        val offset = context.offset
-        if (offset + 12 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u12"0"
+        r = r | (conversions.U16.toU12(conversions.U4.toU16(bleU4(input, context))) << u12"8")
+        r = r | conversions.U16.toU12(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u12"0"
         }
-        var r = u12"0"
-        var mask = u12"1"
-        for (i <- 0 until 11) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u12"1"
-        }
-        if (input(offset + 11)) {
-          r = r | mask
-        }
-        context.offset = offset + 12
         return r
       }
 
       def beU13(input: ISZ[B], context: Context): U13 = {
-        val offset = context.offset
-        if (offset + 13 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u13"0"
+        r = r | (conversions.U16.toU13(conversions.U5.toU16(bleU5(input, context))) << u13"8")
+        r = r | conversions.U16.toU13(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u13"0"
         }
-        var r = u13"0"
-        var mask = u13"1"
-        for (i <- 0 until 12) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u13"1"
-        }
-        if (input(offset + 12)) {
-          r = r | mask
-        }
-        context.offset = offset + 13
         return r
       }
 
       def beU14(input: ISZ[B], context: Context): U14 = {
-        val offset = context.offset
-        if (offset + 14 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u14"0"
+        r = r | (conversions.U16.toU14(conversions.U6.toU16(bleU6(input, context))) << u14"8")
+        r = r | conversions.U16.toU14(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u14"0"
         }
-        var r = u14"0"
-        var mask = u14"1"
-        for (i <- 0 until 13) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u14"1"
-        }
-        if (input(offset + 13)) {
-          r = r | mask
-        }
-        context.offset = offset + 14
         return r
       }
 
       def beU15(input: ISZ[B], context: Context): U15 = {
-        val offset = context.offset
-        if (offset + 15 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u15"0"
+        r = r | (conversions.U16.toU15(conversions.U7.toU16(bleU7(input, context))) << u15"8")
+        r = r | conversions.U16.toU15(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u15"0"
         }
-        var r = u15"0"
-        var mask = u15"1"
-        for (i <- 0 until 14) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u15"1"
-        }
-        if (input(offset + 14)) {
-          r = r | mask
-        }
-        context.offset = offset + 15
         return r
       }
 
       def beU16(input: ISZ[B], context: Context): U16 = {
-        val offset = context.offset
-        if (offset + 16 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU16(bleU8(input, context)) << u16"8") |
+          conversions.U8.toU16(bleU8(input, context))
         if (context.hasError) {
           return u16"0"
         }
-        var r = u16"0"
-        var mask = u16"1"
-        for (i <- 0 until 15) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u16"1"
-        }
-        if (input(offset + 15)) {
-          r = r | mask
-        }
-        context.offset = offset + 16
         return r
       }
 
@@ -810,370 +789,185 @@ object Bits {
       }
 
       def beU17(input: ISZ[B], context: Context): U17 = {
-        val offset = context.offset
-        if (offset + 17 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u17"0"
+        r = r | (conversions.U32.toU17(conversions.U1.toU32(bleU1(input, context))) << u17"16")
+        r = r | (conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context))) << u17"8")
+        r = r | conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u17"0"
         }
-        var r = u17"0"
-        var mask = u17"1"
-        for (i <- 0 until 16) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u17"1"
-        }
-        if (input(offset + 16)) {
-          r = r | mask
-        }
-        context.offset = offset + 17
         return r
       }
 
       def beU18(input: ISZ[B], context: Context): U18 = {
-        val offset = context.offset
-        if (offset + 18 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u18"0"
+        r = r | (conversions.U32.toU18(conversions.U2.toU32(bleU2(input, context))) << u18"16")
+        r = r | (conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context))) << u18"8")
+        r = r | conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u18"0"
         }
-        var r = u18"0"
-        var mask = u18"1"
-        for (i <- 0 until 17) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u18"1"
-        }
-        if (input(offset + 17)) {
-          r = r | mask
-        }
-        context.offset = offset + 18
         return r
       }
 
       def beU19(input: ISZ[B], context: Context): U19 = {
-        val offset = context.offset
-        if (offset + 19 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u19"0"
+        r = r | (conversions.U32.toU19(conversions.U3.toU32(bleU3(input, context))) << u19"16")
+        r = r | (conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context))) << u19"8")
+        r = r | conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u19"0"
         }
-        var r = u19"0"
-        var mask = u19"1"
-        for (i <- 0 until 18) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u19"1"
-        }
-        if (input(offset + 18)) {
-          r = r | mask
-        }
-        context.offset = offset + 19
         return r
       }
 
       def beU20(input: ISZ[B], context: Context): U20 = {
-        val offset = context.offset
-        if (offset + 20 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u20"0"
+        r = r | (conversions.U32.toU20(conversions.U4.toU32(bleU4(input, context))) << u20"16")
+        r = r | (conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context))) << u20"8")
+        r = r | conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u20"0"
         }
-        var r = u20"0"
-        var mask = u20"1"
-        for (i <- 0 until 19) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u20"1"
-        }
-        if (input(offset + 19)) {
-          r = r | mask
-        }
-        context.offset = offset + 20
         return r
       }
 
       def beU21(input: ISZ[B], context: Context): U21 = {
-        val offset = context.offset
-        if (offset + 21 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u21"0"
+        r = r | (conversions.U32.toU21(conversions.U5.toU32(bleU5(input, context))) << u21"16")
+        r = r | (conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context))) << u21"8")
+        r = r | conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u21"0"
         }
-        var r = u21"0"
-        var mask = u21"1"
-        for (i <- 0 until 20) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u21"1"
-        }
-        if (input(offset + 20)) {
-          r = r | mask
-        }
-        context.offset = offset + 21
         return r
       }
 
       def beU22(input: ISZ[B], context: Context): U22 = {
-        val offset = context.offset
-        if (offset + 22 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u22"0"
+        r = r | (conversions.U32.toU22(conversions.U6.toU32(bleU6(input, context))) << u22"16")
+        r = r | (conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context))) << u22"8")
+        r = r | conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u22"0"
         }
-        var r = u22"0"
-        var mask = u22"1"
-        for (i <- 0 until 21) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u22"1"
-        }
-        if (input(offset + 21)) {
-          r = r | mask
-        }
-        context.offset = offset + 22
         return r
       }
 
       def beU23(input: ISZ[B], context: Context): U23 = {
-        val offset = context.offset
-        if (offset + 23 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u23"0"
+        r = r | (conversions.U32.toU23(conversions.U7.toU32(bleU7(input, context))) << u23"16")
+        r = r | (conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context))) << u23"8")
+        r = r | conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u23"0"
         }
-        var r = u23"0"
-        var mask = u23"1"
-        for (i <- 0 until 22) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u23"1"
-        }
-        if (input(offset + 22)) {
-          r = r | mask
-        }
-        context.offset = offset + 23
         return r
       }
 
       def beU24(input: ISZ[B], context: Context): U24 = {
-        val offset = context.offset
-        if (offset + 24 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u24"0"
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"16")
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"8")
+        r = r | conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u24"0"
         }
-        var r = u24"0"
-        var mask = u24"1"
-        for (i <- 0 until 23) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u24"1"
-        }
-        if (input(offset + 23)) {
-          r = r | mask
-        }
-        context.offset = offset + 24
         return r
       }
 
       def beU25(input: ISZ[B], context: Context): U25 = {
-        val offset = context.offset
-        if (offset + 25 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u25"0"
+        r = r | (conversions.U32.toU25(conversions.U1.toU32(bleU1(input, context))) << u25"24")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"16")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"8")
+        r = r | conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u25"0"
         }
-        var r = u25"0"
-        var mask = u25"1"
-        for (i <- 0 until 24) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u25"1"
-        }
-        if (input(offset + 24)) {
-          r = r | mask
-        }
-        context.offset = offset + 25
         return r
       }
 
       def beU26(input: ISZ[B], context: Context): U26 = {
-        val offset = context.offset
-        if (offset + 26 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u26"0"
+        r = r | (conversions.U32.toU26(conversions.U2.toU32(bleU2(input, context))) << u26"24")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"16")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"8")
+        r = r | conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u26"0"
         }
-        var r = u26"0"
-        var mask = u26"1"
-        for (i <- 0 until 25) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u26"1"
-        }
-        if (input(offset + 25)) {
-          r = r | mask
-        }
-        context.offset = offset + 26
         return r
       }
 
       def beU27(input: ISZ[B], context: Context): U27 = {
-        val offset = context.offset
-        if (offset + 27 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u27"0"
+        r = r | (conversions.U32.toU27(conversions.U3.toU32(bleU3(input, context))) << u27"24")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"16")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"8")
+        r = r | conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u27"0"
         }
-        var r = u27"0"
-        var mask = u27"1"
-        for (i <- 0 until 26) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u27"1"
-        }
-        if (input(offset + 26)) {
-          r = r | mask
-        }
-        context.offset = offset + 27
         return r
       }
 
       def beU28(input: ISZ[B], context: Context): U28 = {
-        val offset = context.offset
-        if (offset + 28 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u28"0"
+        r = r | (conversions.U32.toU28(conversions.U4.toU32(bleU4(input, context))) << u28"24")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"16")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"8")
+        r = r | conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u28"0"
         }
-        var r = u28"0"
-        var mask = u28"1"
-        for (i <- 0 until 27) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u28"1"
-        }
-        if (input(offset + 27)) {
-          r = r | mask
-        }
-        context.offset = offset + 28
         return r
       }
 
       def beU29(input: ISZ[B], context: Context): U29 = {
-        val offset = context.offset
-        if (offset + 29 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u29"0"
+        r = r | (conversions.U32.toU29(conversions.U5.toU32(bleU5(input, context))) << u29"24")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"16")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"8")
+        r = r | conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u29"0"
         }
-        var r = u29"0"
-        var mask = u29"1"
-        for (i <- 0 until 28) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u29"1"
-        }
-        if (input(offset + 28)) {
-          r = r | mask
-        }
-        context.offset = offset + 29
         return r
       }
 
       def beU30(input: ISZ[B], context: Context): U30 = {
-        val offset = context.offset
-        if (offset + 30 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u30"0"
+        r = r | (conversions.U32.toU30(conversions.U6.toU32(bleU6(input, context))) << u30"24")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"16")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"8")
+        r = r | conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u30"0"
         }
-        var r = u30"0"
-        var mask = u30"1"
-        for (i <- 0 until 29) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u30"1"
-        }
-        if (input(offset + 29)) {
-          r = r | mask
-        }
-        context.offset = offset + 30
         return r
       }
 
       def beU31(input: ISZ[B], context: Context): U31 = {
-        val offset = context.offset
-        if (offset + 31 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u31"0"
+        r = r | (conversions.U32.toU31(conversions.U7.toU32(bleU7(input, context))) << u31"24")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"16")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"8")
+        r = r | conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u31"0"
         }
-        var r = u31"0"
-        var mask = u31"1"
-        for (i <- 0 until 30) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u31"1"
-        }
-        if (input(offset + 30)) {
-          r = r | mask
-        }
-        context.offset = offset + 31
         return r
       }
 
       def beU32(input: ISZ[B], context: Context): U32 = {
-        val offset = context.offset
-        if (offset + 32 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU32(bleU8(input, context)) << u32"24") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"16") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"8") |
+          conversions.U8.toU32(bleU8(input, context))
         if (context.hasError) {
           return u32"0"
         }
-        var r = u32"0"
-        var mask = u32"1"
-        for (i <- 0 until 31) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u32"1"
-        }
-        if (input(offset + 31)) {
-          r = r | mask
-        }
-        context.offset = offset + 32
         return r
       }
 
@@ -1182,738 +976,465 @@ object Bits {
       }
 
       def beU33(input: ISZ[B], context: Context): U33 = {
-        val offset = context.offset
-        if (offset + 33 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u33"0"
+        r = r | (conversions.U64.toU33(conversions.U1.toU64(bleU1(input, context))) << u33"32")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"24")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"16")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"8")
+        r = r | conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u33"0"
         }
-        var r = u33"0"
-        var mask = u33"1"
-        for (i <- 0 until 32) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u33"1"
-        }
-        if (input(offset + 32)) {
-          r = r | mask
-        }
-        context.offset = offset + 33
         return r
       }
 
       def beU34(input: ISZ[B], context: Context): U34 = {
-        val offset = context.offset
-        if (offset + 34 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u34"0"
+        r = r | (conversions.U64.toU34(conversions.U2.toU64(bleU2(input, context))) << u34"32")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"24")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"16")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"8")
+        r = r | conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u34"0"
         }
-        var r = u34"0"
-        var mask = u34"1"
-        for (i <- 0 until 33) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u34"1"
-        }
-        if (input(offset + 33)) {
-          r = r | mask
-        }
-        context.offset = offset + 34
         return r
       }
 
       def beU35(input: ISZ[B], context: Context): U35 = {
-        val offset = context.offset
-        if (offset + 35 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u35"0"
+        r = r | (conversions.U64.toU35(conversions.U3.toU64(bleU3(input, context))) << u35"32")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"24")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"16")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"8")
+        r = r | conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u35"0"
         }
-        var r = u35"0"
-        var mask = u35"1"
-        for (i <- 0 until 34) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u35"1"
-        }
-        if (input(offset + 34)) {
-          r = r | mask
-        }
-        context.offset = offset + 35
         return r
       }
 
       def beU36(input: ISZ[B], context: Context): U36 = {
-        val offset = context.offset
-        if (offset + 36 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u36"0"
+        r = r | (conversions.U64.toU36(conversions.U4.toU64(bleU4(input, context))) << u36"32")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"24")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"16")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"8")
+        r = r | conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u36"0"
         }
-        var r = u36"0"
-        var mask = u36"1"
-        for (i <- 0 until 35) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u36"1"
-        }
-        if (input(offset + 35)) {
-          r = r | mask
-        }
-        context.offset = offset + 36
         return r
       }
 
       def beU37(input: ISZ[B], context: Context): U37 = {
-        val offset = context.offset
-        if (offset + 37 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u37"0"
+        r = r | (conversions.U64.toU37(conversions.U5.toU64(bleU5(input, context))) << u37"32")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"24")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"16")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"8")
+        r = r | conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u37"0"
         }
-        var r = u37"0"
-        var mask = u37"1"
-        for (i <- 0 until 36) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u37"1"
-        }
-        if (input(offset + 36)) {
-          r = r | mask
-        }
-        context.offset = offset + 37
         return r
       }
 
       def beU38(input: ISZ[B], context: Context): U38 = {
-        val offset = context.offset
-        if (offset + 38 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u38"0"
+        r = r | (conversions.U64.toU38(conversions.U6.toU64(bleU6(input, context))) << u38"32")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"24")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"16")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"8")
+        r = r | conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u38"0"
         }
-        var r = u38"0"
-        var mask = u38"1"
-        for (i <- 0 until 37) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u38"1"
-        }
-        if (input(offset + 37)) {
-          r = r | mask
-        }
-        context.offset = offset + 38
         return r
       }
 
       def beU39(input: ISZ[B], context: Context): U39 = {
-        val offset = context.offset
-        if (offset + 39 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u39"0"
+        r = r | (conversions.U64.toU39(conversions.U7.toU64(bleU7(input, context))) << u39"32")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"24")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"16")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"8")
+        r = r | conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u39"0"
         }
-        var r = u39"0"
-        var mask = u39"1"
-        for (i <- 0 until 38) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u39"1"
-        }
-        if (input(offset + 38)) {
-          r = r | mask
-        }
-        context.offset = offset + 39
         return r
       }
 
       def beU40(input: ISZ[B], context: Context): U40 = {
-        val offset = context.offset
-        if (offset + 40 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u40"0"
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"32")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"24")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"16")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"8")
+        r = r | conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u40"0"
         }
-        var r = u40"0"
-        var mask = u40"1"
-        for (i <- 0 until 39) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u40"1"
-        }
-        if (input(offset + 39)) {
-          r = r | mask
-        }
-        context.offset = offset + 40
         return r
       }
 
       def beU41(input: ISZ[B], context: Context): U41 = {
-        val offset = context.offset
-        if (offset + 41 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u41"0"
+        r = r | (conversions.U64.toU41(conversions.U1.toU64(bleU1(input, context))) << u41"40")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"32")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"24")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"16")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"8")
+        r = r | conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u41"0"
         }
-        var r = u41"0"
-        var mask = u41"1"
-        for (i <- 0 until 40) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u41"1"
-        }
-        if (input(offset + 40)) {
-          r = r | mask
-        }
-        context.offset = offset + 41
         return r
       }
 
       def beU42(input: ISZ[B], context: Context): U42 = {
-        val offset = context.offset
-        if (offset + 42 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u42"0"
+        r = r | (conversions.U64.toU42(conversions.U2.toU64(bleU2(input, context))) << u42"40")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"32")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"24")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"16")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"8")
+        r = r | conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u42"0"
         }
-        var r = u42"0"
-        var mask = u42"1"
-        for (i <- 0 until 41) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u42"1"
-        }
-        if (input(offset + 41)) {
-          r = r | mask
-        }
-        context.offset = offset + 42
         return r
       }
 
       def beU43(input: ISZ[B], context: Context): U43 = {
-        val offset = context.offset
-        if (offset + 43 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u43"0"
+        r = r | (conversions.U64.toU43(conversions.U3.toU64(bleU3(input, context))) << u43"40")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"32")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"24")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"16")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"8")
+        r = r | conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u43"0"
         }
-        var r = u43"0"
-        var mask = u43"1"
-        for (i <- 0 until 42) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u43"1"
-        }
-        if (input(offset + 42)) {
-          r = r | mask
-        }
-        context.offset = offset + 43
         return r
       }
 
       def beU44(input: ISZ[B], context: Context): U44 = {
-        val offset = context.offset
-        if (offset + 44 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u44"0"
+        r = r | (conversions.U64.toU44(conversions.U4.toU64(bleU4(input, context))) << u44"40")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"32")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"24")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"16")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"8")
+        r = r | conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u44"0"
         }
-        var r = u44"0"
-        var mask = u44"1"
-        for (i <- 0 until 43) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u44"1"
-        }
-        if (input(offset + 43)) {
-          r = r | mask
-        }
-        context.offset = offset + 44
         return r
       }
 
       def beU45(input: ISZ[B], context: Context): U45 = {
-        val offset = context.offset
-        if (offset + 45 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u45"0"
+        r = r | (conversions.U64.toU45(conversions.U5.toU64(bleU5(input, context))) << u45"40")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"32")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"24")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"16")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"8")
+        r = r | conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u45"0"
         }
-        var r = u45"0"
-        var mask = u45"1"
-        for (i <- 0 until 44) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u45"1"
-        }
-        if (input(offset + 44)) {
-          r = r | mask
-        }
-        context.offset = offset + 45
         return r
       }
 
       def beU46(input: ISZ[B], context: Context): U46 = {
-        val offset = context.offset
-        if (offset + 46 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u46"0"
+        r = r | (conversions.U64.toU46(conversions.U6.toU64(bleU6(input, context))) << u46"40")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"32")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"24")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"16")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"8")
+        r = r | conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u46"0"
         }
-        var r = u46"0"
-        var mask = u46"1"
-        for (i <- 0 until 45) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u46"1"
-        }
-        if (input(offset + 45)) {
-          r = r | mask
-        }
-        context.offset = offset + 46
         return r
       }
 
       def beU47(input: ISZ[B], context: Context): U47 = {
-        val offset = context.offset
-        if (offset + 47 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u47"0"
+        r = r | (conversions.U64.toU47(conversions.U7.toU64(bleU7(input, context))) << u47"40")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"32")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"24")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"16")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"8")
+        r = r | conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u47"0"
         }
-        var r = u47"0"
-        var mask = u47"1"
-        for (i <- 0 until 46) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u47"1"
-        }
-        if (input(offset + 46)) {
-          r = r | mask
-        }
-        context.offset = offset + 47
         return r
       }
 
       def beU48(input: ISZ[B], context: Context): U48 = {
-        val offset = context.offset
-        if (offset + 48 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u48"0"
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"40")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"32")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"24")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"16")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"8")
+        r = r | conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u48"0"
         }
-        var r = u48"0"
-        var mask = u48"1"
-        for (i <- 0 until 47) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u48"1"
-        }
-        if (input(offset + 47)) {
-          r = r | mask
-        }
-        context.offset = offset + 48
         return r
       }
 
       def beU49(input: ISZ[B], context: Context): U49 = {
-        val offset = context.offset
-        if (offset + 49 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u49"0"
+        r = r | (conversions.U64.toU49(conversions.U1.toU64(bleU1(input, context))) << u49"48")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"40")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"32")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"24")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"16")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"8")
+        r = r | conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u49"0"
         }
-        var r = u49"0"
-        var mask = u49"1"
-        for (i <- 0 until 48) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u49"1"
-        }
-        if (input(offset + 48)) {
-          r = r | mask
-        }
-        context.offset = offset + 49
         return r
       }
 
       def beU50(input: ISZ[B], context: Context): U50 = {
-        val offset = context.offset
-        if (offset + 50 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u50"0"
+        r = r | (conversions.U64.toU50(conversions.U2.toU64(bleU2(input, context))) << u50"48")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"40")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"32")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"24")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"16")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"8")
+        r = r | conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u50"0"
         }
-        var r = u50"0"
-        var mask = u50"1"
-        for (i <- 0 until 49) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u50"1"
-        }
-        if (input(offset + 49)) {
-          r = r | mask
-        }
-        context.offset = offset + 50
         return r
       }
 
       def beU51(input: ISZ[B], context: Context): U51 = {
-        val offset = context.offset
-        if (offset + 51 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u51"0"
+        r = r | (conversions.U64.toU51(conversions.U3.toU64(bleU3(input, context))) << u51"48")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"40")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"32")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"24")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"16")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"8")
+        r = r | conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u51"0"
         }
-        var r = u51"0"
-        var mask = u51"1"
-        for (i <- 0 until 50) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u51"1"
-        }
-        if (input(offset + 50)) {
-          r = r | mask
-        }
-        context.offset = offset + 51
         return r
       }
 
       def beU52(input: ISZ[B], context: Context): U52 = {
-        val offset = context.offset
-        if (offset + 52 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u52"0"
+        r = r | (conversions.U64.toU52(conversions.U4.toU64(bleU4(input, context))) << u52"48")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"40")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"32")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"24")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"16")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"8")
+        r = r | conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u52"0"
         }
-        var r = u52"0"
-        var mask = u52"1"
-        for (i <- 0 until 51) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u52"1"
-        }
-        if (input(offset + 51)) {
-          r = r | mask
-        }
-        context.offset = offset + 52
         return r
       }
 
       def beU53(input: ISZ[B], context: Context): U53 = {
-        val offset = context.offset
-        if (offset + 53 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u53"0"
+        r = r | (conversions.U64.toU53(conversions.U5.toU64(bleU5(input, context))) << u53"48")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"40")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"32")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"24")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"16")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"8")
+        r = r | conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u53"0"
         }
-        var r = u53"0"
-        var mask = u53"1"
-        for (i <- 0 until 52) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u53"1"
-        }
-        if (input(offset + 52)) {
-          r = r | mask
-        }
-        context.offset = offset + 53
         return r
       }
 
       def beU54(input: ISZ[B], context: Context): U54 = {
-        val offset = context.offset
-        if (offset + 54 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u54"0"
+        r = r | (conversions.U64.toU54(conversions.U6.toU64(bleU6(input, context))) << u54"48")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"40")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"32")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"24")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"16")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"8")
+        r = r | conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u54"0"
         }
-        var r = u54"0"
-        var mask = u54"1"
-        for (i <- 0 until 53) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u54"1"
-        }
-        if (input(offset + 53)) {
-          r = r | mask
-        }
-        context.offset = offset + 54
         return r
       }
 
       def beU55(input: ISZ[B], context: Context): U55 = {
-        val offset = context.offset
-        if (offset + 55 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u55"0"
+        r = r | (conversions.U64.toU55(conversions.U7.toU64(bleU7(input, context))) << u55"48")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"40")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"32")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"24")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"16")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"8")
+        r = r | conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u55"0"
         }
-        var r = u55"0"
-        var mask = u55"1"
-        for (i <- 0 until 54) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u55"1"
-        }
-        if (input(offset + 54)) {
-          r = r | mask
-        }
-        context.offset = offset + 55
         return r
       }
 
       def beU56(input: ISZ[B], context: Context): U56 = {
-        val offset = context.offset
-        if (offset + 56 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u56"0"
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"48")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"40")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"32")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"24")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"16")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"8")
+        r = r | conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u56"0"
         }
-        var r = u56"0"
-        var mask = u56"1"
-        for (i <- 0 until 55) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u56"1"
-        }
-        if (input(offset + 55)) {
-          r = r | mask
-        }
-        context.offset = offset + 56
         return r
       }
 
       def beU57(input: ISZ[B], context: Context): U57 = {
-        val offset = context.offset
-        if (offset + 57 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u57"0"
+        r = r | (conversions.U64.toU57(conversions.U1.toU64(bleU1(input, context))) << u57"56")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"48")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"40")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"32")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"24")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"16")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"8")
+        r = r | conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u57"0"
         }
-        var r = u57"0"
-        var mask = u57"1"
-        for (i <- 0 until 56) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u57"1"
-        }
-        if (input(offset + 56)) {
-          r = r | mask
-        }
-        context.offset = offset + 57
         return r
       }
 
       def beU58(input: ISZ[B], context: Context): U58 = {
-        val offset = context.offset
-        if (offset + 58 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u58"0"
+        r = r | (conversions.U64.toU58(conversions.U2.toU64(bleU2(input, context))) << u58"56")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"48")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"40")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"32")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"24")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"16")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"8")
+        r = r | conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u58"0"
         }
-        var r = u58"0"
-        var mask = u58"1"
-        for (i <- 0 until 57) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u58"1"
-        }
-        if (input(offset + 57)) {
-          r = r | mask
-        }
-        context.offset = offset + 58
         return r
       }
 
       def beU59(input: ISZ[B], context: Context): U59 = {
-        val offset = context.offset
-        if (offset + 59 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u59"0"
+        r = r | (conversions.U64.toU59(conversions.U3.toU64(bleU3(input, context))) << u59"56")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"48")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"40")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"32")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"24")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"16")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"8")
+        r = r | conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u59"0"
         }
-        var r = u59"0"
-        var mask = u59"1"
-        for (i <- 0 until 58) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u59"1"
-        }
-        if (input(offset + 58)) {
-          r = r | mask
-        }
-        context.offset = offset + 59
         return r
       }
 
       def beU60(input: ISZ[B], context: Context): U60 = {
-        val offset = context.offset
-        if (offset + 60 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u60"0"
+        r = r | (conversions.U64.toU60(conversions.U4.toU64(bleU4(input, context))) << u60"56")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"48")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"40")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"32")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"24")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"16")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"8")
+        r = r | conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u60"0"
         }
-        var r = u60"0"
-        var mask = u60"1"
-        for (i <- 0 until 59) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u60"1"
-        }
-        if (input(offset + 59)) {
-          r = r | mask
-        }
-        context.offset = offset + 60
         return r
       }
 
       def beU61(input: ISZ[B], context: Context): U61 = {
-        val offset = context.offset
-        if (offset + 61 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u61"0"
+        r = r | (conversions.U64.toU61(conversions.U5.toU64(bleU5(input, context))) << u61"56")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"48")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"40")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"32")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"24")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"16")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"8")
+        r = r | conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u61"0"
         }
-        var r = u61"0"
-        var mask = u61"1"
-        for (i <- 0 until 60) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u61"1"
-        }
-        if (input(offset + 60)) {
-          r = r | mask
-        }
-        context.offset = offset + 61
         return r
       }
 
       def beU62(input: ISZ[B], context: Context): U62 = {
-        val offset = context.offset
-        if (offset + 62 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u62"0"
+        r = r | (conversions.U64.toU62(conversions.U6.toU64(bleU6(input, context))) << u62"56")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"48")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"40")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"32")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"24")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"16")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"8")
+        r = r | conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u62"0"
         }
-        var r = u62"0"
-        var mask = u62"1"
-        for (i <- 0 until 61) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u62"1"
-        }
-        if (input(offset + 61)) {
-          r = r | mask
-        }
-        context.offset = offset + 62
         return r
       }
 
       def beU63(input: ISZ[B], context: Context): U63 = {
-        val offset = context.offset
-        if (offset + 63 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u63"0"
+        r = r | (conversions.U64.toU63(conversions.U7.toU64(bleU7(input, context))) << u63"56")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"48")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"40")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"32")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"24")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"16")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"8")
+        r = r | conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u63"0"
         }
-        var r = u63"0"
-        var mask = u63"1"
-        for (i <- 0 until 62) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u63"1"
-        }
-        if (input(offset + 62)) {
-          r = r | mask
-        }
-        context.offset = offset + 63
         return r
       }
 
       def beU64(input: ISZ[B], context: Context): U64 = {
-        val offset = context.offset
-        if (offset + 64 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU64(bleU8(input, context)) << u64"56") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"48") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"40") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"32") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"24") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"16") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"8") |
+          conversions.U8.toU64(bleU8(input, context))
         if (context.hasError) {
           return u64"0"
         }
-        var r = u64"0"
-        var mask = u64"1"
-        for (i <- 0 until 63) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u64"1"
-        }
-        if (input(offset + 63)) {
-          r = r | mask
-        }
-        context.offset = offset + 64
         return r
       }
 
@@ -1930,380 +1451,211 @@ object Bits {
       }
 
       // Slang script gen:
-      // for (i <- 2 to 64) {
-      //   val sizeM1 = i - 1
-      //   println(
-      //     st"""def leU$i(input: ISZ[B], context: Context): U$i = {
-      //         |  val offset = context.offset
-      //         |  if (offset + $i > input.size) {
-      //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      //         |  }
-      //         |  if (context.hasError) {
-      //         |    return u$i"0"
-      //         |  }
-      //         |  var r = u$i"0"
-      //         |  var mask = u$i"1" << u$i"$sizeM1"
-      //         |  for (i <- 0 until $sizeM1) {
-      //         |    if (input(offset + i)) {
-      //         |      r = r | mask
-      //         |    }
-      //         |    mask = mask >>> u$i"1"
-      //         |  }
-      //         |  if (input(offset + $sizeM1)) {
-      //         |    r = r | mask
-      //         |  }
-      //         |  context.offset = offset + $i
-      //         |  return r
-      //         |}""".render)
-      //   println()
-      // }
-
-      def leU2(input: ISZ[B], context: Context): U2 = {
-        val offset = context.offset
-        if (offset + 2 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u2"0"
-        }
-        var r = u2"0"
-        var mask = u2"1" << u2"1"
-        for (i <- 0 until 1) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u2"1"
-        }
-        if (input(offset + 1)) {
-          r = r | mask
-        }
-        context.offset = offset + 2
-        return r
+      /*
+      for (i <- 9 to 15) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U16.toU$i(conversions.U8.toU16(bleU8(input, context)))
+              |        r = r | (conversions.U16.toU$i(conversions.U${i - 8}.toU16(bleU${i - 8}(input, context))) << u$i"8")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 17 to 24) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 16}.toU32(bleU${i - 16}(input, context))) << u$i"16")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 25 to 31) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 24}.toU32(bleU${i - 24}(input, context))) << u$i"24")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 33 to 40) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 32}.toU64(bleU${i - 32}(input, context))) << u$i"32")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 41 to 48) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 40}.toU64(bleU${i - 40}(input, context))) << u$i"40")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 49 to 56) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 48}.toU64(bleU${i - 48}(input, context))) << u$i"48")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      
+      for (i <- 57 to 63) {
+        println(
+          st"""      def leU$i(input: ISZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 56}.toU64(bleU${i - 56}(input, context))) << u$i"56")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU3(input: ISZ[B], context: Context): U3 = {
-        val offset = context.offset
-        if (offset + 3 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u3"0"
-        }
-        var r = u3"0"
-        var mask = u3"1" << u3"2"
-        for (i <- 0 until 2) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u3"1"
-        }
-        if (input(offset + 2)) {
-          r = r | mask
-        }
-        context.offset = offset + 3
-        return r
-      }
-
-      def leU4(input: ISZ[B], context: Context): U4 = {
-        val offset = context.offset
-        if (offset + 4 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u4"0"
-        }
-        var r = u4"0"
-        var mask = u4"1" << u4"3"
-        for (i <- 0 until 3) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u4"1"
-        }
-        if (input(offset + 3)) {
-          r = r | mask
-        }
-        context.offset = offset + 4
-        return r
-      }
-
-      def leU5(input: ISZ[B], context: Context): U5 = {
-        val offset = context.offset
-        if (offset + 5 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u5"0"
-        }
-        var r = u5"0"
-        var mask = u5"1" << u5"4"
-        for (i <- 0 until 4) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u5"1"
-        }
-        if (input(offset + 4)) {
-          r = r | mask
-        }
-        context.offset = offset + 5
-        return r
-      }
-
-      def leU6(input: ISZ[B], context: Context): U6 = {
-        val offset = context.offset
-        if (offset + 6 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u6"0"
-        }
-        var r = u6"0"
-        var mask = u6"1" << u6"5"
-        for (i <- 0 until 5) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u6"1"
-        }
-        if (input(offset + 5)) {
-          r = r | mask
-        }
-        context.offset = offset + 6
-        return r
-      }
-
-      def leU7(input: ISZ[B], context: Context): U7 = {
-        val offset = context.offset
-        if (offset + 7 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u7"0"
-        }
-        var r = u7"0"
-        var mask = u7"1" << u7"6"
-        for (i <- 0 until 6) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u7"1"
-        }
-        if (input(offset + 6)) {
-          r = r | mask
-        }
-        context.offset = offset + 7
-        return r
-      }
-
-      def leU8(input: ISZ[B], context: Context): U8 = {
-        val offset = context.offset
-        if (offset + 8 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u8"0"
-        }
-        var r = u8"0"
-        var mask = u8"1" << u8"7"
-        for (i <- 0 until 7) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u8"1"
-        }
-        if (input(offset + 7)) {
-          r = r | mask
-        }
-        context.offset = offset + 8
-        return r
-      }
-
-      def leS8(input: ISZ[B], context: Context): S8 = {
-        return conversions.U8.toRawS8(leU8(input, context))
-      }
+       */
 
       def leU9(input: ISZ[B], context: Context): U9 = {
-        val offset = context.offset
-        if (offset + 9 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u9"0"
+        r = r | conversions.U16.toU9(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU9(conversions.U1.toU16(bleU1(input, context))) << u9"8")
         if (context.hasError) {
           return u9"0"
         }
-        var r = u9"0"
-        var mask = u9"1" << u9"8"
-        for (i <- 0 until 8) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u9"1"
-        }
-        if (input(offset + 8)) {
-          r = r | mask
-        }
-        context.offset = offset + 9
         return r
       }
 
       def leU10(input: ISZ[B], context: Context): U10 = {
-        val offset = context.offset
-        if (offset + 10 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u10"0"
+        r = r | conversions.U16.toU10(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU10(conversions.U2.toU16(bleU2(input, context))) << u10"8")
         if (context.hasError) {
           return u10"0"
         }
-        var r = u10"0"
-        var mask = u10"1" << u10"9"
-        for (i <- 0 until 9) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u10"1"
-        }
-        if (input(offset + 9)) {
-          r = r | mask
-        }
-        context.offset = offset + 10
         return r
       }
 
       def leU11(input: ISZ[B], context: Context): U11 = {
-        val offset = context.offset
-        if (offset + 11 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u11"0"
+        r = r | conversions.U16.toU11(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU11(conversions.U3.toU16(bleU3(input, context))) << u11"8")
         if (context.hasError) {
           return u11"0"
         }
-        var r = u11"0"
-        var mask = u11"1" << u11"10"
-        for (i <- 0 until 10) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u11"1"
-        }
-        if (input(offset + 10)) {
-          r = r | mask
-        }
-        context.offset = offset + 11
         return r
       }
 
       def leU12(input: ISZ[B], context: Context): U12 = {
-        val offset = context.offset
-        if (offset + 12 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u12"0"
+        r = r | conversions.U16.toU12(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU12(conversions.U4.toU16(bleU4(input, context))) << u12"8")
         if (context.hasError) {
           return u12"0"
         }
-        var r = u12"0"
-        var mask = u12"1" << u12"11"
-        for (i <- 0 until 11) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u12"1"
-        }
-        if (input(offset + 11)) {
-          r = r | mask
-        }
-        context.offset = offset + 12
         return r
       }
 
       def leU13(input: ISZ[B], context: Context): U13 = {
-        val offset = context.offset
-        if (offset + 13 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u13"0"
+        r = r | conversions.U16.toU13(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU13(conversions.U5.toU16(bleU5(input, context))) << u13"8")
         if (context.hasError) {
           return u13"0"
         }
-        var r = u13"0"
-        var mask = u13"1" << u13"12"
-        for (i <- 0 until 12) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u13"1"
-        }
-        if (input(offset + 12)) {
-          r = r | mask
-        }
-        context.offset = offset + 13
         return r
       }
 
       def leU14(input: ISZ[B], context: Context): U14 = {
-        val offset = context.offset
-        if (offset + 14 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u14"0"
+        r = r | conversions.U16.toU14(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU14(conversions.U6.toU16(bleU6(input, context))) << u14"8")
         if (context.hasError) {
           return u14"0"
         }
-        var r = u14"0"
-        var mask = u14"1" << u14"13"
-        for (i <- 0 until 13) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u14"1"
-        }
-        if (input(offset + 13)) {
-          r = r | mask
-        }
-        context.offset = offset + 14
         return r
       }
 
       def leU15(input: ISZ[B], context: Context): U15 = {
-        val offset = context.offset
-        if (offset + 15 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u15"0"
+        r = r | conversions.U16.toU15(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU15(conversions.U7.toU16(bleU7(input, context))) << u15"8")
         if (context.hasError) {
           return u15"0"
         }
-        var r = u15"0"
-        var mask = u15"1" << u15"14"
-        for (i <- 0 until 14) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u15"1"
-        }
-        if (input(offset + 14)) {
-          r = r | mask
-        }
-        context.offset = offset + 15
         return r
       }
 
       def leU16(input: ISZ[B], context: Context): U16 = {
-        val offset = context.offset
-        if (offset + 16 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU16(bleU8(input, context)) |
+          (conversions.U8.toU16(bleU8(input, context)) << u16"8")
         if (context.hasError) {
           return u16"0"
         }
-        var r = u16"0"
-        var mask = u16"1" << u16"15"
-        for (i <- 0 until 15) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u16"1"
-        }
-        if (input(offset + 15)) {
-          r = r | mask
-        }
-        context.offset = offset + 16
         return r
       }
 
@@ -2312,370 +1664,185 @@ object Bits {
       }
 
       def leU17(input: ISZ[B], context: Context): U17 = {
-        val offset = context.offset
-        if (offset + 17 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u17"0"
+        r = r | conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context))) << u17"8")
+        r = r | (conversions.U32.toU17(conversions.U1.toU32(bleU1(input, context))) << u17"16")
         if (context.hasError) {
           return u17"0"
         }
-        var r = u17"0"
-        var mask = u17"1" << u17"16"
-        for (i <- 0 until 16) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u17"1"
-        }
-        if (input(offset + 16)) {
-          r = r | mask
-        }
-        context.offset = offset + 17
         return r
       }
 
       def leU18(input: ISZ[B], context: Context): U18 = {
-        val offset = context.offset
-        if (offset + 18 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u18"0"
+        r = r | conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context))) << u18"8")
+        r = r | (conversions.U32.toU18(conversions.U2.toU32(bleU2(input, context))) << u18"16")
         if (context.hasError) {
           return u18"0"
         }
-        var r = u18"0"
-        var mask = u18"1" << u18"17"
-        for (i <- 0 until 17) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u18"1"
-        }
-        if (input(offset + 17)) {
-          r = r | mask
-        }
-        context.offset = offset + 18
         return r
       }
 
       def leU19(input: ISZ[B], context: Context): U19 = {
-        val offset = context.offset
-        if (offset + 19 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u19"0"
+        r = r | conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context))) << u19"8")
+        r = r | (conversions.U32.toU19(conversions.U3.toU32(bleU3(input, context))) << u19"16")
         if (context.hasError) {
           return u19"0"
         }
-        var r = u19"0"
-        var mask = u19"1" << u19"18"
-        for (i <- 0 until 18) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u19"1"
-        }
-        if (input(offset + 18)) {
-          r = r | mask
-        }
-        context.offset = offset + 19
         return r
       }
 
       def leU20(input: ISZ[B], context: Context): U20 = {
-        val offset = context.offset
-        if (offset + 20 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u20"0"
+        r = r | conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context))) << u20"8")
+        r = r | (conversions.U32.toU20(conversions.U4.toU32(bleU4(input, context))) << u20"16")
         if (context.hasError) {
           return u20"0"
         }
-        var r = u20"0"
-        var mask = u20"1" << u20"19"
-        for (i <- 0 until 19) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u20"1"
-        }
-        if (input(offset + 19)) {
-          r = r | mask
-        }
-        context.offset = offset + 20
         return r
       }
 
       def leU21(input: ISZ[B], context: Context): U21 = {
-        val offset = context.offset
-        if (offset + 21 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u21"0"
+        r = r | conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context))) << u21"8")
+        r = r | (conversions.U32.toU21(conversions.U5.toU32(bleU5(input, context))) << u21"16")
         if (context.hasError) {
           return u21"0"
         }
-        var r = u21"0"
-        var mask = u21"1" << u21"20"
-        for (i <- 0 until 20) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u21"1"
-        }
-        if (input(offset + 20)) {
-          r = r | mask
-        }
-        context.offset = offset + 21
         return r
       }
 
       def leU22(input: ISZ[B], context: Context): U22 = {
-        val offset = context.offset
-        if (offset + 22 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u22"0"
+        r = r | conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context))) << u22"8")
+        r = r | (conversions.U32.toU22(conversions.U6.toU32(bleU6(input, context))) << u22"16")
         if (context.hasError) {
           return u22"0"
         }
-        var r = u22"0"
-        var mask = u22"1" << u22"21"
-        for (i <- 0 until 21) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u22"1"
-        }
-        if (input(offset + 21)) {
-          r = r | mask
-        }
-        context.offset = offset + 22
         return r
       }
 
       def leU23(input: ISZ[B], context: Context): U23 = {
-        val offset = context.offset
-        if (offset + 23 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u23"0"
+        r = r | conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context))) << u23"8")
+        r = r | (conversions.U32.toU23(conversions.U7.toU32(bleU7(input, context))) << u23"16")
         if (context.hasError) {
           return u23"0"
         }
-        var r = u23"0"
-        var mask = u23"1" << u23"22"
-        for (i <- 0 until 22) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u23"1"
-        }
-        if (input(offset + 22)) {
-          r = r | mask
-        }
-        context.offset = offset + 23
         return r
       }
 
       def leU24(input: ISZ[B], context: Context): U24 = {
-        val offset = context.offset
-        if (offset + 24 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u24"0"
+        r = r | conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"8")
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"16")
         if (context.hasError) {
           return u24"0"
         }
-        var r = u24"0"
-        var mask = u24"1" << u24"23"
-        for (i <- 0 until 23) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u24"1"
-        }
-        if (input(offset + 23)) {
-          r = r | mask
-        }
-        context.offset = offset + 24
         return r
       }
 
       def leU25(input: ISZ[B], context: Context): U25 = {
-        val offset = context.offset
-        if (offset + 25 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u25"0"
+        r = r | conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"8")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"16")
+        r = r | (conversions.U32.toU25(conversions.U1.toU32(bleU1(input, context))) << u25"24")
         if (context.hasError) {
           return u25"0"
         }
-        var r = u25"0"
-        var mask = u25"1" << u25"24"
-        for (i <- 0 until 24) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u25"1"
-        }
-        if (input(offset + 24)) {
-          r = r | mask
-        }
-        context.offset = offset + 25
         return r
       }
 
       def leU26(input: ISZ[B], context: Context): U26 = {
-        val offset = context.offset
-        if (offset + 26 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u26"0"
+        r = r | conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"8")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"16")
+        r = r | (conversions.U32.toU26(conversions.U2.toU32(bleU2(input, context))) << u26"24")
         if (context.hasError) {
           return u26"0"
         }
-        var r = u26"0"
-        var mask = u26"1" << u26"25"
-        for (i <- 0 until 25) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u26"1"
-        }
-        if (input(offset + 25)) {
-          r = r | mask
-        }
-        context.offset = offset + 26
         return r
       }
 
       def leU27(input: ISZ[B], context: Context): U27 = {
-        val offset = context.offset
-        if (offset + 27 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u27"0"
+        r = r | conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"8")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"16")
+        r = r | (conversions.U32.toU27(conversions.U3.toU32(bleU3(input, context))) << u27"24")
         if (context.hasError) {
           return u27"0"
         }
-        var r = u27"0"
-        var mask = u27"1" << u27"26"
-        for (i <- 0 until 26) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u27"1"
-        }
-        if (input(offset + 26)) {
-          r = r | mask
-        }
-        context.offset = offset + 27
         return r
       }
 
       def leU28(input: ISZ[B], context: Context): U28 = {
-        val offset = context.offset
-        if (offset + 28 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u28"0"
+        r = r | conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"8")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"16")
+        r = r | (conversions.U32.toU28(conversions.U4.toU32(bleU4(input, context))) << u28"24")
         if (context.hasError) {
           return u28"0"
         }
-        var r = u28"0"
-        var mask = u28"1" << u28"27"
-        for (i <- 0 until 27) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u28"1"
-        }
-        if (input(offset + 27)) {
-          r = r | mask
-        }
-        context.offset = offset + 28
         return r
       }
 
       def leU29(input: ISZ[B], context: Context): U29 = {
-        val offset = context.offset
-        if (offset + 29 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u29"0"
+        r = r | conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"8")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"16")
+        r = r | (conversions.U32.toU29(conversions.U5.toU32(bleU5(input, context))) << u29"24")
         if (context.hasError) {
           return u29"0"
         }
-        var r = u29"0"
-        var mask = u29"1" << u29"28"
-        for (i <- 0 until 28) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u29"1"
-        }
-        if (input(offset + 28)) {
-          r = r | mask
-        }
-        context.offset = offset + 29
         return r
       }
 
       def leU30(input: ISZ[B], context: Context): U30 = {
-        val offset = context.offset
-        if (offset + 30 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u30"0"
+        r = r | conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"8")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"16")
+        r = r | (conversions.U32.toU30(conversions.U6.toU32(bleU6(input, context))) << u30"24")
         if (context.hasError) {
           return u30"0"
         }
-        var r = u30"0"
-        var mask = u30"1" << u30"29"
-        for (i <- 0 until 29) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u30"1"
-        }
-        if (input(offset + 29)) {
-          r = r | mask
-        }
-        context.offset = offset + 30
         return r
       }
 
       def leU31(input: ISZ[B], context: Context): U31 = {
-        val offset = context.offset
-        if (offset + 31 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u31"0"
+        r = r | conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"8")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"16")
+        r = r | (conversions.U32.toU31(conversions.U7.toU32(bleU7(input, context))) << u31"24")
         if (context.hasError) {
           return u31"0"
         }
-        var r = u31"0"
-        var mask = u31"1" << u31"30"
-        for (i <- 0 until 30) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u31"1"
-        }
-        if (input(offset + 30)) {
-          r = r | mask
-        }
-        context.offset = offset + 31
         return r
       }
 
       def leU32(input: ISZ[B], context: Context): U32 = {
-        val offset = context.offset
-        if (offset + 32 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU32(bleU8(input, context)) |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"8") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"16") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"24")
         if (context.hasError) {
           return u32"0"
         }
-        var r = u32"0"
-        var mask = u32"1" << u32"31"
-        for (i <- 0 until 31) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u32"1"
-        }
-        if (input(offset + 31)) {
-          r = r | mask
-        }
-        context.offset = offset + 32
         return r
       }
 
@@ -2684,738 +1851,465 @@ object Bits {
       }
 
       def leU33(input: ISZ[B], context: Context): U33 = {
-        val offset = context.offset
-        if (offset + 33 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u33"0"
+        r = r | conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"8")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"16")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"24")
+        r = r | (conversions.U64.toU33(conversions.U1.toU64(bleU1(input, context))) << u33"32")
         if (context.hasError) {
           return u33"0"
         }
-        var r = u33"0"
-        var mask = u33"1" << u33"32"
-        for (i <- 0 until 32) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u33"1"
-        }
-        if (input(offset + 32)) {
-          r = r | mask
-        }
-        context.offset = offset + 33
         return r
       }
 
       def leU34(input: ISZ[B], context: Context): U34 = {
-        val offset = context.offset
-        if (offset + 34 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u34"0"
+        r = r | conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"8")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"16")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"24")
+        r = r | (conversions.U64.toU34(conversions.U2.toU64(bleU2(input, context))) << u34"32")
         if (context.hasError) {
           return u34"0"
         }
-        var r = u34"0"
-        var mask = u34"1" << u34"33"
-        for (i <- 0 until 33) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u34"1"
-        }
-        if (input(offset + 33)) {
-          r = r | mask
-        }
-        context.offset = offset + 34
         return r
       }
 
       def leU35(input: ISZ[B], context: Context): U35 = {
-        val offset = context.offset
-        if (offset + 35 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u35"0"
+        r = r | conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"8")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"16")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"24")
+        r = r | (conversions.U64.toU35(conversions.U3.toU64(bleU3(input, context))) << u35"32")
         if (context.hasError) {
           return u35"0"
         }
-        var r = u35"0"
-        var mask = u35"1" << u35"34"
-        for (i <- 0 until 34) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u35"1"
-        }
-        if (input(offset + 34)) {
-          r = r | mask
-        }
-        context.offset = offset + 35
         return r
       }
 
       def leU36(input: ISZ[B], context: Context): U36 = {
-        val offset = context.offset
-        if (offset + 36 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u36"0"
+        r = r | conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"8")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"16")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"24")
+        r = r | (conversions.U64.toU36(conversions.U4.toU64(bleU4(input, context))) << u36"32")
         if (context.hasError) {
           return u36"0"
         }
-        var r = u36"0"
-        var mask = u36"1" << u36"35"
-        for (i <- 0 until 35) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u36"1"
-        }
-        if (input(offset + 35)) {
-          r = r | mask
-        }
-        context.offset = offset + 36
         return r
       }
 
       def leU37(input: ISZ[B], context: Context): U37 = {
-        val offset = context.offset
-        if (offset + 37 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u37"0"
+        r = r | conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"8")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"16")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"24")
+        r = r | (conversions.U64.toU37(conversions.U5.toU64(bleU5(input, context))) << u37"32")
         if (context.hasError) {
           return u37"0"
         }
-        var r = u37"0"
-        var mask = u37"1" << u37"36"
-        for (i <- 0 until 36) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u37"1"
-        }
-        if (input(offset + 36)) {
-          r = r | mask
-        }
-        context.offset = offset + 37
         return r
       }
 
       def leU38(input: ISZ[B], context: Context): U38 = {
-        val offset = context.offset
-        if (offset + 38 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u38"0"
+        r = r | conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"8")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"16")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"24")
+        r = r | (conversions.U64.toU38(conversions.U6.toU64(bleU6(input, context))) << u38"32")
         if (context.hasError) {
           return u38"0"
         }
-        var r = u38"0"
-        var mask = u38"1" << u38"37"
-        for (i <- 0 until 37) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u38"1"
-        }
-        if (input(offset + 37)) {
-          r = r | mask
-        }
-        context.offset = offset + 38
         return r
       }
 
       def leU39(input: ISZ[B], context: Context): U39 = {
-        val offset = context.offset
-        if (offset + 39 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u39"0"
+        r = r | conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"8")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"16")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"24")
+        r = r | (conversions.U64.toU39(conversions.U7.toU64(bleU7(input, context))) << u39"32")
         if (context.hasError) {
           return u39"0"
         }
-        var r = u39"0"
-        var mask = u39"1" << u39"38"
-        for (i <- 0 until 38) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u39"1"
-        }
-        if (input(offset + 38)) {
-          r = r | mask
-        }
-        context.offset = offset + 39
         return r
       }
 
       def leU40(input: ISZ[B], context: Context): U40 = {
-        val offset = context.offset
-        if (offset + 40 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u40"0"
+        r = r | conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"8")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"16")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"24")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"32")
         if (context.hasError) {
           return u40"0"
         }
-        var r = u40"0"
-        var mask = u40"1" << u40"39"
-        for (i <- 0 until 39) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u40"1"
-        }
-        if (input(offset + 39)) {
-          r = r | mask
-        }
-        context.offset = offset + 40
         return r
       }
 
       def leU41(input: ISZ[B], context: Context): U41 = {
-        val offset = context.offset
-        if (offset + 41 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u41"0"
+        r = r | conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"8")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"16")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"24")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"32")
+        r = r | (conversions.U64.toU41(conversions.U1.toU64(bleU1(input, context))) << u41"40")
         if (context.hasError) {
           return u41"0"
         }
-        var r = u41"0"
-        var mask = u41"1" << u41"40"
-        for (i <- 0 until 40) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u41"1"
-        }
-        if (input(offset + 40)) {
-          r = r | mask
-        }
-        context.offset = offset + 41
         return r
       }
 
       def leU42(input: ISZ[B], context: Context): U42 = {
-        val offset = context.offset
-        if (offset + 42 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u42"0"
+        r = r | conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"8")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"16")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"24")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"32")
+        r = r | (conversions.U64.toU42(conversions.U2.toU64(bleU2(input, context))) << u42"40")
         if (context.hasError) {
           return u42"0"
         }
-        var r = u42"0"
-        var mask = u42"1" << u42"41"
-        for (i <- 0 until 41) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u42"1"
-        }
-        if (input(offset + 41)) {
-          r = r | mask
-        }
-        context.offset = offset + 42
         return r
       }
 
       def leU43(input: ISZ[B], context: Context): U43 = {
-        val offset = context.offset
-        if (offset + 43 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u43"0"
+        r = r | conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"8")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"16")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"24")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"32")
+        r = r | (conversions.U64.toU43(conversions.U3.toU64(bleU3(input, context))) << u43"40")
         if (context.hasError) {
           return u43"0"
         }
-        var r = u43"0"
-        var mask = u43"1" << u43"42"
-        for (i <- 0 until 42) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u43"1"
-        }
-        if (input(offset + 42)) {
-          r = r | mask
-        }
-        context.offset = offset + 43
         return r
       }
 
       def leU44(input: ISZ[B], context: Context): U44 = {
-        val offset = context.offset
-        if (offset + 44 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u44"0"
+        r = r | conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"8")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"16")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"24")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"32")
+        r = r | (conversions.U64.toU44(conversions.U4.toU64(bleU4(input, context))) << u44"40")
         if (context.hasError) {
           return u44"0"
         }
-        var r = u44"0"
-        var mask = u44"1" << u44"43"
-        for (i <- 0 until 43) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u44"1"
-        }
-        if (input(offset + 43)) {
-          r = r | mask
-        }
-        context.offset = offset + 44
         return r
       }
 
       def leU45(input: ISZ[B], context: Context): U45 = {
-        val offset = context.offset
-        if (offset + 45 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u45"0"
+        r = r | conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"8")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"16")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"24")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"32")
+        r = r | (conversions.U64.toU45(conversions.U5.toU64(bleU5(input, context))) << u45"40")
         if (context.hasError) {
           return u45"0"
         }
-        var r = u45"0"
-        var mask = u45"1" << u45"44"
-        for (i <- 0 until 44) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u45"1"
-        }
-        if (input(offset + 44)) {
-          r = r | mask
-        }
-        context.offset = offset + 45
         return r
       }
 
       def leU46(input: ISZ[B], context: Context): U46 = {
-        val offset = context.offset
-        if (offset + 46 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u46"0"
+        r = r | conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"8")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"16")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"24")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"32")
+        r = r | (conversions.U64.toU46(conversions.U6.toU64(bleU6(input, context))) << u46"40")
         if (context.hasError) {
           return u46"0"
         }
-        var r = u46"0"
-        var mask = u46"1" << u46"45"
-        for (i <- 0 until 45) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u46"1"
-        }
-        if (input(offset + 45)) {
-          r = r | mask
-        }
-        context.offset = offset + 46
         return r
       }
 
       def leU47(input: ISZ[B], context: Context): U47 = {
-        val offset = context.offset
-        if (offset + 47 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u47"0"
+        r = r | conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"8")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"16")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"24")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"32")
+        r = r | (conversions.U64.toU47(conversions.U7.toU64(bleU7(input, context))) << u47"40")
         if (context.hasError) {
           return u47"0"
         }
-        var r = u47"0"
-        var mask = u47"1" << u47"46"
-        for (i <- 0 until 46) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u47"1"
-        }
-        if (input(offset + 46)) {
-          r = r | mask
-        }
-        context.offset = offset + 47
         return r
       }
 
       def leU48(input: ISZ[B], context: Context): U48 = {
-        val offset = context.offset
-        if (offset + 48 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u48"0"
+        r = r | conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"8")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"16")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"24")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"32")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"40")
         if (context.hasError) {
           return u48"0"
         }
-        var r = u48"0"
-        var mask = u48"1" << u48"47"
-        for (i <- 0 until 47) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u48"1"
-        }
-        if (input(offset + 47)) {
-          r = r | mask
-        }
-        context.offset = offset + 48
         return r
       }
 
       def leU49(input: ISZ[B], context: Context): U49 = {
-        val offset = context.offset
-        if (offset + 49 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u49"0"
+        r = r | conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"8")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"16")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"24")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"32")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"40")
+        r = r | (conversions.U64.toU49(conversions.U1.toU64(bleU1(input, context))) << u49"48")
         if (context.hasError) {
           return u49"0"
         }
-        var r = u49"0"
-        var mask = u49"1" << u49"48"
-        for (i <- 0 until 48) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u49"1"
-        }
-        if (input(offset + 48)) {
-          r = r | mask
-        }
-        context.offset = offset + 49
         return r
       }
 
       def leU50(input: ISZ[B], context: Context): U50 = {
-        val offset = context.offset
-        if (offset + 50 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u50"0"
+        r = r | conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"8")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"16")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"24")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"32")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"40")
+        r = r | (conversions.U64.toU50(conversions.U2.toU64(bleU2(input, context))) << u50"48")
         if (context.hasError) {
           return u50"0"
         }
-        var r = u50"0"
-        var mask = u50"1" << u50"49"
-        for (i <- 0 until 49) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u50"1"
-        }
-        if (input(offset + 49)) {
-          r = r | mask
-        }
-        context.offset = offset + 50
         return r
       }
 
       def leU51(input: ISZ[B], context: Context): U51 = {
-        val offset = context.offset
-        if (offset + 51 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u51"0"
+        r = r | conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"8")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"16")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"24")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"32")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"40")
+        r = r | (conversions.U64.toU51(conversions.U3.toU64(bleU3(input, context))) << u51"48")
         if (context.hasError) {
           return u51"0"
         }
-        var r = u51"0"
-        var mask = u51"1" << u51"50"
-        for (i <- 0 until 50) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u51"1"
-        }
-        if (input(offset + 50)) {
-          r = r | mask
-        }
-        context.offset = offset + 51
         return r
       }
 
       def leU52(input: ISZ[B], context: Context): U52 = {
-        val offset = context.offset
-        if (offset + 52 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u52"0"
+        r = r | conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"8")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"16")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"24")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"32")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"40")
+        r = r | (conversions.U64.toU52(conversions.U4.toU64(bleU4(input, context))) << u52"48")
         if (context.hasError) {
           return u52"0"
         }
-        var r = u52"0"
-        var mask = u52"1" << u52"51"
-        for (i <- 0 until 51) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u52"1"
-        }
-        if (input(offset + 51)) {
-          r = r | mask
-        }
-        context.offset = offset + 52
         return r
       }
 
       def leU53(input: ISZ[B], context: Context): U53 = {
-        val offset = context.offset
-        if (offset + 53 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u53"0"
+        r = r | conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"8")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"16")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"24")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"32")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"40")
+        r = r | (conversions.U64.toU53(conversions.U5.toU64(bleU5(input, context))) << u53"48")
         if (context.hasError) {
           return u53"0"
         }
-        var r = u53"0"
-        var mask = u53"1" << u53"52"
-        for (i <- 0 until 52) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u53"1"
-        }
-        if (input(offset + 52)) {
-          r = r | mask
-        }
-        context.offset = offset + 53
         return r
       }
 
       def leU54(input: ISZ[B], context: Context): U54 = {
-        val offset = context.offset
-        if (offset + 54 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u54"0"
+        r = r | conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"8")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"16")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"24")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"32")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"40")
+        r = r | (conversions.U64.toU54(conversions.U6.toU64(bleU6(input, context))) << u54"48")
         if (context.hasError) {
           return u54"0"
         }
-        var r = u54"0"
-        var mask = u54"1" << u54"53"
-        for (i <- 0 until 53) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u54"1"
-        }
-        if (input(offset + 53)) {
-          r = r | mask
-        }
-        context.offset = offset + 54
         return r
       }
 
       def leU55(input: ISZ[B], context: Context): U55 = {
-        val offset = context.offset
-        if (offset + 55 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u55"0"
+        r = r | conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"8")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"16")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"24")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"32")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"40")
+        r = r | (conversions.U64.toU55(conversions.U7.toU64(bleU7(input, context))) << u55"48")
         if (context.hasError) {
           return u55"0"
         }
-        var r = u55"0"
-        var mask = u55"1" << u55"54"
-        for (i <- 0 until 54) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u55"1"
-        }
-        if (input(offset + 54)) {
-          r = r | mask
-        }
-        context.offset = offset + 55
         return r
       }
 
       def leU56(input: ISZ[B], context: Context): U56 = {
-        val offset = context.offset
-        if (offset + 56 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u56"0"
+        r = r | conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"8")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"16")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"24")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"32")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"40")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"48")
         if (context.hasError) {
           return u56"0"
         }
-        var r = u56"0"
-        var mask = u56"1" << u56"55"
-        for (i <- 0 until 55) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u56"1"
-        }
-        if (input(offset + 55)) {
-          r = r | mask
-        }
-        context.offset = offset + 56
         return r
       }
 
       def leU57(input: ISZ[B], context: Context): U57 = {
-        val offset = context.offset
-        if (offset + 57 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u57"0"
+        r = r | conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"8")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"16")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"24")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"32")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"40")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"48")
+        r = r | (conversions.U64.toU57(conversions.U1.toU64(bleU1(input, context))) << u57"56")
         if (context.hasError) {
           return u57"0"
         }
-        var r = u57"0"
-        var mask = u57"1" << u57"56"
-        for (i <- 0 until 56) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u57"1"
-        }
-        if (input(offset + 56)) {
-          r = r | mask
-        }
-        context.offset = offset + 57
         return r
       }
 
       def leU58(input: ISZ[B], context: Context): U58 = {
-        val offset = context.offset
-        if (offset + 58 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u58"0"
+        r = r | conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"8")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"16")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"24")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"32")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"40")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"48")
+        r = r | (conversions.U64.toU58(conversions.U2.toU64(bleU2(input, context))) << u58"56")
         if (context.hasError) {
           return u58"0"
         }
-        var r = u58"0"
-        var mask = u58"1" << u58"57"
-        for (i <- 0 until 57) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u58"1"
-        }
-        if (input(offset + 57)) {
-          r = r | mask
-        }
-        context.offset = offset + 58
         return r
       }
 
       def leU59(input: ISZ[B], context: Context): U59 = {
-        val offset = context.offset
-        if (offset + 59 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u59"0"
+        r = r | conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"8")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"16")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"24")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"32")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"40")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"48")
+        r = r | (conversions.U64.toU59(conversions.U3.toU64(bleU3(input, context))) << u59"56")
         if (context.hasError) {
           return u59"0"
         }
-        var r = u59"0"
-        var mask = u59"1" << u59"58"
-        for (i <- 0 until 58) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u59"1"
-        }
-        if (input(offset + 58)) {
-          r = r | mask
-        }
-        context.offset = offset + 59
         return r
       }
 
       def leU60(input: ISZ[B], context: Context): U60 = {
-        val offset = context.offset
-        if (offset + 60 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u60"0"
+        r = r | conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"8")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"16")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"24")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"32")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"40")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"48")
+        r = r | (conversions.U64.toU60(conversions.U4.toU64(bleU4(input, context))) << u60"56")
         if (context.hasError) {
           return u60"0"
         }
-        var r = u60"0"
-        var mask = u60"1" << u60"59"
-        for (i <- 0 until 59) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u60"1"
-        }
-        if (input(offset + 59)) {
-          r = r | mask
-        }
-        context.offset = offset + 60
         return r
       }
 
       def leU61(input: ISZ[B], context: Context): U61 = {
-        val offset = context.offset
-        if (offset + 61 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u61"0"
+        r = r | conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"8")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"16")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"24")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"32")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"40")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"48")
+        r = r | (conversions.U64.toU61(conversions.U5.toU64(bleU5(input, context))) << u61"56")
         if (context.hasError) {
           return u61"0"
         }
-        var r = u61"0"
-        var mask = u61"1" << u61"60"
-        for (i <- 0 until 60) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u61"1"
-        }
-        if (input(offset + 60)) {
-          r = r | mask
-        }
-        context.offset = offset + 61
         return r
       }
 
       def leU62(input: ISZ[B], context: Context): U62 = {
-        val offset = context.offset
-        if (offset + 62 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u62"0"
+        r = r | conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"8")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"16")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"24")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"32")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"40")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"48")
+        r = r | (conversions.U64.toU62(conversions.U6.toU64(bleU6(input, context))) << u62"56")
         if (context.hasError) {
           return u62"0"
         }
-        var r = u62"0"
-        var mask = u62"1" << u62"61"
-        for (i <- 0 until 61) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u62"1"
-        }
-        if (input(offset + 61)) {
-          r = r | mask
-        }
-        context.offset = offset + 62
         return r
       }
 
       def leU63(input: ISZ[B], context: Context): U63 = {
-        val offset = context.offset
-        if (offset + 63 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u63"0"
+        r = r | conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"8")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"16")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"24")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"32")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"40")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"48")
+        r = r | (conversions.U64.toU63(conversions.U7.toU64(bleU7(input, context))) << u63"56")
         if (context.hasError) {
           return u63"0"
         }
-        var r = u63"0"
-        var mask = u63"1" << u63"62"
-        for (i <- 0 until 62) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u63"1"
-        }
-        if (input(offset + 62)) {
-          r = r | mask
-        }
-        context.offset = offset + 63
         return r
       }
 
       def leU64(input: ISZ[B], context: Context): U64 = {
-        val offset = context.offset
-        if (offset + 64 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU64(bleU8(input, context)) |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"8") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"16") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"24") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"32") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"40") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"48") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"56")
         if (context.hasError) {
           return u64"0"
         }
-        var r = u64"0"
-        var mask = u64"1" << u64"63"
-        for (i <- 0 until 63) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u64"1"
-        }
-        if (input(offset + 63)) {
-          r = r | mask
-        }
-        context.offset = offset + 64
         return r
       }
 
@@ -3433,6 +2327,7 @@ object Bits {
     }
 
     object MS {
+
       def bleB(input: MSZ[B], context: Context): B = {
         val offset = context.offset
         if (offset + 1 > input.size) {
@@ -3487,28 +2382,150 @@ object Bits {
         return if (r) u1"1" else u1"0"
       }
 
-      def beU8S(input: MSZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
-        if (context.offset + size * 8 > input.size) {
+      def bleU2(input: MSZ[B], context: Context): U2 = {
+        val offset = context.offset
+        if (offset + 2 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
         if (context.hasError) {
-          return
+          return u2"0"
         }
-        for (i <- 0 until size) {
-          result(i) = beU8(input, context)
+        var r = u2"0"
+        var mask = u2"1"
+        for (i <- 0 until 1) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u2"1"
         }
+        if (input(offset + 1)) {
+          r = r | mask
+        }
+        context.offset = offset + 2
+        return r
+      }
+
+      def bleU3(input: MSZ[B], context: Context): U3 = {
+        val offset = context.offset
+        if (offset + 3 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u3"0"
+        }
+        var r = u3"0"
+        var mask = u3"1"
+        for (i <- 0 until 2) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u3"1"
+        }
+        if (input(offset + 2)) {
+          r = r | mask
+        }
+        context.offset = offset + 3
+        return r
+      }
+
+      def bleU4(input: MSZ[B], context: Context): U4 = {
+        val offset = context.offset
+        if (offset + 4 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u4"0"
+        }
+        var r = u4"0"
+        var mask = u4"1"
+        for (i <- 0 until 3) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u4"1"
+        }
+        if (input(offset + 3)) {
+          r = r | mask
+        }
+        context.offset = offset + 4
+        return r
+      }
+
+      def bleU5(input: MSZ[B], context: Context): U5 = {
+        val offset = context.offset
+        if (offset + 5 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u5"0"
+        }
+        var r = u5"0"
+        var mask = u5"1"
+        for (i <- 0 until 4) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u5"1"
+        }
+        if (input(offset + 4)) {
+          r = r | mask
+        }
+        context.offset = offset + 5
+        return r
+      }
+
+      def bleU6(input: MSZ[B], context: Context): U6 = {
+        val offset = context.offset
+        if (offset + 6 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u6"0"
+        }
+        var r = u6"0"
+        var mask = u6"1"
+        for (i <- 0 until 5) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u6"1"
+        }
+        if (input(offset + 5)) {
+          r = r | mask
+        }
+        context.offset = offset + 6
+        return r
+      }
+
+      def bleU7(input: MSZ[B], context: Context): U7 = {
+        val offset = context.offset
+        if (offset + 7 > input.size) {
+          context.signalError(INCOMPLETE_INPUT)
+        }
+        if (context.hasError) {
+          return u7"0"
+        }
+        var r = u7"0"
+        var mask = u7"1"
+        for (i <- 0 until 6) {
+          if (input(offset + i)) {
+            r = r | mask
+          }
+          mask = mask << u7"1"
+        }
+        if (input(offset + 6)) {
+          r = r | mask
+        }
+        context.offset = offset + 7
+        return r
+      }
+
+      def beU8S(input: MSZ[B], context: Context, result: MSZ[U8], size: Z): Unit = {
+        leU8S(input, context, result, size)
       }
 
       def beS8S(input: MSZ[B], context: Context, result: MSZ[S8], size: Z): Unit = {
-        if (context.offset + size * 8 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return
-        }
-        for (i <- 0 until size) {
-          result(i) = beS8(input, context)
-        }
+        leS8S(input, context, result, size)
       }
 
       def beU16S(input: MSZ[B], context: Context, result: MSZ[U16], size: Z): Unit = {
@@ -3615,7 +2632,7 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = leU8(input, context)
+          result(i) = bleU8(input, context)
         }
       }
 
@@ -3627,7 +2644,7 @@ object Bits {
           return
         }
         for (i <- 0 until size) {
-          result(i) = leS8(input, context)
+          result(i) = bleS8(input, context)
         }
       }
 
@@ -3703,7 +2720,7 @@ object Bits {
         }
       }
 
-      def leSF32S(input: MSZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
+      def leF32S(input: MSZ[B], context: Context, result: MSZ[F32], size: Z): Unit = {
         if (context.offset + size * 32 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3715,7 +2732,7 @@ object Bits {
         }
       }
 
-      def leSF64S(input: MSZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
+      def leF64S(input: MSZ[B], context: Context, result: MSZ[F64], size: Z): Unit = {
         if (context.offset + size * 64 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
         }
@@ -3727,174 +2744,7 @@ object Bits {
         }
       }
 
-      // Slang script gen:
-      // for (i <- 2 to 64) {
-      //   val sizeM1 = i - 1
-      //   println(
-      //     st"""def beU$i(input: MSZ[B], context: Context): U$i = {
-      //         |  val offset = context.offset
-      //         |  if (offset + $i > input.size) {
-      //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      //         |  }
-      //         |  if (context.hasError) {
-      //         |    return u$i"0"
-      //         |  }
-      //         |  var r = u$i"0"
-      //         |  var mask = u$i"1"
-      //         |  for (i <- 0 until $sizeM1) {
-      //         |    if (input(offset + i)) {
-      //         |      r = r | mask
-      //         |    }
-      //         |    mask = mask << u$i"1"
-      //         |  }
-      //         |  if (input(offset + $sizeM1)) {
-      //         |    r = r | mask
-      //         |  }
-      //         |  context.offset = offset + $i
-      //         |  return r
-      //         |}""".render)
-      //   println()
-      // }
-
-      def beU2(input: MSZ[B], context: Context): U2 = {
-        val offset = context.offset
-        if (offset + 2 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u2"0"
-        }
-        var r = u2"0"
-        var mask = u2"1"
-        for (i <- 0 until 1) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u2"1"
-        }
-        if (input(offset + 1)) {
-          r = r | mask
-        }
-        context.offset = offset + 2
-        return r
-      }
-
-      def beU3(input: MSZ[B], context: Context): U3 = {
-        val offset = context.offset
-        if (offset + 3 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u3"0"
-        }
-        var r = u3"0"
-        var mask = u3"1"
-        for (i <- 0 until 2) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u3"1"
-        }
-        if (input(offset + 2)) {
-          r = r | mask
-        }
-        context.offset = offset + 3
-        return r
-      }
-
-      def beU4(input: MSZ[B], context: Context): U4 = {
-        val offset = context.offset
-        if (offset + 4 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u4"0"
-        }
-        var r = u4"0"
-        var mask = u4"1"
-        for (i <- 0 until 3) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u4"1"
-        }
-        if (input(offset + 3)) {
-          r = r | mask
-        }
-        context.offset = offset + 4
-        return r
-      }
-
-      def beU5(input: MSZ[B], context: Context): U5 = {
-        val offset = context.offset
-        if (offset + 5 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u5"0"
-        }
-        var r = u5"0"
-        var mask = u5"1"
-        for (i <- 0 until 4) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u5"1"
-        }
-        if (input(offset + 4)) {
-          r = r | mask
-        }
-        context.offset = offset + 5
-        return r
-      }
-
-      def beU6(input: MSZ[B], context: Context): U6 = {
-        val offset = context.offset
-        if (offset + 6 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u6"0"
-        }
-        var r = u6"0"
-        var mask = u6"1"
-        for (i <- 0 until 5) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u6"1"
-        }
-        if (input(offset + 5)) {
-          r = r | mask
-        }
-        context.offset = offset + 6
-        return r
-      }
-
-      def beU7(input: MSZ[B], context: Context): U7 = {
-        val offset = context.offset
-        if (offset + 7 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u7"0"
-        }
-        var r = u7"0"
-        var mask = u7"1"
-        for (i <- 0 until 6) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u7"1"
-        }
-        if (input(offset + 6)) {
-          r = r | mask
-        }
-        context.offset = offset + 7
-        return r
-      }
-
-      def beU8(input: MSZ[B], context: Context): U8 = {
+      def bleU8(input: MSZ[B], context: Context): U8 = {
         val offset = context.offset
         if (offset + 8 > input.size) {
           context.signalError(INCOMPLETE_INPUT)
@@ -3917,191 +2767,215 @@ object Bits {
         return r
       }
 
-      def beS8(input: MSZ[B], context: Context): S8 = {
-        return conversions.U8.toRawS8(beU8(input, context))
+      def bleS8(input: MSZ[B], context: Context): S8 = {
+        return conversions.U8.toRawS8(bleU8(input, context))
       }
 
+      // Slang script gen:
+      /*
+      for (i <- 9 to 15) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U16.toU$i(conversions.U${i - 8}.toU16(bleU${i - 8}(input, context))) << u$i"8")
+              |        r = r | conversions.U16.toU$i(conversions.U8.toU16(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 17 to 24) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 16}.toU32(bleU${i - 16}(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 25 to 31) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 24}.toU32(bleU${i - 24}(input, context))) << u$i"24")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 33 to 40) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 32}.toU64(bleU${i - 32}(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 41 to 48) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 40}.toU64(bleU${i - 40}(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 49 to 56) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 48}.toU64(bleU${i - 48}(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+
+      for (i <- 57 to 63) {
+        println(
+          st"""      def beU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 56}.toU64(bleU${i - 56}(input, context))) << u$i"56")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
+      }
+      */
+
       def beU9(input: MSZ[B], context: Context): U9 = {
-        val offset = context.offset
-        if (offset + 9 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u9"0"
+        r = r | (conversions.U16.toU9(conversions.U1.toU16(bleU1(input, context))) << u9"8")
+        r = r | conversions.U16.toU9(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u9"0"
         }
-        var r = u9"0"
-        var mask = u9"1"
-        for (i <- 0 until 8) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u9"1"
-        }
-        if (input(offset + 8)) {
-          r = r | mask
-        }
-        context.offset = offset + 9
         return r
       }
 
       def beU10(input: MSZ[B], context: Context): U10 = {
-        val offset = context.offset
-        if (offset + 10 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u10"0"
+        r = r | (conversions.U16.toU10(conversions.U2.toU16(bleU2(input, context))) << u10"8")
+        r = r | conversions.U16.toU10(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u10"0"
         }
-        var r = u10"0"
-        var mask = u10"1"
-        for (i <- 0 until 9) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u10"1"
-        }
-        if (input(offset + 9)) {
-          r = r | mask
-        }
-        context.offset = offset + 10
         return r
       }
 
       def beU11(input: MSZ[B], context: Context): U11 = {
-        val offset = context.offset
-        if (offset + 11 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u11"0"
+        r = r | (conversions.U16.toU11(conversions.U3.toU16(bleU3(input, context))) << u11"8")
+        r = r | conversions.U16.toU11(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u11"0"
         }
-        var r = u11"0"
-        var mask = u11"1"
-        for (i <- 0 until 10) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u11"1"
-        }
-        if (input(offset + 10)) {
-          r = r | mask
-        }
-        context.offset = offset + 11
         return r
       }
 
       def beU12(input: MSZ[B], context: Context): U12 = {
-        val offset = context.offset
-        if (offset + 12 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u12"0"
+        r = r | (conversions.U16.toU12(conversions.U4.toU16(bleU4(input, context))) << u12"8")
+        r = r | conversions.U16.toU12(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u12"0"
         }
-        var r = u12"0"
-        var mask = u12"1"
-        for (i <- 0 until 11) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u12"1"
-        }
-        if (input(offset + 11)) {
-          r = r | mask
-        }
-        context.offset = offset + 12
         return r
       }
 
       def beU13(input: MSZ[B], context: Context): U13 = {
-        val offset = context.offset
-        if (offset + 13 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u13"0"
+        r = r | (conversions.U16.toU13(conversions.U5.toU16(bleU5(input, context))) << u13"8")
+        r = r | conversions.U16.toU13(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u13"0"
         }
-        var r = u13"0"
-        var mask = u13"1"
-        for (i <- 0 until 12) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u13"1"
-        }
-        if (input(offset + 12)) {
-          r = r | mask
-        }
-        context.offset = offset + 13
         return r
       }
 
       def beU14(input: MSZ[B], context: Context): U14 = {
-        val offset = context.offset
-        if (offset + 14 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u14"0"
+        r = r | (conversions.U16.toU14(conversions.U6.toU16(bleU6(input, context))) << u14"8")
+        r = r | conversions.U16.toU14(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u14"0"
         }
-        var r = u14"0"
-        var mask = u14"1"
-        for (i <- 0 until 13) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u14"1"
-        }
-        if (input(offset + 13)) {
-          r = r | mask
-        }
-        context.offset = offset + 14
         return r
       }
 
       def beU15(input: MSZ[B], context: Context): U15 = {
-        val offset = context.offset
-        if (offset + 15 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u15"0"
+        r = r | (conversions.U16.toU15(conversions.U7.toU16(bleU7(input, context))) << u15"8")
+        r = r | conversions.U16.toU15(conversions.U8.toU16(bleU8(input, context)))
         if (context.hasError) {
           return u15"0"
         }
-        var r = u15"0"
-        var mask = u15"1"
-        for (i <- 0 until 14) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u15"1"
-        }
-        if (input(offset + 14)) {
-          r = r | mask
-        }
-        context.offset = offset + 15
         return r
       }
 
       def beU16(input: MSZ[B], context: Context): U16 = {
-        val offset = context.offset
-        if (offset + 16 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU16(bleU8(input, context)) << u16"8") |
+          conversions.U8.toU16(bleU8(input, context))
         if (context.hasError) {
           return u16"0"
         }
-        var r = u16"0"
-        var mask = u16"1"
-        for (i <- 0 until 15) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u16"1"
-        }
-        if (input(offset + 15)) {
-          r = r | mask
-        }
-        context.offset = offset + 16
         return r
       }
 
@@ -4110,370 +2984,185 @@ object Bits {
       }
 
       def beU17(input: MSZ[B], context: Context): U17 = {
-        val offset = context.offset
-        if (offset + 17 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u17"0"
+        r = r | (conversions.U32.toU17(conversions.U1.toU32(bleU1(input, context))) << u17"16")
+        r = r | (conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context))) << u17"8")
+        r = r | conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u17"0"
         }
-        var r = u17"0"
-        var mask = u17"1"
-        for (i <- 0 until 16) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u17"1"
-        }
-        if (input(offset + 16)) {
-          r = r | mask
-        }
-        context.offset = offset + 17
         return r
       }
 
       def beU18(input: MSZ[B], context: Context): U18 = {
-        val offset = context.offset
-        if (offset + 18 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u18"0"
+        r = r | (conversions.U32.toU18(conversions.U2.toU32(bleU2(input, context))) << u18"16")
+        r = r | (conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context))) << u18"8")
+        r = r | conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u18"0"
         }
-        var r = u18"0"
-        var mask = u18"1"
-        for (i <- 0 until 17) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u18"1"
-        }
-        if (input(offset + 17)) {
-          r = r | mask
-        }
-        context.offset = offset + 18
         return r
       }
 
       def beU19(input: MSZ[B], context: Context): U19 = {
-        val offset = context.offset
-        if (offset + 19 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u19"0"
+        r = r | (conversions.U32.toU19(conversions.U3.toU32(bleU3(input, context))) << u19"16")
+        r = r | (conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context))) << u19"8")
+        r = r | conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u19"0"
         }
-        var r = u19"0"
-        var mask = u19"1"
-        for (i <- 0 until 18) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u19"1"
-        }
-        if (input(offset + 18)) {
-          r = r | mask
-        }
-        context.offset = offset + 19
         return r
       }
 
       def beU20(input: MSZ[B], context: Context): U20 = {
-        val offset = context.offset
-        if (offset + 20 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u20"0"
+        r = r | (conversions.U32.toU20(conversions.U4.toU32(bleU4(input, context))) << u20"16")
+        r = r | (conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context))) << u20"8")
+        r = r | conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u20"0"
         }
-        var r = u20"0"
-        var mask = u20"1"
-        for (i <- 0 until 19) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u20"1"
-        }
-        if (input(offset + 19)) {
-          r = r | mask
-        }
-        context.offset = offset + 20
         return r
       }
 
       def beU21(input: MSZ[B], context: Context): U21 = {
-        val offset = context.offset
-        if (offset + 21 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u21"0"
+        r = r | (conversions.U32.toU21(conversions.U5.toU32(bleU5(input, context))) << u21"16")
+        r = r | (conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context))) << u21"8")
+        r = r | conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u21"0"
         }
-        var r = u21"0"
-        var mask = u21"1"
-        for (i <- 0 until 20) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u21"1"
-        }
-        if (input(offset + 20)) {
-          r = r | mask
-        }
-        context.offset = offset + 21
         return r
       }
 
       def beU22(input: MSZ[B], context: Context): U22 = {
-        val offset = context.offset
-        if (offset + 22 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u22"0"
+        r = r | (conversions.U32.toU22(conversions.U6.toU32(bleU6(input, context))) << u22"16")
+        r = r | (conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context))) << u22"8")
+        r = r | conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u22"0"
         }
-        var r = u22"0"
-        var mask = u22"1"
-        for (i <- 0 until 21) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u22"1"
-        }
-        if (input(offset + 21)) {
-          r = r | mask
-        }
-        context.offset = offset + 22
         return r
       }
 
       def beU23(input: MSZ[B], context: Context): U23 = {
-        val offset = context.offset
-        if (offset + 23 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u23"0"
+        r = r | (conversions.U32.toU23(conversions.U7.toU32(bleU7(input, context))) << u23"16")
+        r = r | (conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context))) << u23"8")
+        r = r | conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u23"0"
         }
-        var r = u23"0"
-        var mask = u23"1"
-        for (i <- 0 until 22) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u23"1"
-        }
-        if (input(offset + 22)) {
-          r = r | mask
-        }
-        context.offset = offset + 23
         return r
       }
 
       def beU24(input: MSZ[B], context: Context): U24 = {
-        val offset = context.offset
-        if (offset + 24 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u24"0"
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"16")
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"8")
+        r = r | conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u24"0"
         }
-        var r = u24"0"
-        var mask = u24"1"
-        for (i <- 0 until 23) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u24"1"
-        }
-        if (input(offset + 23)) {
-          r = r | mask
-        }
-        context.offset = offset + 24
         return r
       }
 
       def beU25(input: MSZ[B], context: Context): U25 = {
-        val offset = context.offset
-        if (offset + 25 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u25"0"
+        r = r | (conversions.U32.toU25(conversions.U1.toU32(bleU1(input, context))) << u25"24")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"16")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"8")
+        r = r | conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u25"0"
         }
-        var r = u25"0"
-        var mask = u25"1"
-        for (i <- 0 until 24) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u25"1"
-        }
-        if (input(offset + 24)) {
-          r = r | mask
-        }
-        context.offset = offset + 25
         return r
       }
 
       def beU26(input: MSZ[B], context: Context): U26 = {
-        val offset = context.offset
-        if (offset + 26 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u26"0"
+        r = r | (conversions.U32.toU26(conversions.U2.toU32(bleU2(input, context))) << u26"24")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"16")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"8")
+        r = r | conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u26"0"
         }
-        var r = u26"0"
-        var mask = u26"1"
-        for (i <- 0 until 25) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u26"1"
-        }
-        if (input(offset + 25)) {
-          r = r | mask
-        }
-        context.offset = offset + 26
         return r
       }
 
       def beU27(input: MSZ[B], context: Context): U27 = {
-        val offset = context.offset
-        if (offset + 27 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u27"0"
+        r = r | (conversions.U32.toU27(conversions.U3.toU32(bleU3(input, context))) << u27"24")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"16")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"8")
+        r = r | conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u27"0"
         }
-        var r = u27"0"
-        var mask = u27"1"
-        for (i <- 0 until 26) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u27"1"
-        }
-        if (input(offset + 26)) {
-          r = r | mask
-        }
-        context.offset = offset + 27
         return r
       }
 
       def beU28(input: MSZ[B], context: Context): U28 = {
-        val offset = context.offset
-        if (offset + 28 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u28"0"
+        r = r | (conversions.U32.toU28(conversions.U4.toU32(bleU4(input, context))) << u28"24")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"16")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"8")
+        r = r | conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u28"0"
         }
-        var r = u28"0"
-        var mask = u28"1"
-        for (i <- 0 until 27) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u28"1"
-        }
-        if (input(offset + 27)) {
-          r = r | mask
-        }
-        context.offset = offset + 28
         return r
       }
 
       def beU29(input: MSZ[B], context: Context): U29 = {
-        val offset = context.offset
-        if (offset + 29 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u29"0"
+        r = r | (conversions.U32.toU29(conversions.U5.toU32(bleU5(input, context))) << u29"24")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"16")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"8")
+        r = r | conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u29"0"
         }
-        var r = u29"0"
-        var mask = u29"1"
-        for (i <- 0 until 28) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u29"1"
-        }
-        if (input(offset + 28)) {
-          r = r | mask
-        }
-        context.offset = offset + 29
         return r
       }
 
       def beU30(input: MSZ[B], context: Context): U30 = {
-        val offset = context.offset
-        if (offset + 30 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u30"0"
+        r = r | (conversions.U32.toU30(conversions.U6.toU32(bleU6(input, context))) << u30"24")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"16")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"8")
+        r = r | conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u30"0"
         }
-        var r = u30"0"
-        var mask = u30"1"
-        for (i <- 0 until 29) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u30"1"
-        }
-        if (input(offset + 29)) {
-          r = r | mask
-        }
-        context.offset = offset + 30
         return r
       }
 
       def beU31(input: MSZ[B], context: Context): U31 = {
-        val offset = context.offset
-        if (offset + 31 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u31"0"
+        r = r | (conversions.U32.toU31(conversions.U7.toU32(bleU7(input, context))) << u31"24")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"16")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"8")
+        r = r | conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context)))
         if (context.hasError) {
           return u31"0"
         }
-        var r = u31"0"
-        var mask = u31"1"
-        for (i <- 0 until 30) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u31"1"
-        }
-        if (input(offset + 30)) {
-          r = r | mask
-        }
-        context.offset = offset + 31
         return r
       }
 
       def beU32(input: MSZ[B], context: Context): U32 = {
-        val offset = context.offset
-        if (offset + 32 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU32(bleU8(input, context)) << u32"24") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"16") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"8") |
+          conversions.U8.toU32(bleU8(input, context))
         if (context.hasError) {
           return u32"0"
         }
-        var r = u32"0"
-        var mask = u32"1"
-        for (i <- 0 until 31) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u32"1"
-        }
-        if (input(offset + 31)) {
-          r = r | mask
-        }
-        context.offset = offset + 32
         return r
       }
 
@@ -4482,738 +3171,465 @@ object Bits {
       }
 
       def beU33(input: MSZ[B], context: Context): U33 = {
-        val offset = context.offset
-        if (offset + 33 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u33"0"
+        r = r | (conversions.U64.toU33(conversions.U1.toU64(bleU1(input, context))) << u33"32")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"24")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"16")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"8")
+        r = r | conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u33"0"
         }
-        var r = u33"0"
-        var mask = u33"1"
-        for (i <- 0 until 32) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u33"1"
-        }
-        if (input(offset + 32)) {
-          r = r | mask
-        }
-        context.offset = offset + 33
         return r
       }
 
       def beU34(input: MSZ[B], context: Context): U34 = {
-        val offset = context.offset
-        if (offset + 34 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u34"0"
+        r = r | (conversions.U64.toU34(conversions.U2.toU64(bleU2(input, context))) << u34"32")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"24")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"16")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"8")
+        r = r | conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u34"0"
         }
-        var r = u34"0"
-        var mask = u34"1"
-        for (i <- 0 until 33) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u34"1"
-        }
-        if (input(offset + 33)) {
-          r = r | mask
-        }
-        context.offset = offset + 34
         return r
       }
 
       def beU35(input: MSZ[B], context: Context): U35 = {
-        val offset = context.offset
-        if (offset + 35 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u35"0"
+        r = r | (conversions.U64.toU35(conversions.U3.toU64(bleU3(input, context))) << u35"32")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"24")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"16")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"8")
+        r = r | conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u35"0"
         }
-        var r = u35"0"
-        var mask = u35"1"
-        for (i <- 0 until 34) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u35"1"
-        }
-        if (input(offset + 34)) {
-          r = r | mask
-        }
-        context.offset = offset + 35
         return r
       }
 
       def beU36(input: MSZ[B], context: Context): U36 = {
-        val offset = context.offset
-        if (offset + 36 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u36"0"
+        r = r | (conversions.U64.toU36(conversions.U4.toU64(bleU4(input, context))) << u36"32")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"24")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"16")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"8")
+        r = r | conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u36"0"
         }
-        var r = u36"0"
-        var mask = u36"1"
-        for (i <- 0 until 35) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u36"1"
-        }
-        if (input(offset + 35)) {
-          r = r | mask
-        }
-        context.offset = offset + 36
         return r
       }
 
       def beU37(input: MSZ[B], context: Context): U37 = {
-        val offset = context.offset
-        if (offset + 37 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u37"0"
+        r = r | (conversions.U64.toU37(conversions.U5.toU64(bleU5(input, context))) << u37"32")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"24")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"16")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"8")
+        r = r | conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u37"0"
         }
-        var r = u37"0"
-        var mask = u37"1"
-        for (i <- 0 until 36) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u37"1"
-        }
-        if (input(offset + 36)) {
-          r = r | mask
-        }
-        context.offset = offset + 37
         return r
       }
 
       def beU38(input: MSZ[B], context: Context): U38 = {
-        val offset = context.offset
-        if (offset + 38 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u38"0"
+        r = r | (conversions.U64.toU38(conversions.U6.toU64(bleU6(input, context))) << u38"32")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"24")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"16")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"8")
+        r = r | conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u38"0"
         }
-        var r = u38"0"
-        var mask = u38"1"
-        for (i <- 0 until 37) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u38"1"
-        }
-        if (input(offset + 37)) {
-          r = r | mask
-        }
-        context.offset = offset + 38
         return r
       }
 
       def beU39(input: MSZ[B], context: Context): U39 = {
-        val offset = context.offset
-        if (offset + 39 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u39"0"
+        r = r | (conversions.U64.toU39(conversions.U7.toU64(bleU7(input, context))) << u39"32")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"24")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"16")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"8")
+        r = r | conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u39"0"
         }
-        var r = u39"0"
-        var mask = u39"1"
-        for (i <- 0 until 38) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u39"1"
-        }
-        if (input(offset + 38)) {
-          r = r | mask
-        }
-        context.offset = offset + 39
         return r
       }
 
       def beU40(input: MSZ[B], context: Context): U40 = {
-        val offset = context.offset
-        if (offset + 40 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u40"0"
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"32")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"24")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"16")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"8")
+        r = r | conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u40"0"
         }
-        var r = u40"0"
-        var mask = u40"1"
-        for (i <- 0 until 39) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u40"1"
-        }
-        if (input(offset + 39)) {
-          r = r | mask
-        }
-        context.offset = offset + 40
         return r
       }
 
       def beU41(input: MSZ[B], context: Context): U41 = {
-        val offset = context.offset
-        if (offset + 41 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u41"0"
+        r = r | (conversions.U64.toU41(conversions.U1.toU64(bleU1(input, context))) << u41"40")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"32")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"24")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"16")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"8")
+        r = r | conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u41"0"
         }
-        var r = u41"0"
-        var mask = u41"1"
-        for (i <- 0 until 40) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u41"1"
-        }
-        if (input(offset + 40)) {
-          r = r | mask
-        }
-        context.offset = offset + 41
         return r
       }
 
       def beU42(input: MSZ[B], context: Context): U42 = {
-        val offset = context.offset
-        if (offset + 42 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u42"0"
+        r = r | (conversions.U64.toU42(conversions.U2.toU64(bleU2(input, context))) << u42"40")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"32")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"24")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"16")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"8")
+        r = r | conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u42"0"
         }
-        var r = u42"0"
-        var mask = u42"1"
-        for (i <- 0 until 41) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u42"1"
-        }
-        if (input(offset + 41)) {
-          r = r | mask
-        }
-        context.offset = offset + 42
         return r
       }
 
       def beU43(input: MSZ[B], context: Context): U43 = {
-        val offset = context.offset
-        if (offset + 43 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u43"0"
+        r = r | (conversions.U64.toU43(conversions.U3.toU64(bleU3(input, context))) << u43"40")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"32")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"24")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"16")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"8")
+        r = r | conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u43"0"
         }
-        var r = u43"0"
-        var mask = u43"1"
-        for (i <- 0 until 42) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u43"1"
-        }
-        if (input(offset + 42)) {
-          r = r | mask
-        }
-        context.offset = offset + 43
         return r
       }
 
       def beU44(input: MSZ[B], context: Context): U44 = {
-        val offset = context.offset
-        if (offset + 44 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u44"0"
+        r = r | (conversions.U64.toU44(conversions.U4.toU64(bleU4(input, context))) << u44"40")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"32")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"24")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"16")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"8")
+        r = r | conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u44"0"
         }
-        var r = u44"0"
-        var mask = u44"1"
-        for (i <- 0 until 43) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u44"1"
-        }
-        if (input(offset + 43)) {
-          r = r | mask
-        }
-        context.offset = offset + 44
         return r
       }
 
       def beU45(input: MSZ[B], context: Context): U45 = {
-        val offset = context.offset
-        if (offset + 45 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u45"0"
+        r = r | (conversions.U64.toU45(conversions.U5.toU64(bleU5(input, context))) << u45"40")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"32")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"24")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"16")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"8")
+        r = r | conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u45"0"
         }
-        var r = u45"0"
-        var mask = u45"1"
-        for (i <- 0 until 44) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u45"1"
-        }
-        if (input(offset + 44)) {
-          r = r | mask
-        }
-        context.offset = offset + 45
         return r
       }
 
       def beU46(input: MSZ[B], context: Context): U46 = {
-        val offset = context.offset
-        if (offset + 46 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u46"0"
+        r = r | (conversions.U64.toU46(conversions.U6.toU64(bleU6(input, context))) << u46"40")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"32")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"24")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"16")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"8")
+        r = r | conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u46"0"
         }
-        var r = u46"0"
-        var mask = u46"1"
-        for (i <- 0 until 45) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u46"1"
-        }
-        if (input(offset + 45)) {
-          r = r | mask
-        }
-        context.offset = offset + 46
         return r
       }
 
       def beU47(input: MSZ[B], context: Context): U47 = {
-        val offset = context.offset
-        if (offset + 47 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u47"0"
+        r = r | (conversions.U64.toU47(conversions.U7.toU64(bleU7(input, context))) << u47"40")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"32")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"24")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"16")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"8")
+        r = r | conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u47"0"
         }
-        var r = u47"0"
-        var mask = u47"1"
-        for (i <- 0 until 46) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u47"1"
-        }
-        if (input(offset + 46)) {
-          r = r | mask
-        }
-        context.offset = offset + 47
         return r
       }
 
       def beU48(input: MSZ[B], context: Context): U48 = {
-        val offset = context.offset
-        if (offset + 48 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u48"0"
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"40")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"32")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"24")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"16")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"8")
+        r = r | conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u48"0"
         }
-        var r = u48"0"
-        var mask = u48"1"
-        for (i <- 0 until 47) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u48"1"
-        }
-        if (input(offset + 47)) {
-          r = r | mask
-        }
-        context.offset = offset + 48
         return r
       }
 
       def beU49(input: MSZ[B], context: Context): U49 = {
-        val offset = context.offset
-        if (offset + 49 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u49"0"
+        r = r | (conversions.U64.toU49(conversions.U1.toU64(bleU1(input, context))) << u49"48")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"40")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"32")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"24")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"16")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"8")
+        r = r | conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u49"0"
         }
-        var r = u49"0"
-        var mask = u49"1"
-        for (i <- 0 until 48) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u49"1"
-        }
-        if (input(offset + 48)) {
-          r = r | mask
-        }
-        context.offset = offset + 49
         return r
       }
 
       def beU50(input: MSZ[B], context: Context): U50 = {
-        val offset = context.offset
-        if (offset + 50 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u50"0"
+        r = r | (conversions.U64.toU50(conversions.U2.toU64(bleU2(input, context))) << u50"48")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"40")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"32")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"24")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"16")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"8")
+        r = r | conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u50"0"
         }
-        var r = u50"0"
-        var mask = u50"1"
-        for (i <- 0 until 49) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u50"1"
-        }
-        if (input(offset + 49)) {
-          r = r | mask
-        }
-        context.offset = offset + 50
         return r
       }
 
       def beU51(input: MSZ[B], context: Context): U51 = {
-        val offset = context.offset
-        if (offset + 51 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u51"0"
+        r = r | (conversions.U64.toU51(conversions.U3.toU64(bleU3(input, context))) << u51"48")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"40")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"32")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"24")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"16")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"8")
+        r = r | conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u51"0"
         }
-        var r = u51"0"
-        var mask = u51"1"
-        for (i <- 0 until 50) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u51"1"
-        }
-        if (input(offset + 50)) {
-          r = r | mask
-        }
-        context.offset = offset + 51
         return r
       }
 
       def beU52(input: MSZ[B], context: Context): U52 = {
-        val offset = context.offset
-        if (offset + 52 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u52"0"
+        r = r | (conversions.U64.toU52(conversions.U4.toU64(bleU4(input, context))) << u52"48")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"40")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"32")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"24")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"16")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"8")
+        r = r | conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u52"0"
         }
-        var r = u52"0"
-        var mask = u52"1"
-        for (i <- 0 until 51) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u52"1"
-        }
-        if (input(offset + 51)) {
-          r = r | mask
-        }
-        context.offset = offset + 52
         return r
       }
 
       def beU53(input: MSZ[B], context: Context): U53 = {
-        val offset = context.offset
-        if (offset + 53 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u53"0"
+        r = r | (conversions.U64.toU53(conversions.U5.toU64(bleU5(input, context))) << u53"48")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"40")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"32")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"24")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"16")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"8")
+        r = r | conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u53"0"
         }
-        var r = u53"0"
-        var mask = u53"1"
-        for (i <- 0 until 52) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u53"1"
-        }
-        if (input(offset + 52)) {
-          r = r | mask
-        }
-        context.offset = offset + 53
         return r
       }
 
       def beU54(input: MSZ[B], context: Context): U54 = {
-        val offset = context.offset
-        if (offset + 54 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u54"0"
+        r = r | (conversions.U64.toU54(conversions.U6.toU64(bleU6(input, context))) << u54"48")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"40")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"32")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"24")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"16")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"8")
+        r = r | conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u54"0"
         }
-        var r = u54"0"
-        var mask = u54"1"
-        for (i <- 0 until 53) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u54"1"
-        }
-        if (input(offset + 53)) {
-          r = r | mask
-        }
-        context.offset = offset + 54
         return r
       }
 
       def beU55(input: MSZ[B], context: Context): U55 = {
-        val offset = context.offset
-        if (offset + 55 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u55"0"
+        r = r | (conversions.U64.toU55(conversions.U7.toU64(bleU7(input, context))) << u55"48")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"40")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"32")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"24")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"16")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"8")
+        r = r | conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u55"0"
         }
-        var r = u55"0"
-        var mask = u55"1"
-        for (i <- 0 until 54) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u55"1"
-        }
-        if (input(offset + 54)) {
-          r = r | mask
-        }
-        context.offset = offset + 55
         return r
       }
 
       def beU56(input: MSZ[B], context: Context): U56 = {
-        val offset = context.offset
-        if (offset + 56 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u56"0"
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"48")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"40")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"32")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"24")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"16")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"8")
+        r = r | conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u56"0"
         }
-        var r = u56"0"
-        var mask = u56"1"
-        for (i <- 0 until 55) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u56"1"
-        }
-        if (input(offset + 55)) {
-          r = r | mask
-        }
-        context.offset = offset + 56
         return r
       }
 
       def beU57(input: MSZ[B], context: Context): U57 = {
-        val offset = context.offset
-        if (offset + 57 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u57"0"
+        r = r | (conversions.U64.toU57(conversions.U1.toU64(bleU1(input, context))) << u57"56")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"48")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"40")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"32")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"24")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"16")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"8")
+        r = r | conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u57"0"
         }
-        var r = u57"0"
-        var mask = u57"1"
-        for (i <- 0 until 56) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u57"1"
-        }
-        if (input(offset + 56)) {
-          r = r | mask
-        }
-        context.offset = offset + 57
         return r
       }
 
       def beU58(input: MSZ[B], context: Context): U58 = {
-        val offset = context.offset
-        if (offset + 58 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u58"0"
+        r = r | (conversions.U64.toU58(conversions.U2.toU64(bleU2(input, context))) << u58"56")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"48")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"40")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"32")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"24")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"16")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"8")
+        r = r | conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u58"0"
         }
-        var r = u58"0"
-        var mask = u58"1"
-        for (i <- 0 until 57) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u58"1"
-        }
-        if (input(offset + 57)) {
-          r = r | mask
-        }
-        context.offset = offset + 58
         return r
       }
 
       def beU59(input: MSZ[B], context: Context): U59 = {
-        val offset = context.offset
-        if (offset + 59 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u59"0"
+        r = r | (conversions.U64.toU59(conversions.U3.toU64(bleU3(input, context))) << u59"56")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"48")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"40")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"32")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"24")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"16")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"8")
+        r = r | conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u59"0"
         }
-        var r = u59"0"
-        var mask = u59"1"
-        for (i <- 0 until 58) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u59"1"
-        }
-        if (input(offset + 58)) {
-          r = r | mask
-        }
-        context.offset = offset + 59
         return r
       }
 
       def beU60(input: MSZ[B], context: Context): U60 = {
-        val offset = context.offset
-        if (offset + 60 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u60"0"
+        r = r | (conversions.U64.toU60(conversions.U4.toU64(bleU4(input, context))) << u60"56")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"48")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"40")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"32")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"24")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"16")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"8")
+        r = r | conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u60"0"
         }
-        var r = u60"0"
-        var mask = u60"1"
-        for (i <- 0 until 59) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u60"1"
-        }
-        if (input(offset + 59)) {
-          r = r | mask
-        }
-        context.offset = offset + 60
         return r
       }
 
       def beU61(input: MSZ[B], context: Context): U61 = {
-        val offset = context.offset
-        if (offset + 61 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u61"0"
+        r = r | (conversions.U64.toU61(conversions.U5.toU64(bleU5(input, context))) << u61"56")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"48")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"40")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"32")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"24")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"16")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"8")
+        r = r | conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u61"0"
         }
-        var r = u61"0"
-        var mask = u61"1"
-        for (i <- 0 until 60) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u61"1"
-        }
-        if (input(offset + 60)) {
-          r = r | mask
-        }
-        context.offset = offset + 61
         return r
       }
 
       def beU62(input: MSZ[B], context: Context): U62 = {
-        val offset = context.offset
-        if (offset + 62 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u62"0"
+        r = r | (conversions.U64.toU62(conversions.U6.toU64(bleU6(input, context))) << u62"56")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"48")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"40")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"32")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"24")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"16")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"8")
+        r = r | conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u62"0"
         }
-        var r = u62"0"
-        var mask = u62"1"
-        for (i <- 0 until 61) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u62"1"
-        }
-        if (input(offset + 61)) {
-          r = r | mask
-        }
-        context.offset = offset + 62
         return r
       }
 
       def beU63(input: MSZ[B], context: Context): U63 = {
-        val offset = context.offset
-        if (offset + 63 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u63"0"
+        r = r | (conversions.U64.toU63(conversions.U7.toU64(bleU7(input, context))) << u63"56")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"48")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"40")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"32")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"24")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"16")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"8")
+        r = r | conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context)))
         if (context.hasError) {
           return u63"0"
         }
-        var r = u63"0"
-        var mask = u63"1"
-        for (i <- 0 until 62) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u63"1"
-        }
-        if (input(offset + 62)) {
-          r = r | mask
-        }
-        context.offset = offset + 63
         return r
       }
 
       def beU64(input: MSZ[B], context: Context): U64 = {
-        val offset = context.offset
-        if (offset + 64 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = (conversions.U8.toU64(bleU8(input, context)) << u64"56") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"48") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"40") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"32") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"24") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"16") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"8") |
+          conversions.U8.toU64(bleU8(input, context))
         if (context.hasError) {
           return u64"0"
         }
-        var r = u64"0"
-        var mask = u64"1"
-        for (i <- 0 until 63) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask << u64"1"
-        }
-        if (input(offset + 63)) {
-          r = r | mask
-        }
-        context.offset = offset + 64
         return r
       }
 
@@ -5230,380 +3646,211 @@ object Bits {
       }
 
       // Slang script gen:
-      // for (i <- 2 to 64) {
-      //   val sizeM1 = i - 1
-      //   println(
-      //     st"""def leU$i(input: MSZ[B], context: Context): U$i = {
-      //         |  val offset = context.offset
-      //         |  if (offset + $i > input.size) {
-      //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      //         |  }
-      //         |  if (context.hasError) {
-      //         |    return u$i"0"
-      //         |  }
-      //         |  var r = u$i"0"
-      //         |  var mask = u$i"1" << u$i"$sizeM1"
-      //         |  for (i <- 0 until $sizeM1) {
-      //         |    if (input(offset + i)) {
-      //         |      r = r | mask
-      //         |    }
-      //         |    mask = mask >>> u$i"1"
-      //         |  }
-      //         |  if (input(offset + $sizeM1)) {
-      //         |    r = r | mask
-      //         |  }
-      //         |  context.offset = offset + $i
-      //         |  return r
-      //         |}""".render)
-      //   println()
-      // }
-
-      def leU2(input: MSZ[B], context: Context): U2 = {
-        val offset = context.offset
-        if (offset + 2 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u2"0"
-        }
-        var r = u2"0"
-        var mask = u2"1" << u2"1"
-        for (i <- 0 until 1) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u2"1"
-        }
-        if (input(offset + 1)) {
-          r = r | mask
-        }
-        context.offset = offset + 2
-        return r
+      /*
+      for (i <- 9 to 15) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U16.toU$i(conversions.U8.toU16(bleU8(input, context)))
+              |        r = r | (conversions.U16.toU$i(conversions.U${i - 8}.toU16(bleU${i - 8}(input, context))) << u$i"8")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU3(input: MSZ[B], context: Context): U3 = {
-        val offset = context.offset
-        if (offset + 3 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u3"0"
-        }
-        var r = u3"0"
-        var mask = u3"1" << u3"2"
-        for (i <- 0 until 2) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u3"1"
-        }
-        if (input(offset + 2)) {
-          r = r | mask
-        }
-        context.offset = offset + 3
-        return r
+      for (i <- 17 to 24) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 16}.toU32(bleU${i - 16}(input, context))) << u$i"16")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU4(input: MSZ[B], context: Context): U4 = {
-        val offset = context.offset
-        if (offset + 4 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u4"0"
-        }
-        var r = u4"0"
-        var mask = u4"1" << u4"3"
-        for (i <- 0 until 3) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u4"1"
-        }
-        if (input(offset + 3)) {
-          r = r | mask
-        }
-        context.offset = offset + 4
-        return r
+      for (i <- 25 to 31) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context)))
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U32.toU$i(conversions.U8.toU32(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U32.toU$i(conversions.U${i - 24}.toU32(bleU${i - 24}(input, context))) << u$i"24")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU5(input: MSZ[B], context: Context): U5 = {
-        val offset = context.offset
-        if (offset + 5 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u5"0"
-        }
-        var r = u5"0"
-        var mask = u5"1" << u5"4"
-        for (i <- 0 until 4) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u5"1"
-        }
-        if (input(offset + 4)) {
-          r = r | mask
-        }
-        context.offset = offset + 5
-        return r
+      for (i <- 33 to 40) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 32}.toU64(bleU${i - 32}(input, context))) << u$i"32")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU6(input: MSZ[B], context: Context): U6 = {
-        val offset = context.offset
-        if (offset + 6 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u6"0"
-        }
-        var r = u6"0"
-        var mask = u6"1" << u6"5"
-        for (i <- 0 until 5) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u6"1"
-        }
-        if (input(offset + 5)) {
-          r = r | mask
-        }
-        context.offset = offset + 6
-        return r
+      for (i <- 41 to 48) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 40}.toU64(bleU${i - 40}(input, context))) << u$i"40")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU7(input: MSZ[B], context: Context): U7 = {
-        val offset = context.offset
-        if (offset + 7 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u7"0"
-        }
-        var r = u7"0"
-        var mask = u7"1" << u7"6"
-        for (i <- 0 until 6) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u7"1"
-        }
-        if (input(offset + 6)) {
-          r = r | mask
-        }
-        context.offset = offset + 7
-        return r
+      for (i <- 49 to 56) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 48}.toU64(bleU${i - 48}(input, context))) << u$i"48")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leU8(input: MSZ[B], context: Context): U8 = {
-        val offset = context.offset
-        if (offset + 8 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
-        if (context.hasError) {
-          return u8"0"
-        }
-        var r = u8"0"
-        var mask = u8"1" << u8"7"
-        for (i <- 0 until 7) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u8"1"
-        }
-        if (input(offset + 7)) {
-          r = r | mask
-        }
-        context.offset = offset + 8
-        return r
+      for (i <- 57 to 63) {
+        println(
+          st"""      def leU$i(input: MSZ[B], context: Context): U$i = {
+              |        var r = u$i"0"
+              |        r = r | conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context)))
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"8")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"16")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"24")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"32")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"40")
+              |        r = r | (conversions.U64.toU$i(conversions.U8.toU64(bleU8(input, context))) << u$i"48")
+              |        r = r | (conversions.U64.toU$i(conversions.U${i - 56}.toU64(bleU${i - 56}(input, context))) << u$i"56")
+              |        if (context.hasError) {
+              |          return u$i"0"
+              |        }
+              |        return r
+              |      }
+              |""".render
+        )
       }
 
-      def leS8(input: MSZ[B], context: Context): S8 = {
-        return conversions.U8.toRawS8(leU8(input, context))
-      }
+       */
 
       def leU9(input: MSZ[B], context: Context): U9 = {
-        val offset = context.offset
-        if (offset + 9 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u9"0"
+        r = r | conversions.U16.toU9(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU9(conversions.U1.toU16(bleU1(input, context))) << u9"8")
         if (context.hasError) {
           return u9"0"
         }
-        var r = u9"0"
-        var mask = u9"1" << u9"8"
-        for (i <- 0 until 8) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u9"1"
-        }
-        if (input(offset + 8)) {
-          r = r | mask
-        }
-        context.offset = offset + 9
         return r
       }
 
       def leU10(input: MSZ[B], context: Context): U10 = {
-        val offset = context.offset
-        if (offset + 10 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u10"0"
+        r = r | conversions.U16.toU10(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU10(conversions.U2.toU16(bleU2(input, context))) << u10"8")
         if (context.hasError) {
           return u10"0"
         }
-        var r = u10"0"
-        var mask = u10"1" << u10"9"
-        for (i <- 0 until 9) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u10"1"
-        }
-        if (input(offset + 9)) {
-          r = r | mask
-        }
-        context.offset = offset + 10
         return r
       }
 
       def leU11(input: MSZ[B], context: Context): U11 = {
-        val offset = context.offset
-        if (offset + 11 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u11"0"
+        r = r | conversions.U16.toU11(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU11(conversions.U3.toU16(bleU3(input, context))) << u11"8")
         if (context.hasError) {
           return u11"0"
         }
-        var r = u11"0"
-        var mask = u11"1" << u11"10"
-        for (i <- 0 until 10) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u11"1"
-        }
-        if (input(offset + 10)) {
-          r = r | mask
-        }
-        context.offset = offset + 11
         return r
       }
 
       def leU12(input: MSZ[B], context: Context): U12 = {
-        val offset = context.offset
-        if (offset + 12 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u12"0"
+        r = r | conversions.U16.toU12(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU12(conversions.U4.toU16(bleU4(input, context))) << u12"8")
         if (context.hasError) {
           return u12"0"
         }
-        var r = u12"0"
-        var mask = u12"1" << u12"11"
-        for (i <- 0 until 11) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u12"1"
-        }
-        if (input(offset + 11)) {
-          r = r | mask
-        }
-        context.offset = offset + 12
         return r
       }
 
       def leU13(input: MSZ[B], context: Context): U13 = {
-        val offset = context.offset
-        if (offset + 13 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u13"0"
+        r = r | conversions.U16.toU13(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU13(conversions.U5.toU16(bleU5(input, context))) << u13"8")
         if (context.hasError) {
           return u13"0"
         }
-        var r = u13"0"
-        var mask = u13"1" << u13"12"
-        for (i <- 0 until 12) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u13"1"
-        }
-        if (input(offset + 12)) {
-          r = r | mask
-        }
-        context.offset = offset + 13
         return r
       }
 
       def leU14(input: MSZ[B], context: Context): U14 = {
-        val offset = context.offset
-        if (offset + 14 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u14"0"
+        r = r | conversions.U16.toU14(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU14(conversions.U6.toU16(bleU6(input, context))) << u14"8")
         if (context.hasError) {
           return u14"0"
         }
-        var r = u14"0"
-        var mask = u14"1" << u14"13"
-        for (i <- 0 until 13) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u14"1"
-        }
-        if (input(offset + 13)) {
-          r = r | mask
-        }
-        context.offset = offset + 14
         return r
       }
 
       def leU15(input: MSZ[B], context: Context): U15 = {
-        val offset = context.offset
-        if (offset + 15 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u15"0"
+        r = r | conversions.U16.toU15(conversions.U8.toU16(bleU8(input, context)))
+        r = r | (conversions.U16.toU15(conversions.U7.toU16(bleU7(input, context))) << u15"8")
         if (context.hasError) {
           return u15"0"
         }
-        var r = u15"0"
-        var mask = u15"1" << u15"14"
-        for (i <- 0 until 14) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u15"1"
-        }
-        if (input(offset + 14)) {
-          r = r | mask
-        }
-        context.offset = offset + 15
         return r
       }
 
       def leU16(input: MSZ[B], context: Context): U16 = {
-        val offset = context.offset
-        if (offset + 16 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU16(bleU8(input, context)) |
+          (conversions.U8.toU16(bleU8(input, context)) << u16"8")
         if (context.hasError) {
           return u16"0"
         }
-        var r = u16"0"
-        var mask = u16"1" << u16"15"
-        for (i <- 0 until 15) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u16"1"
-        }
-        if (input(offset + 15)) {
-          r = r | mask
-        }
-        context.offset = offset + 16
         return r
       }
 
@@ -5612,370 +3859,185 @@ object Bits {
       }
 
       def leU17(input: MSZ[B], context: Context): U17 = {
-        val offset = context.offset
-        if (offset + 17 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u17"0"
+        r = r | conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU17(conversions.U8.toU32(bleU8(input, context))) << u17"8")
+        r = r | (conversions.U32.toU17(conversions.U1.toU32(bleU1(input, context))) << u17"16")
         if (context.hasError) {
           return u17"0"
         }
-        var r = u17"0"
-        var mask = u17"1" << u17"16"
-        for (i <- 0 until 16) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u17"1"
-        }
-        if (input(offset + 16)) {
-          r = r | mask
-        }
-        context.offset = offset + 17
         return r
       }
 
       def leU18(input: MSZ[B], context: Context): U18 = {
-        val offset = context.offset
-        if (offset + 18 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u18"0"
+        r = r | conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU18(conversions.U8.toU32(bleU8(input, context))) << u18"8")
+        r = r | (conversions.U32.toU18(conversions.U2.toU32(bleU2(input, context))) << u18"16")
         if (context.hasError) {
           return u18"0"
         }
-        var r = u18"0"
-        var mask = u18"1" << u18"17"
-        for (i <- 0 until 17) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u18"1"
-        }
-        if (input(offset + 17)) {
-          r = r | mask
-        }
-        context.offset = offset + 18
         return r
       }
 
       def leU19(input: MSZ[B], context: Context): U19 = {
-        val offset = context.offset
-        if (offset + 19 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u19"0"
+        r = r | conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU19(conversions.U8.toU32(bleU8(input, context))) << u19"8")
+        r = r | (conversions.U32.toU19(conversions.U3.toU32(bleU3(input, context))) << u19"16")
         if (context.hasError) {
           return u19"0"
         }
-        var r = u19"0"
-        var mask = u19"1" << u19"18"
-        for (i <- 0 until 18) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u19"1"
-        }
-        if (input(offset + 18)) {
-          r = r | mask
-        }
-        context.offset = offset + 19
         return r
       }
 
       def leU20(input: MSZ[B], context: Context): U20 = {
-        val offset = context.offset
-        if (offset + 20 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u20"0"
+        r = r | conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU20(conversions.U8.toU32(bleU8(input, context))) << u20"8")
+        r = r | (conversions.U32.toU20(conversions.U4.toU32(bleU4(input, context))) << u20"16")
         if (context.hasError) {
           return u20"0"
         }
-        var r = u20"0"
-        var mask = u20"1" << u20"19"
-        for (i <- 0 until 19) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u20"1"
-        }
-        if (input(offset + 19)) {
-          r = r | mask
-        }
-        context.offset = offset + 20
         return r
       }
 
       def leU21(input: MSZ[B], context: Context): U21 = {
-        val offset = context.offset
-        if (offset + 21 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u21"0"
+        r = r | conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU21(conversions.U8.toU32(bleU8(input, context))) << u21"8")
+        r = r | (conversions.U32.toU21(conversions.U5.toU32(bleU5(input, context))) << u21"16")
         if (context.hasError) {
           return u21"0"
         }
-        var r = u21"0"
-        var mask = u21"1" << u21"20"
-        for (i <- 0 until 20) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u21"1"
-        }
-        if (input(offset + 20)) {
-          r = r | mask
-        }
-        context.offset = offset + 21
         return r
       }
 
       def leU22(input: MSZ[B], context: Context): U22 = {
-        val offset = context.offset
-        if (offset + 22 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u22"0"
+        r = r | conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU22(conversions.U8.toU32(bleU8(input, context))) << u22"8")
+        r = r | (conversions.U32.toU22(conversions.U6.toU32(bleU6(input, context))) << u22"16")
         if (context.hasError) {
           return u22"0"
         }
-        var r = u22"0"
-        var mask = u22"1" << u22"21"
-        for (i <- 0 until 21) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u22"1"
-        }
-        if (input(offset + 21)) {
-          r = r | mask
-        }
-        context.offset = offset + 22
         return r
       }
 
       def leU23(input: MSZ[B], context: Context): U23 = {
-        val offset = context.offset
-        if (offset + 23 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u23"0"
+        r = r | conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU23(conversions.U8.toU32(bleU8(input, context))) << u23"8")
+        r = r | (conversions.U32.toU23(conversions.U7.toU32(bleU7(input, context))) << u23"16")
         if (context.hasError) {
           return u23"0"
         }
-        var r = u23"0"
-        var mask = u23"1" << u23"22"
-        for (i <- 0 until 22) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u23"1"
-        }
-        if (input(offset + 22)) {
-          r = r | mask
-        }
-        context.offset = offset + 23
         return r
       }
 
       def leU24(input: MSZ[B], context: Context): U24 = {
-        val offset = context.offset
-        if (offset + 24 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u24"0"
+        r = r | conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"8")
+        r = r | (conversions.U32.toU24(conversions.U8.toU32(bleU8(input, context))) << u24"16")
         if (context.hasError) {
           return u24"0"
         }
-        var r = u24"0"
-        var mask = u24"1" << u24"23"
-        for (i <- 0 until 23) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u24"1"
-        }
-        if (input(offset + 23)) {
-          r = r | mask
-        }
-        context.offset = offset + 24
         return r
       }
 
       def leU25(input: MSZ[B], context: Context): U25 = {
-        val offset = context.offset
-        if (offset + 25 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u25"0"
+        r = r | conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"8")
+        r = r | (conversions.U32.toU25(conversions.U8.toU32(bleU8(input, context))) << u25"16")
+        r = r | (conversions.U32.toU25(conversions.U1.toU32(bleU1(input, context))) << u25"24")
         if (context.hasError) {
           return u25"0"
         }
-        var r = u25"0"
-        var mask = u25"1" << u25"24"
-        for (i <- 0 until 24) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u25"1"
-        }
-        if (input(offset + 24)) {
-          r = r | mask
-        }
-        context.offset = offset + 25
         return r
       }
 
       def leU26(input: MSZ[B], context: Context): U26 = {
-        val offset = context.offset
-        if (offset + 26 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u26"0"
+        r = r | conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"8")
+        r = r | (conversions.U32.toU26(conversions.U8.toU32(bleU8(input, context))) << u26"16")
+        r = r | (conversions.U32.toU26(conversions.U2.toU32(bleU2(input, context))) << u26"24")
         if (context.hasError) {
           return u26"0"
         }
-        var r = u26"0"
-        var mask = u26"1" << u26"25"
-        for (i <- 0 until 25) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u26"1"
-        }
-        if (input(offset + 25)) {
-          r = r | mask
-        }
-        context.offset = offset + 26
         return r
       }
 
       def leU27(input: MSZ[B], context: Context): U27 = {
-        val offset = context.offset
-        if (offset + 27 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u27"0"
+        r = r | conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"8")
+        r = r | (conversions.U32.toU27(conversions.U8.toU32(bleU8(input, context))) << u27"16")
+        r = r | (conversions.U32.toU27(conversions.U3.toU32(bleU3(input, context))) << u27"24")
         if (context.hasError) {
           return u27"0"
         }
-        var r = u27"0"
-        var mask = u27"1" << u27"26"
-        for (i <- 0 until 26) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u27"1"
-        }
-        if (input(offset + 26)) {
-          r = r | mask
-        }
-        context.offset = offset + 27
         return r
       }
 
       def leU28(input: MSZ[B], context: Context): U28 = {
-        val offset = context.offset
-        if (offset + 28 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u28"0"
+        r = r | conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"8")
+        r = r | (conversions.U32.toU28(conversions.U8.toU32(bleU8(input, context))) << u28"16")
+        r = r | (conversions.U32.toU28(conversions.U4.toU32(bleU4(input, context))) << u28"24")
         if (context.hasError) {
           return u28"0"
         }
-        var r = u28"0"
-        var mask = u28"1" << u28"27"
-        for (i <- 0 until 27) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u28"1"
-        }
-        if (input(offset + 27)) {
-          r = r | mask
-        }
-        context.offset = offset + 28
         return r
       }
 
       def leU29(input: MSZ[B], context: Context): U29 = {
-        val offset = context.offset
-        if (offset + 29 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u29"0"
+        r = r | conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"8")
+        r = r | (conversions.U32.toU29(conversions.U8.toU32(bleU8(input, context))) << u29"16")
+        r = r | (conversions.U32.toU29(conversions.U5.toU32(bleU5(input, context))) << u29"24")
         if (context.hasError) {
           return u29"0"
         }
-        var r = u29"0"
-        var mask = u29"1" << u29"28"
-        for (i <- 0 until 28) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u29"1"
-        }
-        if (input(offset + 28)) {
-          r = r | mask
-        }
-        context.offset = offset + 29
         return r
       }
 
       def leU30(input: MSZ[B], context: Context): U30 = {
-        val offset = context.offset
-        if (offset + 30 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u30"0"
+        r = r | conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"8")
+        r = r | (conversions.U32.toU30(conversions.U8.toU32(bleU8(input, context))) << u30"16")
+        r = r | (conversions.U32.toU30(conversions.U6.toU32(bleU6(input, context))) << u30"24")
         if (context.hasError) {
           return u30"0"
         }
-        var r = u30"0"
-        var mask = u30"1" << u30"29"
-        for (i <- 0 until 29) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u30"1"
-        }
-        if (input(offset + 29)) {
-          r = r | mask
-        }
-        context.offset = offset + 30
         return r
       }
 
       def leU31(input: MSZ[B], context: Context): U31 = {
-        val offset = context.offset
-        if (offset + 31 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u31"0"
+        r = r | conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context)))
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"8")
+        r = r | (conversions.U32.toU31(conversions.U8.toU32(bleU8(input, context))) << u31"16")
+        r = r | (conversions.U32.toU31(conversions.U7.toU32(bleU7(input, context))) << u31"24")
         if (context.hasError) {
           return u31"0"
         }
-        var r = u31"0"
-        var mask = u31"1" << u31"30"
-        for (i <- 0 until 30) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u31"1"
-        }
-        if (input(offset + 30)) {
-          r = r | mask
-        }
-        context.offset = offset + 31
         return r
       }
 
       def leU32(input: MSZ[B], context: Context): U32 = {
-        val offset = context.offset
-        if (offset + 32 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU32(bleU8(input, context)) |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"8") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"16") |
+          (conversions.U8.toU32(bleU8(input, context)) << u32"24")
         if (context.hasError) {
           return u32"0"
         }
-        var r = u32"0"
-        var mask = u32"1" << u32"31"
-        for (i <- 0 until 31) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u32"1"
-        }
-        if (input(offset + 31)) {
-          r = r | mask
-        }
-        context.offset = offset + 32
         return r
       }
 
@@ -5984,738 +4046,465 @@ object Bits {
       }
 
       def leU33(input: MSZ[B], context: Context): U33 = {
-        val offset = context.offset
-        if (offset + 33 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u33"0"
+        r = r | conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"8")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"16")
+        r = r | (conversions.U64.toU33(conversions.U8.toU64(bleU8(input, context))) << u33"24")
+        r = r | (conversions.U64.toU33(conversions.U1.toU64(bleU1(input, context))) << u33"32")
         if (context.hasError) {
           return u33"0"
         }
-        var r = u33"0"
-        var mask = u33"1" << u33"32"
-        for (i <- 0 until 32) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u33"1"
-        }
-        if (input(offset + 32)) {
-          r = r | mask
-        }
-        context.offset = offset + 33
         return r
       }
 
       def leU34(input: MSZ[B], context: Context): U34 = {
-        val offset = context.offset
-        if (offset + 34 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u34"0"
+        r = r | conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"8")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"16")
+        r = r | (conversions.U64.toU34(conversions.U8.toU64(bleU8(input, context))) << u34"24")
+        r = r | (conversions.U64.toU34(conversions.U2.toU64(bleU2(input, context))) << u34"32")
         if (context.hasError) {
           return u34"0"
         }
-        var r = u34"0"
-        var mask = u34"1" << u34"33"
-        for (i <- 0 until 33) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u34"1"
-        }
-        if (input(offset + 33)) {
-          r = r | mask
-        }
-        context.offset = offset + 34
         return r
       }
 
       def leU35(input: MSZ[B], context: Context): U35 = {
-        val offset = context.offset
-        if (offset + 35 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u35"0"
+        r = r | conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"8")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"16")
+        r = r | (conversions.U64.toU35(conversions.U8.toU64(bleU8(input, context))) << u35"24")
+        r = r | (conversions.U64.toU35(conversions.U3.toU64(bleU3(input, context))) << u35"32")
         if (context.hasError) {
           return u35"0"
         }
-        var r = u35"0"
-        var mask = u35"1" << u35"34"
-        for (i <- 0 until 34) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u35"1"
-        }
-        if (input(offset + 34)) {
-          r = r | mask
-        }
-        context.offset = offset + 35
         return r
       }
 
       def leU36(input: MSZ[B], context: Context): U36 = {
-        val offset = context.offset
-        if (offset + 36 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u36"0"
+        r = r | conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"8")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"16")
+        r = r | (conversions.U64.toU36(conversions.U8.toU64(bleU8(input, context))) << u36"24")
+        r = r | (conversions.U64.toU36(conversions.U4.toU64(bleU4(input, context))) << u36"32")
         if (context.hasError) {
           return u36"0"
         }
-        var r = u36"0"
-        var mask = u36"1" << u36"35"
-        for (i <- 0 until 35) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u36"1"
-        }
-        if (input(offset + 35)) {
-          r = r | mask
-        }
-        context.offset = offset + 36
         return r
       }
 
       def leU37(input: MSZ[B], context: Context): U37 = {
-        val offset = context.offset
-        if (offset + 37 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u37"0"
+        r = r | conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"8")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"16")
+        r = r | (conversions.U64.toU37(conversions.U8.toU64(bleU8(input, context))) << u37"24")
+        r = r | (conversions.U64.toU37(conversions.U5.toU64(bleU5(input, context))) << u37"32")
         if (context.hasError) {
           return u37"0"
         }
-        var r = u37"0"
-        var mask = u37"1" << u37"36"
-        for (i <- 0 until 36) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u37"1"
-        }
-        if (input(offset + 36)) {
-          r = r | mask
-        }
-        context.offset = offset + 37
         return r
       }
 
       def leU38(input: MSZ[B], context: Context): U38 = {
-        val offset = context.offset
-        if (offset + 38 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u38"0"
+        r = r | conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"8")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"16")
+        r = r | (conversions.U64.toU38(conversions.U8.toU64(bleU8(input, context))) << u38"24")
+        r = r | (conversions.U64.toU38(conversions.U6.toU64(bleU6(input, context))) << u38"32")
         if (context.hasError) {
           return u38"0"
         }
-        var r = u38"0"
-        var mask = u38"1" << u38"37"
-        for (i <- 0 until 37) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u38"1"
-        }
-        if (input(offset + 37)) {
-          r = r | mask
-        }
-        context.offset = offset + 38
         return r
       }
 
       def leU39(input: MSZ[B], context: Context): U39 = {
-        val offset = context.offset
-        if (offset + 39 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u39"0"
+        r = r | conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"8")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"16")
+        r = r | (conversions.U64.toU39(conversions.U8.toU64(bleU8(input, context))) << u39"24")
+        r = r | (conversions.U64.toU39(conversions.U7.toU64(bleU7(input, context))) << u39"32")
         if (context.hasError) {
           return u39"0"
         }
-        var r = u39"0"
-        var mask = u39"1" << u39"38"
-        for (i <- 0 until 38) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u39"1"
-        }
-        if (input(offset + 38)) {
-          r = r | mask
-        }
-        context.offset = offset + 39
         return r
       }
 
       def leU40(input: MSZ[B], context: Context): U40 = {
-        val offset = context.offset
-        if (offset + 40 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u40"0"
+        r = r | conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"8")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"16")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"24")
+        r = r | (conversions.U64.toU40(conversions.U8.toU64(bleU8(input, context))) << u40"32")
         if (context.hasError) {
           return u40"0"
         }
-        var r = u40"0"
-        var mask = u40"1" << u40"39"
-        for (i <- 0 until 39) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u40"1"
-        }
-        if (input(offset + 39)) {
-          r = r | mask
-        }
-        context.offset = offset + 40
         return r
       }
 
       def leU41(input: MSZ[B], context: Context): U41 = {
-        val offset = context.offset
-        if (offset + 41 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u41"0"
+        r = r | conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"8")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"16")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"24")
+        r = r | (conversions.U64.toU41(conversions.U8.toU64(bleU8(input, context))) << u41"32")
+        r = r | (conversions.U64.toU41(conversions.U1.toU64(bleU1(input, context))) << u41"40")
         if (context.hasError) {
           return u41"0"
         }
-        var r = u41"0"
-        var mask = u41"1" << u41"40"
-        for (i <- 0 until 40) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u41"1"
-        }
-        if (input(offset + 40)) {
-          r = r | mask
-        }
-        context.offset = offset + 41
         return r
       }
 
       def leU42(input: MSZ[B], context: Context): U42 = {
-        val offset = context.offset
-        if (offset + 42 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u42"0"
+        r = r | conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"8")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"16")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"24")
+        r = r | (conversions.U64.toU42(conversions.U8.toU64(bleU8(input, context))) << u42"32")
+        r = r | (conversions.U64.toU42(conversions.U2.toU64(bleU2(input, context))) << u42"40")
         if (context.hasError) {
           return u42"0"
         }
-        var r = u42"0"
-        var mask = u42"1" << u42"41"
-        for (i <- 0 until 41) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u42"1"
-        }
-        if (input(offset + 41)) {
-          r = r | mask
-        }
-        context.offset = offset + 42
         return r
       }
 
       def leU43(input: MSZ[B], context: Context): U43 = {
-        val offset = context.offset
-        if (offset + 43 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u43"0"
+        r = r | conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"8")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"16")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"24")
+        r = r | (conversions.U64.toU43(conversions.U8.toU64(bleU8(input, context))) << u43"32")
+        r = r | (conversions.U64.toU43(conversions.U3.toU64(bleU3(input, context))) << u43"40")
         if (context.hasError) {
           return u43"0"
         }
-        var r = u43"0"
-        var mask = u43"1" << u43"42"
-        for (i <- 0 until 42) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u43"1"
-        }
-        if (input(offset + 42)) {
-          r = r | mask
-        }
-        context.offset = offset + 43
         return r
       }
 
       def leU44(input: MSZ[B], context: Context): U44 = {
-        val offset = context.offset
-        if (offset + 44 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u44"0"
+        r = r | conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"8")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"16")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"24")
+        r = r | (conversions.U64.toU44(conversions.U8.toU64(bleU8(input, context))) << u44"32")
+        r = r | (conversions.U64.toU44(conversions.U4.toU64(bleU4(input, context))) << u44"40")
         if (context.hasError) {
           return u44"0"
         }
-        var r = u44"0"
-        var mask = u44"1" << u44"43"
-        for (i <- 0 until 43) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u44"1"
-        }
-        if (input(offset + 43)) {
-          r = r | mask
-        }
-        context.offset = offset + 44
         return r
       }
 
       def leU45(input: MSZ[B], context: Context): U45 = {
-        val offset = context.offset
-        if (offset + 45 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u45"0"
+        r = r | conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"8")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"16")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"24")
+        r = r | (conversions.U64.toU45(conversions.U8.toU64(bleU8(input, context))) << u45"32")
+        r = r | (conversions.U64.toU45(conversions.U5.toU64(bleU5(input, context))) << u45"40")
         if (context.hasError) {
           return u45"0"
         }
-        var r = u45"0"
-        var mask = u45"1" << u45"44"
-        for (i <- 0 until 44) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u45"1"
-        }
-        if (input(offset + 44)) {
-          r = r | mask
-        }
-        context.offset = offset + 45
         return r
       }
 
       def leU46(input: MSZ[B], context: Context): U46 = {
-        val offset = context.offset
-        if (offset + 46 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u46"0"
+        r = r | conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"8")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"16")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"24")
+        r = r | (conversions.U64.toU46(conversions.U8.toU64(bleU8(input, context))) << u46"32")
+        r = r | (conversions.U64.toU46(conversions.U6.toU64(bleU6(input, context))) << u46"40")
         if (context.hasError) {
           return u46"0"
         }
-        var r = u46"0"
-        var mask = u46"1" << u46"45"
-        for (i <- 0 until 45) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u46"1"
-        }
-        if (input(offset + 45)) {
-          r = r | mask
-        }
-        context.offset = offset + 46
         return r
       }
 
       def leU47(input: MSZ[B], context: Context): U47 = {
-        val offset = context.offset
-        if (offset + 47 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u47"0"
+        r = r | conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"8")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"16")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"24")
+        r = r | (conversions.U64.toU47(conversions.U8.toU64(bleU8(input, context))) << u47"32")
+        r = r | (conversions.U64.toU47(conversions.U7.toU64(bleU7(input, context))) << u47"40")
         if (context.hasError) {
           return u47"0"
         }
-        var r = u47"0"
-        var mask = u47"1" << u47"46"
-        for (i <- 0 until 46) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u47"1"
-        }
-        if (input(offset + 46)) {
-          r = r | mask
-        }
-        context.offset = offset + 47
         return r
       }
 
       def leU48(input: MSZ[B], context: Context): U48 = {
-        val offset = context.offset
-        if (offset + 48 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u48"0"
+        r = r | conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"8")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"16")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"24")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"32")
+        r = r | (conversions.U64.toU48(conversions.U8.toU64(bleU8(input, context))) << u48"40")
         if (context.hasError) {
           return u48"0"
         }
-        var r = u48"0"
-        var mask = u48"1" << u48"47"
-        for (i <- 0 until 47) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u48"1"
-        }
-        if (input(offset + 47)) {
-          r = r | mask
-        }
-        context.offset = offset + 48
         return r
       }
 
       def leU49(input: MSZ[B], context: Context): U49 = {
-        val offset = context.offset
-        if (offset + 49 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u49"0"
+        r = r | conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"8")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"16")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"24")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"32")
+        r = r | (conversions.U64.toU49(conversions.U8.toU64(bleU8(input, context))) << u49"40")
+        r = r | (conversions.U64.toU49(conversions.U1.toU64(bleU1(input, context))) << u49"48")
         if (context.hasError) {
           return u49"0"
         }
-        var r = u49"0"
-        var mask = u49"1" << u49"48"
-        for (i <- 0 until 48) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u49"1"
-        }
-        if (input(offset + 48)) {
-          r = r | mask
-        }
-        context.offset = offset + 49
         return r
       }
 
       def leU50(input: MSZ[B], context: Context): U50 = {
-        val offset = context.offset
-        if (offset + 50 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u50"0"
+        r = r | conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"8")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"16")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"24")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"32")
+        r = r | (conversions.U64.toU50(conversions.U8.toU64(bleU8(input, context))) << u50"40")
+        r = r | (conversions.U64.toU50(conversions.U2.toU64(bleU2(input, context))) << u50"48")
         if (context.hasError) {
           return u50"0"
         }
-        var r = u50"0"
-        var mask = u50"1" << u50"49"
-        for (i <- 0 until 49) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u50"1"
-        }
-        if (input(offset + 49)) {
-          r = r | mask
-        }
-        context.offset = offset + 50
         return r
       }
 
       def leU51(input: MSZ[B], context: Context): U51 = {
-        val offset = context.offset
-        if (offset + 51 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u51"0"
+        r = r | conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"8")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"16")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"24")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"32")
+        r = r | (conversions.U64.toU51(conversions.U8.toU64(bleU8(input, context))) << u51"40")
+        r = r | (conversions.U64.toU51(conversions.U3.toU64(bleU3(input, context))) << u51"48")
         if (context.hasError) {
           return u51"0"
         }
-        var r = u51"0"
-        var mask = u51"1" << u51"50"
-        for (i <- 0 until 50) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u51"1"
-        }
-        if (input(offset + 50)) {
-          r = r | mask
-        }
-        context.offset = offset + 51
         return r
       }
 
       def leU52(input: MSZ[B], context: Context): U52 = {
-        val offset = context.offset
-        if (offset + 52 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u52"0"
+        r = r | conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"8")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"16")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"24")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"32")
+        r = r | (conversions.U64.toU52(conversions.U8.toU64(bleU8(input, context))) << u52"40")
+        r = r | (conversions.U64.toU52(conversions.U4.toU64(bleU4(input, context))) << u52"48")
         if (context.hasError) {
           return u52"0"
         }
-        var r = u52"0"
-        var mask = u52"1" << u52"51"
-        for (i <- 0 until 51) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u52"1"
-        }
-        if (input(offset + 51)) {
-          r = r | mask
-        }
-        context.offset = offset + 52
         return r
       }
 
       def leU53(input: MSZ[B], context: Context): U53 = {
-        val offset = context.offset
-        if (offset + 53 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u53"0"
+        r = r | conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"8")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"16")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"24")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"32")
+        r = r | (conversions.U64.toU53(conversions.U8.toU64(bleU8(input, context))) << u53"40")
+        r = r | (conversions.U64.toU53(conversions.U5.toU64(bleU5(input, context))) << u53"48")
         if (context.hasError) {
           return u53"0"
         }
-        var r = u53"0"
-        var mask = u53"1" << u53"52"
-        for (i <- 0 until 52) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u53"1"
-        }
-        if (input(offset + 52)) {
-          r = r | mask
-        }
-        context.offset = offset + 53
         return r
       }
 
       def leU54(input: MSZ[B], context: Context): U54 = {
-        val offset = context.offset
-        if (offset + 54 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u54"0"
+        r = r | conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"8")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"16")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"24")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"32")
+        r = r | (conversions.U64.toU54(conversions.U8.toU64(bleU8(input, context))) << u54"40")
+        r = r | (conversions.U64.toU54(conversions.U6.toU64(bleU6(input, context))) << u54"48")
         if (context.hasError) {
           return u54"0"
         }
-        var r = u54"0"
-        var mask = u54"1" << u54"53"
-        for (i <- 0 until 53) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u54"1"
-        }
-        if (input(offset + 53)) {
-          r = r | mask
-        }
-        context.offset = offset + 54
         return r
       }
 
       def leU55(input: MSZ[B], context: Context): U55 = {
-        val offset = context.offset
-        if (offset + 55 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u55"0"
+        r = r | conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"8")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"16")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"24")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"32")
+        r = r | (conversions.U64.toU55(conversions.U8.toU64(bleU8(input, context))) << u55"40")
+        r = r | (conversions.U64.toU55(conversions.U7.toU64(bleU7(input, context))) << u55"48")
         if (context.hasError) {
           return u55"0"
         }
-        var r = u55"0"
-        var mask = u55"1" << u55"54"
-        for (i <- 0 until 54) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u55"1"
-        }
-        if (input(offset + 54)) {
-          r = r | mask
-        }
-        context.offset = offset + 55
         return r
       }
 
       def leU56(input: MSZ[B], context: Context): U56 = {
-        val offset = context.offset
-        if (offset + 56 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u56"0"
+        r = r | conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"8")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"16")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"24")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"32")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"40")
+        r = r | (conversions.U64.toU56(conversions.U8.toU64(bleU8(input, context))) << u56"48")
         if (context.hasError) {
           return u56"0"
         }
-        var r = u56"0"
-        var mask = u56"1" << u56"55"
-        for (i <- 0 until 55) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u56"1"
-        }
-        if (input(offset + 55)) {
-          r = r | mask
-        }
-        context.offset = offset + 56
         return r
       }
 
       def leU57(input: MSZ[B], context: Context): U57 = {
-        val offset = context.offset
-        if (offset + 57 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u57"0"
+        r = r | conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"8")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"16")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"24")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"32")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"40")
+        r = r | (conversions.U64.toU57(conversions.U8.toU64(bleU8(input, context))) << u57"48")
+        r = r | (conversions.U64.toU57(conversions.U1.toU64(bleU1(input, context))) << u57"56")
         if (context.hasError) {
           return u57"0"
         }
-        var r = u57"0"
-        var mask = u57"1" << u57"56"
-        for (i <- 0 until 56) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u57"1"
-        }
-        if (input(offset + 56)) {
-          r = r | mask
-        }
-        context.offset = offset + 57
         return r
       }
 
       def leU58(input: MSZ[B], context: Context): U58 = {
-        val offset = context.offset
-        if (offset + 58 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u58"0"
+        r = r | conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"8")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"16")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"24")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"32")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"40")
+        r = r | (conversions.U64.toU58(conversions.U8.toU64(bleU8(input, context))) << u58"48")
+        r = r | (conversions.U64.toU58(conversions.U2.toU64(bleU2(input, context))) << u58"56")
         if (context.hasError) {
           return u58"0"
         }
-        var r = u58"0"
-        var mask = u58"1" << u58"57"
-        for (i <- 0 until 57) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u58"1"
-        }
-        if (input(offset + 57)) {
-          r = r | mask
-        }
-        context.offset = offset + 58
         return r
       }
 
       def leU59(input: MSZ[B], context: Context): U59 = {
-        val offset = context.offset
-        if (offset + 59 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u59"0"
+        r = r | conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"8")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"16")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"24")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"32")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"40")
+        r = r | (conversions.U64.toU59(conversions.U8.toU64(bleU8(input, context))) << u59"48")
+        r = r | (conversions.U64.toU59(conversions.U3.toU64(bleU3(input, context))) << u59"56")
         if (context.hasError) {
           return u59"0"
         }
-        var r = u59"0"
-        var mask = u59"1" << u59"58"
-        for (i <- 0 until 58) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u59"1"
-        }
-        if (input(offset + 58)) {
-          r = r | mask
-        }
-        context.offset = offset + 59
         return r
       }
 
       def leU60(input: MSZ[B], context: Context): U60 = {
-        val offset = context.offset
-        if (offset + 60 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u60"0"
+        r = r | conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"8")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"16")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"24")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"32")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"40")
+        r = r | (conversions.U64.toU60(conversions.U8.toU64(bleU8(input, context))) << u60"48")
+        r = r | (conversions.U64.toU60(conversions.U4.toU64(bleU4(input, context))) << u60"56")
         if (context.hasError) {
           return u60"0"
         }
-        var r = u60"0"
-        var mask = u60"1" << u60"59"
-        for (i <- 0 until 59) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u60"1"
-        }
-        if (input(offset + 59)) {
-          r = r | mask
-        }
-        context.offset = offset + 60
         return r
       }
 
       def leU61(input: MSZ[B], context: Context): U61 = {
-        val offset = context.offset
-        if (offset + 61 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u61"0"
+        r = r | conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"8")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"16")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"24")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"32")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"40")
+        r = r | (conversions.U64.toU61(conversions.U8.toU64(bleU8(input, context))) << u61"48")
+        r = r | (conversions.U64.toU61(conversions.U5.toU64(bleU5(input, context))) << u61"56")
         if (context.hasError) {
           return u61"0"
         }
-        var r = u61"0"
-        var mask = u61"1" << u61"60"
-        for (i <- 0 until 60) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u61"1"
-        }
-        if (input(offset + 60)) {
-          r = r | mask
-        }
-        context.offset = offset + 61
         return r
       }
 
       def leU62(input: MSZ[B], context: Context): U62 = {
-        val offset = context.offset
-        if (offset + 62 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u62"0"
+        r = r | conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"8")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"16")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"24")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"32")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"40")
+        r = r | (conversions.U64.toU62(conversions.U8.toU64(bleU8(input, context))) << u62"48")
+        r = r | (conversions.U64.toU62(conversions.U6.toU64(bleU6(input, context))) << u62"56")
         if (context.hasError) {
           return u62"0"
         }
-        var r = u62"0"
-        var mask = u62"1" << u62"61"
-        for (i <- 0 until 61) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u62"1"
-        }
-        if (input(offset + 61)) {
-          r = r | mask
-        }
-        context.offset = offset + 62
         return r
       }
 
       def leU63(input: MSZ[B], context: Context): U63 = {
-        val offset = context.offset
-        if (offset + 63 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        var r = u63"0"
+        r = r | conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context)))
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"8")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"16")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"24")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"32")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"40")
+        r = r | (conversions.U64.toU63(conversions.U8.toU64(bleU8(input, context))) << u63"48")
+        r = r | (conversions.U64.toU63(conversions.U7.toU64(bleU7(input, context))) << u63"56")
         if (context.hasError) {
           return u63"0"
         }
-        var r = u63"0"
-        var mask = u63"1" << u63"62"
-        for (i <- 0 until 62) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u63"1"
-        }
-        if (input(offset + 62)) {
-          r = r | mask
-        }
-        context.offset = offset + 63
         return r
       }
 
       def leU64(input: MSZ[B], context: Context): U64 = {
-        val offset = context.offset
-        if (offset + 64 > input.size) {
-          context.signalError(INCOMPLETE_INPUT)
-        }
+        val r = conversions.U8.toU64(bleU8(input, context)) |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"8") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"16") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"24") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"32") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"40") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"48") |
+          (conversions.U8.toU64(bleU8(input, context)) << u64"56")
         if (context.hasError) {
           return u64"0"
         }
-        var r = u64"0"
-        var mask = u64"1" << u64"63"
-        for (i <- 0 until 63) {
-          if (input(offset + i)) {
-            r = r | mask
-          }
-          mask = mask >>> u64"1"
-        }
-        if (input(offset + 63)) {
-          r = r | mask
-        }
-        context.offset = offset + 64
         return r
       }
 
@@ -6730,8 +4519,7 @@ object Bits {
       def leF64(input: MSZ[B], context: Context): F64 = {
         return conversions.U64.toRawF64(leU64(input, context))
       }
-    }
-  }
+    }  }
 
   object Writer {
     val INSUFFICIENT_BUFFER_SIZE: Z = 1
@@ -6761,17 +4549,7 @@ object Bits {
     }
 
     def leBS(output: MSZ[B], context: Context, v: MSZ[B]): Unit = {
-      val offset = context.offset
-      val size = v.size
-      if (offset + size > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      for (i <- size - 1 to 0 by -1) {
-        bleB(output, context, v(i))
-      }
+      bleRaw(output, context, v, v.size)
     }
 
     def bleRaw(output: MSZ[B], context: Context, v: MSZ[B], size: Z): Unit = {
@@ -6799,6 +4577,185 @@ object Bits {
       context.offset = offset + 1
     }
 
+    def bleU2(output: MSZ[B], context: Context, v: U2): Unit = {
+      val offset = context.offset
+      if (offset + 2 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u2"1"
+      for (i <- 0 until 1) {
+        if ((v & mask) != u2"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u2"1"
+      }
+      if ((v & mask) != u2"0") {
+        output(offset + 1) = T
+      } else {
+        output(offset + 1) = F
+      }
+      context.offset = offset + 2
+    }
+
+    def bleU3(output: MSZ[B], context: Context, v: U3): Unit = {
+      val offset = context.offset
+      if (offset + 3 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u3"1"
+      for (i <- 0 until 2) {
+        if ((v & mask) != u3"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u3"1"
+      }
+      if ((v & mask) != u3"0") {
+        output(offset + 2) = T
+      } else {
+        output(offset + 2) = F
+      }
+      context.offset = offset + 3
+    }
+
+    def bleU4(output: MSZ[B], context: Context, v: U4): Unit = {
+      val offset = context.offset
+      if (offset + 4 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u4"1"
+      for (i <- 0 until 3) {
+        if ((v & mask) != u4"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u4"1"
+      }
+      if ((v & mask) != u4"0") {
+        output(offset + 3) = T
+      } else {
+        output(offset + 3) = F
+      }
+      context.offset = offset + 4
+    }
+
+    def bleU5(output: MSZ[B], context: Context, v: U5): Unit = {
+      val offset = context.offset
+      if (offset + 5 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u5"1"
+      for (i <- 0 until 4) {
+        if ((v & mask) != u5"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u5"1"
+      }
+      if ((v & mask) != u5"0") {
+        output(offset + 4) = T
+      } else {
+        output(offset + 4) = F
+      }
+      context.offset = offset + 5
+    }
+
+    def bleU6(output: MSZ[B], context: Context, v: U6): Unit = {
+      val offset = context.offset
+      if (offset + 6 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u6"1"
+      for (i <- 0 until 5) {
+        if ((v & mask) != u6"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u6"1"
+      }
+      if ((v & mask) != u6"0") {
+        output(offset + 5) = T
+      } else {
+        output(offset + 5) = F
+      }
+      context.offset = offset + 6
+    }
+
+    def bleU7(output: MSZ[B], context: Context, v: U7): Unit = {
+      val offset = context.offset
+      if (offset + 7 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u7"1"
+      for (i <- 0 until 6) {
+        if ((v & mask) != u7"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u7"1"
+      }
+      if ((v & mask) != u7"0") {
+        output(offset + 6) = T
+      } else {
+        output(offset + 6) = F
+      }
+      context.offset = offset + 7
+    }
+
+    def bleU8(output: MSZ[B], context: Context, v: U8): Unit = {
+      val offset = context.offset
+      if (offset + 8 > output.size) {
+        context.signalError(INSUFFICIENT_BUFFER_SIZE)
+      }
+      if (context.hasError) {
+        return
+      }
+      var mask = u8"1"
+      for (i <- 0 until 7) {
+        if ((v & mask) != u8"0") {
+          output(offset + i) = T
+        } else {
+          output(offset + i) = F
+        }
+        mask = mask << u8"1"
+      }
+      if ((v & mask) != u8"0") {
+        output(offset + 7) = T
+      } else {
+        output(offset + 7) = F
+      }
+      context.offset = offset + 8
+    }
+
+    def bleS8(output: MSZ[B], context: Context, v: S8): Unit = {
+      bleU8(output, context, conversions.S8.toRawU8(v))
+    }
+
     def beU8S(output: MSZ[B], context: Context, v: MSZ[U8]): Unit = {
       val size = v.size
       val offset = context.offset
@@ -6809,7 +4766,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        beU8(output, context, v(i))
+        bleU8(output, context, v(i))
       }
     }
 
@@ -6823,7 +4780,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        beS8(output, context, v(i))
+        bleS8(output, context, v(i))
       }
     }
 
@@ -6949,7 +4906,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        leU8(output, context, v(i))
+        bleU8(output, context, v(i))
       }
     }
 
@@ -6963,7 +4920,7 @@ object Bits {
         return
       }
       for (i <- 0 until size) {
-        leS8(output, context, v(i))
+        bleS8(output, context, v(i))
       }
     }
 
@@ -7080,413 +5037,129 @@ object Bits {
     }
 
     // Slang script gen:
-    // for (i <- 2 to 64) {
-    //   val sizeM1 = i - 1
-    //   println(
-    //     st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
-    //         |  val offset = context.offset
-    //         |  if (offset + $i > output.size) {
-    //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-    //         |  }
-    //         |  if (context.hasError) {
-    //         |    return
-    //         |  }
-    //         |  var mask = u$i"1"
-    //         |  for (i <- 0 until $sizeM1) {
-    //         |    if ((v & mask) != u$i"0") {
-    //         |      output(offset + i) = T
-    //         |    } else {
-    //         |      output(offset + i) = F
-    //         |    }
-    //         |    mask = mask << u$i"1"
-    //         |  }
-    //         |  if ((v & mask) != u$i"0") {
-    //         |    output(offset + $sizeM1) = T
-    //         |  } else {
-    //         |    output(offset + $sizeM1) = F
-    //         |  }
-    //         |  context.offset = offset + $i
-    //         |}""".render)
-    //   println()
-    // }
-
-    def beU2(output: MSZ[B], context: Context, v: U2): Unit = {
-      val offset = context.offset
-      if (offset + 2 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u2"1"
-      for (i <- 0 until 1) {
-        if ((v & mask) != u2"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u2"1"
-      }
-      if ((v & mask) != u2"0") {
-        output(offset + 1) = T
-      } else {
-        output(offset + 1) = F
-      }
-      context.offset = offset + 2
+    /*
+    for (i <- 9 to 15) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 8}(output, context, conversions.U8.toU${i - 16}(conversions.U16.toU8(conversions.U$i.toU16(v >> u$i"8"))))
+            |  bleU8(output, context, conversions.U16.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU3(output: MSZ[B], context: Context, v: U3): Unit = {
-      val offset = context.offset
-      if (offset + 3 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u3"1"
-      for (i <- 0 until 2) {
-        if ((v & mask) != u3"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u3"1"
-      }
-      if ((v & mask) != u3"0") {
-        output(offset + 2) = T
-      } else {
-        output(offset + 2) = F
-      }
-      context.offset = offset + 3
+    for (i <- 17 to 24) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 16}(output, context, conversions.U8.toU${i - 16}(conversions.U32.toU8(conversions.U$i.toU32(v >> u$i"16"))))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU4(output: MSZ[B], context: Context, v: U4): Unit = {
-      val offset = context.offset
-      if (offset + 4 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u4"1"
-      for (i <- 0 until 3) {
-        if ((v & mask) != u4"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u4"1"
-      }
-      if ((v & mask) != u4"0") {
-        output(offset + 3) = T
-      } else {
-        output(offset + 3) = F
-      }
-      context.offset = offset + 4
+    for (i <- 25 to 31) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 24}(output, context, conversions.U8.toU${i - 24}(conversions.U32.toU8(conversions.U$i.toU32(v >> u$i"24"))))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU5(output: MSZ[B], context: Context, v: U5): Unit = {
-      val offset = context.offset
-      if (offset + 5 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u5"1"
-      for (i <- 0 until 4) {
-        if ((v & mask) != u5"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u5"1"
-      }
-      if ((v & mask) != u5"0") {
-        output(offset + 4) = T
-      } else {
-        output(offset + 4) = F
-      }
-      context.offset = offset + 5
+    for (i <- 33 to 40) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 32}(output, context, conversions.U8.toU${i - 32}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"32"))))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU6(output: MSZ[B], context: Context, v: U6): Unit = {
-      val offset = context.offset
-      if (offset + 6 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u6"1"
-      for (i <- 0 until 5) {
-        if ((v & mask) != u6"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u6"1"
-      }
-      if ((v & mask) != u6"0") {
-        output(offset + 5) = T
-      } else {
-        output(offset + 5) = F
-      }
-      context.offset = offset + 6
+    for (i <- 41 to 48) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 40}(output, context, conversions.U8.toU${i - 40}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"40"))))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU7(output: MSZ[B], context: Context, v: U7): Unit = {
-      val offset = context.offset
-      if (offset + 7 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u7"1"
-      for (i <- 0 until 6) {
-        if ((v & mask) != u7"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u7"1"
-      }
-      if ((v & mask) != u7"0") {
-        output(offset + 6) = T
-      } else {
-        output(offset + 6) = F
-      }
-      context.offset = offset + 7
+    for (i <- 49 to 56) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 48}(output, context, conversions.U8.toU${i - 48}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"48"))))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"40") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
 
-    def beU8(output: MSZ[B], context: Context, v: U8): Unit = {
-      val offset = context.offset
-      if (offset + 8 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u8"1"
-      for (i <- 0 until 7) {
-        if ((v & mask) != u8"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u8"1"
-      }
-      if ((v & mask) != u8"0") {
-        output(offset + 7) = T
-      } else {
-        output(offset + 7) = F
-      }
-      context.offset = offset + 8
+    for (i <- 57 to 63) {
+      println(
+        st"""def beU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU${i - 56}(output, context, conversions.U8.toU${i - 56}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"56"))))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"48") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"40") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |}
+            |""".render)
     }
-
-    def beS8(output: MSZ[B], context: Context, v: S8): Unit = {
-      beU8(output, context, conversions.S8.toRawU8(v))
-    }
-
+    */
     def beU9(output: MSZ[B], context: Context, v: U9): Unit = {
-      val offset = context.offset
-      if (offset + 9 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u9"1"
-      for (i <- 0 until 8) {
-        if ((v & mask) != u9"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u9"1"
-      }
-      if ((v & mask) != u9"0") {
-        output(offset + 8) = T
-      } else {
-        output(offset + 8) = F
-      }
-      context.offset = offset + 9
+      bleU1(output, context, conversions.U8.toU1(conversions.U16.toU8(conversions.U9.toU16(v >> u9"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U9.toU16(v & u9"0xFF")))
     }
 
     def beU10(output: MSZ[B], context: Context, v: U10): Unit = {
-      val offset = context.offset
-      if (offset + 10 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u10"1"
-      for (i <- 0 until 9) {
-        if ((v & mask) != u10"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u10"1"
-      }
-      if ((v & mask) != u10"0") {
-        output(offset + 9) = T
-      } else {
-        output(offset + 9) = F
-      }
-      context.offset = offset + 10
+      bleU2(output, context, conversions.U8.toU2(conversions.U16.toU8(conversions.U10.toU16(v >> u10"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U10.toU16(v & u10"0xFF")))
     }
 
     def beU11(output: MSZ[B], context: Context, v: U11): Unit = {
-      val offset = context.offset
-      if (offset + 11 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u11"1"
-      for (i <- 0 until 10) {
-        if ((v & mask) != u11"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u11"1"
-      }
-      if ((v & mask) != u11"0") {
-        output(offset + 10) = T
-      } else {
-        output(offset + 10) = F
-      }
-      context.offset = offset + 11
+      bleU3(output, context, conversions.U8.toU3(conversions.U16.toU8(conversions.U11.toU16(v >> u11"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U11.toU16(v & u11"0xFF")))
     }
 
     def beU12(output: MSZ[B], context: Context, v: U12): Unit = {
-      val offset = context.offset
-      if (offset + 12 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u12"1"
-      for (i <- 0 until 11) {
-        if ((v & mask) != u12"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u12"1"
-      }
-      if ((v & mask) != u12"0") {
-        output(offset + 11) = T
-      } else {
-        output(offset + 11) = F
-      }
-      context.offset = offset + 12
+      bleU4(output, context, conversions.U8.toU4(conversions.U16.toU8(conversions.U12.toU16(v >> u12"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U12.toU16(v & u12"0xFF")))
     }
 
     def beU13(output: MSZ[B], context: Context, v: U13): Unit = {
-      val offset = context.offset
-      if (offset + 13 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u13"1"
-      for (i <- 0 until 12) {
-        if ((v & mask) != u13"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u13"1"
-      }
-      if ((v & mask) != u13"0") {
-        output(offset + 12) = T
-      } else {
-        output(offset + 12) = F
-      }
-      context.offset = offset + 13
+      bleU5(output, context, conversions.U8.toU5(conversions.U16.toU8(conversions.U13.toU16(v >> u13"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U13.toU16(v & u13"0xFF")))
     }
 
     def beU14(output: MSZ[B], context: Context, v: U14): Unit = {
-      val offset = context.offset
-      if (offset + 14 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u14"1"
-      for (i <- 0 until 13) {
-        if ((v & mask) != u14"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u14"1"
-      }
-      if ((v & mask) != u14"0") {
-        output(offset + 13) = T
-      } else {
-        output(offset + 13) = F
-      }
-      context.offset = offset + 14
+      bleU6(output, context, conversions.U8.toU6(conversions.U16.toU8(conversions.U14.toU16(v >> u14"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U14.toU16(v & u14"0xFF")))
     }
 
     def beU15(output: MSZ[B], context: Context, v: U15): Unit = {
-      val offset = context.offset
-      if (offset + 15 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u15"1"
-      for (i <- 0 until 14) {
-        if ((v & mask) != u15"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u15"1"
-      }
-      if ((v & mask) != u15"0") {
-        output(offset + 14) = T
-      } else {
-        output(offset + 14) = F
-      }
-      context.offset = offset + 15
+      bleU7(output, context, conversions.U8.toU7(conversions.U16.toU8(conversions.U15.toU16(v >> u15"8"))))
+      bleU8(output, context, conversions.U16.toU8(conversions.U15.toU16(v & u15"0xFF")))
     }
 
     def beU16(output: MSZ[B], context: Context, v: U16): Unit = {
-      val offset = context.offset
-      if (offset + 16 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u16"1"
-      for (i <- 0 until 15) {
-        if ((v & mask) != u16"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u16"1"
-      }
-      if ((v & mask) != u16"0") {
-        output(offset + 15) = T
-      } else {
-        output(offset + 15) = F
-      }
-      context.offset = offset + 16
+      bleU8(output, context, conversions.U16.toU8(v >> u16"8"))
+      bleU8(output, context, conversions.U16.toU8(v & u16"0xFF"))
     }
 
     def beS16(output: MSZ[B], context: Context, v: S16): Unit = {
@@ -7494,403 +5167,107 @@ object Bits {
     }
 
     def beU17(output: MSZ[B], context: Context, v: U17): Unit = {
-      val offset = context.offset
-      if (offset + 17 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u17"1"
-      for (i <- 0 until 16) {
-        if ((v & mask) != u17"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u17"1"
-      }
-      if ((v & mask) != u17"0") {
-        output(offset + 16) = T
-      } else {
-        output(offset + 16) = F
-      }
-      context.offset = offset + 17
+      bleU1(output, context, conversions.U8.toU1(conversions.U32.toU8(conversions.U17.toU32(v >> u17"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U17.toU32((v >> u17"8") & u17"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U17.toU32(v & u17"0xFF")))
     }
 
     def beU18(output: MSZ[B], context: Context, v: U18): Unit = {
-      val offset = context.offset
-      if (offset + 18 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u18"1"
-      for (i <- 0 until 17) {
-        if ((v & mask) != u18"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u18"1"
-      }
-      if ((v & mask) != u18"0") {
-        output(offset + 17) = T
-      } else {
-        output(offset + 17) = F
-      }
-      context.offset = offset + 18
+      bleU2(output, context, conversions.U8.toU2(conversions.U32.toU8(conversions.U18.toU32(v >> u18"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U18.toU32((v >> u18"8") & u18"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U18.toU32(v & u18"0xFF")))
     }
 
     def beU19(output: MSZ[B], context: Context, v: U19): Unit = {
-      val offset = context.offset
-      if (offset + 19 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u19"1"
-      for (i <- 0 until 18) {
-        if ((v & mask) != u19"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u19"1"
-      }
-      if ((v & mask) != u19"0") {
-        output(offset + 18) = T
-      } else {
-        output(offset + 18) = F
-      }
-      context.offset = offset + 19
+      bleU3(output, context, conversions.U8.toU3(conversions.U32.toU8(conversions.U19.toU32(v >> u19"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U19.toU32((v >> u19"8") & u19"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U19.toU32(v & u19"0xFF")))
     }
 
     def beU20(output: MSZ[B], context: Context, v: U20): Unit = {
-      val offset = context.offset
-      if (offset + 20 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u20"1"
-      for (i <- 0 until 19) {
-        if ((v & mask) != u20"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u20"1"
-      }
-      if ((v & mask) != u20"0") {
-        output(offset + 19) = T
-      } else {
-        output(offset + 19) = F
-      }
-      context.offset = offset + 20
+      bleU4(output, context, conversions.U8.toU4(conversions.U32.toU8(conversions.U20.toU32(v >> u20"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U20.toU32((v >> u20"8") & u20"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U20.toU32(v & u20"0xFF")))
     }
 
     def beU21(output: MSZ[B], context: Context, v: U21): Unit = {
-      val offset = context.offset
-      if (offset + 21 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u21"1"
-      for (i <- 0 until 20) {
-        if ((v & mask) != u21"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u21"1"
-      }
-      if ((v & mask) != u21"0") {
-        output(offset + 20) = T
-      } else {
-        output(offset + 20) = F
-      }
-      context.offset = offset + 21
+      bleU5(output, context, conversions.U8.toU5(conversions.U32.toU8(conversions.U21.toU32(v >> u21"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U21.toU32((v >> u21"8") & u21"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U21.toU32(v & u21"0xFF")))
     }
 
     def beU22(output: MSZ[B], context: Context, v: U22): Unit = {
-      val offset = context.offset
-      if (offset + 22 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u22"1"
-      for (i <- 0 until 21) {
-        if ((v & mask) != u22"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u22"1"
-      }
-      if ((v & mask) != u22"0") {
-        output(offset + 21) = T
-      } else {
-        output(offset + 21) = F
-      }
-      context.offset = offset + 22
+      bleU6(output, context, conversions.U8.toU6(conversions.U32.toU8(conversions.U22.toU32(v >> u22"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U22.toU32((v >> u22"8") & u22"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U22.toU32(v & u22"0xFF")))
     }
 
     def beU23(output: MSZ[B], context: Context, v: U23): Unit = {
-      val offset = context.offset
-      if (offset + 23 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u23"1"
-      for (i <- 0 until 22) {
-        if ((v & mask) != u23"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u23"1"
-      }
-      if ((v & mask) != u23"0") {
-        output(offset + 22) = T
-      } else {
-        output(offset + 22) = F
-      }
-      context.offset = offset + 23
+      bleU7(output, context, conversions.U8.toU7(conversions.U32.toU8(conversions.U23.toU32(v >> u23"16"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U23.toU32((v >> u23"8") & u23"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U23.toU32(v & u23"0xFF")))
     }
 
     def beU24(output: MSZ[B], context: Context, v: U24): Unit = {
-      val offset = context.offset
-      if (offset + 24 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u24"1"
-      for (i <- 0 until 23) {
-        if ((v & mask) != u24"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u24"1"
-      }
-      if ((v & mask) != u24"0") {
-        output(offset + 23) = T
-      } else {
-        output(offset + 23) = F
-      }
-      context.offset = offset + 24
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32(v >> u24"16")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32((v >> u24"8") & u24"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32(v & u24"0xFF")))
     }
 
     def beU25(output: MSZ[B], context: Context, v: U25): Unit = {
-      val offset = context.offset
-      if (offset + 25 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u25"1"
-      for (i <- 0 until 24) {
-        if ((v & mask) != u25"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u25"1"
-      }
-      if ((v & mask) != u25"0") {
-        output(offset + 24) = T
-      } else {
-        output(offset + 24) = F
-      }
-      context.offset = offset + 25
+      bleU1(output, context, conversions.U8.toU1(conversions.U32.toU8(conversions.U25.toU32(v >> u25"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32((v >> u25"16") & u25"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32((v >> u25"8") & u25"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32(v & u25"0xFF")))
     }
 
     def beU26(output: MSZ[B], context: Context, v: U26): Unit = {
-      val offset = context.offset
-      if (offset + 26 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u26"1"
-      for (i <- 0 until 25) {
-        if ((v & mask) != u26"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u26"1"
-      }
-      if ((v & mask) != u26"0") {
-        output(offset + 25) = T
-      } else {
-        output(offset + 25) = F
-      }
-      context.offset = offset + 26
+      bleU2(output, context, conversions.U8.toU2(conversions.U32.toU8(conversions.U26.toU32(v >> u26"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32((v >> u26"16") & u26"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32((v >> u26"8") & u26"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32(v & u26"0xFF")))
     }
 
     def beU27(output: MSZ[B], context: Context, v: U27): Unit = {
-      val offset = context.offset
-      if (offset + 27 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u27"1"
-      for (i <- 0 until 26) {
-        if ((v & mask) != u27"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u27"1"
-      }
-      if ((v & mask) != u27"0") {
-        output(offset + 26) = T
-      } else {
-        output(offset + 26) = F
-      }
-      context.offset = offset + 27
+      bleU3(output, context, conversions.U8.toU3(conversions.U32.toU8(conversions.U27.toU32(v >> u27"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32((v >> u27"16") & u27"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32((v >> u27"8") & u27"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32(v & u27"0xFF")))
     }
 
     def beU28(output: MSZ[B], context: Context, v: U28): Unit = {
-      val offset = context.offset
-      if (offset + 28 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u28"1"
-      for (i <- 0 until 27) {
-        if ((v & mask) != u28"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u28"1"
-      }
-      if ((v & mask) != u28"0") {
-        output(offset + 27) = T
-      } else {
-        output(offset + 27) = F
-      }
-      context.offset = offset + 28
+      bleU4(output, context, conversions.U8.toU4(conversions.U32.toU8(conversions.U28.toU32(v >> u28"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32((v >> u28"16") & u28"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32((v >> u28"8") & u28"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32(v & u28"0xFF")))
     }
 
     def beU29(output: MSZ[B], context: Context, v: U29): Unit = {
-      val offset = context.offset
-      if (offset + 29 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u29"1"
-      for (i <- 0 until 28) {
-        if ((v & mask) != u29"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u29"1"
-      }
-      if ((v & mask) != u29"0") {
-        output(offset + 28) = T
-      } else {
-        output(offset + 28) = F
-      }
-      context.offset = offset + 29
+      bleU5(output, context, conversions.U8.toU5(conversions.U32.toU8(conversions.U29.toU32(v >> u29"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32((v >> u29"16") & u29"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32((v >> u29"8") & u29"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32(v & u29"0xFF")))
     }
 
     def beU30(output: MSZ[B], context: Context, v: U30): Unit = {
-      val offset = context.offset
-      if (offset + 30 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u30"1"
-      for (i <- 0 until 29) {
-        if ((v & mask) != u30"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u30"1"
-      }
-      if ((v & mask) != u30"0") {
-        output(offset + 29) = T
-      } else {
-        output(offset + 29) = F
-      }
-      context.offset = offset + 30
+      bleU6(output, context, conversions.U8.toU6(conversions.U32.toU8(conversions.U30.toU32(v >> u30"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32((v >> u30"16") & u30"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32((v >> u30"8") & u30"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32(v & u30"0xFF")))
     }
 
     def beU31(output: MSZ[B], context: Context, v: U31): Unit = {
-      val offset = context.offset
-      if (offset + 31 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u31"1"
-      for (i <- 0 until 30) {
-        if ((v & mask) != u31"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u31"1"
-      }
-      if ((v & mask) != u31"0") {
-        output(offset + 30) = T
-      } else {
-        output(offset + 30) = F
-      }
-      context.offset = offset + 31
+      bleU7(output, context, conversions.U8.toU7(conversions.U32.toU8(conversions.U31.toU32(v >> u31"24"))))
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32((v >> u31"16") & u31"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32((v >> u31"8") & u31"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32(v & u31"0xFF")))
     }
 
     def beU32(output: MSZ[B], context: Context, v: U32): Unit = {
-      val offset = context.offset
-      if (offset + 32 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u32"1"
-      for (i <- 0 until 31) {
-        if ((v & mask) != u32"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u32"1"
-      }
-      if ((v & mask) != u32"0") {
-        output(offset + 31) = T
-      } else {
-        output(offset + 31) = F
-      }
-      context.offset = offset + 32
+      bleU8(output, context, conversions.U32.toU8(v >> u32"24"))
+      bleU8(output, context, conversions.U32.toU8((v >> u32"16") & u32"0xFF"))
+      bleU8(output, context, conversions.U32.toU8((v >> u32"8") & u32"0xFF"))
+      bleU8(output, context, conversions.U32.toU8(v & u32"0xFF"))
     }
 
     def beS32(output: MSZ[B], context: Context, v: S32): Unit = {
@@ -7898,803 +5275,307 @@ object Bits {
     }
 
     def beU33(output: MSZ[B], context: Context, v: U33): Unit = {
-      val offset = context.offset
-      if (offset + 33 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u33"1"
-      for (i <- 0 until 32) {
-        if ((v & mask) != u33"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u33"1"
-      }
-      if ((v & mask) != u33"0") {
-        output(offset + 32) = T
-      } else {
-        output(offset + 32) = F
-      }
-      context.offset = offset + 33
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U33.toU64(v >> u33"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"24") & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"16") & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"8") & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64(v & u33"0xFF")))
     }
 
     def beU34(output: MSZ[B], context: Context, v: U34): Unit = {
-      val offset = context.offset
-      if (offset + 34 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u34"1"
-      for (i <- 0 until 33) {
-        if ((v & mask) != u34"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u34"1"
-      }
-      if ((v & mask) != u34"0") {
-        output(offset + 33) = T
-      } else {
-        output(offset + 33) = F
-      }
-      context.offset = offset + 34
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U34.toU64(v >> u34"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"24") & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"16") & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"8") & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64(v & u34"0xFF")))
     }
 
     def beU35(output: MSZ[B], context: Context, v: U35): Unit = {
-      val offset = context.offset
-      if (offset + 35 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u35"1"
-      for (i <- 0 until 34) {
-        if ((v & mask) != u35"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u35"1"
-      }
-      if ((v & mask) != u35"0") {
-        output(offset + 34) = T
-      } else {
-        output(offset + 34) = F
-      }
-      context.offset = offset + 35
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U35.toU64(v >> u35"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"24") & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"16") & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"8") & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64(v & u35"0xFF")))
     }
 
     def beU36(output: MSZ[B], context: Context, v: U36): Unit = {
-      val offset = context.offset
-      if (offset + 36 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u36"1"
-      for (i <- 0 until 35) {
-        if ((v & mask) != u36"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u36"1"
-      }
-      if ((v & mask) != u36"0") {
-        output(offset + 35) = T
-      } else {
-        output(offset + 35) = F
-      }
-      context.offset = offset + 36
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U36.toU64(v >> u36"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"24") & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"16") & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"8") & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64(v & u36"0xFF")))
     }
 
     def beU37(output: MSZ[B], context: Context, v: U37): Unit = {
-      val offset = context.offset
-      if (offset + 37 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u37"1"
-      for (i <- 0 until 36) {
-        if ((v & mask) != u37"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u37"1"
-      }
-      if ((v & mask) != u37"0") {
-        output(offset + 36) = T
-      } else {
-        output(offset + 36) = F
-      }
-      context.offset = offset + 37
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U37.toU64(v >> u37"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"24") & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"16") & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"8") & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64(v & u37"0xFF")))
     }
 
     def beU38(output: MSZ[B], context: Context, v: U38): Unit = {
-      val offset = context.offset
-      if (offset + 38 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u38"1"
-      for (i <- 0 until 37) {
-        if ((v & mask) != u38"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u38"1"
-      }
-      if ((v & mask) != u38"0") {
-        output(offset + 37) = T
-      } else {
-        output(offset + 37) = F
-      }
-      context.offset = offset + 38
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U38.toU64(v >> u38"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"24") & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"16") & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"8") & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64(v & u38"0xFF")))
     }
 
     def beU39(output: MSZ[B], context: Context, v: U39): Unit = {
-      val offset = context.offset
-      if (offset + 39 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u39"1"
-      for (i <- 0 until 38) {
-        if ((v & mask) != u39"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u39"1"
-      }
-      if ((v & mask) != u39"0") {
-        output(offset + 38) = T
-      } else {
-        output(offset + 38) = F
-      }
-      context.offset = offset + 39
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U39.toU64(v >> u39"32"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"24") & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"16") & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"8") & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64(v & u39"0xFF")))
     }
 
     def beU40(output: MSZ[B], context: Context, v: U40): Unit = {
-      val offset = context.offset
-      if (offset + 40 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u40"1"
-      for (i <- 0 until 39) {
-        if ((v & mask) != u40"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u40"1"
-      }
-      if ((v & mask) != u40"0") {
-        output(offset + 39) = T
-      } else {
-        output(offset + 39) = F
-      }
-      context.offset = offset + 40
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64(v >> u40"32")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"24") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"16") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"8") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64(v & u40"0xFF")))
     }
 
     def beU41(output: MSZ[B], context: Context, v: U41): Unit = {
-      val offset = context.offset
-      if (offset + 41 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u41"1"
-      for (i <- 0 until 40) {
-        if ((v & mask) != u41"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u41"1"
-      }
-      if ((v & mask) != u41"0") {
-        output(offset + 40) = T
-      } else {
-        output(offset + 40) = F
-      }
-      context.offset = offset + 41
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U41.toU64(v >> u41"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"32") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"24") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"16") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"8") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64(v & u41"0xFF")))
     }
 
     def beU42(output: MSZ[B], context: Context, v: U42): Unit = {
-      val offset = context.offset
-      if (offset + 42 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u42"1"
-      for (i <- 0 until 41) {
-        if ((v & mask) != u42"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u42"1"
-      }
-      if ((v & mask) != u42"0") {
-        output(offset + 41) = T
-      } else {
-        output(offset + 41) = F
-      }
-      context.offset = offset + 42
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U42.toU64(v >> u42"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"32") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"24") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"16") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"8") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64(v & u42"0xFF")))
     }
 
     def beU43(output: MSZ[B], context: Context, v: U43): Unit = {
-      val offset = context.offset
-      if (offset + 43 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u43"1"
-      for (i <- 0 until 42) {
-        if ((v & mask) != u43"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u43"1"
-      }
-      if ((v & mask) != u43"0") {
-        output(offset + 42) = T
-      } else {
-        output(offset + 42) = F
-      }
-      context.offset = offset + 43
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U43.toU64(v >> u43"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"32") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"24") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"16") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"8") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64(v & u43"0xFF")))
     }
 
     def beU44(output: MSZ[B], context: Context, v: U44): Unit = {
-      val offset = context.offset
-      if (offset + 44 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u44"1"
-      for (i <- 0 until 43) {
-        if ((v & mask) != u44"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u44"1"
-      }
-      if ((v & mask) != u44"0") {
-        output(offset + 43) = T
-      } else {
-        output(offset + 43) = F
-      }
-      context.offset = offset + 44
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U44.toU64(v >> u44"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"32") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"24") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"16") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"8") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64(v & u44"0xFF")))
     }
 
     def beU45(output: MSZ[B], context: Context, v: U45): Unit = {
-      val offset = context.offset
-      if (offset + 45 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u45"1"
-      for (i <- 0 until 44) {
-        if ((v & mask) != u45"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u45"1"
-      }
-      if ((v & mask) != u45"0") {
-        output(offset + 44) = T
-      } else {
-        output(offset + 44) = F
-      }
-      context.offset = offset + 45
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U45.toU64(v >> u45"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"32") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"24") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"16") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"8") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64(v & u45"0xFF")))
     }
 
     def beU46(output: MSZ[B], context: Context, v: U46): Unit = {
-      val offset = context.offset
-      if (offset + 46 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u46"1"
-      for (i <- 0 until 45) {
-        if ((v & mask) != u46"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u46"1"
-      }
-      if ((v & mask) != u46"0") {
-        output(offset + 45) = T
-      } else {
-        output(offset + 45) = F
-      }
-      context.offset = offset + 46
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U46.toU64(v >> u46"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"32") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"24") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"16") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"8") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64(v & u46"0xFF")))
     }
 
     def beU47(output: MSZ[B], context: Context, v: U47): Unit = {
-      val offset = context.offset
-      if (offset + 47 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u47"1"
-      for (i <- 0 until 46) {
-        if ((v & mask) != u47"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u47"1"
-      }
-      if ((v & mask) != u47"0") {
-        output(offset + 46) = T
-      } else {
-        output(offset + 46) = F
-      }
-      context.offset = offset + 47
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U47.toU64(v >> u47"40"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"32") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"24") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"16") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"8") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64(v & u47"0xFF")))
     }
 
     def beU48(output: MSZ[B], context: Context, v: U48): Unit = {
-      val offset = context.offset
-      if (offset + 48 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u48"1"
-      for (i <- 0 until 47) {
-        if ((v & mask) != u48"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u48"1"
-      }
-      if ((v & mask) != u48"0") {
-        output(offset + 47) = T
-      } else {
-        output(offset + 47) = F
-      }
-      context.offset = offset + 48
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64(v >> u48"40")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"32") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"24") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"16") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"8") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64(v & u48"0xFF")))
     }
 
     def beU49(output: MSZ[B], context: Context, v: U49): Unit = {
-      val offset = context.offset
-      if (offset + 49 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u49"1"
-      for (i <- 0 until 48) {
-        if ((v & mask) != u49"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u49"1"
-      }
-      if ((v & mask) != u49"0") {
-        output(offset + 48) = T
-      } else {
-        output(offset + 48) = F
-      }
-      context.offset = offset + 49
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U49.toU64(v >> u49"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"40") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"32") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"24") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"16") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"8") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64(v & u49"0xFF")))
     }
 
     def beU50(output: MSZ[B], context: Context, v: U50): Unit = {
-      val offset = context.offset
-      if (offset + 50 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u50"1"
-      for (i <- 0 until 49) {
-        if ((v & mask) != u50"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u50"1"
-      }
-      if ((v & mask) != u50"0") {
-        output(offset + 49) = T
-      } else {
-        output(offset + 49) = F
-      }
-      context.offset = offset + 50
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U50.toU64(v >> u50"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"40") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"32") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"24") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"16") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"8") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64(v & u50"0xFF")))
     }
 
     def beU51(output: MSZ[B], context: Context, v: U51): Unit = {
-      val offset = context.offset
-      if (offset + 51 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u51"1"
-      for (i <- 0 until 50) {
-        if ((v & mask) != u51"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u51"1"
-      }
-      if ((v & mask) != u51"0") {
-        output(offset + 50) = T
-      } else {
-        output(offset + 50) = F
-      }
-      context.offset = offset + 51
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U51.toU64(v >> u51"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"40") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"32") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"24") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"16") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"8") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64(v & u51"0xFF")))
     }
 
     def beU52(output: MSZ[B], context: Context, v: U52): Unit = {
-      val offset = context.offset
-      if (offset + 52 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u52"1"
-      for (i <- 0 until 51) {
-        if ((v & mask) != u52"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u52"1"
-      }
-      if ((v & mask) != u52"0") {
-        output(offset + 51) = T
-      } else {
-        output(offset + 51) = F
-      }
-      context.offset = offset + 52
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U52.toU64(v >> u52"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"40") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"32") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"24") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"16") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"8") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64(v & u52"0xFF")))
     }
 
     def beU53(output: MSZ[B], context: Context, v: U53): Unit = {
-      val offset = context.offset
-      if (offset + 53 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u53"1"
-      for (i <- 0 until 52) {
-        if ((v & mask) != u53"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u53"1"
-      }
-      if ((v & mask) != u53"0") {
-        output(offset + 52) = T
-      } else {
-        output(offset + 52) = F
-      }
-      context.offset = offset + 53
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U53.toU64(v >> u53"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"40") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"32") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"24") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"16") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"8") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64(v & u53"0xFF")))
     }
 
     def beU54(output: MSZ[B], context: Context, v: U54): Unit = {
-      val offset = context.offset
-      if (offset + 54 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u54"1"
-      for (i <- 0 until 53) {
-        if ((v & mask) != u54"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u54"1"
-      }
-      if ((v & mask) != u54"0") {
-        output(offset + 53) = T
-      } else {
-        output(offset + 53) = F
-      }
-      context.offset = offset + 54
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U54.toU64(v >> u54"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"40") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"32") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"24") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"16") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"8") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64(v & u54"0xFF")))
     }
 
     def beU55(output: MSZ[B], context: Context, v: U55): Unit = {
-      val offset = context.offset
-      if (offset + 55 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u55"1"
-      for (i <- 0 until 54) {
-        if ((v & mask) != u55"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u55"1"
-      }
-      if ((v & mask) != u55"0") {
-        output(offset + 54) = T
-      } else {
-        output(offset + 54) = F
-      }
-      context.offset = offset + 55
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U55.toU64(v >> u55"48"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"40") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"32") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"24") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"16") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"8") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64(v & u55"0xFF")))
     }
 
     def beU56(output: MSZ[B], context: Context, v: U56): Unit = {
-      val offset = context.offset
-      if (offset + 56 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u56"1"
-      for (i <- 0 until 55) {
-        if ((v & mask) != u56"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u56"1"
-      }
-      if ((v & mask) != u56"0") {
-        output(offset + 55) = T
-      } else {
-        output(offset + 55) = F
-      }
-      context.offset = offset + 56
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64(v >> u56"48")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"40") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"32") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"24") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"16") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"8") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64(v & u56"0xFF")))
     }
 
     def beU57(output: MSZ[B], context: Context, v: U57): Unit = {
-      val offset = context.offset
-      if (offset + 57 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u57"1"
-      for (i <- 0 until 56) {
-        if ((v & mask) != u57"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u57"1"
-      }
-      if ((v & mask) != u57"0") {
-        output(offset + 56) = T
-      } else {
-        output(offset + 56) = F
-      }
-      context.offset = offset + 57
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U57.toU64(v >> u57"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"48") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"40") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"32") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"24") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"16") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"8") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64(v & u57"0xFF")))
     }
 
     def beU58(output: MSZ[B], context: Context, v: U58): Unit = {
-      val offset = context.offset
-      if (offset + 58 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u58"1"
-      for (i <- 0 until 57) {
-        if ((v & mask) != u58"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u58"1"
-      }
-      if ((v & mask) != u58"0") {
-        output(offset + 57) = T
-      } else {
-        output(offset + 57) = F
-      }
-      context.offset = offset + 58
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U58.toU64(v >> u58"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"48") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"40") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"32") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"24") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"16") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"8") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64(v & u58"0xFF")))
     }
 
     def beU59(output: MSZ[B], context: Context, v: U59): Unit = {
-      val offset = context.offset
-      if (offset + 59 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u59"1"
-      for (i <- 0 until 58) {
-        if ((v & mask) != u59"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u59"1"
-      }
-      if ((v & mask) != u59"0") {
-        output(offset + 58) = T
-      } else {
-        output(offset + 58) = F
-      }
-      context.offset = offset + 59
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U59.toU64(v >> u59"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"48") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"40") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"32") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"24") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"16") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"8") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64(v & u59"0xFF")))
     }
 
     def beU60(output: MSZ[B], context: Context, v: U60): Unit = {
-      val offset = context.offset
-      if (offset + 60 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u60"1"
-      for (i <- 0 until 59) {
-        if ((v & mask) != u60"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u60"1"
-      }
-      if ((v & mask) != u60"0") {
-        output(offset + 59) = T
-      } else {
-        output(offset + 59) = F
-      }
-      context.offset = offset + 60
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U60.toU64(v >> u60"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"48") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"40") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"32") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"24") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"16") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"8") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64(v & u60"0xFF")))
     }
 
     def beU61(output: MSZ[B], context: Context, v: U61): Unit = {
-      val offset = context.offset
-      if (offset + 61 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u61"1"
-      for (i <- 0 until 60) {
-        if ((v & mask) != u61"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u61"1"
-      }
-      if ((v & mask) != u61"0") {
-        output(offset + 60) = T
-      } else {
-        output(offset + 60) = F
-      }
-      context.offset = offset + 61
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U61.toU64(v >> u61"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"48") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"40") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"32") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"24") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"16") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"8") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64(v & u61"0xFF")))
     }
 
     def beU62(output: MSZ[B], context: Context, v: U62): Unit = {
-      val offset = context.offset
-      if (offset + 62 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u62"1"
-      for (i <- 0 until 61) {
-        if ((v & mask) != u62"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u62"1"
-      }
-      if ((v & mask) != u62"0") {
-        output(offset + 61) = T
-      } else {
-        output(offset + 61) = F
-      }
-      context.offset = offset + 62
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U62.toU64(v >> u62"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"48") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"40") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"32") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"24") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"16") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"8") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64(v & u62"0xFF")))
     }
 
     def beU63(output: MSZ[B], context: Context, v: U63): Unit = {
-      val offset = context.offset
-      if (offset + 63 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u63"1"
-      for (i <- 0 until 62) {
-        if ((v & mask) != u63"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u63"1"
-      }
-      if ((v & mask) != u63"0") {
-        output(offset + 62) = T
-      } else {
-        output(offset + 62) = F
-      }
-      context.offset = offset + 63
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U63.toU64(v >> u63"56"))))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"48") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"40") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"32") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"24") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"16") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"8") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64(v & u63"0xFF")))
     }
 
     def beU64(output: MSZ[B], context: Context, v: U64): Unit = {
-      val offset = context.offset
-      if (offset + 64 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u64"1"
-      for (i <- 0 until 63) {
-        if ((v & mask) != u64"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask << u64"1"
-      }
-      if ((v & mask) != u64"0") {
-        output(offset + 63) = T
-      } else {
-        output(offset + 63) = F
-      }
-      context.offset = offset + 64
+      bleU8(output, context, conversions.U64.toU8(v >> u64"56"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"48") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"40") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"32") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"24") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"16") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"8") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8(v & u64"0xFF"))
     }
 
     def beS64(output: MSZ[B], context: Context, v: S64): Unit = {
@@ -8710,413 +5591,129 @@ object Bits {
     }
 
     // Slang script gen:
-    // for (i <- 2 to 64) {
-    //   val sizeM1 = i - 1
-    //   println(
-    //     st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
-    //         |  val offset = context.offset
-    //         |  if (offset + $i > output.size) {
-    //         |    context.signalError(INSUFFICIENT_BUFFER_SIZE)
-    //         |  }
-    //         |  if (context.hasError) {
-    //         |    return
-    //         |  }
-    //         |  var mask = u$i"1" << u$i"$sizeM1"
-    //         |  for (i <- 0 until $sizeM1) {
-    //         |    if ((v & mask) != u$i"0") {
-    //         |      output(offset + i) = T
-    //         |    } else {
-    //         |      output(offset + i) = F
-    //         |    }
-    //         |    mask = mask >>> u$i"1"
-    //         |  }
-    //         |  if ((v & mask) != u$i"0") {
-    //         |    output(offset + $sizeM1) = T
-    //         |  } else {
-    //         |    output(offset + $sizeM1) = F
-    //         |  }
-    //         |  context.offset = offset + $i
-    //         |}""".render)
-    //   println()
-    // }
-
-    def leU2(output: MSZ[B], context: Context, v: U2): Unit = {
-      val offset = context.offset
-      if (offset + 2 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u2"1" << u2"1"
-      for (i <- 0 until 1) {
-        if ((v & mask) != u2"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u2"1"
-      }
-      if ((v & mask) != u2"0") {
-        output(offset + 1) = T
-      } else {
-        output(offset + 1) = F
-      }
-      context.offset = offset + 2
+    /*
+    for (i <- 9 to 15) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U16.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |  bleU${i - 8}(output, context, conversions.U8.toU${i - 16}(conversions.U16.toU8(conversions.U$i.toU16(v >> u$i"8"))))
+            |}
+            |""".render)
     }
 
-    def leU3(output: MSZ[B], context: Context, v: U3): Unit = {
-      val offset = context.offset
-      if (offset + 3 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u3"1" << u3"2"
-      for (i <- 0 until 2) {
-        if ((v & mask) != u3"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u3"1"
-      }
-      if ((v & mask) != u3"0") {
-        output(offset + 2) = T
-      } else {
-        output(offset + 2) = F
-      }
-      context.offset = offset + 3
+    for (i <- 17 to 24) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"8") & u$i"0xFF")))
+            |  bleU${i - 16}(output, context, conversions.U8.toU${i - 16}(conversions.U32.toU8(conversions.U$i.toU32(v >> u$i"16"))))
+            |}
+            |""".render)
     }
 
-    def leU4(output: MSZ[B], context: Context, v: U4): Unit = {
-      val offset = context.offset
-      if (offset + 4 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u4"1" << u4"3"
-      for (i <- 0 until 3) {
-        if ((v & mask) != u4"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u4"1"
-      }
-      if ((v & mask) != u4"0") {
-        output(offset + 3) = T
-      } else {
-        output(offset + 3) = F
-      }
-      context.offset = offset + 4
+    for (i <- 25 to 31) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U32.toU8(conversions.U$i.toU32((v >> u$i"16") & u$i"0xFF")))
+            |  bleU${i - 24}(output, context, conversions.U8.toU${i - 24}(conversions.U32.toU8(conversions.U$i.toU32(v >> u$i"24"))))
+            |}
+            |""".render)
     }
 
-    def leU5(output: MSZ[B], context: Context, v: U5): Unit = {
-      val offset = context.offset
-      if (offset + 5 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u5"1" << u5"4"
-      for (i <- 0 until 4) {
-        if ((v & mask) != u5"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u5"1"
-      }
-      if ((v & mask) != u5"0") {
-        output(offset + 4) = T
-      } else {
-        output(offset + 4) = F
-      }
-      context.offset = offset + 5
+    for (i <- 33 to 40) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU${i - 32}(output, context, conversions.U8.toU${i - 32}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"32"))))
+            |}
+            |""".render)
     }
 
-    def leU6(output: MSZ[B], context: Context, v: U6): Unit = {
-      val offset = context.offset
-      if (offset + 6 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u6"1" << u6"5"
-      for (i <- 0 until 5) {
-        if ((v & mask) != u6"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u6"1"
-      }
-      if ((v & mask) != u6"0") {
-        output(offset + 5) = T
-      } else {
-        output(offset + 5) = F
-      }
-      context.offset = offset + 6
+    for (i <- 41 to 48) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU${i - 40}(output, context, conversions.U8.toU${i - 40}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"40"))))
+            |}
+            |""".render)
     }
 
-    def leU7(output: MSZ[B], context: Context, v: U7): Unit = {
-      val offset = context.offset
-      if (offset + 7 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u7"1" << u7"6"
-      for (i <- 0 until 6) {
-        if ((v & mask) != u7"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u7"1"
-      }
-      if ((v & mask) != u7"0") {
-        output(offset + 6) = T
-      } else {
-        output(offset + 6) = F
-      }
-      context.offset = offset + 7
+    for (i <- 49 to 56) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"40") & u$i"0xFF")))
+            |  bleU${i - 48}(output, context, conversions.U8.toU${i - 48}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"48"))))
+            |}
+            |""".render)
     }
 
-    def leU8(output: MSZ[B], context: Context, v: U8): Unit = {
-      val offset = context.offset
-      if (offset + 8 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u8"1" << u8"7"
-      for (i <- 0 until 7) {
-        if ((v & mask) != u8"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u8"1"
-      }
-      if ((v & mask) != u8"0") {
-        output(offset + 7) = T
-      } else {
-        output(offset + 7) = F
-      }
-      context.offset = offset + 8
+    for (i <- 57 to 63) {
+      println(
+        st"""def leU$i(output: MSZ[B], context: Context, v: U$i): Unit = {
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64(v & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"8") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"16") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"24") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"32") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"40") & u$i"0xFF")))
+            |  bleU8(output, context, conversions.U64.toU8(conversions.U$i.toU64((v >> u$i"48") & u$i"0xFF")))
+            |  bleU${i - 56}(output, context, conversions.U8.toU${i - 56}(conversions.U64.toU8(conversions.U$i.toU64(v >> u$i"56"))))
+            |}
+            |""".render)
     }
-
-    def leS8(output: MSZ[B], context: Context, v: S8): Unit = {
-      leU8(output, context, conversions.S8.toRawU8(v))
-    }
-
+     */
     def leU9(output: MSZ[B], context: Context, v: U9): Unit = {
-      val offset = context.offset
-      if (offset + 9 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u9"1" << u9"8"
-      for (i <- 0 until 8) {
-        if ((v & mask) != u9"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u9"1"
-      }
-      if ((v & mask) != u9"0") {
-        output(offset + 8) = T
-      } else {
-        output(offset + 8) = F
-      }
-      context.offset = offset + 9
+      bleU8(output, context, conversions.U16.toU8(conversions.U9.toU16(v & u9"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U16.toU8(conversions.U9.toU16(v >> u9"8"))))
     }
 
     def leU10(output: MSZ[B], context: Context, v: U10): Unit = {
-      val offset = context.offset
-      if (offset + 10 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u10"1" << u10"9"
-      for (i <- 0 until 9) {
-        if ((v & mask) != u10"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u10"1"
-      }
-      if ((v & mask) != u10"0") {
-        output(offset + 9) = T
-      } else {
-        output(offset + 9) = F
-      }
-      context.offset = offset + 10
+      bleU8(output, context, conversions.U16.toU8(conversions.U10.toU16(v & u10"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U16.toU8(conversions.U10.toU16(v >> u10"8"))))
     }
 
     def leU11(output: MSZ[B], context: Context, v: U11): Unit = {
-      val offset = context.offset
-      if (offset + 11 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u11"1" << u11"10"
-      for (i <- 0 until 10) {
-        if ((v & mask) != u11"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u11"1"
-      }
-      if ((v & mask) != u11"0") {
-        output(offset + 10) = T
-      } else {
-        output(offset + 10) = F
-      }
-      context.offset = offset + 11
+      bleU8(output, context, conversions.U16.toU8(conversions.U11.toU16(v & u11"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U16.toU8(conversions.U11.toU16(v >> u11"8"))))
     }
 
     def leU12(output: MSZ[B], context: Context, v: U12): Unit = {
-      val offset = context.offset
-      if (offset + 12 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u12"1" << u12"11"
-      for (i <- 0 until 11) {
-        if ((v & mask) != u12"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u12"1"
-      }
-      if ((v & mask) != u12"0") {
-        output(offset + 11) = T
-      } else {
-        output(offset + 11) = F
-      }
-      context.offset = offset + 12
+      bleU8(output, context, conversions.U16.toU8(conversions.U12.toU16(v & u12"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U16.toU8(conversions.U12.toU16(v >> u12"8"))))
     }
 
     def leU13(output: MSZ[B], context: Context, v: U13): Unit = {
-      val offset = context.offset
-      if (offset + 13 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u13"1" << u13"12"
-      for (i <- 0 until 12) {
-        if ((v & mask) != u13"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u13"1"
-      }
-      if ((v & mask) != u13"0") {
-        output(offset + 12) = T
-      } else {
-        output(offset + 12) = F
-      }
-      context.offset = offset + 13
+      bleU8(output, context, conversions.U16.toU8(conversions.U13.toU16(v & u13"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U16.toU8(conversions.U13.toU16(v >> u13"8"))))
     }
 
     def leU14(output: MSZ[B], context: Context, v: U14): Unit = {
-      val offset = context.offset
-      if (offset + 14 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u14"1" << u14"13"
-      for (i <- 0 until 13) {
-        if ((v & mask) != u14"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u14"1"
-      }
-      if ((v & mask) != u14"0") {
-        output(offset + 13) = T
-      } else {
-        output(offset + 13) = F
-      }
-      context.offset = offset + 14
+      bleU8(output, context, conversions.U16.toU8(conversions.U14.toU16(v & u14"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U16.toU8(conversions.U14.toU16(v >> u14"8"))))
     }
 
     def leU15(output: MSZ[B], context: Context, v: U15): Unit = {
-      val offset = context.offset
-      if (offset + 15 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u15"1" << u15"14"
-      for (i <- 0 until 14) {
-        if ((v & mask) != u15"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u15"1"
-      }
-      if ((v & mask) != u15"0") {
-        output(offset + 14) = T
-      } else {
-        output(offset + 14) = F
-      }
-      context.offset = offset + 15
+      bleU8(output, context, conversions.U16.toU8(conversions.U15.toU16(v & u15"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U16.toU8(conversions.U15.toU16(v >> u15"8"))))
     }
 
     def leU16(output: MSZ[B], context: Context, v: U16): Unit = {
-      val offset = context.offset
-      if (offset + 16 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u16"1" << u16"15"
-      for (i <- 0 until 15) {
-        if ((v & mask) != u16"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u16"1"
-      }
-      if ((v & mask) != u16"0") {
-        output(offset + 15) = T
-      } else {
-        output(offset + 15) = F
-      }
-      context.offset = offset + 16
+      bleU8(output, context, conversions.U16.toU8(v & u16"0xFF"))
+      bleU8(output, context, conversions.U16.toU8(v >> u16"8"))
     }
 
     def leS16(output: MSZ[B], context: Context, v: S16): Unit = {
@@ -9124,403 +5721,107 @@ object Bits {
     }
 
     def leU17(output: MSZ[B], context: Context, v: U17): Unit = {
-      val offset = context.offset
-      if (offset + 17 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u17"1" << u17"16"
-      for (i <- 0 until 16) {
-        if ((v & mask) != u17"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u17"1"
-      }
-      if ((v & mask) != u17"0") {
-        output(offset + 16) = T
-      } else {
-        output(offset + 16) = F
-      }
-      context.offset = offset + 17
+      bleU8(output, context, conversions.U32.toU8(conversions.U17.toU32(v & u17"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U17.toU32((v >> u17"8") & u17"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U32.toU8(conversions.U17.toU32(v >> u17"16"))))
     }
 
     def leU18(output: MSZ[B], context: Context, v: U18): Unit = {
-      val offset = context.offset
-      if (offset + 18 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u18"1" << u18"17"
-      for (i <- 0 until 17) {
-        if ((v & mask) != u18"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u18"1"
-      }
-      if ((v & mask) != u18"0") {
-        output(offset + 17) = T
-      } else {
-        output(offset + 17) = F
-      }
-      context.offset = offset + 18
+      bleU8(output, context, conversions.U32.toU8(conversions.U18.toU32(v & u18"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U18.toU32((v >> u18"8") & u18"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U32.toU8(conversions.U18.toU32(v >> u18"16"))))
     }
 
     def leU19(output: MSZ[B], context: Context, v: U19): Unit = {
-      val offset = context.offset
-      if (offset + 19 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u19"1" << u19"18"
-      for (i <- 0 until 18) {
-        if ((v & mask) != u19"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u19"1"
-      }
-      if ((v & mask) != u19"0") {
-        output(offset + 18) = T
-      } else {
-        output(offset + 18) = F
-      }
-      context.offset = offset + 19
+      bleU8(output, context, conversions.U32.toU8(conversions.U19.toU32(v & u19"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U19.toU32((v >> u19"8") & u19"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U32.toU8(conversions.U19.toU32(v >> u19"16"))))
     }
 
     def leU20(output: MSZ[B], context: Context, v: U20): Unit = {
-      val offset = context.offset
-      if (offset + 20 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u20"1" << u20"19"
-      for (i <- 0 until 19) {
-        if ((v & mask) != u20"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u20"1"
-      }
-      if ((v & mask) != u20"0") {
-        output(offset + 19) = T
-      } else {
-        output(offset + 19) = F
-      }
-      context.offset = offset + 20
+      bleU8(output, context, conversions.U32.toU8(conversions.U20.toU32(v & u20"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U20.toU32((v >> u20"8") & u20"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U32.toU8(conversions.U20.toU32(v >> u20"16"))))
     }
 
     def leU21(output: MSZ[B], context: Context, v: U21): Unit = {
-      val offset = context.offset
-      if (offset + 21 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u21"1" << u21"20"
-      for (i <- 0 until 20) {
-        if ((v & mask) != u21"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u21"1"
-      }
-      if ((v & mask) != u21"0") {
-        output(offset + 20) = T
-      } else {
-        output(offset + 20) = F
-      }
-      context.offset = offset + 21
+      bleU8(output, context, conversions.U32.toU8(conversions.U21.toU32(v & u21"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U21.toU32((v >> u21"8") & u21"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U32.toU8(conversions.U21.toU32(v >> u21"16"))))
     }
 
     def leU22(output: MSZ[B], context: Context, v: U22): Unit = {
-      val offset = context.offset
-      if (offset + 22 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u22"1" << u22"21"
-      for (i <- 0 until 21) {
-        if ((v & mask) != u22"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u22"1"
-      }
-      if ((v & mask) != u22"0") {
-        output(offset + 21) = T
-      } else {
-        output(offset + 21) = F
-      }
-      context.offset = offset + 22
+      bleU8(output, context, conversions.U32.toU8(conversions.U22.toU32(v & u22"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U22.toU32((v >> u22"8") & u22"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U32.toU8(conversions.U22.toU32(v >> u22"16"))))
     }
 
     def leU23(output: MSZ[B], context: Context, v: U23): Unit = {
-      val offset = context.offset
-      if (offset + 23 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u23"1" << u23"22"
-      for (i <- 0 until 22) {
-        if ((v & mask) != u23"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u23"1"
-      }
-      if ((v & mask) != u23"0") {
-        output(offset + 22) = T
-      } else {
-        output(offset + 22) = F
-      }
-      context.offset = offset + 23
+      bleU8(output, context, conversions.U32.toU8(conversions.U23.toU32(v & u23"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U23.toU32((v >> u23"8") & u23"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U32.toU8(conversions.U23.toU32(v >> u23"16"))))
     }
 
     def leU24(output: MSZ[B], context: Context, v: U24): Unit = {
-      val offset = context.offset
-      if (offset + 24 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u24"1" << u24"23"
-      for (i <- 0 until 23) {
-        if ((v & mask) != u24"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u24"1"
-      }
-      if ((v & mask) != u24"0") {
-        output(offset + 23) = T
-      } else {
-        output(offset + 23) = F
-      }
-      context.offset = offset + 24
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32(v & u24"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32((v >> u24"8") & u24"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U24.toU32(v >> u24"16")))
     }
 
     def leU25(output: MSZ[B], context: Context, v: U25): Unit = {
-      val offset = context.offset
-      if (offset + 25 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u25"1" << u25"24"
-      for (i <- 0 until 24) {
-        if ((v & mask) != u25"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u25"1"
-      }
-      if ((v & mask) != u25"0") {
-        output(offset + 24) = T
-      } else {
-        output(offset + 24) = F
-      }
-      context.offset = offset + 25
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32(v & u25"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32((v >> u25"8") & u25"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U25.toU32((v >> u25"16") & u25"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U32.toU8(conversions.U25.toU32(v >> u25"24"))))
     }
 
     def leU26(output: MSZ[B], context: Context, v: U26): Unit = {
-      val offset = context.offset
-      if (offset + 26 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u26"1" << u26"25"
-      for (i <- 0 until 25) {
-        if ((v & mask) != u26"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u26"1"
-      }
-      if ((v & mask) != u26"0") {
-        output(offset + 25) = T
-      } else {
-        output(offset + 25) = F
-      }
-      context.offset = offset + 26
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32(v & u26"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32((v >> u26"8") & u26"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U26.toU32((v >> u26"16") & u26"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U32.toU8(conversions.U26.toU32(v >> u26"24"))))
     }
 
     def leU27(output: MSZ[B], context: Context, v: U27): Unit = {
-      val offset = context.offset
-      if (offset + 27 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u27"1" << u27"26"
-      for (i <- 0 until 26) {
-        if ((v & mask) != u27"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u27"1"
-      }
-      if ((v & mask) != u27"0") {
-        output(offset + 26) = T
-      } else {
-        output(offset + 26) = F
-      }
-      context.offset = offset + 27
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32(v & u27"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32((v >> u27"8") & u27"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U27.toU32((v >> u27"16") & u27"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U32.toU8(conversions.U27.toU32(v >> u27"24"))))
     }
 
     def leU28(output: MSZ[B], context: Context, v: U28): Unit = {
-      val offset = context.offset
-      if (offset + 28 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u28"1" << u28"27"
-      for (i <- 0 until 27) {
-        if ((v & mask) != u28"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u28"1"
-      }
-      if ((v & mask) != u28"0") {
-        output(offset + 27) = T
-      } else {
-        output(offset + 27) = F
-      }
-      context.offset = offset + 28
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32(v & u28"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32((v >> u28"8") & u28"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U28.toU32((v >> u28"16") & u28"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U32.toU8(conversions.U28.toU32(v >> u28"24"))))
     }
 
     def leU29(output: MSZ[B], context: Context, v: U29): Unit = {
-      val offset = context.offset
-      if (offset + 29 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u29"1" << u29"28"
-      for (i <- 0 until 28) {
-        if ((v & mask) != u29"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u29"1"
-      }
-      if ((v & mask) != u29"0") {
-        output(offset + 28) = T
-      } else {
-        output(offset + 28) = F
-      }
-      context.offset = offset + 29
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32(v & u29"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32((v >> u29"8") & u29"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U29.toU32((v >> u29"16") & u29"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U32.toU8(conversions.U29.toU32(v >> u29"24"))))
     }
 
     def leU30(output: MSZ[B], context: Context, v: U30): Unit = {
-      val offset = context.offset
-      if (offset + 30 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u30"1" << u30"29"
-      for (i <- 0 until 29) {
-        if ((v & mask) != u30"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u30"1"
-      }
-      if ((v & mask) != u30"0") {
-        output(offset + 29) = T
-      } else {
-        output(offset + 29) = F
-      }
-      context.offset = offset + 30
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32(v & u30"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32((v >> u30"8") & u30"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U30.toU32((v >> u30"16") & u30"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U32.toU8(conversions.U30.toU32(v >> u30"24"))))
     }
 
     def leU31(output: MSZ[B], context: Context, v: U31): Unit = {
-      val offset = context.offset
-      if (offset + 31 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u31"1" << u31"30"
-      for (i <- 0 until 30) {
-        if ((v & mask) != u31"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u31"1"
-      }
-      if ((v & mask) != u31"0") {
-        output(offset + 30) = T
-      } else {
-        output(offset + 30) = F
-      }
-      context.offset = offset + 31
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32(v & u31"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32((v >> u31"8") & u31"0xFF")))
+      bleU8(output, context, conversions.U32.toU8(conversions.U31.toU32((v >> u31"16") & u31"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U32.toU8(conversions.U31.toU32(v >> u31"24"))))
     }
 
     def leU32(output: MSZ[B], context: Context, v: U32): Unit = {
-      val offset = context.offset
-      if (offset + 32 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u32"1" << u32"31"
-      for (i <- 0 until 31) {
-        if ((v & mask) != u32"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u32"1"
-      }
-      if ((v & mask) != u32"0") {
-        output(offset + 31) = T
-      } else {
-        output(offset + 31) = F
-      }
-      context.offset = offset + 32
+      bleU8(output, context, conversions.U32.toU8(v & u32"0xFF"))
+      bleU8(output, context, conversions.U32.toU8((v >> u32"8") & u32"0xFF"))
+      bleU8(output, context, conversions.U32.toU8((v >> u32"16") & u32"0xFF"))
+      bleU8(output, context, conversions.U32.toU8(v >> u32"24"))
     }
 
     def leS32(output: MSZ[B], context: Context, v: S32): Unit = {
@@ -9528,803 +5829,307 @@ object Bits {
     }
 
     def leU33(output: MSZ[B], context: Context, v: U33): Unit = {
-      val offset = context.offset
-      if (offset + 33 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u33"1" << u33"32"
-      for (i <- 0 until 32) {
-        if ((v & mask) != u33"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u33"1"
-      }
-      if ((v & mask) != u33"0") {
-        output(offset + 32) = T
-      } else {
-        output(offset + 32) = F
-      }
-      context.offset = offset + 33
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64(v & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"8") & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"16") & u33"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U33.toU64((v >> u33"24") & u33"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U33.toU64(v >> u33"32"))))
     }
 
     def leU34(output: MSZ[B], context: Context, v: U34): Unit = {
-      val offset = context.offset
-      if (offset + 34 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u34"1" << u34"33"
-      for (i <- 0 until 33) {
-        if ((v & mask) != u34"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u34"1"
-      }
-      if ((v & mask) != u34"0") {
-        output(offset + 33) = T
-      } else {
-        output(offset + 33) = F
-      }
-      context.offset = offset + 34
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64(v & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"8") & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"16") & u34"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U34.toU64((v >> u34"24") & u34"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U34.toU64(v >> u34"32"))))
     }
 
     def leU35(output: MSZ[B], context: Context, v: U35): Unit = {
-      val offset = context.offset
-      if (offset + 35 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u35"1" << u35"34"
-      for (i <- 0 until 34) {
-        if ((v & mask) != u35"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u35"1"
-      }
-      if ((v & mask) != u35"0") {
-        output(offset + 34) = T
-      } else {
-        output(offset + 34) = F
-      }
-      context.offset = offset + 35
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64(v & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"8") & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"16") & u35"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U35.toU64((v >> u35"24") & u35"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U35.toU64(v >> u35"32"))))
     }
 
     def leU36(output: MSZ[B], context: Context, v: U36): Unit = {
-      val offset = context.offset
-      if (offset + 36 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u36"1" << u36"35"
-      for (i <- 0 until 35) {
-        if ((v & mask) != u36"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u36"1"
-      }
-      if ((v & mask) != u36"0") {
-        output(offset + 35) = T
-      } else {
-        output(offset + 35) = F
-      }
-      context.offset = offset + 36
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64(v & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"8") & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"16") & u36"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U36.toU64((v >> u36"24") & u36"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U36.toU64(v >> u36"32"))))
     }
 
     def leU37(output: MSZ[B], context: Context, v: U37): Unit = {
-      val offset = context.offset
-      if (offset + 37 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u37"1" << u37"36"
-      for (i <- 0 until 36) {
-        if ((v & mask) != u37"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u37"1"
-      }
-      if ((v & mask) != u37"0") {
-        output(offset + 36) = T
-      } else {
-        output(offset + 36) = F
-      }
-      context.offset = offset + 37
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64(v & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"8") & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"16") & u37"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U37.toU64((v >> u37"24") & u37"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U37.toU64(v >> u37"32"))))
     }
 
     def leU38(output: MSZ[B], context: Context, v: U38): Unit = {
-      val offset = context.offset
-      if (offset + 38 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u38"1" << u38"37"
-      for (i <- 0 until 37) {
-        if ((v & mask) != u38"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u38"1"
-      }
-      if ((v & mask) != u38"0") {
-        output(offset + 37) = T
-      } else {
-        output(offset + 37) = F
-      }
-      context.offset = offset + 38
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64(v & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"8") & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"16") & u38"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U38.toU64((v >> u38"24") & u38"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U38.toU64(v >> u38"32"))))
     }
 
     def leU39(output: MSZ[B], context: Context, v: U39): Unit = {
-      val offset = context.offset
-      if (offset + 39 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u39"1" << u39"38"
-      for (i <- 0 until 38) {
-        if ((v & mask) != u39"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u39"1"
-      }
-      if ((v & mask) != u39"0") {
-        output(offset + 38) = T
-      } else {
-        output(offset + 38) = F
-      }
-      context.offset = offset + 39
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64(v & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"8") & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"16") & u39"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U39.toU64((v >> u39"24") & u39"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U39.toU64(v >> u39"32"))))
     }
 
     def leU40(output: MSZ[B], context: Context, v: U40): Unit = {
-      val offset = context.offset
-      if (offset + 40 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u40"1" << u40"39"
-      for (i <- 0 until 39) {
-        if ((v & mask) != u40"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u40"1"
-      }
-      if ((v & mask) != u40"0") {
-        output(offset + 39) = T
-      } else {
-        output(offset + 39) = F
-      }
-      context.offset = offset + 40
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64(v & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"8") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"16") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64((v >> u40"24") & u40"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U40.toU64(v >> u40"32")))
     }
 
     def leU41(output: MSZ[B], context: Context, v: U41): Unit = {
-      val offset = context.offset
-      if (offset + 41 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u41"1" << u41"40"
-      for (i <- 0 until 40) {
-        if ((v & mask) != u41"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u41"1"
-      }
-      if ((v & mask) != u41"0") {
-        output(offset + 40) = T
-      } else {
-        output(offset + 40) = F
-      }
-      context.offset = offset + 41
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64(v & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"8") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"16") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"24") & u41"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U41.toU64((v >> u41"32") & u41"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U41.toU64(v >> u41"40"))))
     }
 
     def leU42(output: MSZ[B], context: Context, v: U42): Unit = {
-      val offset = context.offset
-      if (offset + 42 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u42"1" << u42"41"
-      for (i <- 0 until 41) {
-        if ((v & mask) != u42"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u42"1"
-      }
-      if ((v & mask) != u42"0") {
-        output(offset + 41) = T
-      } else {
-        output(offset + 41) = F
-      }
-      context.offset = offset + 42
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64(v & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"8") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"16") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"24") & u42"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U42.toU64((v >> u42"32") & u42"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U42.toU64(v >> u42"40"))))
     }
 
     def leU43(output: MSZ[B], context: Context, v: U43): Unit = {
-      val offset = context.offset
-      if (offset + 43 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u43"1" << u43"42"
-      for (i <- 0 until 42) {
-        if ((v & mask) != u43"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u43"1"
-      }
-      if ((v & mask) != u43"0") {
-        output(offset + 42) = T
-      } else {
-        output(offset + 42) = F
-      }
-      context.offset = offset + 43
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64(v & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"8") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"16") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"24") & u43"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U43.toU64((v >> u43"32") & u43"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U43.toU64(v >> u43"40"))))
     }
 
     def leU44(output: MSZ[B], context: Context, v: U44): Unit = {
-      val offset = context.offset
-      if (offset + 44 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u44"1" << u44"43"
-      for (i <- 0 until 43) {
-        if ((v & mask) != u44"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u44"1"
-      }
-      if ((v & mask) != u44"0") {
-        output(offset + 43) = T
-      } else {
-        output(offset + 43) = F
-      }
-      context.offset = offset + 44
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64(v & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"8") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"16") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"24") & u44"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U44.toU64((v >> u44"32") & u44"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U44.toU64(v >> u44"40"))))
     }
 
     def leU45(output: MSZ[B], context: Context, v: U45): Unit = {
-      val offset = context.offset
-      if (offset + 45 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u45"1" << u45"44"
-      for (i <- 0 until 44) {
-        if ((v & mask) != u45"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u45"1"
-      }
-      if ((v & mask) != u45"0") {
-        output(offset + 44) = T
-      } else {
-        output(offset + 44) = F
-      }
-      context.offset = offset + 45
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64(v & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"8") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"16") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"24") & u45"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U45.toU64((v >> u45"32") & u45"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U45.toU64(v >> u45"40"))))
     }
 
     def leU46(output: MSZ[B], context: Context, v: U46): Unit = {
-      val offset = context.offset
-      if (offset + 46 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u46"1" << u46"45"
-      for (i <- 0 until 45) {
-        if ((v & mask) != u46"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u46"1"
-      }
-      if ((v & mask) != u46"0") {
-        output(offset + 45) = T
-      } else {
-        output(offset + 45) = F
-      }
-      context.offset = offset + 46
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64(v & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"8") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"16") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"24") & u46"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U46.toU64((v >> u46"32") & u46"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U46.toU64(v >> u46"40"))))
     }
 
     def leU47(output: MSZ[B], context: Context, v: U47): Unit = {
-      val offset = context.offset
-      if (offset + 47 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u47"1" << u47"46"
-      for (i <- 0 until 46) {
-        if ((v & mask) != u47"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u47"1"
-      }
-      if ((v & mask) != u47"0") {
-        output(offset + 46) = T
-      } else {
-        output(offset + 46) = F
-      }
-      context.offset = offset + 47
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64(v & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"8") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"16") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"24") & u47"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U47.toU64((v >> u47"32") & u47"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U47.toU64(v >> u47"40"))))
     }
 
     def leU48(output: MSZ[B], context: Context, v: U48): Unit = {
-      val offset = context.offset
-      if (offset + 48 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u48"1" << u48"47"
-      for (i <- 0 until 47) {
-        if ((v & mask) != u48"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u48"1"
-      }
-      if ((v & mask) != u48"0") {
-        output(offset + 47) = T
-      } else {
-        output(offset + 47) = F
-      }
-      context.offset = offset + 48
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64(v & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"8") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"16") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"24") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64((v >> u48"32") & u48"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U48.toU64(v >> u48"40")))
     }
 
     def leU49(output: MSZ[B], context: Context, v: U49): Unit = {
-      val offset = context.offset
-      if (offset + 49 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u49"1" << u49"48"
-      for (i <- 0 until 48) {
-        if ((v & mask) != u49"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u49"1"
-      }
-      if ((v & mask) != u49"0") {
-        output(offset + 48) = T
-      } else {
-        output(offset + 48) = F
-      }
-      context.offset = offset + 49
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64(v & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"8") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"16") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"24") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"32") & u49"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U49.toU64((v >> u49"40") & u49"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U49.toU64(v >> u49"48"))))
     }
 
     def leU50(output: MSZ[B], context: Context, v: U50): Unit = {
-      val offset = context.offset
-      if (offset + 50 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u50"1" << u50"49"
-      for (i <- 0 until 49) {
-        if ((v & mask) != u50"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u50"1"
-      }
-      if ((v & mask) != u50"0") {
-        output(offset + 49) = T
-      } else {
-        output(offset + 49) = F
-      }
-      context.offset = offset + 50
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64(v & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"8") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"16") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"24") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"32") & u50"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U50.toU64((v >> u50"40") & u50"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U50.toU64(v >> u50"48"))))
     }
 
     def leU51(output: MSZ[B], context: Context, v: U51): Unit = {
-      val offset = context.offset
-      if (offset + 51 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u51"1" << u51"50"
-      for (i <- 0 until 50) {
-        if ((v & mask) != u51"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u51"1"
-      }
-      if ((v & mask) != u51"0") {
-        output(offset + 50) = T
-      } else {
-        output(offset + 50) = F
-      }
-      context.offset = offset + 51
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64(v & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"8") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"16") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"24") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"32") & u51"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U51.toU64((v >> u51"40") & u51"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U51.toU64(v >> u51"48"))))
     }
 
     def leU52(output: MSZ[B], context: Context, v: U52): Unit = {
-      val offset = context.offset
-      if (offset + 52 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u52"1" << u52"51"
-      for (i <- 0 until 51) {
-        if ((v & mask) != u52"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u52"1"
-      }
-      if ((v & mask) != u52"0") {
-        output(offset + 51) = T
-      } else {
-        output(offset + 51) = F
-      }
-      context.offset = offset + 52
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64(v & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"8") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"16") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"24") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"32") & u52"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U52.toU64((v >> u52"40") & u52"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U52.toU64(v >> u52"48"))))
     }
 
     def leU53(output: MSZ[B], context: Context, v: U53): Unit = {
-      val offset = context.offset
-      if (offset + 53 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u53"1" << u53"52"
-      for (i <- 0 until 52) {
-        if ((v & mask) != u53"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u53"1"
-      }
-      if ((v & mask) != u53"0") {
-        output(offset + 52) = T
-      } else {
-        output(offset + 52) = F
-      }
-      context.offset = offset + 53
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64(v & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"8") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"16") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"24") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"32") & u53"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U53.toU64((v >> u53"40") & u53"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U53.toU64(v >> u53"48"))))
     }
 
     def leU54(output: MSZ[B], context: Context, v: U54): Unit = {
-      val offset = context.offset
-      if (offset + 54 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u54"1" << u54"53"
-      for (i <- 0 until 53) {
-        if ((v & mask) != u54"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u54"1"
-      }
-      if ((v & mask) != u54"0") {
-        output(offset + 53) = T
-      } else {
-        output(offset + 53) = F
-      }
-      context.offset = offset + 54
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64(v & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"8") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"16") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"24") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"32") & u54"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U54.toU64((v >> u54"40") & u54"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U54.toU64(v >> u54"48"))))
     }
 
     def leU55(output: MSZ[B], context: Context, v: U55): Unit = {
-      val offset = context.offset
-      if (offset + 55 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u55"1" << u55"54"
-      for (i <- 0 until 54) {
-        if ((v & mask) != u55"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u55"1"
-      }
-      if ((v & mask) != u55"0") {
-        output(offset + 54) = T
-      } else {
-        output(offset + 54) = F
-      }
-      context.offset = offset + 55
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64(v & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"8") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"16") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"24") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"32") & u55"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U55.toU64((v >> u55"40") & u55"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U55.toU64(v >> u55"48"))))
     }
 
     def leU56(output: MSZ[B], context: Context, v: U56): Unit = {
-      val offset = context.offset
-      if (offset + 56 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u56"1" << u56"55"
-      for (i <- 0 until 55) {
-        if ((v & mask) != u56"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u56"1"
-      }
-      if ((v & mask) != u56"0") {
-        output(offset + 55) = T
-      } else {
-        output(offset + 55) = F
-      }
-      context.offset = offset + 56
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64(v & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"8") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"16") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"24") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"32") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64((v >> u56"40") & u56"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U56.toU64(v >> u56"48")))
     }
 
     def leU57(output: MSZ[B], context: Context, v: U57): Unit = {
-      val offset = context.offset
-      if (offset + 57 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u57"1" << u57"56"
-      for (i <- 0 until 56) {
-        if ((v & mask) != u57"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u57"1"
-      }
-      if ((v & mask) != u57"0") {
-        output(offset + 56) = T
-      } else {
-        output(offset + 56) = F
-      }
-      context.offset = offset + 57
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64(v & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"8") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"16") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"24") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"32") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"40") & u57"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U57.toU64((v >> u57"48") & u57"0xFF")))
+      bleU1(output, context, conversions.U8.toU1(conversions.U64.toU8(conversions.U57.toU64(v >> u57"56"))))
     }
 
     def leU58(output: MSZ[B], context: Context, v: U58): Unit = {
-      val offset = context.offset
-      if (offset + 58 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u58"1" << u58"57"
-      for (i <- 0 until 57) {
-        if ((v & mask) != u58"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u58"1"
-      }
-      if ((v & mask) != u58"0") {
-        output(offset + 57) = T
-      } else {
-        output(offset + 57) = F
-      }
-      context.offset = offset + 58
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64(v & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"8") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"16") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"24") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"32") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"40") & u58"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U58.toU64((v >> u58"48") & u58"0xFF")))
+      bleU2(output, context, conversions.U8.toU2(conversions.U64.toU8(conversions.U58.toU64(v >> u58"56"))))
     }
 
     def leU59(output: MSZ[B], context: Context, v: U59): Unit = {
-      val offset = context.offset
-      if (offset + 59 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u59"1" << u59"58"
-      for (i <- 0 until 58) {
-        if ((v & mask) != u59"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u59"1"
-      }
-      if ((v & mask) != u59"0") {
-        output(offset + 58) = T
-      } else {
-        output(offset + 58) = F
-      }
-      context.offset = offset + 59
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64(v & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"8") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"16") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"24") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"32") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"40") & u59"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U59.toU64((v >> u59"48") & u59"0xFF")))
+      bleU3(output, context, conversions.U8.toU3(conversions.U64.toU8(conversions.U59.toU64(v >> u59"56"))))
     }
 
     def leU60(output: MSZ[B], context: Context, v: U60): Unit = {
-      val offset = context.offset
-      if (offset + 60 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u60"1" << u60"59"
-      for (i <- 0 until 59) {
-        if ((v & mask) != u60"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u60"1"
-      }
-      if ((v & mask) != u60"0") {
-        output(offset + 59) = T
-      } else {
-        output(offset + 59) = F
-      }
-      context.offset = offset + 60
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64(v & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"8") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"16") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"24") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"32") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"40") & u60"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U60.toU64((v >> u60"48") & u60"0xFF")))
+      bleU4(output, context, conversions.U8.toU4(conversions.U64.toU8(conversions.U60.toU64(v >> u60"56"))))
     }
 
     def leU61(output: MSZ[B], context: Context, v: U61): Unit = {
-      val offset = context.offset
-      if (offset + 61 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u61"1" << u61"60"
-      for (i <- 0 until 60) {
-        if ((v & mask) != u61"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u61"1"
-      }
-      if ((v & mask) != u61"0") {
-        output(offset + 60) = T
-      } else {
-        output(offset + 60) = F
-      }
-      context.offset = offset + 61
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64(v & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"8") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"16") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"24") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"32") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"40") & u61"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U61.toU64((v >> u61"48") & u61"0xFF")))
+      bleU5(output, context, conversions.U8.toU5(conversions.U64.toU8(conversions.U61.toU64(v >> u61"56"))))
     }
 
     def leU62(output: MSZ[B], context: Context, v: U62): Unit = {
-      val offset = context.offset
-      if (offset + 62 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u62"1" << u62"61"
-      for (i <- 0 until 61) {
-        if ((v & mask) != u62"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u62"1"
-      }
-      if ((v & mask) != u62"0") {
-        output(offset + 61) = T
-      } else {
-        output(offset + 61) = F
-      }
-      context.offset = offset + 62
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64(v & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"8") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"16") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"24") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"32") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"40") & u62"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U62.toU64((v >> u62"48") & u62"0xFF")))
+      bleU6(output, context, conversions.U8.toU6(conversions.U64.toU8(conversions.U62.toU64(v >> u62"56"))))
     }
 
     def leU63(output: MSZ[B], context: Context, v: U63): Unit = {
-      val offset = context.offset
-      if (offset + 63 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u63"1" << u63"62"
-      for (i <- 0 until 62) {
-        if ((v & mask) != u63"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u63"1"
-      }
-      if ((v & mask) != u63"0") {
-        output(offset + 62) = T
-      } else {
-        output(offset + 62) = F
-      }
-      context.offset = offset + 63
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64(v & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"8") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"16") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"24") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"32") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"40") & u63"0xFF")))
+      bleU8(output, context, conversions.U64.toU8(conversions.U63.toU64((v >> u63"48") & u63"0xFF")))
+      bleU7(output, context, conversions.U8.toU7(conversions.U64.toU8(conversions.U63.toU64(v >> u63"56"))))
     }
 
     def leU64(output: MSZ[B], context: Context, v: U64): Unit = {
-      val offset = context.offset
-      if (offset + 64 > output.size) {
-        context.signalError(INSUFFICIENT_BUFFER_SIZE)
-      }
-      if (context.hasError) {
-        return
-      }
-      var mask = u64"1" << u64"63"
-      for (i <- 0 until 63) {
-        if ((v & mask) != u64"0") {
-          output(offset + i) = T
-        } else {
-          output(offset + i) = F
-        }
-        mask = mask >>> u64"1"
-      }
-      if ((v & mask) != u64"0") {
-        output(offset + 63) = T
-      } else {
-        output(offset + 63) = F
-      }
-      context.offset = offset + 64
+      bleU8(output, context, conversions.U64.toU8(v & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"8") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"16") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"24") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"32") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"40") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8((v >> u64"48") & u64"0xFF"))
+      bleU8(output, context, conversions.U64.toU8(v >> u64"56"))
     }
 
     def leS64(output: MSZ[B], context: Context, v: S64): Unit = {
@@ -10353,7 +6158,7 @@ object Bits {
     return None()
   }
 
-  def fromHexString(s: String, isBigEndian: B): ISZ[B] = {
+  def fromHexString(s: String): ISZ[B] = {
     assert(s.size % 2 == 0)
     val ms = MSZ.create(s.size * 4, F)
     var i = 0
@@ -10368,11 +6173,7 @@ object Bits {
       (b1Opt, b2Opt) match {
         case (Some(b1), Some(b2)) =>
           val b = b1 << u8"4" | b2
-          if (isBigEndian) {
-            Bits.Writer.beU8(ms, ctx, b)
-          } else {
-            Bits.Writer.leU8(ms, ctx, b)
-          }
+          Bits.Writer.bleU8(ms, ctx, b)
         case (_, _) =>
           halt(s"Invalid hex input string at offset: ${i - (if (b1Opt.isEmpty) 2 else 1)}")
       }
