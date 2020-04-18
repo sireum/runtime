@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2018, Robby, Kansas State University
+ Copyright (c) 2020, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,9 @@ import org.sireum.message.Reporter
 
 object StringOps {
   @pure def substring(cis: ISZ[C], start: Z, until: Z): String = {
+    if (until - start <= 0) {
+      return ""
+    }
     val ms = MSZ.create[C](until - start, '\u0000')
     var i = start
     var j = 0
