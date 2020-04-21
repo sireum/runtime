@@ -32,6 +32,8 @@ import org.sireum._
 
   def name: String
 
+  def isScalar: B
+
   def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z]
 
   @memoize def maxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
@@ -48,24 +50,29 @@ object Spec {
 
   @datatype trait Base extends Spec
 
-  @datatype trait Composite extends Base
+  @datatype trait Composite extends Base {
+    @strictpure def isScalar: B = F
+  }
 
   @datatype class Boolean(val name: String) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(1)
     }
+    @strictpure def isScalar: B = T
   }
 
   @datatype class Bits(val name: String, size: Z) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size)
     }
+    @strictpure def isScalar: B = size <= 64
   }
 
   @datatype class BytesImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 8)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Byte(name: String): BytesImpl = {
@@ -118,6 +125,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 16)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Short(name: String): ShortsImpl = {
@@ -170,6 +178,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Int(name: String): IntsImpl = {
@@ -222,6 +231,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 64)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Long(name: String): LongsImpl = {
@@ -274,6 +284,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Float(name: String): FloatsImpl = {
@@ -296,6 +307,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 64)
     }
+    @strictpure def isScalar: B = size == 1
   }
 
   @pure def Double(name: String): DoublesImpl = {
@@ -318,6 +330,7 @@ object Spec {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(enumMaxSize(objectName))
     }
+    @strictpure def isScalar: B = T
   }
 
   @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Composite {
@@ -367,6 +380,8 @@ object Spec {
                                 element: Base) extends Spec with Poly {
     val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, maxElements, dependsOn, Some(ISZ(element)))
 
+    @strictpure def isScalar: B = F
+
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
         case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
@@ -389,6 +404,8 @@ object Spec {
                              dependsOn: ISZ[String],
                              @hidden size: T => Z@pure) extends Spec with Poly {
     val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, maxSize, dependsOn, None())
+
+    @strictpure def isScalar: B = F
 
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return if (maxSize >= 0) Some(maxSize) else None()
@@ -421,6 +438,7 @@ object Spec {
   }
 
   @datatype class PredRepeatWhileImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+    @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
         case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
@@ -429,7 +447,7 @@ object Spec {
     }
   }
 
-  def FixedRepeat(name: String, numOfElements: Z, element: Base): PredRepeatWhileImpl = {
+  @pure def FixedRepeat(name: String, numOfElements: Z, element: Base): PredRepeatWhileImpl = {
     return PredRepeatWhileImpl(name, numOfElements, ISZ(), element)
   }
 
@@ -443,6 +461,7 @@ object Spec {
   }
 
   @datatype class PredRepeatUntilImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+    @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
         case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
@@ -477,6 +496,7 @@ object Spec {
   }
 
   @datatype class GenRepeatImpl(val name: String, maxElements: Z, element: Base) extends Spec {
+    @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
         case Some(elementMaxSize) if maxElements >= 0 => return Some(maxElements * elementMaxSize)
@@ -495,6 +515,7 @@ object Spec {
   }
 
   @datatype class GenRawImpl(val name: String, maxSize: Z) extends Spec {
+    @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return if (maxSize >= 0) Some(maxSize) else None()
     }
@@ -513,6 +534,8 @@ object Spec {
     def name: String = {
       return ""
     }
+
+    @strictpure def isScalar: B = F
 
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size)
