@@ -45,14 +45,14 @@ object JSON {
         case o: Spec.FloatsImpl => return printSpecFloats(o)
         case o: Spec.DoublesImpl => return printSpecDoubles(o)
         case o: Spec.Enum => return printSpecEnum(o)
-        case o: Spec.Concat => return printSpecConcat(o)
-        case o: Spec.Union[_] => return printSpecUnion(o)
+        case o: Spec.ConcatImpl => return printSpecConcat(o)
+        case o: Spec.UnionImpl[_] => return printSpecUnion(o)
         case o: Spec.RepeatImpl[_] => return printSpecRepeat(o)
         case o: Spec.RawImpl[_] => return printSpecRaw(o)
-        case o: Spec.PredUnion => return printSpecPredUnion(o)
+        case o: Spec.PredUnionImpl => return printSpecPredUnion(o)
         case o: Spec.PredRepeatWhileImpl => return printSpecPredRepeatWhile(o)
         case o: Spec.PredRepeatUntilImpl => return printSpecPredRepeatUntil(o)
-        case o: Spec.GenUnion => return printSpecGenUnion(o)
+        case o: Spec.GenUnionImpl => return printSpecGenUnion(o)
         case o: Spec.GenRepeatImpl => return printSpecGenRepeat(o)
         case o: Spec.GenRawImpl => return printSpecGenRaw(o)
         case o: Spec.Pads => return printSpecPads(o)
@@ -70,10 +70,10 @@ object JSON {
         case o: Spec.FloatsImpl => return printSpecFloats(o)
         case o: Spec.DoublesImpl => return printSpecDoubles(o)
         case o: Spec.Enum => return printSpecEnum(o)
-        case o: Spec.Concat => return printSpecConcat(o)
-        case o: Spec.Union[_] => return printSpecUnion(o)
-        case o: Spec.PredUnion => return printSpecPredUnion(o)
-        case o: Spec.GenUnion => return printSpecGenUnion(o)
+        case o: Spec.ConcatImpl => return printSpecConcat(o)
+        case o: Spec.UnionImpl[_] => return printSpecUnion(o)
+        case o: Spec.PredUnionImpl => return printSpecPredUnion(o)
+        case o: Spec.GenUnionImpl => return printSpecGenUnion(o)
       }
     }
 
@@ -164,21 +164,23 @@ object JSON {
       ))
     }
 
-    @pure def printSpecConcat(o: Spec.Concat): ST = {
+    @pure def printSpecConcat(o: Spec.ConcatImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Concat""""),
         ("name", printString(o.name)),
-        ("elements", printISZ(F, o.elements, printSpec _))
+        ("elements", printISZ(F, o.elements, printSpec _)),
+        ("asOpt", printOption(T, o.asOpt, printString _))
       ))
     }
 
-    @pure def printSpecUnion(o: Spec.Union[_]): ST = {
+    @pure def printSpecUnion(o: Spec.UnionImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Union""""),
         ("name", printString(o.name)),
         ("dependsOn", printISZ(T, o.dependsOn, printString _)),
         ("choice", printString("")),
-        ("subs", printISZ(F, o.subs, printSpec _))
+        ("subs", printISZ(F, o.subs, printSpec _)),
+        ("asOpt", printOption(T, o.asOpt, printString _))
       ))
     }
 
@@ -203,11 +205,12 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredUnion(o: Spec.PredUnion): ST = {
+    @pure def printSpecPredUnion(o: Spec.PredUnionImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredUnion""""),
         ("name", printString(o.name)),
-        ("subs", printISZ(F, o.subs, printSpecPredSpec _))
+        ("subs", printISZ(F, o.subs, printSpecPredSpec _)),
+        ("asOpt", printOption(T, o.asOpt, printString _))
       ))
     }
 
@@ -231,11 +234,12 @@ object JSON {
       ))
     }
 
-    @pure def printSpecGenUnion(o: Spec.GenUnion): ST = {
+    @pure def printSpecGenUnion(o: Spec.GenUnionImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenUnion""""),
         ("name", printString(o.name)),
-        ("subs", printISZ(F, o.subs, printSpec _))
+        ("subs", printISZ(F, o.subs, printSpec _)),
+        ("asOpt", printOption(T, o.asOpt, printString _))
       ))
     }
 
@@ -638,12 +642,12 @@ object JSON {
       return Spec.Enum(name, objectName)
     }
 
-    def parseSpecConcat(): Spec.Concat = {
+    def parseSpecConcat(): Spec.ConcatImpl = {
       val r = parseSpecConcatT(F)
       return r
     }
 
-    def parseSpecConcatT(typeParsed: B): Spec.Concat = {
+    def parseSpecConcatT(typeParsed: B): Spec.ConcatImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Concat")
       }
@@ -653,15 +657,18 @@ object JSON {
       parser.parseObjectKey("elements")
       val elements = parser.parseISZ(parseSpec _)
       parser.parseObjectNext()
-      return Spec.Concat(name, elements)
+      parser.parseObjectKey("asOpt")
+      val asOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Spec.ConcatImpl(name, elements, asOpt)
     }
 
-    def parseSpecUnion(): Spec.Union[_] = {
+    def parseSpecUnion(): Spec.UnionImpl[_] = {
       val r = parseSpecUnionT(F)
       return r
     }
 
-    def parseSpecUnionT(typeParsed: B): Spec.Union[_] = {
+    def parseSpecUnionT(typeParsed: B): Spec.UnionImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Union")
       }
@@ -677,7 +684,10 @@ object JSON {
       parser.parseObjectKey("subs")
       val subs = parser.parseISZ(parseSpec _)
       parser.parseObjectNext()
-      return Spec.Union[Any](name, dependsOn, _ => ???, subs)
+      parser.parseObjectKey("asOpt")
+      val asOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Spec.UnionImpl[Any](name, dependsOn, _ => ???, subs, asOpt)
     }
 
     def parseSpecRepeat(): Spec.RepeatImpl[_] = {
@@ -731,12 +741,12 @@ object JSON {
       return Spec.RawImpl[Any](name, maxSize, dependsOn, _ => ???)
     }
 
-    def parseSpecPredUnion(): Spec.PredUnion = {
+    def parseSpecPredUnion(): Spec.PredUnionImpl = {
       val r = parseSpecPredUnionT(F)
       return r
     }
 
-    def parseSpecPredUnionT(typeParsed: B): Spec.PredUnion = {
+    def parseSpecPredUnionT(typeParsed: B): Spec.PredUnionImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredUnion")
       }
@@ -746,7 +756,10 @@ object JSON {
       parser.parseObjectKey("subs")
       val subs = parser.parseISZ(parseSpecPredSpec _)
       parser.parseObjectNext()
-      return Spec.PredUnion(name, subs)
+      parser.parseObjectKey("asOpt")
+      val asOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Spec.PredUnionImpl(name, subs, asOpt)
     }
 
     def parseSpecPredRepeatWhile(): Spec.PredRepeatWhileImpl = {
@@ -797,12 +810,12 @@ object JSON {
       return Spec.PredRepeatUntilImpl(name, maxElements, preds, element)
     }
 
-    def parseSpecGenUnion(): Spec.GenUnion = {
+    def parseSpecGenUnion(): Spec.GenUnionImpl = {
       val r = parseSpecGenUnionT(F)
       return r
     }
 
-    def parseSpecGenUnionT(typeParsed: B): Spec.GenUnion = {
+    def parseSpecGenUnionT(typeParsed: B): Spec.GenUnionImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenUnion")
       }
@@ -812,7 +825,10 @@ object JSON {
       parser.parseObjectKey("subs")
       val subs = parser.parseISZ(parseSpec _)
       parser.parseObjectNext()
-      return Spec.GenUnion(name, subs)
+      parser.parseObjectKey("asOpt")
+      val asOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Spec.GenUnionImpl(name, subs, asOpt)
     }
 
     def parseSpecGenRepeat(): Spec.GenRepeatImpl = {
