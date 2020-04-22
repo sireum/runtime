@@ -48,10 +48,19 @@ import org.sireum._
 
 object Spec {
 
+  type Concat = ConcatImpl
+  type Union[T] = UnionImpl[T]
+  type PredUnion = PredUnionImpl
+  type GenUnion = GenUnionImpl
+
   @datatype trait Base extends Spec
 
   @datatype trait Composite extends Base {
     @strictpure def isScalar: B = F
+
+    @pure def as(name: String): Composite
+
+    @pure def asOpt: Option[String]
   }
 
   @datatype class Boolean(val name: String) extends Base {
@@ -333,7 +342,9 @@ object Spec {
     @strictpure def isScalar: B = T
   }
 
-  @datatype class Concat(val name: String, elements: ISZ[Spec]) extends Composite {
+  @strictpure def Concat(name: String, elements: ISZ[Spec]): ConcatImpl = ConcatImpl(name, elements, None())
+
+  @datatype class ConcatImpl(val name: String, elements: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var r: Z = 0
       for (e <- elements) {
@@ -344,19 +355,25 @@ object Spec {
       }
       return Some(r)
     }
+
+    @strictpure def as(name: String): ConcatImpl = this(asOpt = Some(name))
   }
 
   @datatype trait Poly {
     def polyDesc: Spec.PolyDesc
   }
 
-  @datatype class PolyDesc(compName: String, name: String, max: Z, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]])
+  @datatype class PolyDesc(compName: String, name: String, max: Z, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]], asOpt: Option[String])
 
-  @datatype class Union[T](val name: String,
-                           dependsOn: ISZ[String],
-                           @hidden choice: T => Z@pure,
-                           subs: ISZ[Spec]) extends Composite with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Union", name, -1, dependsOn, Some(subs))
+  @strictpure def Union[T](name: String, dependsOn: ISZ[String], choice: T => Z@pure, subs: ISZ[Spec]): UnionImpl[T] =
+    UnionImpl[T](name, dependsOn, choice, subs, None())
+
+  @datatype class UnionImpl[T](val name: String,
+                               dependsOn: ISZ[String],
+                               @hidden choice: T => Z@pure,
+                               subs: ISZ[Spec],
+                               @hidden val asOpt: Option[String]) extends Composite with Poly {
+    val polyDesc: Spec.PolyDesc = PolyDesc("Union", name, -1, dependsOn, Some(subs), asOpt)
 
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var max: Z = 0
@@ -371,6 +388,8 @@ object Spec {
       }
       return Some(max)
     }
+
+    @strictpure def as(name: String): UnionImpl[T] = this(asOpt = Some(name))
   }
 
   @datatype class RepeatImpl[T](val name: String,
@@ -378,7 +397,7 @@ object Spec {
                                 dependsOn: ISZ[String],
                                 @hidden size: T => Z@pure,
                                 element: Base) extends Spec with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, maxElements, dependsOn, Some(ISZ(element)))
+    val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, maxElements, dependsOn, Some(ISZ(element)), None())
 
     @strictpure def isScalar: B = F
 
@@ -403,7 +422,7 @@ object Spec {
                              maxSize: Z,
                              dependsOn: ISZ[String],
                              @hidden size: T => Z@pure) extends Spec with Poly {
-    val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, maxSize, dependsOn, None())
+    val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, maxSize, dependsOn, None(), None())
 
     @strictpure def isScalar: B = F
 
@@ -421,7 +440,9 @@ object Spec {
     return RawImpl[T](name, maxSize, dependsOn, size)
   }
 
-  @datatype class PredUnion(val name: String, subs: ISZ[PredSpec]) extends Composite {
+  @strictpure def PredUnion(name: String, subs: ISZ[PredSpec]): PredUnionImpl = PredUnionImpl(name, subs, None())
+
+  @datatype class PredUnionImpl(val name: String, subs: ISZ[PredSpec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var max: Z = 0
       for (sub <- subs) {
@@ -435,6 +456,7 @@ object Spec {
       }
       return Some(max)
     }
+    @strictpure def as(name: String): PredUnionImpl = this(asOpt = Some(name))
   }
 
   @datatype class PredRepeatWhileImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
@@ -479,7 +501,9 @@ object Spec {
     return PredRepeatUntilImpl(name, maxElements, preds, element)
   }
 
-  @datatype class GenUnion(val name: String, subs: ISZ[Spec]) extends Composite {
+  @strictpure def GenUnion(name: String, subs: ISZ[Spec]): GenUnionImpl = GenUnionImpl(name, subs, None())
+
+  @datatype class GenUnionImpl(val name: String, subs: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var max: Z = 0
       for (sub <- subs) {
@@ -493,6 +517,7 @@ object Spec {
       }
       return Some(max)
     }
+    @strictpure def as(name: String): GenUnionImpl = this(asOpt = Some(name))
   }
 
   @datatype class GenRepeatImpl(val name: String, maxElements: Z, element: Base) extends Spec {
