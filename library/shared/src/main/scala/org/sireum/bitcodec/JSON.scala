@@ -1,7 +1,7 @@
 // @formatter:off
 
 /*
- Copyright (c) 2019, Robby, Kansas State University
+ Copyright (c) 2020, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -34,57 +34,57 @@ object JSON {
 
   object Printer {
 
-    @pure def printSpec(o: Spec): ST = {
+    @pure def printSpec(o: bitcodec.Spec): ST = {
       o match {
-        case o: Spec.Boolean => return printSpecBoolean(o)
-        case o: Spec.Bits => return printSpecBits(o)
-        case o: Spec.BytesImpl => return printSpecBytes(o)
-        case o: Spec.ShortsImpl => return printSpecShorts(o)
-        case o: Spec.IntsImpl => return printSpecInts(o)
-        case o: Spec.LongsImpl => return printSpecLongs(o)
-        case o: Spec.FloatsImpl => return printSpecFloats(o)
-        case o: Spec.DoublesImpl => return printSpecDoubles(o)
-        case o: Spec.Enum => return printSpecEnum(o)
-        case o: Spec.ConcatImpl => return printSpecConcat(o)
-        case o: Spec.UnionImpl[_] => return printSpecUnion(o)
-        case o: Spec.RepeatImpl[_] => return printSpecRepeat(o)
-        case o: Spec.RawImpl[_] => return printSpecRaw(o)
-        case o: Spec.PredUnionImpl => return printSpecPredUnion(o)
-        case o: Spec.PredRepeatWhileImpl => return printSpecPredRepeatWhile(o)
-        case o: Spec.PredRepeatUntilImpl => return printSpecPredRepeatUntil(o)
-        case o: Spec.GenUnionImpl => return printSpecGenUnion(o)
-        case o: Spec.GenRepeatImpl => return printSpecGenRepeat(o)
-        case o: Spec.GenRawImpl => return printSpecGenRaw(o)
-        case o: Spec.Pads => return printSpecPads(o)
+        case o: bitcodec.Spec.Boolean => return printSpecBoolean(o)
+        case o: bitcodec.Spec.Bits => return printSpecBits(o)
+        case o: bitcodec.Spec.BytesImpl => return printSpecBytes(o)
+        case o: bitcodec.Spec.ShortsImpl => return printSpecShorts(o)
+        case o: bitcodec.Spec.IntsImpl => return printSpecInts(o)
+        case o: bitcodec.Spec.LongsImpl => return printSpecLongs(o)
+        case o: bitcodec.Spec.FloatsImpl => return printSpecFloats(o)
+        case o: bitcodec.Spec.DoublesImpl => return printSpecDoubles(o)
+        case o: bitcodec.Spec.Enum => return printSpecEnum(o)
+        case o: bitcodec.Spec.ConcatImpl => return printSpecConcat(o)
+        case o: bitcodec.Spec.UnionImpl[_] => return printSpecUnion(o)
+        case o: bitcodec.Spec.RepeatImpl[_] => return printSpecRepeat(o)
+        case o: bitcodec.Spec.RawImpl[_] => return printSpecRaw(o)
+        case o: bitcodec.Spec.PredUnionImpl => return printSpecPredUnion(o)
+        case o: bitcodec.Spec.PredRepeatWhileImpl => return printSpecPredRepeatWhile(o)
+        case o: bitcodec.Spec.PredRepeatUntilImpl => return printSpecPredRepeatUntil(o)
+        case o: bitcodec.Spec.GenUnionImpl => return printSpecGenUnion(o)
+        case o: bitcodec.Spec.GenRepeatImpl => return printSpecGenRepeat(o)
+        case o: bitcodec.Spec.GenRawImpl => return printSpecGenRaw(o)
+        case o: bitcodec.Spec.Pads => return printSpecPads(o)
       }
     }
 
-    @pure def printSpecBase(o: Spec.Base): ST = {
+    @pure def printSpecBase(o: bitcodec.Spec.Base): ST = {
       o match {
-        case o: Spec.Boolean => return printSpecBoolean(o)
-        case o: Spec.Bits => return printSpecBits(o)
-        case o: Spec.BytesImpl => return printSpecBytes(o)
-        case o: Spec.ShortsImpl => return printSpecShorts(o)
-        case o: Spec.IntsImpl => return printSpecInts(o)
-        case o: Spec.LongsImpl => return printSpecLongs(o)
-        case o: Spec.FloatsImpl => return printSpecFloats(o)
-        case o: Spec.DoublesImpl => return printSpecDoubles(o)
-        case o: Spec.Enum => return printSpecEnum(o)
-        case o: Spec.ConcatImpl => return printSpecConcat(o)
-        case o: Spec.UnionImpl[_] => return printSpecUnion(o)
-        case o: Spec.PredUnionImpl => return printSpecPredUnion(o)
-        case o: Spec.GenUnionImpl => return printSpecGenUnion(o)
+        case o: bitcodec.Spec.Boolean => return printSpecBoolean(o)
+        case o: bitcodec.Spec.Bits => return printSpecBits(o)
+        case o: bitcodec.Spec.BytesImpl => return printSpecBytes(o)
+        case o: bitcodec.Spec.ShortsImpl => return printSpecShorts(o)
+        case o: bitcodec.Spec.IntsImpl => return printSpecInts(o)
+        case o: bitcodec.Spec.LongsImpl => return printSpecLongs(o)
+        case o: bitcodec.Spec.FloatsImpl => return printSpecFloats(o)
+        case o: bitcodec.Spec.DoublesImpl => return printSpecDoubles(o)
+        case o: bitcodec.Spec.Enum => return printSpecEnum(o)
+        case o: bitcodec.Spec.ConcatImpl => return printSpecConcat(o)
+        case o: bitcodec.Spec.UnionImpl[_] => return printSpecUnion(o)
+        case o: bitcodec.Spec.PredUnionImpl => return printSpecPredUnion(o)
+        case o: bitcodec.Spec.GenUnionImpl => return printSpecGenUnion(o)
       }
     }
 
-    @pure def printSpecBoolean(o: Spec.Boolean): ST = {
+    @pure def printSpecBoolean(o: bitcodec.Spec.Boolean): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Boolean""""),
         ("name", printString(o.name))
       ))
     }
 
-    @pure def printSpecBits(o: Spec.Bits): ST = {
+    @pure def printSpecBits(o: bitcodec.Spec.Bits): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Bits""""),
         ("name", printString(o.name)),
@@ -92,7 +92,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecBytes(o: Spec.BytesImpl): ST = {
+    @pure def printSpecBytes(o: bitcodec.Spec.BytesImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Bytes""""),
         ("name", printString(o.name)),
@@ -103,7 +103,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecShorts(o: Spec.ShortsImpl): ST = {
+    @pure def printSpecShorts(o: bitcodec.Spec.ShortsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Shorts""""),
         ("name", printString(o.name)),
@@ -114,7 +114,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecInts(o: Spec.IntsImpl): ST = {
+    @pure def printSpecInts(o: bitcodec.Spec.IntsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Ints""""),
         ("name", printString(o.name)),
@@ -125,7 +125,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecLongs(o: Spec.LongsImpl): ST = {
+    @pure def printSpecLongs(o: bitcodec.Spec.LongsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Longs""""),
         ("name", printString(o.name)),
@@ -136,7 +136,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecFloats(o: Spec.FloatsImpl): ST = {
+    @pure def printSpecFloats(o: bitcodec.Spec.FloatsImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Floats""""),
         ("name", printString(o.name)),
@@ -146,7 +146,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecDoubles(o: Spec.DoublesImpl): ST = {
+    @pure def printSpecDoubles(o: bitcodec.Spec.DoublesImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Doubles""""),
         ("name", printString(o.name)),
@@ -156,7 +156,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecEnum(o: Spec.Enum): ST = {
+    @pure def printSpecEnum(o: bitcodec.Spec.Enum): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Enum""""),
         ("name", printString(o.name)),
@@ -164,7 +164,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecConcat(o: Spec.ConcatImpl): ST = {
+    @pure def printSpecConcat(o: bitcodec.Spec.ConcatImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Concat""""),
         ("name", printString(o.name)),
@@ -173,7 +173,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecUnion(o: Spec.UnionImpl[_]): ST = {
+    @pure def printSpecUnion(o: bitcodec.Spec.UnionImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Union""""),
         ("name", printString(o.name)),
@@ -184,7 +184,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecRepeat(o: Spec.RepeatImpl[_]): ST = {
+    @pure def printSpecRepeat(o: bitcodec.Spec.RepeatImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Repeat""""),
         ("name", printString(o.name)),
@@ -195,7 +195,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecRaw(o: Spec.RawImpl[_]): ST = {
+    @pure def printSpecRaw(o: bitcodec.Spec.RawImpl[_]): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Raw""""),
         ("name", printString(o.name)),
@@ -205,7 +205,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredUnion(o: Spec.PredUnionImpl): ST = {
+    @pure def printSpecPredUnion(o: bitcodec.Spec.PredUnionImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredUnion""""),
         ("name", printString(o.name)),
@@ -214,7 +214,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredRepeatWhile(o: Spec.PredRepeatWhileImpl): ST = {
+    @pure def printSpecPredRepeatWhile(o: bitcodec.Spec.PredRepeatWhileImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatWhile""""),
         ("name", printString(o.name)),
@@ -224,7 +224,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredRepeatUntil(o: Spec.PredRepeatUntilImpl): ST = {
+    @pure def printSpecPredRepeatUntil(o: bitcodec.Spec.PredRepeatUntilImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredRepeatUntil""""),
         ("name", printString(o.name)),
@@ -234,7 +234,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecGenUnion(o: Spec.GenUnionImpl): ST = {
+    @pure def printSpecGenUnion(o: bitcodec.Spec.GenUnionImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenUnion""""),
         ("name", printString(o.name)),
@@ -243,7 +243,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecGenRepeat(o: Spec.GenRepeatImpl): ST = {
+    @pure def printSpecGenRepeat(o: bitcodec.Spec.GenRepeatImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenRepeat""""),
         ("name", printString(o.name)),
@@ -252,7 +252,7 @@ object JSON {
       ))
     }
 
-    @pure def printSpecGenRaw(o: Spec.GenRawImpl): ST = {
+    @pure def printSpecGenRaw(o: bitcodec.Spec.GenRawImpl): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.GenRaw""""),
         ("name", printString(o.name)),
@@ -260,14 +260,14 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPads(o: Spec.Pads): ST = {
+    @pure def printSpecPads(o: bitcodec.Spec.Pads): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pads""""),
         ("size", printZ(o.size))
       ))
     }
 
-    @pure def printSpecPredSpec(o: Spec.PredSpec): ST = {
+    @pure def printSpecPredSpec(o: bitcodec.Spec.PredSpec): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.PredSpec""""),
         ("preds", printISZ(F, o.preds, printSpecPred _)),
@@ -275,31 +275,31 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPred(o: Spec.Pred): ST = {
+    @pure def printSpecPred(o: bitcodec.Spec.Pred): ST = {
       o match {
-        case o: Spec.Pred.Boolean => printSpecPredBoolean(o)
-        case o: Spec.Pred.Bits => printSpecPredBits(o)
-        case o: Spec.Pred.Bytes => printSpecPredBytes(o)
-        case o: Spec.Pred.Shorts => printSpecPredShorts(o)
-        case o: Spec.Pred.Ints => printSpecPredInts(o)
-        case o: Spec.Pred.Longs => printSpecPredLongs(o)
-        case o: Spec.Pred.Floats => printSpecPredFloats(o)
-        case o: Spec.Pred.Doubles => printSpecPredDoubles(o)
-        case o: Spec.Pred.Skip => printSpecPredSkip(o)
-        case o: Spec.Pred.Between => printSpecPredBetween(o)
-        case o: Spec.Pred.Not => printSpecPredNot(o)
-        case o: Spec.Pred.Or => printSpecPredOr(o)
+        case o: bitcodec.Spec.Pred.Boolean => printSpecPredBoolean(o)
+        case o: bitcodec.Spec.Pred.Bits => printSpecPredBits(o)
+        case o: bitcodec.Spec.Pred.Bytes => printSpecPredBytes(o)
+        case o: bitcodec.Spec.Pred.Shorts => printSpecPredShorts(o)
+        case o: bitcodec.Spec.Pred.Ints => printSpecPredInts(o)
+        case o: bitcodec.Spec.Pred.Longs => printSpecPredLongs(o)
+        case o: bitcodec.Spec.Pred.Floats => printSpecPredFloats(o)
+        case o: bitcodec.Spec.Pred.Doubles => printSpecPredDoubles(o)
+        case o: bitcodec.Spec.Pred.Skip => printSpecPredSkip(o)
+        case o: bitcodec.Spec.Pred.Between => printSpecPredBetween(o)
+        case o: bitcodec.Spec.Pred.Not => printSpecPredNot(o)
+        case o: bitcodec.Spec.Pred.Or => printSpecPredOr(o)
       }
     }
 
-    @pure def printSpecPredBoolean(o: Spec.Pred.Boolean): ST = {
+    @pure def printSpecPredBoolean(o: bitcodec.Spec.Pred.Boolean): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Boolean""""),
         ("value", printB(o.value))
       ))
     }
 
-    @pure def printSpecPredBits(o: Spec.Pred.Bits): ST = {
+    @pure def printSpecPredBits(o: bitcodec.Spec.Pred.Bits): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Bits""""),
         ("size", printZ(o.size)),
@@ -307,56 +307,56 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredBytes(o: Spec.Pred.Bytes): ST = {
+    @pure def printSpecPredBytes(o: bitcodec.Spec.Pred.Bytes): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Bytes""""),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
 
-    @pure def printSpecPredShorts(o: Spec.Pred.Shorts): ST = {
+    @pure def printSpecPredShorts(o: bitcodec.Spec.Pred.Shorts): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Shorts""""),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
 
-    @pure def printSpecPredInts(o: Spec.Pred.Ints): ST = {
+    @pure def printSpecPredInts(o: bitcodec.Spec.Pred.Ints): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Ints""""),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
 
-    @pure def printSpecPredLongs(o: Spec.Pred.Longs): ST = {
+    @pure def printSpecPredLongs(o: bitcodec.Spec.Pred.Longs): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Longs""""),
         ("value", printISZ(T, o.value, printZ _))
       ))
     }
 
-    @pure def printSpecPredFloats(o: Spec.Pred.Floats): ST = {
+    @pure def printSpecPredFloats(o: bitcodec.Spec.Pred.Floats): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Floats""""),
         ("value", printISZ(T, o.value, printF32 _))
       ))
     }
 
-    @pure def printSpecPredDoubles(o: Spec.Pred.Doubles): ST = {
+    @pure def printSpecPredDoubles(o: bitcodec.Spec.Pred.Doubles): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Doubles""""),
         ("value", printISZ(T, o.value, printF64 _))
       ))
     }
 
-    @pure def printSpecPredSkip(o: Spec.Pred.Skip): ST = {
+    @pure def printSpecPredSkip(o: bitcodec.Spec.Pred.Skip): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Skip""""),
         ("size", printZ(o.size))
       ))
     }
 
-    @pure def printSpecPredBetween(o: Spec.Pred.Between): ST = {
+    @pure def printSpecPredBetween(o: bitcodec.Spec.Pred.Between): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Between""""),
         ("size", printZ(o.size)),
@@ -365,14 +365,14 @@ object JSON {
       ))
     }
 
-    @pure def printSpecPredNot(o: Spec.Pred.Not): ST = {
+    @pure def printSpecPredNot(o: bitcodec.Spec.Pred.Not): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Not""""),
         ("pred", printSpecPred(o.pred))
       ))
     }
 
-    @pure def printSpecPredOr(o: Spec.Pred.Or): ST = {
+    @pure def printSpecPredOr(o: bitcodec.Spec.Pred.Or): ST = {
       return printObject(ISZ(
         ("type", st""""Spec.Pred.Or""""),
         ("preds", printISZ(F, o.preds, printSpecPred _))
@@ -388,7 +388,7 @@ object JSON {
       return parser.errorOpt
     }
 
-    def parseSpec(): Spec = {
+    def parseSpec(): bitcodec.Spec = {
       val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Floats", "Spec.Doubles", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.Repeat", "Spec.Raw", "Spec.PredUnion", "Spec.PredRepeatWhile", "Spec.PredRepeatUntil", "Spec.GenUnion", "Spec.GenRepeat", "Spec.GenRaw", "Spec.Pads"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
@@ -415,7 +415,7 @@ object JSON {
       }
     }
 
-    def parseSpecBase(): Spec.Base = {
+    def parseSpecBase(): bitcodec.Spec.Base = {
       val t = parser.parseObjectTypes(ISZ("Spec.Boolean", "Spec.Bits", "Spec.Bytes", "Spec.Shorts", "Spec.Ints", "Spec.Longs", "Spec.Floats", "Spec.Doubles", "Spec.Enum", "Spec.Concat", "Spec.Union", "Spec.PredUnion", "Spec.GenUnion"))
       t.native match {
         case "Spec.Boolean" => val r = parseSpecBooleanT(T); return r
@@ -435,27 +435,27 @@ object JSON {
       }
     }
 
-    def parseSpecBoolean(): Spec.Boolean = {
+    def parseSpecBoolean(): bitcodec.Spec.Boolean = {
       val r = parseSpecBooleanT(F)
       return r
     }
 
-    def parseSpecBooleanT(typeParsed: B): Spec.Boolean = {
+    def parseSpecBooleanT(typeParsed: B): bitcodec.Spec.Boolean = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Boolean")
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      return Spec.Boolean(name)
+      return bitcodec.Spec.Boolean(name)
     }
 
-    def parseSpecBits(): Spec.Bits = {
+    def parseSpecBits(): bitcodec.Spec.Bits = {
       val r = parseSpecBitsT(F)
       return r
     }
 
-    def parseSpecBitsT(typeParsed: B): Spec.Bits = {
+    def parseSpecBitsT(typeParsed: B): bitcodec.Spec.Bits = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Bits")
       }
@@ -465,15 +465,15 @@ object JSON {
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Bits(name, size)
+      return bitcodec.Spec.Bits(name, size)
     }
 
-    def parseSpecBytes(): Spec.BytesImpl = {
+    def parseSpecBytes(): bitcodec.Spec.BytesImpl = {
       val r = parseSpecBytesT(F)
       return r
     }
 
-    def parseSpecBytesT(typeParsed: B): Spec.BytesImpl = {
+    def parseSpecBytesT(typeParsed: B): bitcodec.Spec.BytesImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Bytes")
       }
@@ -492,15 +492,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.BytesImpl(name, size, signed, minOpt, maxOpt)
+      return bitcodec.Spec.BytesImpl(name, size, signed, minOpt, maxOpt)
     }
 
-    def parseSpecShorts(): Spec.ShortsImpl = {
+    def parseSpecShorts(): bitcodec.Spec.ShortsImpl = {
       val r = parseSpecShortsT(F)
       return r
     }
 
-    def parseSpecShortsT(typeParsed: B): Spec.ShortsImpl = {
+    def parseSpecShortsT(typeParsed: B): bitcodec.Spec.ShortsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Shorts")
       }
@@ -519,15 +519,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.ShortsImpl(name, size, signed, minOpt, maxOpt)
+      return bitcodec.Spec.ShortsImpl(name, size, signed, minOpt, maxOpt)
     }
 
-    def parseSpecInts(): Spec.IntsImpl = {
+    def parseSpecInts(): bitcodec.Spec.IntsImpl = {
       val r = parseSpecIntsT(F)
       return r
     }
 
-    def parseSpecIntsT(typeParsed: B): Spec.IntsImpl = {
+    def parseSpecIntsT(typeParsed: B): bitcodec.Spec.IntsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Ints")
       }
@@ -546,15 +546,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.IntsImpl(name, size, signed, minOpt, maxOpt)
+      return bitcodec.Spec.IntsImpl(name, size, signed, minOpt, maxOpt)
     }
 
-    def parseSpecLongs(): Spec.LongsImpl = {
+    def parseSpecLongs(): bitcodec.Spec.LongsImpl = {
       val r = parseSpecLongsT(F)
       return r
     }
 
-    def parseSpecLongsT(typeParsed: B): Spec.LongsImpl = {
+    def parseSpecLongsT(typeParsed: B): bitcodec.Spec.LongsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Longs")
       }
@@ -573,15 +573,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.LongsImpl(name, size, signed, minOpt, maxOpt)
+      return bitcodec.Spec.LongsImpl(name, size, signed, minOpt, maxOpt)
     }
 
-    def parseSpecFloats(): Spec.FloatsImpl = {
+    def parseSpecFloats(): bitcodec.Spec.FloatsImpl = {
       val r = parseSpecFloatsT(F)
       return r
     }
 
-    def parseSpecFloatsT(typeParsed: B): Spec.FloatsImpl = {
+    def parseSpecFloatsT(typeParsed: B): bitcodec.Spec.FloatsImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Floats")
       }
@@ -597,15 +597,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseF32 _)
       parser.parseObjectNext()
-      return Spec.FloatsImpl(name, size, minOpt, maxOpt)
+      return bitcodec.Spec.FloatsImpl(name, size, minOpt, maxOpt)
     }
 
-    def parseSpecDoubles(): Spec.DoublesImpl = {
+    def parseSpecDoubles(): bitcodec.Spec.DoublesImpl = {
       val r = parseSpecDoublesT(F)
       return r
     }
 
-    def parseSpecDoublesT(typeParsed: B): Spec.DoublesImpl = {
+    def parseSpecDoublesT(typeParsed: B): bitcodec.Spec.DoublesImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Doubles")
       }
@@ -621,15 +621,15 @@ object JSON {
       parser.parseObjectKey("maxOpt")
       val maxOpt = parser.parseOption(parser.parseF64 _)
       parser.parseObjectNext()
-      return Spec.DoublesImpl(name, size, minOpt, maxOpt)
+      return bitcodec.Spec.DoublesImpl(name, size, minOpt, maxOpt)
     }
 
-    def parseSpecEnum(): Spec.Enum = {
+    def parseSpecEnum(): bitcodec.Spec.Enum = {
       val r = parseSpecEnumT(F)
       return r
     }
 
-    def parseSpecEnumT(typeParsed: B): Spec.Enum = {
+    def parseSpecEnumT(typeParsed: B): bitcodec.Spec.Enum = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Enum")
       }
@@ -639,15 +639,15 @@ object JSON {
       parser.parseObjectKey("objectName")
       val objectName = parser.parseString()
       parser.parseObjectNext()
-      return Spec.Enum(name, objectName)
+      return bitcodec.Spec.Enum(name, objectName)
     }
 
-    def parseSpecConcat(): Spec.ConcatImpl = {
+    def parseSpecConcat(): bitcodec.Spec.ConcatImpl = {
       val r = parseSpecConcatT(F)
       return r
     }
 
-    def parseSpecConcatT(typeParsed: B): Spec.ConcatImpl = {
+    def parseSpecConcatT(typeParsed: B): bitcodec.Spec.ConcatImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Concat")
       }
@@ -660,15 +660,15 @@ object JSON {
       parser.parseObjectKey("asOpt")
       val asOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Spec.ConcatImpl(name, elements, asOpt)
+      return bitcodec.Spec.ConcatImpl(name, elements, asOpt)
     }
 
-    def parseSpecUnion(): Spec.UnionImpl[_] = {
+    def parseSpecUnion(): bitcodec.Spec.UnionImpl[_] = {
       val r = parseSpecUnionT(F)
       return r
     }
 
-    def parseSpecUnionT(typeParsed: B): Spec.UnionImpl[_] = {
+    def parseSpecUnionT(typeParsed: B): bitcodec.Spec.UnionImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Union")
       }
@@ -687,15 +687,15 @@ object JSON {
       parser.parseObjectKey("asOpt")
       val asOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Spec.UnionImpl[Any](name, dependsOn, _ => ???, subs, asOpt)
+      return bitcodec.Spec.UnionImpl[Any](name, dependsOn, _ => ???, subs, asOpt)
     }
 
-    def parseSpecRepeat(): Spec.RepeatImpl[_] = {
+    def parseSpecRepeat(): bitcodec.Spec.RepeatImpl[_] = {
       val r = parseSpecRepeatT(F)
       return r
     }
 
-    def parseSpecRepeatT(typeParsed: B): Spec.RepeatImpl[_] = {
+    def parseSpecRepeatT(typeParsed: B): bitcodec.Spec.RepeatImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Repeat")
       }
@@ -714,15 +714,15 @@ object JSON {
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.RepeatImpl[Any](name, maxElements, dependsOn, _ => ???, element)
+      return bitcodec.Spec.RepeatImpl[Any](name, maxElements, dependsOn, _ => ???, element)
     }
 
-    def parseSpecRaw(): Spec.RawImpl[_] = {
+    def parseSpecRaw(): bitcodec.Spec.RawImpl[_] = {
       val r = parseSpecRawT(F)
       return r
     }
 
-    def parseSpecRawT(typeParsed: B): Spec.RawImpl[_] = {
+    def parseSpecRawT(typeParsed: B): bitcodec.Spec.RawImpl[_] = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Raw")
       }
@@ -738,15 +738,15 @@ object JSON {
       parser.parseObjectKey("size")
       parser.parseString()
       parser.parseObjectNext()
-      return Spec.RawImpl[Any](name, maxSize, dependsOn, _ => ???)
+      return bitcodec.Spec.RawImpl[Any](name, maxSize, dependsOn, _ => ???)
     }
 
-    def parseSpecPredUnion(): Spec.PredUnionImpl = {
+    def parseSpecPredUnion(): bitcodec.Spec.PredUnionImpl = {
       val r = parseSpecPredUnionT(F)
       return r
     }
 
-    def parseSpecPredUnionT(typeParsed: B): Spec.PredUnionImpl = {
+    def parseSpecPredUnionT(typeParsed: B): bitcodec.Spec.PredUnionImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredUnion")
       }
@@ -759,15 +759,15 @@ object JSON {
       parser.parseObjectKey("asOpt")
       val asOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Spec.PredUnionImpl(name, subs, asOpt)
+      return bitcodec.Spec.PredUnionImpl(name, subs, asOpt)
     }
 
-    def parseSpecPredRepeatWhile(): Spec.PredRepeatWhileImpl = {
+    def parseSpecPredRepeatWhile(): bitcodec.Spec.PredRepeatWhileImpl = {
       val r = parseSpecPredRepeatWhileT(F)
       return r
     }
 
-    def parseSpecPredRepeatWhileT(typeParsed: B): Spec.PredRepeatWhileImpl = {
+    def parseSpecPredRepeatWhileT(typeParsed: B): bitcodec.Spec.PredRepeatWhileImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredRepeatWhile")
       }
@@ -783,15 +783,15 @@ object JSON {
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.PredRepeatWhileImpl(name, maxElements, preds, element)
+      return bitcodec.Spec.PredRepeatWhileImpl(name, maxElements, preds, element)
     }
 
-    def parseSpecPredRepeatUntil(): Spec.PredRepeatUntilImpl = {
+    def parseSpecPredRepeatUntil(): bitcodec.Spec.PredRepeatUntilImpl = {
       val r = parseSpecPredRepeatUntilT(F)
       return r
     }
 
-    def parseSpecPredRepeatUntilT(typeParsed: B): Spec.PredRepeatUntilImpl = {
+    def parseSpecPredRepeatUntilT(typeParsed: B): bitcodec.Spec.PredRepeatUntilImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredRepeatUntil")
       }
@@ -807,15 +807,15 @@ object JSON {
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.PredRepeatUntilImpl(name, maxElements, preds, element)
+      return bitcodec.Spec.PredRepeatUntilImpl(name, maxElements, preds, element)
     }
 
-    def parseSpecGenUnion(): Spec.GenUnionImpl = {
+    def parseSpecGenUnion(): bitcodec.Spec.GenUnionImpl = {
       val r = parseSpecGenUnionT(F)
       return r
     }
 
-    def parseSpecGenUnionT(typeParsed: B): Spec.GenUnionImpl = {
+    def parseSpecGenUnionT(typeParsed: B): bitcodec.Spec.GenUnionImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenUnion")
       }
@@ -828,15 +828,15 @@ object JSON {
       parser.parseObjectKey("asOpt")
       val asOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Spec.GenUnionImpl(name, subs, asOpt)
+      return bitcodec.Spec.GenUnionImpl(name, subs, asOpt)
     }
 
-    def parseSpecGenRepeat(): Spec.GenRepeatImpl = {
+    def parseSpecGenRepeat(): bitcodec.Spec.GenRepeatImpl = {
       val r = parseSpecGenRepeatT(F)
       return r
     }
 
-    def parseSpecGenRepeatT(typeParsed: B): Spec.GenRepeatImpl = {
+    def parseSpecGenRepeatT(typeParsed: B): bitcodec.Spec.GenRepeatImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenRepeat")
       }
@@ -849,15 +849,15 @@ object JSON {
       parser.parseObjectKey("element")
       val element = parseSpecBase()
       parser.parseObjectNext()
-      return Spec.GenRepeatImpl(name, maxElements, element)
+      return bitcodec.Spec.GenRepeatImpl(name, maxElements, element)
     }
 
-    def parseSpecGenRaw(): Spec.GenRawImpl = {
+    def parseSpecGenRaw(): bitcodec.Spec.GenRawImpl = {
       val r = parseSpecGenRawT(F)
       return r
     }
 
-    def parseSpecGenRawT(typeParsed: B): Spec.GenRawImpl = {
+    def parseSpecGenRawT(typeParsed: B): bitcodec.Spec.GenRawImpl = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.GenRaw")
       }
@@ -867,30 +867,30 @@ object JSON {
       parser.parseObjectKey("maxSize")
       val maxSize = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.GenRawImpl(name, maxSize)
+      return bitcodec.Spec.GenRawImpl(name, maxSize)
     }
 
-    def parseSpecPads(): Spec.Pads = {
+    def parseSpecPads(): bitcodec.Spec.Pads = {
       val r = parseSpecPadsT(F)
       return r
     }
 
-    def parseSpecPadsT(typeParsed: B): Spec.Pads = {
+    def parseSpecPadsT(typeParsed: B): bitcodec.Spec.Pads = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pads")
       }
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Pads(size)
+      return bitcodec.Spec.Pads(size)
     }
 
-    def parseSpecPredSpec(): Spec.PredSpec = {
+    def parseSpecPredSpec(): bitcodec.Spec.PredSpec = {
       val r = parseSpecPredSpecT(F)
       return r
     }
 
-    def parseSpecPredSpecT(typeParsed: B): Spec.PredSpec = {
+    def parseSpecPredSpecT(typeParsed: B): bitcodec.Spec.PredSpec = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.PredSpec")
       }
@@ -900,10 +900,10 @@ object JSON {
       parser.parseObjectKey("spec")
       val spec = parseSpec()
       parser.parseObjectNext()
-      return Spec.PredSpec(preds, spec)
+      return bitcodec.Spec.PredSpec(preds, spec)
     }
 
-    def parseSpecPred(): Spec.Pred = {
+    def parseSpecPred(): bitcodec.Spec.Pred = {
       val t = parser.parseObjectTypes(ISZ("Spec.Pred.Boolean", "Spec.Pred.Bits", "Spec.Pred.Bytes", "Spec.Pred.Shorts", "Spec.Pred.Ints", "Spec.Pred.Longs", "Spec.Pred.Floats", "Spec.Pred.Doubles", "Spec.Pred.Skip", "Spec.Pred.Between", "Spec.Pred.Not", "Spec.Pred.Or"))
       t.native match {
         case "Spec.Pred.Boolean" => val r = parseSpecPredBooleanT(T); return r
@@ -922,27 +922,27 @@ object JSON {
       }
     }
 
-    def parseSpecPredBoolean(): Spec.Pred.Boolean = {
+    def parseSpecPredBoolean(): bitcodec.Spec.Pred.Boolean = {
       val r = parseSpecPredBooleanT(F)
       return r
     }
 
-    def parseSpecPredBooleanT(typeParsed: B): Spec.Pred.Boolean = {
+    def parseSpecPredBooleanT(typeParsed: B): bitcodec.Spec.Pred.Boolean = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Boolean")
       }
       parser.parseObjectKey("value")
       val value = parser.parseB()
       parser.parseObjectNext()
-      return Spec.Pred.Boolean(value)
+      return bitcodec.Spec.Pred.Boolean(value)
     }
 
-    def parseSpecPredBits(): Spec.Pred.Bits = {
+    def parseSpecPredBits(): bitcodec.Spec.Pred.Bits = {
       val r = parseSpecPredBitsT(F)
       return r
     }
 
-    def parseSpecPredBitsT(typeParsed: B): Spec.Pred.Bits = {
+    def parseSpecPredBitsT(typeParsed: B): bitcodec.Spec.Pred.Bits = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Bits")
       }
@@ -952,120 +952,120 @@ object JSON {
       parser.parseObjectKey("value")
       val value = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Pred.Bits(size, value)
+      return bitcodec.Spec.Pred.Bits(size, value)
     }
 
-    def parseSpecPredBytes(): Spec.Pred.Bytes = {
+    def parseSpecPredBytes(): bitcodec.Spec.Pred.Bytes = {
       val r = parseSpecPredBytesT(F)
       return r
     }
 
-    def parseSpecPredBytesT(typeParsed: B): Spec.Pred.Bytes = {
+    def parseSpecPredBytesT(typeParsed: B): bitcodec.Spec.Pred.Bytes = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Bytes")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Bytes(value)
+      return bitcodec.Spec.Pred.Bytes(value)
     }
 
-    def parseSpecPredShorts(): Spec.Pred.Shorts = {
+    def parseSpecPredShorts(): bitcodec.Spec.Pred.Shorts = {
       val r = parseSpecPredShortsT(F)
       return r
     }
 
-    def parseSpecPredShortsT(typeParsed: B): Spec.Pred.Shorts = {
+    def parseSpecPredShortsT(typeParsed: B): bitcodec.Spec.Pred.Shorts = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Shorts")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Shorts(value)
+      return bitcodec.Spec.Pred.Shorts(value)
     }
 
-    def parseSpecPredInts(): Spec.Pred.Ints = {
+    def parseSpecPredInts(): bitcodec.Spec.Pred.Ints = {
       val r = parseSpecPredIntsT(F)
       return r
     }
 
-    def parseSpecPredIntsT(typeParsed: B): Spec.Pred.Ints = {
+    def parseSpecPredIntsT(typeParsed: B): bitcodec.Spec.Pred.Ints = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Ints")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Ints(value)
+      return bitcodec.Spec.Pred.Ints(value)
     }
 
-    def parseSpecPredLongs(): Spec.Pred.Longs = {
+    def parseSpecPredLongs(): bitcodec.Spec.Pred.Longs = {
       val r = parseSpecPredLongsT(F)
       return r
     }
 
-    def parseSpecPredLongsT(typeParsed: B): Spec.Pred.Longs = {
+    def parseSpecPredLongsT(typeParsed: B): bitcodec.Spec.Pred.Longs = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Longs")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseZ _)
       parser.parseObjectNext()
-      return Spec.Pred.Longs(value)
+      return bitcodec.Spec.Pred.Longs(value)
     }
 
-    def parseSpecPredFloats(): Spec.Pred.Floats = {
+    def parseSpecPredFloats(): bitcodec.Spec.Pred.Floats = {
       val r = parseSpecPredFloatsT(F)
       return r
     }
 
-    def parseSpecPredFloatsT(typeParsed: B): Spec.Pred.Floats = {
+    def parseSpecPredFloatsT(typeParsed: B): bitcodec.Spec.Pred.Floats = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Floats")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseF32 _)
       parser.parseObjectNext()
-      return Spec.Pred.Floats(value)
+      return bitcodec.Spec.Pred.Floats(value)
     }
 
-    def parseSpecPredDoubles(): Spec.Pred.Doubles = {
+    def parseSpecPredDoubles(): bitcodec.Spec.Pred.Doubles = {
       val r = parseSpecPredDoublesT(F)
       return r
     }
 
-    def parseSpecPredDoublesT(typeParsed: B): Spec.Pred.Doubles = {
+    def parseSpecPredDoublesT(typeParsed: B): bitcodec.Spec.Pred.Doubles = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Doubles")
       }
       parser.parseObjectKey("value")
       val value = parser.parseISZ(parser.parseF64 _)
       parser.parseObjectNext()
-      return Spec.Pred.Doubles(value)
+      return bitcodec.Spec.Pred.Doubles(value)
     }
 
-    def parseSpecPredSkip(): Spec.Pred.Skip = {
+    def parseSpecPredSkip(): bitcodec.Spec.Pred.Skip = {
       val r = parseSpecPredSkipT(F)
       return r
     }
 
-    def parseSpecPredSkipT(typeParsed: B): Spec.Pred.Skip = {
+    def parseSpecPredSkipT(typeParsed: B): bitcodec.Spec.Pred.Skip = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Skip")
       }
       parser.parseObjectKey("size")
       val size = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Pred.Skip(size)
+      return bitcodec.Spec.Pred.Skip(size)
     }
 
-    def parseSpecPredBetween(): Spec.Pred.Between = {
+    def parseSpecPredBetween(): bitcodec.Spec.Pred.Between = {
       val r = parseSpecPredBetweenT(F)
       return r
     }
 
-    def parseSpecPredBetweenT(typeParsed: B): Spec.Pred.Between = {
+    def parseSpecPredBetweenT(typeParsed: B): bitcodec.Spec.Pred.Between = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Between")
       }
@@ -1078,37 +1078,37 @@ object JSON {
       parser.parseObjectKey("hi")
       val hi = parser.parseZ()
       parser.parseObjectNext()
-      return Spec.Pred.Between(size, lo, hi)
+      return bitcodec.Spec.Pred.Between(size, lo, hi)
     }
 
-    def parseSpecPredNot(): Spec.Pred.Not = {
+    def parseSpecPredNot(): bitcodec.Spec.Pred.Not = {
       val r = parseSpecPredNotT(F)
       return r
     }
 
-    def parseSpecPredNotT(typeParsed: B): Spec.Pred.Not = {
+    def parseSpecPredNotT(typeParsed: B): bitcodec.Spec.Pred.Not = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Not")
       }
       parser.parseObjectKey("pred")
       val pred = parseSpecPred()
       parser.parseObjectNext()
-      return Spec.Pred.Not(pred)
+      return bitcodec.Spec.Pred.Not(pred)
     }
 
-    def parseSpecPredOr(): Spec.Pred.Or = {
+    def parseSpecPredOr(): bitcodec.Spec.Pred.Or = {
       val r = parseSpecPredOrT(F)
       return r
     }
 
-    def parseSpecPredOrT(typeParsed: B): Spec.Pred.Or = {
+    def parseSpecPredOrT(typeParsed: B): bitcodec.Spec.Pred.Or = {
       if (!typeParsed) {
         parser.parseObjectType("Spec.Pred.Or")
       }
       parser.parseObjectKey("preds")
       val preds = parser.parseISZ(parseSpecPred _)
       parser.parseObjectNext()
-      return Spec.Pred.Or(preds)
+      return bitcodec.Spec.Pred.Or(preds)
     }
 
     def eof(): B = {
@@ -1128,7 +1128,7 @@ object JSON {
     }
   }
 
-  def fromSpec(o: Spec, isCompact: B): String = {
+  def fromSpec(o: bitcodec.Spec, isCompact: B): String = {
     val st = Printer.printSpec(o)
     if (isCompact) {
       return st.renderCompact
@@ -1138,7 +1138,7 @@ object JSON {
   }
 
   def toSpec(s: String): Either[Spec, Json.ErrorMsg] = {
-    def fSpec(parser: Parser): Spec = {
+    def fSpec(parser: Parser): bitcodec.Spec = {
       val r = parser.parseSpec()
       return r
     }

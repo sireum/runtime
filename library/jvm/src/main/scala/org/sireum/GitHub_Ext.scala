@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019, Robby, Kansas State University
+ Copyright (c) 2020, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@ package org.sireum
 
 import GitHub._
 import org.kohsuke.github.{GHRelease, GHRepository, GitHub => GH}
+import org.sireum.$internal.CollectionCompat.Converters._
 
 object GitHub_Ext {
   def connectRepo(owner: String, name: String): GHRepository =
@@ -51,7 +52,6 @@ object GitHub_Ext {
   }
 
   def releases(repo: Repository): Jen[Release] = {
-    import scala.collection.JavaConverters._
     val ghRepo = connectRepo(repo.owner, repo.name)
     val ghReleases = ghRepo.listReleases
     new Jen[Release] {
@@ -73,7 +73,6 @@ object GitHub_Ext {
   }
 
   def assets(release: Release): Jen[Asset] = {
-    import scala.collection.JavaConverters._
     val ghRepo = connectRepo(release.repo.owner, release.repo.name)
     val ghRelease = ghRepo.getRelease(release.id.toLong)
     var assets = ISZ[GitHub.Asset]()
