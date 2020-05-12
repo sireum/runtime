@@ -520,56 +520,88 @@ object Os_Ext {
 
   def write(path: String, content: String, mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try os.write(content.value.getBytes(SC.UTF_8))
-    finally os.close()
+    try {
+      os.write(content.value.getBytes(SC.UTF_8))
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeU8s(path: String, content: ISZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-    finally os.close()
+    try {
+      if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeU8ms(path: String, content: MSZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-    finally os.close()
+    try {
+      if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeLineStream(path: String, lines: Jen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
-    finally os.close()
+    try {
+      for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeU8Stream(path: String, u8s: Jen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try for (b <- u8s) os.write(b.value)
+    try {
+      for (b <- u8s) os.write(b.value)
+      os.flush()
+      os.getFD.sync()
+    }
     finally os.close()
   }
 
   def writeCStream(path: String, cs: Jen[C], mode: Os.Path.WriteMode.Type): Unit = {
-    val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
-    try for (c <- cs) os.write(c.value)
-    finally os.close()
+    val fos = new FOS(toIO(path), writeAppend(path, mode))
+    val os = new OSW(fos, SC.UTF_8)
+    try {
+      for (c <- cs) os.write(c.value)
+      os.flush()
+      fos.flush()
+      fos.getFD.sync()
+    } finally os.close()
   }
 
   def writeLineMStream(path: String, lines: MJen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
-    finally os.close()
+    try {
+      for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeU8MStream(path: String, u8s: MJen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
-    try for (b <- u8s) os.write(b.value)
-    finally os.close()
+    try {
+      for (b <- u8s) os.write(b.value)
+      os.flush()
+      os.getFD.sync()
+    } finally os.close()
   }
 
   def writeCMStream(path: String, cs: MJen[C], mode: Os.Path.WriteMode.Type): Unit = {
-    val os = new OSW(new FOS(toIO(path), writeAppend(path, mode)), SC.UTF_8)
-    try for (c <- cs) os.write(c.value)
-    finally os.close()
+    val fos = new FOS(toIO(path), writeAppend(path, mode))
+    val os = new OSW(fos, SC.UTF_8)
+    try {
+      for (c <- cs) os.write(c.value)
+      os.flush()
+      fos.flush()
+      fos.getFD.sync()
+    } finally os.close()
   }
 
   def parent(path: String): String = toIO(path).getParent
