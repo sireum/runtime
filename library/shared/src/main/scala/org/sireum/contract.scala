@@ -286,6 +286,8 @@ trait contract {
 
   def Res[T]: T = ???
 
+  def Idx[T <: ZLike[T]](v: Any): T = ???
+
   def |-(conclusion: B): Contract.Sequent = ???
 
   object All {
