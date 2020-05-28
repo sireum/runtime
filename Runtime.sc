@@ -117,8 +117,7 @@ object Module {
     final override def jvmIvyDeps = Agg(
       ivy"com.zaxxer:nuprocess:$nuProcessVersion",
       ivy"com.lihaoyi::os-lib:$osLibVersion",
-      ivy"org.kohsuke:github-api:$githubVersion",
-      ivy"org.eclipse.jgit:org.eclipse.jgit:$jgitVersion"
+      ivy"org.kohsuke:github-api:$githubVersion"
     )
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
