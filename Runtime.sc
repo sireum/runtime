@@ -110,9 +110,7 @@ object Module {
 
     final override def artifactName = "library"
 
-    final override def testIvyDeps = Agg(
-      ivy"org.typelevel::spire::$spireVersion"
-    )
+    final override def testIvyDeps = Agg.empty
 
     final override def ivyDeps = Agg.empty
 

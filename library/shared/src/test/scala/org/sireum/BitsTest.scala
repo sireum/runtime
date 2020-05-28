@@ -26,7 +26,6 @@
 package org.sireum
 
 import org.sireum.test._
-import spire.math._
 import scala.util.{Failure, Success, Try}
 
 class BitsTest extends TestSuite {
@@ -221,6 +220,7 @@ class BitsTest extends TestSuite {
 
       def rand(): Short = random.nextInt.toShort
 
+      /*
       * - {
         for ((op, op1, op2) <- List[(Predef.String,
                                      U16 => U16 => U16,
@@ -276,7 +276,7 @@ class BitsTest extends TestSuite {
           }
         }
       }
-
+      */
     }
 
     "S16_m2" - {
