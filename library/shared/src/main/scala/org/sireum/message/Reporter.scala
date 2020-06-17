@@ -41,35 +41,9 @@ object Reporter {
 
 @msig trait Reporter {
   def messages: ISZ[Message]
-  def hasInternalError: B
-  def hasError: B
-  def hasWarning: B
-  def hasIssue: B
-  def hasInfo: B
-  def hasMessage: B
-  def internalErrors: ISZ[Message]
-  def errors: ISZ[Message]
-  def warnings: ISZ[Message]
-  def issues: ISZ[Message]
-  def infos: ISZ[Message]
-  def report(m: Message): Unit
-  def messagesByFileUri: HashSMap[Option[String], ISZ[Message]]
-  def printMessages(): Unit
-  def internalError(posOpt: Option[Position], kind: String, message: String): Unit
-  def error(posOpt: Option[Position], kind: String, message: String): Unit
-  def warn(posOpt: Option[Position], kind: String, message: String): Unit
-  def info(posOpt: Option[Position], kind: String, message: String): Unit
-  def reports(ms: ISZ[Message]): Unit
+  def ignore: B
   def setIgnore(newIgnore: B): Unit
-}
-
-@record class ReporterImpl(var messages: ISZ[Message]) extends Reporter {
-
-  var ignore: B = F
-
-  def setIgnore(newIgnore: B): Unit = {
-    ignore = newIgnore
-  }
+  def setMessages(newMessages: ISZ[Message]): Unit
 
   def hasInternalError: B = {
     for (m <- messages) {
@@ -136,7 +110,7 @@ object Reporter {
   def report(m: Message): Unit = {
     //assert(m.fileUriOpt.isEmpty || !ops.ISZOps(messages).contains(m))
     if (!ignore) {
-      messages = messages :+ m
+      setMessages(messages :+ m)
     }
   }
 
@@ -232,4 +206,22 @@ object Reporter {
       report(m)
     }
   }
+}
+
+@record class ReporterImpl(var _messages: ISZ[Message]) extends Reporter {
+
+  var ignore: B = F
+
+  def setIgnore(newIgnore: B): Unit = {
+    ignore = newIgnore
+  }
+
+  def messages: ISZ[Message] = {
+    return _messages
+  }
+
+  def setMessages(newMessages: ISZ[Message]): Unit = {
+    _messages = newMessages
+  }
+
 }
