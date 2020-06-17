@@ -31,17 +31,45 @@ import org.sireum._
 object Reporter {
 
   @pure def create: Reporter = {
-    return Reporter(ISZ())
+    return ReporterImpl(ISZ())
   }
 
   @pure def combine(r1: Reporter, r2: Reporter): Reporter = {
-    return Reporter(r1.messages ++ r2.messages)
+    return ReporterImpl(r1.messages ++ r2.messages)
   }
 }
 
-@record class Reporter(var messages: ISZ[Message]) {
+@msig trait Reporter {
+  def messages: ISZ[Message]
+  def hasInternalError: B
+  def hasError: B
+  def hasWarning: B
+  def hasIssue: B
+  def hasInfo: B
+  def hasMessage: B
+  def internalErrors: ISZ[Message]
+  def errors: ISZ[Message]
+  def warnings: ISZ[Message]
+  def issues: ISZ[Message]
+  def infos: ISZ[Message]
+  def report(m: Message): Unit
+  def messagesByFileUri: HashSMap[Option[String], ISZ[Message]]
+  def printMessages(): Unit
+  def internalError(posOpt: Option[Position], kind: String, message: String): Unit
+  def error(posOpt: Option[Position], kind: String, message: String): Unit
+  def warn(posOpt: Option[Position], kind: String, message: String): Unit
+  def info(posOpt: Option[Position], kind: String, message: String): Unit
+  def reports(ms: ISZ[Message]): Unit
+  def setIgnore(newIgnore: B): Unit
+}
+
+@record class ReporterImpl(var messages: ISZ[Message]) extends Reporter {
 
   var ignore: B = F
+
+  def setIgnore(newIgnore: B): Unit = {
+    ignore = newIgnore
+  }
 
   def hasInternalError: B = {
     for (m <- messages) {
