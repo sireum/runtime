@@ -492,11 +492,11 @@ object Os {
       return Ext.readLineStream(value).toISZ
     }
 
-    def readLineStream: Path.Jen[String] = {
+    def readLineStream: Jen[String] = {
       return Ext.readLineStream(value)
     }
 
-    def readLineMStream: Path.MJen[String] = {
+    def readLineMStream: MJen[String] = {
       return Ext.readLineMStream(value)
     }
 
@@ -504,19 +504,19 @@ object Os {
       return Ext.readU8s(value)
     }
 
-    def readU8Stream: Path.Jen[U8] = {
+    def readU8Stream: Jen[U8] = {
       return Ext.readU8Stream(value)
     }
 
-    def readU8MStream: Path.MJen[U8] = {
+    def readU8MStream: MJen[U8] = {
       return Ext.readU8MStream(value)
     }
 
-    def readCStream: Path.Jen[C] = {
+    def readCStream: Jen[C] = {
       return Ext.readCStream(value)
     }
 
-    def readCMStream: Path.MJen[C] = {
+    def readCMStream: MJen[C] = {
       return Ext.readCMStream(value)
     }
 
