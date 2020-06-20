@@ -131,6 +131,7 @@ object Os {
   @enum object Kind {
     'Mac
     'Linux
+    'LinuxArm
     'Win
     'Unsupported
   }

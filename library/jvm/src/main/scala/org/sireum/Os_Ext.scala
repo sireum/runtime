@@ -66,7 +66,9 @@ object Os_Ext {
 
   val os: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
-    else if (scala.util.Properties.isLinux) Os.Kind.Linux
+    else if (scala.util.Properties.isLinux)
+      if (Os.proc(ISZ("dpkg", "--print-architecture")).run().out.value.trim == "arm64") Os.Kind.LinuxArm
+      else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
 
