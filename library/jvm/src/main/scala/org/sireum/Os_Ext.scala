@@ -24,7 +24,7 @@
  */
 package org.sireum
 
-import java.io.{PrintWriter, File => JFile, FileInputStream => FIS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.io.{PrintWriter, File => JFile, BufferedInputStream => BIS, FileInputStream => FIS, BufferedOutputStream => BOS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
 import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
@@ -37,11 +37,19 @@ import org.sireum.$internal.CollectionCompat.Converters._
 
 object Os_Ext {
 
-  { // for nuprocess
+  {
     java.util.logging.LogManager.getLogManager.reset()
     System.setProperty("jna.nosys", "true")
   }
 
+  lazy val buffSize: scala.Int = {
+    var bufferProp = System.getenv("SIREUM_OS_IOBUFFER")
+    if (bufferProp != null) bufferProp.toInt
+    else {
+      bufferProp = System.getProperty("org.sireum.os.iobuffer")
+      if (bufferProp != null) bufferProp.toInt else 1024 * 1024
+    }
+  }
 
   val fileSep: String = java.io.File.separator
 
@@ -297,7 +305,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: U8 => Jen.Action): Jen.Action = {
-        val is = new FIS(toIO(p))
+        val is = new BIS(new FIS(toIO(p)), buffSize)
         try {
           var last = Jen.Continue
           var b = is.read()
@@ -318,7 +326,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
+        val fr = new ISR(new BIS(new FIS(toIO(p)), buffSize), SC.UTF_8)
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -380,7 +388,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: U8 => Jen.Action): Jen.Action = {
-        val is = new FIS(toIO(p))
+        val is = new BIS(new FIS(toIO(p)), buffSize)
         try {
           var last = Jen.Continue
           var b = is.read()
@@ -414,7 +422,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new FIS(toIO(p)), SC.UTF_8)
+        val fr = new ISR(new BIS(new FIS(toIO(p)), buffSize), SC.UTF_8)
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -496,7 +504,7 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    val zis = new ZIS(new FIS(toIO(path)))
+    val zis = new ZIS(new BIS(new FIS(toIO(path)), buffSize))
     try {
       val t = toNIO(target)
       for (file <- CollectionCompat.LazyList.continually(zis.getNextEntry).takeWhile(_ != null)) {
@@ -524,53 +532,58 @@ object Os_Ext {
 
   def write(path: String, content: String, mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      os.write(content.value.getBytes(SC.UTF_8))
-      os.flush()
+      bos.write(content.value.getBytes(SC.UTF_8))
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeU8s(path: String, content: ISZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-      os.flush()
+      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeU8ms(path: String, content: MSZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      if (content.nonEmpty) os.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
-      os.flush()
+      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeLineStream(path: String, lines: Jen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
-      os.flush()
+      for (l <- lines) bos.write(l.value.getBytes(SC.UTF_8))
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeU8Stream(path: String, u8s: Jen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      for (b <- u8s) os.write(b.value)
-      os.flush()
+      for (b <- u8s) bos.write(b.value)
+      bos.flush()
       os.getFD.sync()
     }
-    finally os.close()
+    finally bos.close()
   }
 
   def writeCStream(path: String, cs: Jen[C], mode: Os.Path.WriteMode.Type): Unit = {
     val fos = new FOS(toIO(path), writeAppend(path, mode))
-    val os = new OSW(fos, SC.UTF_8)
+    val os = new OSW(new BOS(fos, buffSize), SC.UTF_8)
     try {
       for (c <- cs) os.write(c.value)
       os.flush()
@@ -581,25 +594,27 @@ object Os_Ext {
 
   def writeLineMStream(path: String, lines: MJen[String], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      for (l <- lines) os.write(l.value.getBytes(SC.UTF_8))
-      os.flush()
+      for (l <- lines) bos.write(l.value.getBytes(SC.UTF_8))
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeU8MStream(path: String, u8s: MJen[U8], mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
+    val bos = new BOS(os, buffSize)
     try {
-      for (b <- u8s) os.write(b.value)
-      os.flush()
+      for (b <- u8s) bos.write(b.value)
+      bos.flush()
       os.getFD.sync()
-    } finally os.close()
+    } finally bos.close()
   }
 
   def writeCMStream(path: String, cs: MJen[C], mode: Os.Path.WriteMode.Type): Unit = {
     val fos = new FOS(toIO(path), writeAppend(path, mode))
-    val os = new OSW(fos, SC.UTF_8)
+    val os = new OSW(new BOS(fos, buffSize), SC.UTF_8)
     try {
       for (c <- cs) os.write(c.value)
       os.flush()
