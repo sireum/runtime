@@ -182,6 +182,8 @@ object Os_Ext {
 
   def lastModified(path: String): Z = toIO(path).lastModified
 
+  def length(path: String): Z = toIO(path).length
+
   @pure def lines(path: String, count: Z): ISZ[String] =
     if (count <= 0) ISZ(JFiles.lines(toNIO(path), SC.UTF_8).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
     else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.toIndexedSeq.map(s => String(s.toString)): _*)

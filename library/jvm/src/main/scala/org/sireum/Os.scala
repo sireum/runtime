@@ -433,6 +433,10 @@ object Os {
       return Ext.lastModified(value)
     }
 
+    def length: Z = {
+      return Ext.length(value)
+    }
+
     def list: ISZ[Path] = {
       return for (filename <- Ext.list(value)) yield this / filename
     }
@@ -720,6 +724,8 @@ object Os {
     def kind(path: String): Path.Kind.Type = $
 
     def lastModified(path: String): Z = $
+
+    def length(path: String): Z = $
 
     def list(path: String): ISZ[String] = $
 
