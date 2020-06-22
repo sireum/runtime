@@ -508,6 +508,10 @@ object Os {
       return Ext.readU8s(value)
     }
 
+    def readU8ms: MSZ[U8] = {
+      return Ext.readU8ms(value)
+    }
+
     def readU8Stream: Jen[U8] = {
       return Ext.readU8Stream(value)
     }
@@ -591,27 +595,51 @@ object Os {
     }
 
     def writeU8s(content: ISZ[U8]): Unit = {
-      Ext.writeU8s(value, content, Path.WriteMode.Regular)
+      Ext.writeU8s(value, content, 0, content.size, Path.WriteMode.Regular)
+    }
+
+    def writeU8Parts(content: ISZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8s(value, content, offset, len, Path.WriteMode.Regular)
     }
 
     def writeOverU8s(content: ISZ[U8]): Unit = {
-      Ext.writeU8s(value, content, Path.WriteMode.Over)
+      Ext.writeU8s(value, content, 0, content.size, Path.WriteMode.Over)
+    }
+
+    def writeOverU8s(content: ISZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8s(value, content, offset, len, Path.WriteMode.Over)
     }
 
     def writeAppendU8s(content: ISZ[U8]): Unit = {
-      Ext.writeU8s(value, content, Path.WriteMode.Append)
+      Ext.writeU8s(value, content, 0, content.size, Path.WriteMode.Append)
+    }
+
+    def writeAppendU8Parts(content: ISZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8s(value, content, offset, len, Path.WriteMode.Append)
     }
 
     def writeU8ms(content: MSZ[U8]): Unit = {
-      Ext.writeU8ms(value, content, Path.WriteMode.Regular)
+      Ext.writeU8ms(value, content, 0, content.size, Path.WriteMode.Regular)
+    }
+
+    def writeU8Partms(content: MSZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8ms(value, content, offset, len, Path.WriteMode.Regular)
     }
 
     def writeOverU8ms(content: MSZ[U8]): Unit = {
-      Ext.writeU8ms(value, content, Path.WriteMode.Over)
+      Ext.writeU8ms(value, content, 0, content.size, Path.WriteMode.Over)
+    }
+
+    def writeOverU8Partms(content: MSZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8ms(value, content, offset, len, Path.WriteMode.Over)
     }
 
     def writeAppendU8ms(content: MSZ[U8]): Unit = {
-      Ext.writeU8ms(value, content, Path.WriteMode.Append)
+      Ext.writeU8ms(value, content, 0, content.size, Path.WriteMode.Append)
+    }
+
+    def writeAppendU8Partms(content: MSZ[U8], offset: Z, len: Z): Unit = {
+      Ext.writeU8ms(value, content, offset, len, Path.WriteMode.Append)
     }
 
     def writeU8Stream(content: Jen[U8]): Unit = {
@@ -779,9 +807,9 @@ object Os {
 
     def write(path: String, content: String, mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8s(path: String, u8s: ISZ[U8], mode: Path.WriteMode.Type): Unit = $
+    def writeU8s(path: String, u8s: ISZ[U8], offset: Z, len: Z, mode: Path.WriteMode.Type): Unit = $
 
-    def writeU8ms(path: String, u8s: MSZ[U8], mode: Path.WriteMode.Type): Unit = $
+    def writeU8ms(path: String, u8s: MSZ[U8], offset: Z, len: Z, mode: Path.WriteMode.Type): Unit = $
 
     def writeLineStream(path: String, lines: Jen[String], mode: Path.WriteMode.Type): Unit = $
 

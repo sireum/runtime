@@ -24,7 +24,7 @@
  */
 package org.sireum
 
-import java.io.{PrintWriter, File => JFile, BufferedInputStream => BIS, FileInputStream => FIS, BufferedOutputStream => BOS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.io.{PrintWriter, File => JFile, BufferedInputStream => BIS, BufferedOutputStream => BOS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
 import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
@@ -305,7 +305,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: U8 => Jen.Action): Jen.Action = {
-        val is = new BIS(new FIS(toIO(p)), buffSize)
+        val is = new BIS(JFiles.newInputStream(toNIO(p)), buffSize)
         try {
           var last = Jen.Continue
           var b = is.read()
@@ -326,7 +326,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new BIS(new FIS(toIO(p)), buffSize), SC.UTF_8)
+        val fr = new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8)
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -388,7 +388,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: U8 => Jen.Action): Jen.Action = {
-        val is = new BIS(new FIS(toIO(p)), buffSize)
+        val is = new BIS(JFiles.newInputStream(toNIO(p)), buffSize)
         try {
           var last = Jen.Continue
           var b = is.read()
@@ -422,7 +422,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new BIS(new FIS(toIO(p)), buffSize), SC.UTF_8)
+        val fr = new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8)
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -504,7 +504,7 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    val zis = new ZIS(new BIS(new FIS(toIO(path)), buffSize))
+    val zis = new ZIS(new BIS(JFiles.newInputStream(toNIO(path)), buffSize))
     try {
       val t = toNIO(target)
       for (file <- CollectionCompat.LazyList.continually(zis.getNextEntry).takeWhile(_ != null)) {
@@ -540,21 +540,21 @@ object Os_Ext {
     } finally bos.close()
   }
 
-  def writeU8s(path: String, content: ISZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeU8s(path: String, content: ISZ[U8], offset: Z, len: Z, mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     val bos = new BOS(os, buffSize)
     try {
-      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], offset.toInt, len.toInt)
       bos.flush()
       os.getFD.sync()
     } finally bos.close()
   }
 
-  def writeU8ms(path: String, content: MSZ[U8], mode: Os.Path.WriteMode.Type): Unit = {
+  def writeU8ms(path: String, content: MSZ[U8], offset: Z, len: Z, mode: Os.Path.WriteMode.Type): Unit = {
     val os = new FOS(toIO(path), writeAppend(path, mode))
     val bos = new BOS(os, buffSize)
     try {
-      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], 0, content.size.toInt)
+      if (content.nonEmpty) bos.write(content.data.asInstanceOf[Array[Byte]], offset.toInt, len.toInt)
       bos.flush()
       os.getFD.sync()
     } finally bos.close()
