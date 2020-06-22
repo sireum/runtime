@@ -606,7 +606,7 @@ object Os {
       Ext.writeU8s(value, content, 0, content.size, Path.WriteMode.Over)
     }
 
-    def writeOverU8s(content: ISZ[U8], offset: Z, len: Z): Unit = {
+    def writeOverU8Parts(content: ISZ[U8], offset: Z, len: Z): Unit = {
       Ext.writeU8s(value, content, offset, len, Path.WriteMode.Over)
     }
 
