@@ -26,7 +26,6 @@
 package org.sireum
 
 import org.scalactic.source.Position
-import org.scalatest.FreeSpec
 
 package object test {
 
