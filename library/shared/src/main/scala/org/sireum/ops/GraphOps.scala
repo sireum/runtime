@@ -26,8 +26,8 @@
 
 package org.sireum.ops
 
-import org.sireum.Graph
 import org.sireum._
+import org.sireum.Graph
 
 @datatype class GraphOps[W, E](graph: Graph[W, E]) {
 
