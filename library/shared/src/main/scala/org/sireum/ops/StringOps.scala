@@ -153,6 +153,14 @@ object StringOps {
     return conversions.String.fromCms(cms)
   }
 
+  @pure def toUpper: String = {
+    val cms = conversions.String.toCms(s)
+    for (i <- 0 until cms.size) {
+      cms(i) = COps(cms(i)).toUpper
+    }
+    return conversions.String.fromCms(cms)
+  }
+
   @pure def firstToLower: String = {
 //    l""" requires s.size > 0
 //         ensures  result.size ≡ s.size
@@ -160,6 +168,14 @@ object StringOps {
 //                  ∀i: [1, s.size) result(i) ≡ s(i)   """
     val cms = conversions.String.toCms(s)
     cms(0) = COps(cms(0)).toLower
+    return conversions.String.fromCms(cms)
+  }
+
+  @pure def toLower: String = {
+    val cms = conversions.String.toCms(s)
+    for (i <- 0 until cms.size) {
+      cms(i) = COps(cms(i)).toLower
+    }
     return conversions.String.fromCms(cms)
   }
 
