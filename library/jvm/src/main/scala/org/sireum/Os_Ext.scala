@@ -670,7 +670,7 @@ object Os_Ext {
           mergeErrIntoOut = e.errAsOut, propagateEnv = false)
       val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
       if (term) 
-        return Os.Proc.Result.Normal(sp.exitCode, out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+        return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
       if (sp.isAlive()) {
         try {
           sp.destroy()
@@ -678,7 +678,7 @@ object Os_Ext {
         } catch {
           case _: Throwable =>
         }
-        if (sp.isAlive)
+        if (sp.isAlive())
           try sp.destroyForcibly()
           catch {
             case _: Throwable =>
