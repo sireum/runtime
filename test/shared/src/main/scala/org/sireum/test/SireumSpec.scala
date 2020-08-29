@@ -32,16 +32,16 @@ trait SireumSpec extends AnyFreeSpec {
 
   val ts: scala.Seq[Tag] = scala.Vector()
 
-  private val m: scala.collection.mutable.Map[scala.Int, scala.Int] = {
-    import org.sireum.$internal.CollectionCompat.Converters._
-    new java.util.concurrent.ConcurrentHashMap[scala.Int, scala.Int]().asScala
-  }
+  private val m: scala.collection.mutable.Map[scala.Int, scala.Int] =
+    scala.collection.mutable.Map[scala.Int, scala.Int]()
 
   private def name(line: scala.Int): Predef.String = {
-    val last = m.getOrElseUpdate(line, 0)
-    val next = last + 1
-    m(line) = next
-    if (last == 0) s"L$line" else s"L$line # $next"
+    m.synchronized {
+      val last = m.getOrElseUpdate(line, 0)
+      val next = last + 1
+      m(line) = next
+      if (last == 0) s"L$line" else s"L$line # $next"
+    }
   }
 
   def *(title: Predef.String)(b: => scala.Boolean)(implicit pos: org.scalactic.source.Position): Unit = {
