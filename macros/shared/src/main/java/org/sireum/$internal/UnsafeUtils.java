@@ -8,6 +8,7 @@ public class UnsafeUtils {
       java.lang.reflect.Field field = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
       field.setAccessible(true);
       UNSAFE = (sun.misc.Unsafe) field.get(null);
+      field.setAccessible(false);
     } catch (Throwable ex) {
       throw new ExceptionInInitializerError(ex);
     }
