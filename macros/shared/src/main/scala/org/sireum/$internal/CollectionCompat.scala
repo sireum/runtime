@@ -27,18 +27,18 @@ package org.sireum.$internal
 
 object CollectionCompat {
 
-  ###(scala.util.Properties.versionNumberString.contains("2.12")) {
-    type IterableOnce[T] = scala.collection.GenTraversableOnce[T]
-    val LazyList = Stream
-    val Converters = scala.collection.JavaConverters
-    object ParConverters
-  }
+  // ###(scala.util.Properties.versionNumberString.contains("2.12")) {
+  //   type IterableOnce[T] = scala.collection.GenTraversableOnce[T]
+  //   val LazyList = Stream
+  //   val Converters = scala.collection.JavaConverters
+  //   object ParConverters
+  // }
 
-  ###(scala.util.Properties.versionNumberString.contains("2.13")) {
-    type IterableOnce[T] = scala.collection.IterableOnce[T]
-    val LazyList = scala.collection.immutable.LazyList
-    val Converters = scala.jdk.CollectionConverters
-    val ParConverters = scala.collection.parallel.CollectionConverters
-  }
+  // ###(scala.util.Properties.versionNumberString.contains("2.13")) {
+  type IterableOnce[T] = scala.collection.IterableOnce[T]
+  val LazyList = scala.collection.immutable.LazyList
+  val Converters = scala.jdk.CollectionConverters
+  val ParConverters = scala.collection.parallel.CollectionConverters
+  // }
 
 }
