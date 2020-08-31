@@ -623,7 +623,11 @@ object Os_Ext {
     } finally os.close()
   }
 
-  def parent(path: String): String = toIO(path).getParent
+  def parent(path: String): String = {
+    val p = toIO(path).getParent
+    if (p == null) return toIO(abs(path)).getParent
+    return p
+  }
 
   def proc(e: Os.Proc): Os.Proc.Result = {
     def nativ(): Os.Proc.Result = {
