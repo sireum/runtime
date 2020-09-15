@@ -511,7 +511,7 @@ object Os_Ext {
         if (!file.isDirectory) {
           val p = t.resolve(file.getName)
           p.getParent.toFile.mkdirs()
-          JFiles.copy(zis, p)
+          JFiles.copy(zis, p, SCO.REPLACE_EXISTING)
         }
       }
     } finally zis.close()
