@@ -99,6 +99,11 @@ object Os {
     return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F)
   }
 
+  @pure def procs(commands: String): Proc = {
+    return proc(for (cmd <- ops.StringOps(commands).split((c: C) => c == ' ')) yield
+      ops.StringOps(cmd).replaceAllChars('␣', ' '))
+  }
+
   @memoize def roots: ISZ[Path] = {
     return for (root <- Ext.roots) yield Path.Impl(root)
   }
