@@ -239,7 +239,30 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       }
       sb.toString
     } else templateString
-    q"ST(scala.Seq(..$parts), scala.Seq(..$stArgs), ${Literal(Constant(source))})"
+    q"ST(scala.Seq(..$parts), scala.Seq[ST.Arg](..$stArgs), ${Literal(Constant(source))})"
+  }
+
+  def proc(args: c.Tree*): c.Tree = {
+    val pos = c.prefix.tree.pos
+    val isSingle =
+      if (pos.source.content.length >= pos.start + 7)
+        pos.source.content.subSequence(pos.start, pos.start + 7).toString != "proc\"\"\""
+      else true
+    val parts = {
+      val ps = extractParts
+      if (isSingle) ps.map(p => q"StringContext.processEscapes($p)") else ps
+    }
+    val stArgs = for (arg <- args) yield q"""ST.Any(scala.Seq($$internal.Option(Os_Ext.pathString($arg))), "")"""
+    val source = if (pos.isRange) {
+      val text = pos.source.content
+      val sb = new java.lang.StringBuilder
+      for (_ <- 0 until pos.column - 1) sb.append(' ')
+      for (i <- pos.start until pos.end) {
+        sb.append(text(i))
+      }
+      sb.toString
+    } else templateString
+    q"Os.procs(ST(scala.Seq(..$parts), scala.Seq[ST.Arg](..$stArgs), ${Literal(Constant(source))}).render)"
   }
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"

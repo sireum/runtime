@@ -110,6 +110,8 @@ package object sireum extends $internal.PackageTrait with contract {
       }
     }
 
+    final def proc(args: Any*): OsProto.Proc = macro Macro.proc
+
     final def st(args: Any*): ST = macro Macro.st
   }
 

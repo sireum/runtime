@@ -253,7 +253,7 @@ object Os {
 
   object Proc {
 
-    @sig sealed trait Result {
+    @sig sealed trait Result extends OsProto.Proc.Result {
       def ok: B = {
         return exitCode == 0
       }
@@ -295,14 +295,14 @@ object Os {
                        outputEnv: B,
                        outputCommands: B,
                        timeoutInMillis: Z,
-                       standardLib: B) {
+                       standardLib: B) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       return this(cmds = cmds ++ cs)
     }
 
-    @pure def at(dir: Path): Proc = {
-      return this(wd = dir)
+    @pure def at(dir: OsProto.Path): Proc = {
+      return this(wd = Os.Path.Impl(dir.string))
     }
 
     @pure def env(m: ISZ[(String, String)]): Proc = {
@@ -362,9 +362,11 @@ object Os {
     }
   }
 
-  @sig sealed trait Path {
+  @sig sealed trait Path extends OsProto.Path {
 
     @pure def value: String
+
+    @strictpure def procString: String = ops.StringOps(value).replaceAllChars(' ', '␣')
 
     @pure def /(name: String): Path = {
       return Path.Impl(s"$value$fileSep$name")

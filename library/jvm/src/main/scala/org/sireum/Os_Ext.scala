@@ -786,6 +786,11 @@ object Os_Ext {
     }
   }
 
+  def pathString(o: Any): Predef.String =
+    o match {
+      case o: Os.Path => o.procString.value
+      case _ => o.toString
+    }
 
   private def toIO(path: String): JFile = new JFile(path.value)
 
