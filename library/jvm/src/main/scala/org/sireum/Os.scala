@@ -548,9 +548,17 @@ object Os {
       } else {
         nativ.removeAll()
         if (isWin) {
-          proc"cmd /c $value ${(args, " ")}".console.runCheck()
+          if (args.isEmpty) {
+            proc"cmd /c $value".console.runCheck()
+          } else {
+            proc"cmd /c $value ${(args, " ")}".console.runCheck()
+          }
         } else {
-          proc"sh $value ${(args, " ")}".console.runCheck()
+          if (args.isEmpty) {
+            proc"sh $value".console.runCheck()
+          } else {
+            proc"""sh "$value"␣${(args, "␣")}""".console.runCheck()
+          }
         }
       }
     }
