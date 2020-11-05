@@ -555,7 +555,7 @@ object Os {
           }
         } else {
           if (args.isEmpty) {
-            proc"sh $value".console.runCheck()
+            proc"""sh "$value"""".console.runCheck()
           } else {
             proc"""sh "$value"␣${(args, "␣")}""".console.runCheck()
           }
