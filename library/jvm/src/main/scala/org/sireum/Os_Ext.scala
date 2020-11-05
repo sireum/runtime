@@ -66,16 +66,16 @@ object Os_Ext {
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)).toIndexedSeq: _*)
 
   lazy val downloadCommand: ISZ[String] =
-    if (Os.proc(ISZ("curl", "--version")).run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
-    else if (Os.proc(ISZ("wget", "--version")).run().ok) ISZ("wget", "-qO")
+    if (proc"curl --version".run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
+    else if (proc"wget --version".run().ok) ISZ("wget", "-qO")
     else ISZ()
 
-  lazy val hasWget: B = Os.proc(ISZ("wget", "--version")).run().ok
+  lazy val hasWget: B = proc"wget --version".run().ok
 
   val os: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
-      if (Os.proc(ISZ("uname", "-m")).run().out.value.trim == "aarch64") Os.Kind.LinuxArm
+      if (proc"uname -m".run().out.value.trim == "aarch64") Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
@@ -88,30 +88,32 @@ object Os_Ext {
 
   def chmod(path: String, mask: String, all: B): Unit = {
     if (os == Os.Kind.Win) return
-    if (all) Os.proc(ISZ("sh", "-c", s"chmod -fR $mask $path")).run()
-    else Os.proc(ISZ("sh", "-c", s"chmod $mask $path")).runCheck()
+    val p = path.value.replace(' ', '␣')
+    if (all) proc"""sh -c chmod␣-fR␣$mask␣"$p"""".run()
+    else proc"""sh -c chmod␣$mask␣"$p"""".run()
   }
 
   def copy(path: String, target: String, over: B): Unit = {
-    val p = toNIO(path)
-    val t = toNIO(target)
+    val p = path.value.replace(' ', '␣')
+    val t = target.value.replace(' ', '␣')
     if (over) {
       removeAll(target)
       mkdir(parent(target), T)
     }
     if (isDir(path)) {
       if (Os.isWin) {
-        val r = Os.proc(ISZ("robocopy.exe", "/MIR", path, target)).run()
+        val r = proc"robocopy.exe /MIR $p $t".run()
         if (r.exitCode > 7) halt(s"Failed to copy $path to $target")
       }
-      else Os.proc(ISZ("sh", "-c", s"cp -a $path $target")).runCheck()
-    } else JFiles.copy(p, t, SCO.COPY_ATTRIBUTES)
+      else proc"""sh -c cp␣-a␣"$p"␣"$t"""".runCheck()
+    } else JFiles.copy(toNIO(path), toNIO(target), SCO.COPY_ATTRIBUTES)
   }
 
   def download(path: String, url: String): Unit = {
     def nativ(): Unit = {
       if (Os.isWin) {
-        Os.proc(ISZ("powershell.exe", "-Command", s"""Invoke-WebRequest -Uri "$url" -OutFile "$path"""")).runCheck()
+        val p = path.value.replace(' ', '␣')
+        proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".runCheck()
       } else {
         if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
         else halt("Either curl or wget is required")
@@ -236,7 +238,7 @@ object Os_Ext {
     val fParent = f.getParent
     if (Os.isWin) {
       val mklinkOption: String = if (isDir(target)) "/J " else ""
-      Os.proc(ISZ("cmd", "/c", s"""cd /d $fParent && mklink $mklinkOption${f.getName} "${toNIO(relativize(fParent, target))}"""")).runCheck()
+      proc"""cmd /c cd /d ${fParent.replace(' ', '␣')} && mklink $mklinkOption${f.getName} "${toNIO(relativize(fParent, target)).toString.replace(' ', '␣')}"""".runCheck()
     } else {
       JFiles.createSymbolicLink(toNIO(path), toNIO(relativize(fParent, target)))
     }
@@ -445,10 +447,11 @@ object Os_Ext {
   }
 
   def removeAll(path: String): Unit = if (exists(path)) {
+    val p = path.value.replace(' ', '␣')
     if (isDir(path)) {
       os match {
-        case Os.Kind.Win => Os.proc(ISZ("cmd", "/c", "RD", "/S", "/Q", path)).run()
-        case _ => Os.proc(ISZ("sh", "-c", s"rm -fR $path")).run()
+        case Os.Kind.Win => proc"""cmd /c RD /S /Q $p""".run()
+        case _ => proc"""sh -c rm␣-fR␣"$p"""".run()
       }
     } else try {
       remove(path)
@@ -786,11 +789,14 @@ object Os_Ext {
     }
   }
 
-  def pathString(o: Any): Predef.String =
-    o match {
-      case o: Os.Path => o.procString.value
+  def pathString(o: Any): Predef.String = {
+    val r = o match {
+      case o: OsProto.Path => o.string.value.replace(' ', '␣')
+      case (o: OsProto.Path, sep) => st"${(o.string.value.replace(' ', '␣'), sep.toString)}".render.value
       case _ => o.toString
     }
+    r
+  }
 
   private def toIO(path: String): JFile = new JFile(path.value)
 

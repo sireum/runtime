@@ -262,7 +262,9 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       }
       sb.toString
     } else templateString
-    q"Os.procs(ST(scala.Seq(..$parts), scala.Seq[ST.Arg](..$stArgs), ${Literal(Constant(source))}).render)"
+    val r = q"Os.procs(ST(scala.Seq(..$parts), scala.Seq[ST.Arg](..$stArgs), ${Literal(Constant(source))}).render)"
+    //println(showCode(r))
+    r
   }
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"

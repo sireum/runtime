@@ -100,8 +100,9 @@ object Os {
   }
 
   @pure def procs(commands: String): Proc = {
-    return proc(for (cmd <- ops.StringOps(commands).split((c: C) => c == ' ')) yield
-      ops.StringOps(cmd).replaceAllChars('␣', ' '))
+    val cmds: ISZ[String] = for (cmd <- ops.StringOps(commands).split((c: C) => c == ' ')) yield
+      ops.StringOps(cmd).replaceAllChars('␣', ' ')
+    return proc(cmds)
   }
 
   @memoize def roots: ISZ[Path] = {
@@ -253,14 +254,7 @@ object Os {
 
   object Proc {
 
-    @sig sealed trait Result extends OsProto.Proc.Result {
-      def ok: B = {
-        return exitCode == 0
-      }
-      def out: String
-      def err: String
-      def exitCode: Z
-    }
+    @sig sealed trait Result extends OsProto.Proc.Result
 
     object Result {
 
@@ -554,9 +548,9 @@ object Os {
       } else {
         nativ.removeAll()
         if (isWin) {
-          Os.proc(ISZ[String]("cmd", "/c", string) ++ args).console.runCheck()
+          proc"cmd /c $value ${(args, " ")}".console.runCheck()
         } else {
-          Os.proc(ISZ[String]("sh", string) ++ args).console.runCheck()
+          proc"sh $value ${(args, " ")}".console.runCheck()
         }
       }
     }

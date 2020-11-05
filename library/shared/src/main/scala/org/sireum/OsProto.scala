@@ -30,7 +30,14 @@ object OsProto {
   @sig trait Path
 
   object Proc {
-    @sig trait Result
+    @sig trait Result {
+      def ok: B = {
+        return exitCode == 0
+      }
+      def out: String
+      def err: String
+      def exitCode: Z
+    }
   }
 
   @sig trait Proc {
