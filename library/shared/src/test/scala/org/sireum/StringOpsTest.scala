@@ -33,9 +33,21 @@ class StringOpsTest extends TestSuite {
 
     * - {
       val input = "1234567"
-      assert(ops.StringOps(input).replaceAllLiterally("123abc", "_") =!= input)
+      val output = ops.StringOps(input).replaceAllLiterally("123abc", "_")
+      assert(output === input)
+    }
+
+    * - {
+      val input = "1234567"
+      val output = ops.StringOps(input).replaceAllLiterally("12345678", "_")
+      assert(output === input)
+    }
+
+    * - {
+      val input = "1234567"
+      val output = ops.StringOps(input).replaceAllLiterally("123", "_")
+      assert(output === "_4567")
     }
 
   }
-
 }

@@ -62,7 +62,7 @@ object StringOps {
         }
         j = j + 1
       }
-      if (found) {
+      if (found && j == fromSize) {
         for (j <- 0 until toSize) {
           r = r :+ toCis(j)
         }
