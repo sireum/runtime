@@ -56,7 +56,7 @@ object StringOps {
     while (i + fromSize < size) {
       var j = 0
       var found = T
-      while (i + j + fromSize < size && j < fromSize && found) {
+      while (i + j < size && j < fromSize && found) {
         if (cis(i + j) != fromCis(j)) {
           found = F
         }
