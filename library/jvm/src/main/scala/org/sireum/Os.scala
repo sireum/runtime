@@ -552,7 +552,7 @@ object Os {
         Os.proc(string +: args).console.runCheck()
       } else {
         nativ.removeAll()
-        proc(args).script.console.run()
+        proc(string +: args).script.console.runCheck()
       }
     }
 
