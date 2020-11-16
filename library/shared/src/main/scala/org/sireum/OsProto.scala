@@ -66,6 +66,8 @@ object OsProto {
 
     @pure def standard: Proc
 
+    @pure def script: Proc
+
     def run(): Proc.Result
 
     def runCheck(): Proc.Result

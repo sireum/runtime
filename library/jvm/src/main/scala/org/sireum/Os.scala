@@ -96,7 +96,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F)
+    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F, F)
   }
 
   @pure def procs(commands: String): Proc = {
@@ -281,15 +281,16 @@ object Os {
   @datatype class Proc(cmds: ISZ[String],
                        wd: Path,
                        envMap: Map[String, String],
-                       addEnv: B,
+                       shouldAddEnv: B,
                        in: Option[String],
-                       errAsOut: B,
-                       outputConsole: B,
-                       errBuffered: B,
-                       outputEnv: B,
-                       outputCommands: B,
+                       isErrAsOut: B,
+                       shouldOutputConsole: B,
+                       isErrBuffered: B,
+                       shouldPrintEnv: B,
+                       shouldPrintCommands: B,
                        timeoutInMillis: Z,
-                       standardLib: B) extends OsProto.Proc {
+                       shouldUseStandardLib: B,
+                       isScript: B) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       return this(cmds = cmds ++ cs)
@@ -312,31 +313,35 @@ object Os {
     }
 
     @pure def dontInheritEnv: Proc = {
-      return this(addEnv = F)
+      return this(shouldAddEnv = F)
     }
 
     @pure def redirectErr: Proc = {
-      return this(errAsOut = T)
+      return this(isErrAsOut = T)
     }
 
     @pure def bufferErr: Proc = {
-      return this(errBuffered = T)
+      return this(isErrBuffered = T)
     }
 
     @pure def console: Proc = {
-      return this(outputConsole = T)
+      return this(shouldOutputConsole = T)
     }
 
     @pure def echoEnv: Proc = {
-      return this(outputEnv = T)
+      return this(shouldPrintEnv = T)
     }
 
     @pure def echo: Proc = {
-      return this(outputCommands = T)
+      return this(shouldPrintCommands = T)
     }
 
     @pure def standard: Proc = {
-      return this(standardLib = T)
+      return this(shouldUseStandardLib = T)
+    }
+
+    @pure def script: Proc = {
+      return this(isScript = T)
     }
 
     def run(): Proc.Result = {
@@ -547,19 +552,7 @@ object Os {
         Os.proc(string +: args).console.runCheck()
       } else {
         nativ.removeAll()
-        if (isWin) {
-          if (args.isEmpty) {
-            proc"cmd /c $value".console.runCheck()
-          } else {
-            proc"cmd /c $value ${(args, " ")}".console.runCheck()
-          }
-        } else {
-          if (args.isEmpty) {
-            proc"""sh $value""".console.runCheck()
-          } else {
-            proc"""sh $value␣${(args, "␣")}""".console.runCheck()
-          }
-        }
+        proc(args).script.console.run()
       }
     }
 

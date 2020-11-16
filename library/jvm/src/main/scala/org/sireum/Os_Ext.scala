@@ -632,10 +632,15 @@ object Os_Ext {
     return p
   }
 
-  def proc(e: Os.Proc): Os.Proc.Result = {
+  def proc(ep: Os.Proc): Os.Proc.Result = {
+    val e: Os.Proc =
+      if (ep.isScript)
+        if (os == Os.Kind.Win) ep(cmds = ISZ[String]("cmd", "/c") ++ ep.cmds)
+        else ep(cmds = "sh" +: ep.cmds)
+      else ep
     def nativ(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      if (e.addEnv) {
+      if (e.shouldAddEnv) {
         for ((k, v) <- System.getenv().asScala) {
           val key = k.toString
           val value = v.toString
@@ -647,12 +652,12 @@ object Os_Ext {
         val value = v.toString
         m(key) = value
       }
-      if (e.outputEnv) {
+      if (e.shouldPrintEnv) {
         for ((k, v) <- m) {
           println(s"$k = $v")
         }
       }
-      if (e.outputCommands) {
+      if (e.shouldPrintCommands) {
         println(e.cmds.elements.mkString(" "))
       }
       val out = new java.io.ByteArrayOutputStream()
@@ -661,11 +666,11 @@ object Os_Ext {
         baos.write(bytes, 0, n)
       }
       val pOut = _root_.os.ProcessOutput(f(out))
-      def fErr: _root_.os.ProcessOutput = if (e.errAsOut) pOut else _root_.os.ProcessOutput(f(err))
+      def fErr: _root_.os.ProcessOutput = if (e.isErrAsOut) pOut else _root_.os.ProcessOutput(f(err))
       val (stdout, stderr) =
-        if (e.outputConsole)
+        if (e.shouldOutputConsole)
           (_root_.os.Inherit: _root_.os.ProcessOutput,
-           if (e.errBuffered && !e.errAsOut) fErr else _root_.os.Inherit: _root_.os.ProcessOutput)
+           if (e.isErrBuffered && !e.isErrAsOut) fErr else _root_.os.Inherit: _root_.os.ProcessOutput)
         else (pOut, fErr)
       val stdin: _root_.os.ProcessInput = e.in match {
         case Some(s) => s.value
@@ -674,7 +679,7 @@ object Os_Ext {
       val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
         spawn(cwd = _root_.os.Path(toIO(e.wd.value).getCanonicalPath),
           env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
-          mergeErrIntoOut = e.errAsOut, propagateEnv = false)
+          mergeErrIntoOut = e.isErrAsOut, propagateEnv = false)
       val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
       if (term) 
         return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
@@ -696,7 +701,7 @@ object Os_Ext {
     def jvm(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      if (e.addEnv) {
+      if (e.shouldAddEnv) {
         for ((k, v) <- System.getenv().asScala) {
           val key = k.toString
           val value = v.toString
@@ -708,12 +713,12 @@ object Os_Ext {
         val value = v.toString
         m(key) = value
       }
-      if (e.outputEnv) {
+      if (e.shouldPrintEnv) {
         for ((k, v) <- m) {
           println(s"$k = $v")
         }
       }
-      if (e.outputCommands) {
+      if (e.shouldPrintCommands) {
         println(e.cmds.elements.mkString(" "))
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
@@ -722,17 +727,17 @@ object Os_Ext {
       val err = new java.io.ByteArrayOutputStream()
       npb.setProcessListener(new NuAbstractProcessHandler {
         def append(isOut: B, buffer: BB): Unit = {
-          if (e.outputConsole) {
+          if (e.shouldOutputConsole) {
             lazy val s = {
               val bytes = new Array[Byte](buffer.remaining)
               buffer.get(bytes)
               new Predef.String(bytes, SC.UTF_8)
             }
             if (isOut) System.out.print(s)
-            else if (e.errBuffered && !e.errAsOut) for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
+            else if (e.isErrBuffered && !e.isErrAsOut) for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
             else System.err.print(s)
           } else {
-            if (isOut || e.errAsOut) for (_ <- 0 until buffer.remaining()) out.write(buffer.get)
+            if (isOut || e.isErrAsOut) for (_ <- 0 until buffer.remaining()) out.write(buffer.get)
             else for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
           }
         }
@@ -770,7 +775,7 @@ object Os_Ext {
       } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
     }
     try {
-      if (isNative || e.standardLib) {
+      if (isNative || e.shouldUseStandardLib) {
         nativ()
       } else {
         try {
