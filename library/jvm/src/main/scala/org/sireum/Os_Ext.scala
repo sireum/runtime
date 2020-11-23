@@ -680,7 +680,15 @@ object Os_Ext {
         spawn(cwd = _root_.os.Path(toIO(e.wd.value).getCanonicalPath),
           env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
           mergeErrIntoOut = e.isErrAsOut, propagateEnv = false)
-      val term = sp.join(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
+      val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
+      sp.outputPumperThread match {
+        case scala.Some(t) => while (t.isAlive) t.wait(0)
+        case _ =>
+      }
+      sp.errorPumperThread match {
+        case scala.Some(t) => while (t.isAlive) t.wait(0)
+        case _ =>
+      }
       if (term)
         return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
       if (sp.isAlive()) {
