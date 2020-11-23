@@ -638,7 +638,7 @@ object Os_Ext {
         if (os == Os.Kind.Win) ep(cmds = ISZ[String]("cmd", "/c") ++ ep.cmds)
         else ep(cmds = "sh" +: ep.cmds)
       else ep
-    def nativ(): Os.Proc.Result = {
+    def standardLib(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (e.shouldAddEnv) {
         for ((k, v) <- System.getenv().asScala) {
@@ -680,8 +680,8 @@ object Os_Ext {
         spawn(cwd = _root_.os.Path(toIO(e.wd.value).getCanonicalPath),
           env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
           mergeErrIntoOut = e.isErrAsOut, propagateEnv = false)
-      val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
-      if (term) 
+      val term = sp.join(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
+      if (term)
         return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
       if (sp.isAlive()) {
         try {
@@ -698,7 +698,7 @@ object Os_Ext {
       }
       Os.Proc.Result.Timeout(out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
     }
-    def jvm(): Os.Proc.Result = {
+    def nuProcess(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (e.shouldAddEnv) {
@@ -776,14 +776,14 @@ object Os_Ext {
     }
     try {
       if (isNative || e.shouldUseStandardLib) {
-        nativ()
+        standardLib()
       } else {
         try {
-          jvm()
+          nuProcess()
         } catch {
           case _: UnsatisfiedLinkError | _: NumberFormatException | _: ExceptionInInitializerError =>
             isNative = T
-            nativ()
+            standardLib()
         }
       }
     } catch {
