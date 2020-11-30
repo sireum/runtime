@@ -37,7 +37,7 @@ object ST {
         case arg: Mutable => helper.cloneAssign(arg)
         case arg => arg
       }, sep)
-    def unapply(o: Any): scala.Option[(scala.Seq[scala.Any], Predef.String)] =
+    def unapply(o: Any): scala.Some[(scala.Seq[scala.Any], Predef.String)] =
       scala.Some((o.args.toSeq, o.sep))
   }
   
@@ -46,7 +46,7 @@ object ST {
   object Templ {
     def apply(args: scala.Seq[ST], sep: Predef.String = ""): Templ =
       new Templ(args.toArray, sep)
-    def unapply(o: Templ): scala.Option[(scala.Seq[ST], Predef.String)] =
+    def unapply(o: Templ): scala.Some[(scala.Seq[ST], Predef.String)] =
       scala.Some((o.args.toSeq, o.sep))
   }
 

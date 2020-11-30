@@ -1504,36 +1504,42 @@ object Json {
     def parseEither[L, R](f0: () => L, f1: () => R): Either[L, R] = {
       parseObjectType("Or")
       parseObjectKey("i")
+      val o = offset
       val i = parseZ()
       parseObjectNext()
       parseObjectKey("value")
-      i match {
-        case z"0" =>
-          val l = f0()
-          parseObjectNext()
-          return Either.Left(l)
-        case z"1" =>
-          val r = f1()
-          parseObjectNext()
-          return Either.Right(r)
+      if (i == 1) {
+        val r = f1()
+        parseObjectNext()
+        return Either.Right(r)
+      } else {
+        if (i != 0) {
+          parseException(o, s"Expecting 0 or 1, but found $i")
+        }
+        val l = f0()
+        parseObjectNext()
+        return Either.Left(l)
       }
     }
 
     def parseMEither[L, R](f0: () => L, f1: () => R): MEither[L, R] = {
       parseObjectType("Or")
       parseObjectKey("i")
+      val o = offset
       val i = parseZ()
       parseObjectNext()
       parseObjectKey("value")
-      i match {
-        case z"0" =>
-          val l = f0()
-          parseObjectNext()
-          return MEither.Left(l)
-        case z"1" =>
-          val r = f1()
-          parseObjectNext()
-          return MEither.Right(r)
+      if (i == 1) {
+        val r = f1()
+        parseObjectNext()
+        return MEither.Right(r)
+      } else {
+        if (i != 0) {
+          parseException(o, s"Expecting 0 or 1, but found $i")
+        }
+        val l = f0()
+        parseObjectNext()
+        return MEither.Left(l)
       }
     }
 
@@ -2221,6 +2227,7 @@ object Json {
       }
       val p = computeLineColumn(i)
       errorOpt = Some(ErrorMsg(p._1, p._2, msg))
+      offset = input.size
     }
 
     def errorIfEof(i: Z): Unit = {
@@ -2237,7 +2244,6 @@ object Json {
 
     def parseWhitespace(): Unit = {
       if (errorOpt.nonEmpty) {
-        offset = input.size
         return
       }
       if (offset >= input.size) {

@@ -212,7 +212,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val pos = c.prefix.tree.pos
     val isSingle =
       if (pos.source.content.length >= pos.start + 5)
-        pos.source.content.subSequence(pos.start, pos.start + 5).toString != "st\"\"\""
+        new String(pos.source.content.slice(pos.start, pos.start + 5)) != "st\"\"\""
       else true
     val parts = {
       val ps = extractParts
@@ -246,7 +246,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val pos = c.prefix.tree.pos
     val isSingle =
       if (pos.source.content.length >= pos.start + 7)
-        pos.source.content.subSequence(pos.start, pos.start + 7).toString != "proc\"\"\""
+        new String(pos.source.content.slice(pos.start, pos.start + 7)) != "proc\"\"\""
       else true
     val parts = {
       val ps = extractParts
