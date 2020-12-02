@@ -96,7 +96,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F, F)
+    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F, F, None(), None())
   }
 
   @pure def procs(commands: String): Proc = {
@@ -290,7 +290,9 @@ object Os {
                        shouldPrintCommands: B,
                        timeoutInMillis: Z,
                        shouldUseStandardLib: B,
-                       isScript: B) extends OsProto.Proc {
+                       isScript: B,
+                       outLineActionOpt: Option[String => B],
+                       errLineActionOpt: Option[String => B]) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       return this(cmds = cmds ++ cs)
@@ -342,6 +344,14 @@ object Os {
 
     @pure def script: Proc = {
       return this(isScript = T)
+    }
+
+    @pure def outLineAction(f: String => B): Proc = {
+      return this(outLineActionOpt = Some(f))
+    }
+
+    @pure def errLineAction(f: String => B): Proc = {
+      return this(errLineActionOpt = Some(f))
     }
 
     def run(): Proc.Result = {

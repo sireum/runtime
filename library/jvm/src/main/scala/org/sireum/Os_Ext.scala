@@ -632,55 +632,91 @@ object Os_Ext {
     return p
   }
 
-  def proc(ep: Os.Proc): Os.Proc.Result = {
-    val e: Os.Proc =
-      if (ep.isScript)
-        if (os == Os.Kind.Win) ep(cmds = ISZ[String]("cmd", "/c") ++ ep.cmds)
-        else ep(cmds = "sh" +: ep.cmds)
-      else ep
+  def proc(pr: Os.Proc): Os.Proc.Result = {
+    val p: Os.Proc =
+      if (pr.isScript)
+        if (os == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
+        else pr(cmds = "sh" +: pr.cmds)
+      else pr
+    val out = new java.io.ByteArrayOutputStream()
+    val err = new java.io.ByteArrayOutputStream()
+    val outLine = new java.io.ByteArrayOutputStream()
+    val errLine = new java.io.ByteArrayOutputStream()
+    val newLine  = '\n'.toByte
+    def f(isErr: B)(bytes: Array[Byte], n: Int): Unit = {
+      val (baos, baosLine, pw, laOpt) =
+        if (isErr) (err, errLine, System.err, p.errLineActionOpt)
+        else (out, outLine, System.out, p.outLineActionOpt)
+      val shouldOutputConsole = if (isErr) p.shouldOutputConsole && !p.isErrBuffered else p.shouldOutputConsole
+      laOpt match {
+        case Some(la) =>
+          baosLine.write(bytes, 0, n)
+          val i = bytes.indexOf(newLine)
+          if (0 <= i && i < n) {
+            val s = new Predef.String(baosLine.toString(SC.UTF_8))
+            val ss = s.split('\n')
+            for (i <- 0 until ss.length - 1) {
+              val line = ss(i)
+              if (la(line)) {
+                if (shouldOutputConsole) {
+                  pw.println(line)
+                  pw.flush()
+                }
+                baos.write(line.getBytes(SC.UTF_8))
+                baos.write('\n')
+              }
+            }
+            val line = ss(ss.length - 1)
+            baosLine.reset()
+            baos.write(line.getBytes(SC.UTF_8))
+            if (bytes(n - 1) == newLine) {
+              if (la(line)) {
+                if (shouldOutputConsole) {
+                  pw.println(line)
+                  pw.flush()
+                }
+                baos.write('\n')
+              }
+            }
+          }
+        case _ =>
+          baos.write(bytes, 0, n)
+          if (shouldOutputConsole) pw.write(bytes, 0, n)
+      }
+    }
     def standardLib(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      if (e.shouldAddEnv) {
+      if (p.shouldAddEnv) {
         for ((k, v) <- System.getenv().asScala) {
           val key = k.toString
           val value = v.toString
           m(key) = value
         }
       }
-      for ((k, v) <- e.envMap.entries.elements) {
+      for ((k, v) <- p.envMap.entries.elements) {
         val key = k.toString
         val value = v.toString
         m(key) = value
       }
-      if (e.shouldPrintEnv) {
+      if (p.shouldPrintEnv) {
         for ((k, v) <- m) {
           println(s"$k = $v")
         }
       }
-      if (e.shouldPrintCommands) {
-        println(e.cmds.elements.mkString(" "))
+      if (p.shouldPrintCommands) {
+        println(p.cmds.elements.mkString(" "))
       }
-      val out = new java.io.ByteArrayOutputStream()
-      val err = new java.io.ByteArrayOutputStream()
-      def f(baos: java.io.ByteArrayOutputStream)(bytes: Array[Byte], n: Int): Unit = {
-        baos.write(bytes, 0, n)
-      }
-      val pOut = _root_.os.ProcessOutput(f(out))
-      def fErr: _root_.os.ProcessOutput = if (e.isErrAsOut) pOut else _root_.os.ProcessOutput(f(err))
-      val (stdout, stderr) =
-        if (e.shouldOutputConsole)
-          (_root_.os.Inherit: _root_.os.ProcessOutput,
-           if (e.isErrBuffered && !e.isErrAsOut) fErr else _root_.os.Inherit: _root_.os.ProcessOutput)
-        else (pOut, fErr)
-      val stdin: _root_.os.ProcessInput = e.in match {
+      val pOut = _root_.os.ProcessOutput(f(F))
+      def pErr: _root_.os.ProcessOutput = if (p.isErrAsOut) pOut else _root_.os.ProcessOutput(f(T))
+      val stdin: _root_.os.ProcessInput = p.in match {
         case Some(s) => s.value
         case _ => _root_.os.Pipe
       }
-      val sp = _root_.os.proc(e.cmds.elements.map(_.value: _root_.os.Shellable)).
-        spawn(cwd = _root_.os.Path(toIO(e.wd.value).getCanonicalPath),
-          env = m.toMap, stdin = stdin, stdout = stdout, stderr = stderr,
-          mergeErrIntoOut = e.isErrAsOut, propagateEnv = false)
-      val term = sp.waitFor(if (e.timeoutInMillis > 0) e.timeoutInMillis.toLong else -1)
+      val sp = _root_.os.proc(p.cmds.elements.map(_.value: _root_.os.Shellable)).
+        spawn(cwd = _root_.os.Path(toIO(p.wd.value).getCanonicalPath),
+          env = m.toMap, stdin = stdin, stdout = pOut, stderr = pErr,
+          mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
+      val term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       sp.outputPumperThread match {
         case scala.Some(t) => while (t.isAlive) t.wait(0)
         case _ =>
@@ -707,47 +743,37 @@ object Os_Ext {
       Os.Proc.Result.Timeout(out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
     }
     def nuProcess(): Os.Proc.Result = {
-      val commands = new java.util.ArrayList(e.cmds.elements.map(_.value).asJavaCollection)
+      val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
-      if (e.shouldAddEnv) {
+      if (p.shouldAddEnv) {
         for ((k, v) <- System.getenv().asScala) {
           val key = k.toString
           val value = v.toString
           m(key) = value
         }
       }
-      for ((k, v) <- e.envMap.entries.elements) {
+      for ((k, v) <- p.envMap.entries.elements) {
         val key = k.toString
         val value = v.toString
         m(key) = value
       }
-      if (e.shouldPrintEnv) {
+      if (p.shouldPrintEnv) {
         for ((k, v) <- m) {
           println(s"$k = $v")
         }
       }
-      if (e.shouldPrintCommands) {
-        println(e.cmds.elements.mkString(" "))
+      if (p.shouldPrintCommands) {
+        println(p.cmds.elements.mkString(" "))
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
-      npb.setCwd(toNIO(e.wd.value))
-      val out = new java.io.ByteArrayOutputStream()
-      val err = new java.io.ByteArrayOutputStream()
+      npb.setCwd(toNIO(p.wd.value))
+      val pOut = f(F) _
+      val pErr = if (p.isErrAsOut) pOut else f(T) _
       npb.setProcessListener(new NuAbstractProcessHandler {
         def append(isOut: B, buffer: BB): Unit = {
-          if (e.shouldOutputConsole) {
-            lazy val s = {
-              val bytes = new Array[Byte](buffer.remaining)
-              buffer.get(bytes)
-              new Predef.String(bytes, SC.UTF_8)
-            }
-            if (isOut) System.out.print(s)
-            else if (e.isErrBuffered && !e.isErrAsOut) for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
-            else System.err.print(s)
-          } else {
-            if (isOut || e.isErrAsOut) for (_ <- 0 until buffer.remaining()) out.write(buffer.get)
-            else for (_ <- 0 until buffer.remaining()) err.write(buffer.get)
-          }
+          val bytes = new Array[Byte](buffer.remaining)
+          buffer.get(bytes)
+          if (isOut) pOut(bytes, bytes.length) else pErr(bytes, bytes.length)
         }
 
         override def onStderr(buffer: BB, closed: Boolean): Unit = {
@@ -758,32 +784,32 @@ object Os_Ext {
           if (!closed) append(T, buffer)
         }
       })
-      val p = npb.start()
-      if (p != null && p.isRunning) {
-        e.in match {
-          case Some(in) => p.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
+      val np = npb.start()
+      if (np != null && np.isRunning) {
+        p.in match {
+          case Some(in) => np.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
           case _ =>
         }
-        p.closeStdin(false)
-        val exitCode = p.waitFor(e.timeoutInMillis.toLong, TU.MILLISECONDS)
+        np.closeStdin(false)
+        val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
         if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode,
           out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
-        if (p.isRunning) try {
-          p.destroy(false)
-          p.waitFor(500, TU.MICROSECONDS)
+        if (np.isRunning) try {
+          np.destroy(false)
+          np.waitFor(500, TU.MICROSECONDS)
         } catch {
           case _: Throwable =>
         }
-        if (p.isRunning)
-          try p.destroy(true)
+        if (np.isRunning)
+          try np.destroy(true)
           catch {
             case _: Throwable =>
           }
         Os.Proc.Result.Timeout(out.toString, err.toString)
-      } else Os.Proc.Result.Exception(s"Could not execute command: ${e.cmds.elements.mkString(" ")}")
+      } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
-      if (isNative || e.shouldUseStandardLib) {
+      if (isNative || p.shouldUseStandardLib) {
         standardLib()
       } else {
         try {
