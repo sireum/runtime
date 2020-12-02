@@ -76,7 +76,7 @@ object GitHub_Ext {
     val ghRepo = connectRepo(release.repo.owner, release.repo.name)
     val ghRelease = ghRepo.getRelease(release.id.toLong)
     var assets = ISZ[GitHub.Asset]()
-    for (ghAsset <- ghRelease.getAssets.asScala) {
+    for (ghAsset <- ghRelease.listAssets.toList.asScala) {
       assets = assets :+ GitHub.Asset(
         release,
         ghAsset.getId,
