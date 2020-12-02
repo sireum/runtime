@@ -632,17 +632,13 @@ object Os_Ext {
     return p
   }
 
-  def proc(pr: Os.Proc): Os.Proc.Result = {
-    val p: Os.Proc =
-      if (pr.isScript)
-        if (os == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
-        else pr(cmds = "sh" +: pr.cmds)
-      else pr
+  final class ProcOutput(p: Os.Proc) {
     val out = new java.io.ByteArrayOutputStream()
     val err = new java.io.ByteArrayOutputStream()
     val outLine = new java.io.ByteArrayOutputStream()
     val errLine = new java.io.ByteArrayOutputStream()
-    val newLine  = '\n'.toByte
+    val newLine: Byte  = '\n'.toByte
+
     def fEnd(): Unit = {
       if (outLine.size != 0) {
         val bs = outLine.toByteArray
@@ -668,7 +664,8 @@ object Os_Ext {
         errLine.reset()
       }
     }
-    def f(isErr: B)(bytes: Array[Byte], n: Int): Unit = {
+
+    def f(isErr: B, bytes: Array[Byte], n: Int): Unit = {
       val (baos, baosLine, pw, laOpt) =
         if (isErr) (err, errLine, System.err, p.errLineActionOpt)
         else (out, outLine, System.out, p.outLineActionOpt)
@@ -706,9 +703,20 @@ object Os_Ext {
           }
         case _ =>
           baos.write(bytes, 0, n)
-          if (shouldOutputConsole) pw.write(bytes, 0, n)
+          if (shouldOutputConsole) {
+            pw.write(bytes, 0, n)
+            pw.flush()
+          }
       }
     }
+  }
+
+  def proc(pr: Os.Proc): Os.Proc.Result = {
+    val p: Os.Proc =
+      if (pr.isScript)
+        if (os == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
+        else pr(cmds = "sh" +: pr.cmds)
+      else pr
     def standardLib(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
@@ -731,8 +739,10 @@ object Os_Ext {
       if (p.shouldPrintCommands) {
         println(p.cmds.elements.mkString(" "))
       }
-      val pOut = _root_.os.ProcessOutput(f(F))
-      def pErr: _root_.os.ProcessOutput = if (p.isErrAsOut) pOut else _root_.os.ProcessOutput(f(T))
+      val po = new ProcOutput(p)
+      val pOut = _root_.os.ProcessOutput((bytes: Array[Byte], n: Int) => po.f(F, bytes, n))
+      def pErr: _root_.os.ProcessOutput =
+        if (p.isErrAsOut) pOut else _root_.os.ProcessOutput((bytes: Array[Byte], n: Int) => po.f(T, bytes, n))
       val stdin: _root_.os.ProcessInput = p.in match {
         case Some(s) => s.value
         case _ => _root_.os.Pipe
@@ -751,8 +761,8 @@ object Os_Ext {
         case _ =>
       }
       if (term) {
-        fEnd()
-        return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+        po.fEnd()
+        return Os.Proc.Result.Normal(sp.exitCode(), po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
       }
       if (sp.isAlive()) {
         try {
@@ -767,8 +777,8 @@ object Os_Ext {
             case _: Throwable =>
           }
       }
-      fEnd()
-      Os.Proc.Result.Timeout(out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+      po.fEnd()
+      Os.Proc.Result.Timeout(po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
     }
     def nuProcess(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
@@ -795,13 +805,13 @@ object Os_Ext {
       }
       val npb = new NuProcessBuilder(commands, m.asJava)
       npb.setCwd(toNIO(p.wd.value))
-      val pOut = f(F) _
-      val pErr = if (p.isErrAsOut) pOut else f(T) _
+      val po = new ProcOutput(p)
       npb.setProcessListener(new NuAbstractProcessHandler {
         def append(isOut: B, buffer: BB): Unit = {
-          val bytes = new Array[Byte](buffer.remaining)
-          buffer.get(bytes)
-          if (isOut) pOut(bytes, bytes.length) else pErr(bytes, bytes.length)
+          val size = buffer.remaining
+          val bytes = new Array[Byte](size)
+          for (i <- 0 until size) bytes(i) = (buffer.get)
+          if (isOut) po.f(F, bytes, bytes.length) else po.f(T, bytes, bytes.length)
         }
 
         override def onStderr(buffer: BB, closed: Boolean): Unit = {
@@ -821,9 +831,9 @@ object Os_Ext {
         np.closeStdin(false)
         val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
         if (exitCode != scala.Int.MinValue) {
-          fEnd()
+          po.fEnd()
           return Os.Proc.Result.Normal(exitCode,
-            out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+            po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
         }
         if (np.isRunning) try {
           np.destroy(false)
@@ -836,8 +846,8 @@ object Os_Ext {
           catch {
             case _: Throwable =>
           }
-        fEnd()
-        Os.Proc.Result.Timeout(out.toString, err.toString)
+        po.fEnd()
+        Os.Proc.Result.Timeout(po.out.toString, po.err.toString)
       } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
