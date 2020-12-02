@@ -643,6 +643,31 @@ object Os_Ext {
     val outLine = new java.io.ByteArrayOutputStream()
     val errLine = new java.io.ByteArrayOutputStream()
     val newLine  = '\n'.toByte
+    def fEnd(): Unit = {
+      if (outLine.size != 0) {
+        val bs = outLine.toByteArray
+        out.write(bs)
+        if (p.shouldOutputConsole) {
+          System.out.write(bs)
+          System.out.flush()
+        }
+        outLine.reset()
+      }
+      if (errLine.size != 0) {
+        val bs = errLine.toByteArray
+        err.write(bs)
+        if (p.shouldOutputConsole) {
+          if (p.isErrAsOut) {
+            System.out.write(bs)
+            System.out.flush()
+          } else if (!p.isErrBuffered) {
+            System.err.write(bs)
+            System.err.flush()
+          }
+        }
+        errLine.reset()
+      }
+    }
     def f(isErr: B)(bytes: Array[Byte], n: Int): Unit = {
       val (baos, baosLine, pw, laOpt) =
         if (isErr) (err, errLine, System.err, p.errLineActionOpt)
@@ -725,8 +750,10 @@ object Os_Ext {
         case scala.Some(t) => while (t.isAlive) t.wait(0)
         case _ =>
       }
-      if (term)
+      if (term) {
+        fEnd()
         return Os.Proc.Result.Normal(sp.exitCode(), out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+      }
       if (sp.isAlive()) {
         try {
           sp.destroy()
@@ -740,6 +767,7 @@ object Os_Ext {
             case _: Throwable =>
           }
       }
+      fEnd()
       Os.Proc.Result.Timeout(out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
     }
     def nuProcess(): Os.Proc.Result = {
@@ -792,8 +820,11 @@ object Os_Ext {
         }
         np.closeStdin(false)
         val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
-        if (exitCode != scala.Int.MinValue) return Os.Proc.Result.Normal(exitCode,
-          out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+        if (exitCode != scala.Int.MinValue) {
+          fEnd()
+          return Os.Proc.Result.Normal(exitCode,
+            out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+        }
         if (np.isRunning) try {
           np.destroy(false)
           np.waitFor(500, TU.MICROSECONDS)
@@ -805,6 +836,7 @@ object Os_Ext {
           catch {
             case _: Throwable =>
           }
+        fEnd()
         Os.Proc.Result.Timeout(out.toString, err.toString)
       } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
