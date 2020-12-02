@@ -49,5 +49,7 @@ class StringOpsTest extends TestSuite {
       assert(output === "_4567")
     }
 
+    * - assert(ops.StringOps("a b").contains("b"))
+
   }
 }

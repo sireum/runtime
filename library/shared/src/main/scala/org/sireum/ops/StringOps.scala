@@ -196,7 +196,7 @@ object StringOps {
     val otherCis = conversions.String.toCis(other)
     val otherSize = other.size
     var i = offset
-    while (i + otherSize < size) {
+    while (i + otherSize <= size) {
       var j = 0
       var found = T
       while (j < otherSize && found) {
