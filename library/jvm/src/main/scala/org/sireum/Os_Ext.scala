@@ -753,11 +753,11 @@ object Os_Ext {
           mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
       val term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       sp.outputPumperThread match {
-        case scala.Some(t) => while (t.isAlive) t.wait(0)
+        case scala.Some(t) => while (t.isAlive) t.synchronized(t.wait(0))
         case _ =>
       }
       sp.errorPumperThread match {
-        case scala.Some(t) => while (t.isAlive) t.wait(0)
+        case scala.Some(t) => while (t.isAlive) t.synchronized(t.wait(0))
         case _ =>
       }
       if (term) {
