@@ -665,6 +665,10 @@ object Os_Ext {
       }
     }
 
+    def fOut(bytes: Array[Byte], n: Int): Unit = f(F, bytes, n)
+
+    def fErr(bytes: Array[Byte], n: Int): Unit = f(T, bytes, n)
+
     def f(isErr: B, bytes: Array[Byte], n: Int): Unit = {
       val (baos, baosLine, pw, laOpt) =
         if (isErr) (err, errLine, System.err, p.errLineActionOpt)
@@ -740,9 +744,9 @@ object Os_Ext {
         println(p.cmds.elements.mkString(" "))
       }
       val po = new ProcOutput(p)
-      val pOut = _root_.os.ProcessOutput((bytes: Array[Byte], n: Int) => po.f(F, bytes, n))
+      val pOut = _root_.os.ProcessOutput(po.fOut)
       def pErr: _root_.os.ProcessOutput =
-        if (p.isErrAsOut) pOut else _root_.os.ProcessOutput((bytes: Array[Byte], n: Int) => po.f(T, bytes, n))
+        if (p.isErrAsOut) pOut else _root_.os.ProcessOutput(po.fErr)
       val stdin: _root_.os.ProcessInput = p.in match {
         case Some(s) => s.value
         case _ => _root_.os.Pipe
@@ -751,14 +755,15 @@ object Os_Ext {
         spawn(cwd = _root_.os.Path(toIO(p.wd.value).getCanonicalPath),
           env = m.toMap, stdin = stdin, stdout = pOut, stderr = pErr,
           mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
-      val term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
-      sp.outputPumperThread match {
-        case scala.Some(t) => while (t.isAlive) t.synchronized(t.wait(0))
-        case _ =>
+      var term: Boolean = false
+      import $internal.###
+      ###(scala.util.Properties.isLinux) { // HACK: Graal hanging workaround in Linux
+        for (t <- sp.outputPumperThread) t.setPriority(Thread.MAX_PRIORITY)
+        for (t <- sp.errorPumperThread) t.setPriority(Thread.MAX_PRIORITY)
+        term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       }
-      sp.errorPumperThread match {
-        case scala.Some(t) => while (t.isAlive) t.synchronized(t.wait(0))
-        case _ =>
+      ###(!scala.util.Properties.isLinux) {
+        term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       }
       if (term) {
         po.fEnd()
