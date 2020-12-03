@@ -679,7 +679,7 @@ object Os_Ext {
           baosLine.write(bytes, 0, n)
           val i = bytes.indexOf(newLine)
           if (0 <= i && i < n) {
-            val s = new Predef.String(baosLine.toString(SC.UTF_8))
+            val s = new Predef.String(baosLine.toString(SC.UTF_8.name))
             val ss = s.split('\n')
             for (i <- 0 until ss.length - 1) {
               val line = ss(i)
