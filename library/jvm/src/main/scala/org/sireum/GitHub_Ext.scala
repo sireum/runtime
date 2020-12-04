@@ -29,8 +29,11 @@ import org.kohsuke.github.{GHRelease, GHRepository, GitHub => GH}
 import org.sireum.$internal.CollectionCompat.Converters._
 
 object GitHub_Ext {
-  def connectRepo(owner: String, name: String): GHRepository =
-    GH.connectAnonymously().getRepository(s"$owner/$name")
+  def connectRepo(owner: String, name: String): GHRepository = {
+    val token = System.getenv("GITHUB_TOKEN")
+    if (token != null) GH.connectUsingOAuth(token).getRepository(s"$owner/$name")
+    else GH.connectAnonymously().getRepository(s"$owner/$name")
+  }
 
   def toRelease(repo: Repository, ghRelease: GHRelease): Release =
     Release(
@@ -75,20 +78,31 @@ object GitHub_Ext {
   def assets(release: Release): Jen[Asset] = {
     val ghRepo = connectRepo(release.repo.owner, release.repo.name)
     val ghRelease = ghRepo.getRelease(release.id.toLong)
-    var assets = ISZ[GitHub.Asset]()
-    for (ghAsset <- ghRelease.listAssets.toList.asScala) {
-      assets = assets :+ GitHub.Asset(
-        release,
-        ghAsset.getId,
-        ghAsset.getName,
-        ghAsset.getLabel,
-        ghAsset.getState,
-        ghAsset.getSize,
-        ghAsset.getContentType,
-        ghAsset.getBrowserDownloadUrl,
-        ghAsset.getDownloadCount
-      )
+    new Jen[Asset] {
+      override def generate(f: Asset => Jen.Action): Jen.Action = {
+        var last = Jen.Continue
+        for (ghAsset <- ghRelease.listAssets.asScala) {
+          last = f(GitHub.Asset(
+            release,
+            ghAsset.getId,
+            ghAsset.getName,
+            ghAsset.getLabel,
+            ghAsset.getState,
+            ghAsset.getSize,
+            ghAsset.getContentType,
+            ghAsset.getBrowserDownloadUrl,
+            ghAsset.getDownloadCount
+          ))
+          if (!last) {
+            return Jen.End
+          }
+        }
+        return last
+      }
+
+      override def string: String = {
+        return s"Jen($release.listAssets)"
+      }
     }
-    Jen.IS(assets)
   }
 }
