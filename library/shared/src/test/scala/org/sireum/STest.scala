@@ -27,7 +27,6 @@ package org.sireum
 
 import org.sireum.test._
 import org.sireum.ops.ISZOps
-import scala.collection.mutable.{BitSet => BS}
 import U16._
 import N16._
 import Z8._
@@ -51,7 +50,7 @@ class STest extends TestSuite {
 
         * - assert(empty.data.asInstanceOf[scala.Array[scala.Any]].length =~= 0)
 
-        * - assert((empty :+ T).data.isInstanceOf[BS])
+        * - assert((empty :+ T).data.isInstanceOf[Array[Byte]])
 
         * - assert(
             (ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[6D02]")
