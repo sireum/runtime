@@ -34,6 +34,44 @@ class BitsTest extends TestSuite {
 
   val tests = Tests {
 
+    "ISB" - {
+
+      import U8._
+
+      * - assert(conversions.ISB.fromISU8(ISZ[U8](u8"4")) == ISZ[B](F, F, T, F, F, F, F, F))
+
+      * - assert(conversions.ISB.toISU8(ISZ[B](T, F, T)) ==  ISZ[U8](u8"5"))
+
+      * - assert(conversions.ISB.toMSU8(ISZ[B](T, T, T, T)) ==  MSZ[U8](u8"0xF"))
+
+      * - {
+        val s = ISZ[B](T, T, T, T, F, F, F, F, F, F, F, F, F, F, F, F) :+ F
+        val data = s.data.asInstanceOf[Array[Byte]]
+        val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
+        assert(data !~= Array[Byte](0xF, 0, 0))
+        assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+      }
+    }
+
+    "MSB" - {
+
+      import U8._
+
+      * - assert(conversions.MSB.fromMSU8(MSZ[U8](u8"4")) == MSZ[B](F, F, T, F, F, F, F, F))
+
+      * - assert(conversions.MSB.toISU8(MSZ[B](T, F, T)) ==  ISZ[U8](u8"5"))
+
+      * - assert(conversions.MSB.toMSU8(MSZ[B](T, T, T, T)) ==  MSZ[U8](u8"0xF"))
+
+      * - {
+        val s = MSZ[B](T, T, T, T, F, F, F, F, F, F, F, F, F, F, F, F) :+ F
+        val data = s.data.asInstanceOf[Array[Byte]]
+        val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
+        assert(data !~= Array[Byte](0xF, 0, 0))
+        assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+      }
+    }
+
     "S8" - {
 
       import S8._

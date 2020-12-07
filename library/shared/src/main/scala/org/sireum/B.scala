@@ -25,13 +25,12 @@
 
 package org.sireum
 
-import scala.collection.mutable.{BitSet => BS}
 import scala.collection.immutable.{Map => M}
 
 object B {
 
   object Boxer extends $internal.Boxer {
-    val sz = Z.MP($internal.Boxer.MaxArraySize)
+    val sz: Z = Z.MP($internal.Boxer.MaxArraySize) * 8
     val bigEndianHexMap: M[scala.Long, scala.Char] = M(
       /* 0000 */ 0x0L -> '0',
       /* 1000 */ 0x8L -> '1',
@@ -50,6 +49,23 @@ object B {
       /* 0111 */ 0x7L -> 'E',
       /* 1111 */ 0xFL -> 'F')
 
+    def at(value: scala.Array[scala.Byte], index: scala.Int): scala.Boolean = {
+      val mask = U8(1) << U8(index % 8)
+      (U8(value(index / 8)) & mask).value != 0
+    }
+
+    def up(value: scala.Array[scala.Byte], index: scala.Int, v: scala.Boolean): Unit = {
+      val mask = U8(1) << U8(index % 8)
+      val i = index / 8
+      if (v) {
+        value(i) = (U8(value(i)) | mask).value
+      } else {
+        value(i) = (U8(value(i)) & ~mask).value
+      }
+    }
+
+    def len(length: Z): scala.Int = length / 8 + (if (length % 8 == 0) 0 else 1)
+
     def box[T](o: scala.Any): T = (o match {
       case true => T
       case false => F
@@ -60,15 +76,23 @@ object B {
       case F => false
     }
 
-    override def create(length: Z): scala.AnyRef = new BS(length)
+    override def create(length: Z): scala.AnyRef = new scala.Array[scala.Byte](len(length))
 
     override def copy(src: scala.AnyRef, srcPos: Z, dest: scala.AnyRef, destPos: Z, length: Z): Unit =
       ((src, dest): @unchecked) match {
-        case (src: BS, dest: BS) =>
-          val sp: scala.Int = srcPos
-          val dp: scala.Int = destPos
-          for (i <- 0 until length) {
-            dest.update(dp + i, src(sp + i))
+        case (src: scala.Array[scala.Byte], dest: scala.Array[scala.Byte]) =>
+          val sp = srcPos.toInt
+          val dp = destPos.toInt
+          if (sp == 0 && dp == 0) {
+            val n = length / 8
+            System.arraycopy(src, 0, dest, 0, n)
+            for (i <- n * 8 until length) {
+              up(dest, i, at(src, i))
+            }
+          } else {
+            for (i <- 0 until length) {
+              up(dest, dp + i, at(src, sp + i))
+            }
           }
       }
 
@@ -76,70 +100,42 @@ object B {
       copy(src, srcPos, dest, destPos, length)
 
     override def lookup[T](a: scala.AnyRef, i: Z): T = a match {
-      case a: BS => box(a(i))
+      case a: scala.Array[scala.Byte] => box(at(a, i))
     }
 
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
-      case a: BS => a.update(i, unbox(v))
+      case a: scala.Array[scala.Byte] => up(a, i, unbox(v))
     }
 
     override def size(a: scala.AnyRef): Z = a match {
-      case _: BS => sz
+      case a: scala.Array[scala.Byte] => a.length * 8
     }
 
-    override def clone(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef = a match {
-      case a: BS =>
-        val r = BS()
-        for (i <- 0 until length) {
-          r.update(i, a(i))
-        }
+    override def clone(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef = {
+      val size = this.size(a)
+      if (newLength <= size) {
+        val r = create(size)
+        copy(a, Z.MP.zero, r, offset, length)
         r
+      } else {
+        assert(newLength <= Boxer.sz, s"Slang currently only supports IS[_,B]/MS[_,B] size up to ${Boxer.sz}.")
+        var newSize = newLength * 3 / 2
+        if (newSize > Boxer.sz) newSize = Boxer.sz
+        val r = create(newSize)
+        copy(a, Z.MP.zero, r, offset, length)
+        r
+      }
     }
 
     override def cloneMut(a: scala.AnyRef, length: Z, newLength: Z, offset: Z): scala.AnyRef =
       clone(a, length, newLength, offset)
 
     override def toString(a: scala.AnyRef, length: Z): Predef.String = a match {
-      case a: BS =>
+      case a: scala.Array[scala.Byte] =>
         val sb = new _root_.java.lang.StringBuilder
-        val bs = a.toBitMask
         sb.append('[')
-        if (length > 0) {
-          var i = 0
-          for (b <- bs) {
-            if (i < length) {
-              sb.append(U8(b & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 8) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 16) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 24) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 32) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 40) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 48) & 0xFFL))
-              i += 8
-            }
-            if (i < length) {
-              sb.append(U8((b >> 56) & 0xFFL))
-              i += 8
-            }
-          }
+        for (i <- 0 until len(length)) {
+          sb.append(U8(a(i)).toString)
         }
         sb.append(']')
         sb.toString

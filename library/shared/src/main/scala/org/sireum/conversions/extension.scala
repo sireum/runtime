@@ -2179,3 +2179,26 @@ object String_Ext {
   @pure def toU8ms(s: String): MS[Z, U8] =
     MS[Z, U8](s.value.getBytes(UTF_8).toIndexedSeq.map(org.sireum.U8(_)): _*)
 }
+
+@ext object ISB_Ext {
+  @pure def fromISU8[I](s: IS[I, U8]): IS[I, B] =
+    new IS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length * 8, org.sireum.B.Boxer)
+
+  @pure def toISU8[I](s: IS[I, B]): IS[I, U8] =
+    new IS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length / 8 + (if (s.length % 8 == 0) 0 else 1), org.sireum.U8.Boxer)
+
+  @pure def toMSU8[I](s: IS[I, B]): MS[I, U8] =
+    new MS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length / 8 + (if (s.length % 8 == 0) 0 else 1), org.sireum.U8.Boxer)
+}
+
+@ext object MSB_Ext {
+  @pure def fromMSU8[I](s: MS[I, U8]): MS[I, B] =
+    new MS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length * 8, org.sireum.B.Boxer)
+
+  @pure def toISU8[I](s: MS[I, B]): IS[I, U8] =
+    new IS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length / 8 + (if (s.length % 8 == 0) 0 else 1), org.sireum.U8.Boxer)
+
+  @pure def toMSU8[I](s: MS[I, B]): MS[I, U8] =
+    new MS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length / 8 + (if (s.length % 8 == 0) 0 else 1), org.sireum.U8.Boxer)
+}
+

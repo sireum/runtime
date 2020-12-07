@@ -2514,3 +2514,15 @@ import org.sireum.Z64._
 
   @pure def toU8ms(s: String): MS[Z, U8] = $
 }
+
+@ext object ISB {
+  @pure def fromISU8[I](s: IS[I, U8]): IS[I, B] = $
+  @pure def toISU8[I](s: IS[I, B]): IS[I, U8] = $
+  @pure def toMSU8[I](s: IS[I, B]): MS[I, U8] = $
+}
+
+@ext object MSB {
+  @pure def fromMSU8[I](s: MS[I, U8]): MS[I, B] = $
+  @pure def toISU8[I](s: MS[I, B]): IS[I, U8] = $
+  @pure def toMSU8[I](s: MS[I, B]): MS[I, U8] = $
+}
