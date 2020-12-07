@@ -40,4 +40,14 @@ object Runtime {
 
   }
 
+  @msig trait MComposite {
+
+    def wellFormed: Z
+
+    def decode(input: MSZ[B], context: Context): Unit
+
+    def encode(output: MSZ[B], context: Context): Unit
+
+  }
+
 }
