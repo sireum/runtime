@@ -72,7 +72,7 @@ object Os_Ext {
 
   lazy val hasWget: B = proc"wget --version".run().ok
 
-  val os: Os.Kind.Type =
+  lazy val os: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
       if (proc"uname -m".run().out.value.trim == "aarch64") Os.Kind.LinuxArm
@@ -756,15 +756,7 @@ object Os_Ext {
           env = m.toMap, stdin = stdin, stdout = pOut, stderr = pErr,
           mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
       var term: Boolean = false
-      import $internal.###
-      ###(scala.util.Properties.isLinux) { // HACK: Graal hanging workaround in Linux
-        for (t <- sp.outputPumperThread) t.setPriority(Thread.MAX_PRIORITY)
-        for (t <- sp.errorPumperThread) t.setPriority(Thread.MAX_PRIORITY)
-        term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
-      }
-      ###(!scala.util.Properties.isLinux) {
-        term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
-      }
+      term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       if (term) {
         po.fEnd()
         return Os.Proc.Result.Normal(sp.exitCode(), po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
