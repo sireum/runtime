@@ -756,7 +756,9 @@ object Os_Ext {
           env = m.toMap, stdin = stdin, stdout = pOut, stderr = pErr,
           mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
       var term: Boolean = false
-      term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
+      term = sp.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
+      for (t <- sp.outputPumperThread) t.join(0)
+      for (t <- sp.errorPumperThread) t.join(0)
       if (term) {
         po.fEnd()
         return Os.Proc.Result.Normal(sp.exitCode(), po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
