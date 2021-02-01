@@ -44,6 +44,7 @@ object Reporter {
   def ignore: B
   def setIgnore(newIgnore: B): Unit
   def setMessages(newMessages: ISZ[Message]): Unit
+  def timing(desc: String, timeInMs: Z): Unit
 
   def hasInternalError: B = {
     for (m <- messages) {
@@ -223,5 +224,7 @@ object Reporter {
   def setMessages(newMessages: ISZ[Message]): Unit = {
     _messages = newMessages
   }
+
+  def timing(desc: String, timeInMs: Z): Unit = {}
 
 }
