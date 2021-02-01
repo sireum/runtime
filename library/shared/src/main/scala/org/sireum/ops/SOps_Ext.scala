@@ -34,23 +34,29 @@ object ISOps_Ext {
   def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
+    val t = Thread.currentThread
     val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
-      else ies.map { p => (p._1, f(p._2))}
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) =>
+        if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
+      }) else ies.map { p => (p._1, f(p._2))}
+    if (Thread.interrupted()) throw new InterruptedException
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    a.foldLeft(init)((r, u) => if (u == null) r else g(r, u.asInstanceOf[U]))
   }
 
   def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
+    val t = Thread.currentThread
     val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
-      else ies.map { p => (p._1, f(p._2))}
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) =>
+        if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
+      }) else ies.map { p => (p._1, f(p._2))}
+    if (Thread.interrupted()) throw new InterruptedException
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    a.foldRight(init)((u, r) => if (u == null) r else g(r, u.asInstanceOf[U]))
   }
 
   @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
