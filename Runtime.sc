@@ -58,11 +58,10 @@ object Module {
     final override def artifactName = "macros"
 
     final override def ivyDeps = Agg(
-      ivy"org.scala-lang:scala-reflect:$scalaVersion"
-    ) ++ (
-      if (scalaVersion.startsWith("2.13."))
-        Agg(ivy"org.scala-lang.modules::scala-parallel-collections:$parCollectionVersion")
-      else Agg.empty)
+      ivy"org.scala-lang:scala-reflect:$scalaVersion",
+      ivy"org.scala-lang.modules::scala-parallel-collections:$parCollectionVersion",
+      ivy"org.scala-lang.modules::scala-java8-compat:$java8CompatVersion"
+    )
 
     final override def testIvyDeps = Agg.empty
 
