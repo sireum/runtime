@@ -144,12 +144,12 @@ import org.sireum._
   @pure def parMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
 //    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
-  def mParMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
+  def mParMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def parMapFoldRight[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
 //    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
-  def mParMapFoldRight[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
+  def mParMapFoldRight[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def sortWith[T](s: IS[Z, T], lt: (T, T) => B @pure): IS[Z, T] = $
 //    l""" ensures result.size ≡ s.size
