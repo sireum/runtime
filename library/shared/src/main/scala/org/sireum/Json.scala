@@ -1828,6 +1828,7 @@ object Json {
       parseObjectNext()
       parseObjectKey("message")
       val msg = parseString()
+      parseObjectNext()
       return message.Message(level, posOpt, kind, msg)
     }
 
