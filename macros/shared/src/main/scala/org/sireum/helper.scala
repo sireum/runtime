@@ -40,7 +40,9 @@ object helper {
 
   def halt(msg: Any): Nothing = {
     val e = new Error(msg.toString)
-    e.printStackTrace()
+    if ("true" != System.getProperty("org.sireum.silenthalt")) {
+      e.printStackTrace()
+    }
     throw e
   }
 
