@@ -350,7 +350,7 @@ import org.sireum._
     val start: Z = if (from < 0) 0 else from
     val until: Z = if (til <= s.size) til else s.size
     val len = until - start
-    val r = MS.create(len, s(0))
+    val r = MSZ.create(len, s(0))
     for (i <- 0 until len) {
       r(i) = s(start + i)
     }

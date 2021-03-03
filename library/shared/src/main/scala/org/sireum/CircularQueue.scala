@@ -230,7 +230,7 @@ object CircularQueue {
     override def elements: MSZ[E] = {
       Contract(Ensures(refinement(Res, queue, numOfElements, front)))
 
-      val r = MS.create(numOfElements, default)
+      val r = MSZ.create(numOfElements, default)
       for (i <- 0 until numOfElements) {
         r(i) = queue(modPos(front + i, queue.size))
       }
@@ -346,7 +346,7 @@ object CircularQueue {
     override def elements: MSZ[E] = {
       Contract(Ensures(refinement(Res, queue, numOfElements, front)))
 
-      val r = MS.create(numOfElements, default)
+      val r = MSZ.create(numOfElements, default)
       for (i <- 0 until numOfElements) {
         r(i) = queue(modPos(front + i, queue.size))
       }
@@ -503,7 +503,7 @@ object CircularQueue {
     override def elements: MSZ[E] = {
       Contract(Ensures(refinement(Res, queue, numOfElements, front)))
 
-      val r = MS.create(numOfElements, default)
+      val r = MSZ.create(numOfElements, default)
       for (i <- 0 until numOfElements) {
         r(i) = queue(modPos(front + i, queue.size))
       }

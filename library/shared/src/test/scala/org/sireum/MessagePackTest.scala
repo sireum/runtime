@@ -336,7 +336,7 @@ class MessagePackTest extends TestSuite {
         }
 
         val a = {
-          val r = MS.create[Z8, Z8](size, z8"0")
+          val r = MS.create[Z8, Z8](conversions.Z8.toZ(size), z8"0")
           for (i <- z8"0" until size) {
             r(i) = Z8.random
           }

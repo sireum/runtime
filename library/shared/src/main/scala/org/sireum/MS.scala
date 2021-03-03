@@ -101,20 +101,7 @@ object MS {
     MS[I, V](companion, a, length, boxer)
   }
 
-  def create[I, V](size: I, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
-    val length = size.asInstanceOf[ZLike[_]].toMP
-    checkSize(length)(companion)
-    val boxer = Boxer.boxer(default)
-    val a = boxer.create(length)
-    var i = Z.MP.zero
-    while (i < length) {
-      boxer.store(a, i, helper.assign(default))
-      i = i.increase
-    }
-    MS[I, V](companion, a, length, boxer)
-  }
-
-  def zreate[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     val length = size
     checkSize(length)(companion)
     val boxer = Boxer.boxer(default)

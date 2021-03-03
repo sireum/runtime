@@ -72,7 +72,7 @@ object SHA3 {
 
   def keccakf(s: MSZ[U64]): Unit = {
     var t = u64"0"
-    val bc = MS.create(5, u64"0")
+    val bc = MSZ.create(5, u64"0")
 
     for (round <- z"0" until rounds) {
       /* Theta */
@@ -230,7 +230,7 @@ import SHA3._
     s(spongeWords - capacityWords - 1) = s(spongeWords - capacityWords - 1) |^ u64"0x8000000000000000"
     keccakf(s)
 
-    val sb = MS.create(capacityWords * 4, u8"0")
+    val sb = MSZ.create(capacityWords * 4, u8"0")
     for (i <- z"0" until (capacityWords / 2)) {
       val t = s(i)
       sb(i * 8) = conversions.U64.toU8(t & u64"0xFF")

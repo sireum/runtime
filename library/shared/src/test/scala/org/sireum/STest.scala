@@ -130,14 +130,14 @@ class STest extends TestSuite {
 
         * - {
           val s1 = MS[Z8, B](T, T)
-          val s2 = MS.create[Z8, B](z8"2", T)
+          val s2 = MS.create[Z8, B](2, T)
           assert(s1(z8"0") =~= s2(z8"0"))
           assert(s1(z8"1") =~= s2(z8"1"))
         }
 
         * - {
           val s1 = MS[Z8, B](F, T)
-          val s2 = MS.create[Z8, B](z8"2", T)
+          val s2 = MS.create[Z8, B](2, T)
           s2(z8"0") = false
           assert(s1 =~= s2)
         }
@@ -147,14 +147,14 @@ class STest extends TestSuite {
 
         * - {
           val s1 = MS[U8, B](T, T)
-          val s2 = MS.create[U8, B](u8"2", T)
+          val s2 = MS.create[U8, B](2, T)
           assert(s1(u8"0") =~= s2(u8"0"))
           assert(s1(u8"1") =~= s2(u8"1"))
         }
 
         * - {
           val s1 = MS[U8, B](F, T)
-          val s2 = MS.create[U8, B](u8"2", T)
+          val s2 = MS.create[U8, B](2, T)
           s2(u8"0") = F
           assert(s1 =~= s2)
         }

@@ -286,9 +286,14 @@ package org.sireum
 
 @ext object IS {
 
-  def create[I, E](size: I, default: E): IS[I, E] = $
-
-  def zreate[I, E](size: Z, default: E): IS[I, E] = $
+  @pure def create[I, E](size: Z, default: E): IS[I, E] =
+    Contract.Only(
+      Requires(size >= 0),
+      Ensures(
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == default)
+      )
+    )
 
 }
 
@@ -330,20 +335,21 @@ package org.sireum
 
   @pure def indices: ISZ[I]
 
-  @pure def toMS: MS[I, E]
-//    Contract.Only(
-//      Ensures(
-//        Res.size == s.size,
-//        ∀(Res.indices)(i => Res(i) == s(i))
-//      )
-//    )
+  @pure def toMS: MS[I, E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == this(i))
+      )
+    )
 
 }
 
 @ext object ISZ {
 
-  def create[E](size: Z, default: E): ISZ[E] =
+  @pure def create[E](size: Z, default: E): ISZ[E] =
     Contract.Only(
+      Requires(size >= 0),
       Ensures(
         Res.size == size,
         ∀(Res.indices)(i => Res(i) == default)
@@ -354,9 +360,14 @@ package org.sireum
 
 @ext object MS {
 
-  def create[I, E](size: I, default: E): MS[I, E] = $
-
-  def zreate[I, E](size: I, default: E): MS[I, E] = $
+  @pure def create[I, E](size: Z, default: E): MS[I, E] =
+    Contract.Only(
+      Requires(size >= 0),
+      Ensures(
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == default)
+      )
+    )
 
 }
 
@@ -398,20 +409,21 @@ package org.sireum
 
   @pure def indices: ISZ[I]
 
-  @pure def toIS: IS[I, E]
-//    Contract.Only(
-//      Ensures(
-//        Res.size == s.size,
-//        ∀(Res.indices)(i => Res(i) == s(i))
-//      )
-//    )
+  @pure def toIS: IS[I, E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(Res.indices)(i => Res(i) == this(i))
+      )
+    )
 
 }
 
 @ext object MSZ {
 
-  def create[E](size: Z, default: E): MSZ[E] =
+  @pure def create[E](size: Z, default: E): MSZ[E] =
     Contract.Only(
+      Requires(size >= 0),
       Ensures(
         Res.size == size,
         ∀(Res.indices)(i => Res(i) == default)
@@ -424,8 +436,9 @@ package org.sireum
 
   def random: ZS = $
 
-  def create(size: Z, default: Z): ZS =
+  @pure def create(size: Z, default: Z): ZS =
     Contract.Only(
+      Requires(size >= 0),
       Ensures(
         Res.size == size,
         ∀(Res.indices)(i => Res(i) == default)
