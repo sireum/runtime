@@ -58,6 +58,8 @@ trait PackageTrait {
 
   final def randomInt(): Z = Z.random
 
+  final def seqIndexValidSize[I](size: Z): B = halt("Cannot be used in non-spec/proof context")
+
   final def promptInt(msg: String): Z = {
     while (true) {
       Console.out.print(msg.value)
