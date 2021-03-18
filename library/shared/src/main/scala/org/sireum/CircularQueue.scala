@@ -113,7 +113,7 @@ object CircularQueue {
       numOfElements <= max &
       (rear >= front) === (numOfElements == rear - front) &
       (rear < front) === (numOfElements == rear + queue.size - front) &
-      (scrub imply_: All(0 until queue.size - numOfElements)(i => queue(modPos(rear + i, queue.size)) == default))
+      (scrub ->: All(0 until queue.size - numOfElements)(i => queue(modPos(rear + i, queue.size)) == default))
 
   @strictpure def refinement[E](rep: MSZ[E], queue: MSZ[E], numOfElements: Z, front: Z): B =
     rep.size == numOfElements &
