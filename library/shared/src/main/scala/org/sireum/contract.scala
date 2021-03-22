@@ -325,7 +325,7 @@ trait contract {
       return T
     }
 
-    def apply[T](seq: ISZ[T])(p: T => Boolean): B = {
+    def apply[T](seq: IS[Z, T])(p: T => Boolean): B = {
       for (e <- seq) {
         if (!p(e)) {
           return F
@@ -334,7 +334,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2](seq: ISZ[(T1, T2)])(p: (T1, T2) => Boolean): B = {
+    def apply[T1, T2](seq: IS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2)) {
           return F
@@ -343,7 +343,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3](seq: ISZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
+    def apply[T1, T2, T3](seq: IS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3)) {
           return F
@@ -352,7 +352,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4](seq: ISZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
+    def apply[T1, T2, T3, T4](seq: IS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4)) {
           return F
@@ -361,7 +361,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5](seq: ISZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5](seq: IS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5)) {
           return F
@@ -370,7 +370,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6](seq: ISZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6](seq: IS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6)) {
           return F
@@ -379,7 +379,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7)) {
           return F
@@ -388,7 +388,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8)) {
           return F
@@ -397,7 +397,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9)) {
           return F
@@ -406,7 +406,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10)) {
           return F
@@ -415,7 +415,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11)) {
           return F
@@ -424,7 +424,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12)) {
           return F
@@ -433,7 +433,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13)) {
           return F
@@ -442,7 +442,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14)) {
           return F
@@ -451,7 +451,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15)) {
           return F
@@ -460,7 +460,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16)) {
           return F
@@ -469,7 +469,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17)) {
           return F
@@ -478,7 +478,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18)) {
           return F
@@ -487,7 +487,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19)) {
           return F
@@ -496,7 +496,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20)) {
           return F
@@ -505,7 +505,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21)) {
           return F
@@ -514,7 +514,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21, e._22)) {
           return F
@@ -523,7 +523,7 @@ trait contract {
       return T
     }
 
-    def apply[T](seq: MSZ[T])(p: T => Boolean): B = {
+    def apply[T](seq: MS[Z, T])(p: T => Boolean): B = {
       for (e <- seq) {
         if (!p(e)) {
           return F
@@ -532,7 +532,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2](seq: MSZ[(T1, T2)])(p: (T1, T2) => Boolean): B = {
+    def apply[T1, T2](seq: MS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2)) {
           return F
@@ -541,7 +541,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3](seq: MSZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
+    def apply[T1, T2, T3](seq: MS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3)) {
           return F
@@ -550,7 +550,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4](seq: MSZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
+    def apply[T1, T2, T3, T4](seq: MS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4)) {
           return F
@@ -559,7 +559,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5](seq: MSZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5](seq: MS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5)) {
           return F
@@ -568,7 +568,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6](seq: MSZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6](seq: MS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6)) {
           return F
@@ -577,7 +577,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7)) {
           return F
@@ -586,7 +586,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8)) {
           return F
@@ -595,7 +595,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9)) {
           return F
@@ -604,7 +604,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10)) {
           return F
@@ -613,7 +613,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11)) {
           return F
@@ -622,7 +622,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12)) {
           return F
@@ -631,7 +631,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13)) {
           return F
@@ -640,7 +640,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14)) {
           return F
@@ -649,7 +649,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15)) {
           return F
@@ -658,7 +658,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16)) {
           return F
@@ -667,7 +667,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17)) {
           return F
@@ -676,7 +676,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18)) {
           return F
@@ -685,7 +685,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19)) {
           return F
@@ -694,7 +694,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20)) {
           return F
@@ -703,7 +703,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21)) {
           return F
@@ -712,7 +712,7 @@ trait contract {
       return T
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
       for (e <- seq) {
         if (!p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21, e._22)) {
           return F
@@ -750,51 +750,51 @@ trait contract {
 
     @inline def apply[I](seq: ZRange[I])(p: I => Boolean): B = All(seq)(p)
 
-    @inline def apply[T](seq: ISZ[T])(p: T => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2](seq: ISZ[(T1, T2)])(p: (T1, T2) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3](seq: ISZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4](seq: ISZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5](seq: ISZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6](seq: ISZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = All(seq)(p)
+    @inline def apply[T](seq: IS[Z, T])(p: T => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2](seq: IS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3](seq: IS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4](seq: IS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5](seq: IS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6](seq: IS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = All(seq)(p)
 
-    @inline def apply[T](seq: MSZ[T])(p: T => Boolean): B =  All(seq)(p)
-    @inline def apply[T1, T2](seq: MSZ[(T1, T2)])(p: (T1, T2) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3](seq: MSZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4](seq: MSZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5](seq: MSZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6](seq: MSZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = All(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = All(seq)(p)
+    @inline def apply[T](seq: MS[Z, T])(p: T => Boolean): B =  All(seq)(p)
+    @inline def apply[T1, T2](seq: MS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3](seq: MS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4](seq: MS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5](seq: MS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6](seq: MS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = All(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = All(seq)(p)
 
   }
 
@@ -832,7 +832,7 @@ trait contract {
       return F
     }
 
-    def apply[T](seq: ISZ[T])(p: T => Boolean): B = {
+    def apply[T](seq: IS[Z, T])(p: T => Boolean): B = {
       for (e <- seq) {
         if (p(e)) {
           return T
@@ -841,7 +841,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2](seq: ISZ[(T1, T2)])(p: (T1, T2) => Boolean): B = {
+    def apply[T1, T2](seq: IS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2)) {
           return T
@@ -850,7 +850,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3](seq: ISZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
+    def apply[T1, T2, T3](seq: IS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3)) {
           return T
@@ -859,7 +859,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4](seq: ISZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
+    def apply[T1, T2, T3, T4](seq: IS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4)) {
           return T
@@ -868,7 +868,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5](seq: ISZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5](seq: IS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5)) {
           return T
@@ -877,7 +877,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6](seq: ISZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6](seq: IS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6)) {
           return T
@@ -886,7 +886,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7)) {
           return T
@@ -895,7 +895,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8)) {
           return T
@@ -904,7 +904,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9)) {
           return T
@@ -913,7 +913,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10)) {
           return T
@@ -922,7 +922,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11)) {
           return T
@@ -931,7 +931,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12)) {
           return T
@@ -940,7 +940,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13)) {
           return T
@@ -949,7 +949,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14)) {
           return T
@@ -958,7 +958,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15)) {
           return T
@@ -967,7 +967,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16)) {
           return T
@@ -976,7 +976,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17)) {
           return T
@@ -985,7 +985,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18)) {
           return T
@@ -994,7 +994,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19)) {
           return T
@@ -1003,7 +1003,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20)) {
           return T
@@ -1012,7 +1012,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21)) {
           return T
@@ -1021,7 +1021,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21, e._22)) {
           return T
@@ -1030,7 +1030,7 @@ trait contract {
       return F
     }
 
-    def apply[T](seq: MSZ[T])(p: T => Boolean): B = {
+    def apply[T](seq: MS[Z, T])(p: T => Boolean): B = {
       for (e <- seq) {
         if (p(e)) {
           return T
@@ -1039,7 +1039,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2](seq: MSZ[(T1, T2)])(p: (T1, T2) => Boolean): B = {
+    def apply[T1, T2](seq: MS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2)) {
           return T
@@ -1048,7 +1048,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3](seq: MSZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
+    def apply[T1, T2, T3](seq: MS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3)) {
           return T
@@ -1057,7 +1057,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4](seq: MSZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
+    def apply[T1, T2, T3, T4](seq: MS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4)) {
           return T
@@ -1066,7 +1066,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5](seq: MSZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5](seq: MS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5)) {
           return T
@@ -1075,7 +1075,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6](seq: MSZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6](seq: MS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6)) {
           return T
@@ -1084,7 +1084,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7)) {
           return T
@@ -1093,7 +1093,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8)) {
           return T
@@ -1102,7 +1102,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9)) {
           return T
@@ -1111,7 +1111,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10)) {
           return T
@@ -1120,7 +1120,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11)) {
           return T
@@ -1129,7 +1129,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12)) {
           return T
@@ -1138,7 +1138,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13)) {
           return T
@@ -1147,7 +1147,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14)) {
           return T
@@ -1156,7 +1156,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15)) {
           return T
@@ -1165,7 +1165,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16)) {
           return T
@@ -1174,7 +1174,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17)) {
           return T
@@ -1183,7 +1183,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18)) {
           return T
@@ -1192,7 +1192,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19)) {
           return T
@@ -1201,7 +1201,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20)) {
           return T
@@ -1210,7 +1210,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21)) {
           return T
@@ -1219,7 +1219,7 @@ trait contract {
       return F
     }
 
-    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
+    def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = {
       for (e <- seq) {
         if (p(e._1, e._2, e._3, e._4, e._5, e._6, e._7, e._8, e._9, e._10, e._11, e._12, e._13, e._14, e._15, e._16, e._17, e._18, e._19, e._20, e._21, e._22)) {
           return T
@@ -1257,51 +1257,51 @@ trait contract {
 
     @inline def apply[I](seq: ZRange[I])(p: I => Boolean): B = Exists(seq)(p)
 
-    @inline def apply[T](seq: ISZ[T])(p: T => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2](seq: ISZ[(T1, T2)])(p: (T1, T2) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3](seq: ISZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4](seq: ISZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5](seq: ISZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6](seq: ISZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: ISZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T](seq: IS[Z, T])(p: T => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2](seq: IS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3](seq: IS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4](seq: IS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5](seq: IS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6](seq: IS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: IS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = Exists(seq)(p)
 
-    @inline def apply[T](seq: MSZ[T])(p: T => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2](seq: MSZ[(T1, T2)])(p: (T1, T2) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3](seq: MSZ[(T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4](seq: MSZ[(T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5](seq: MSZ[(T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6](seq: MSZ[(T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = Exists(seq)(p)
-    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MSZ[(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T](seq: MS[Z, T])(p: T => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2](seq: MS[Z, (T1, T2)])(p: (T1, T2) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3](seq: MS[Z, (T1, T2, T3)])(p: (T1, T2, T3) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4](seq: MS[Z, (T1, T2, T3, T4)])(p: (T1, T2, T3, T4) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5](seq: MS[Z, (T1, T2, T3, T4, T5)])(p: (T1, T2, T3, T4, T5) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6](seq: MS[Z, (T1, T2, T3, T4, T5, T6)])(p: (T1, T2, T3, T4, T5, T6) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7)])(p: (T1, T2, T3, T4, T5, T6, T7) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8)])(p: (T1, T2, T3, T4, T5, T6, T7, T8) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Boolean): B = Exists(seq)(p)
+    @inline def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](seq: MS[Z, (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)])(p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = Exists(seq)(p)
 
   }
 
