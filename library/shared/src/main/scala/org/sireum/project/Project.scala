@@ -40,7 +40,6 @@ object Project {
     Contract(
       Requires(
         !modules.contains(module.id),
-        All(module.deps)(p => modules.contains(p)),
         All(module.targets)(t => All(module.deps)(p => Exists(modules.get(p).get.targets)(pt => pt == t)))
       )
     )

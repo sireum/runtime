@@ -30,6 +30,22 @@ import org.sireum._
 
 object ProjectUtil {
 
+  val sharedSuffix: String = "shared"
+  val jvmSuffix: String = "jvm"
+  val jsSuffix: String = "js"
+
+  @strictpure def id(baseId: String): ISZ[String] = ISZ(baseId)
+
+  @strictpure def sharedId(baseId: String): ISZ[String] = ISZ(s"$baseId.$sharedSuffix")
+
+  @strictpure def jvmId(baseId: String): ISZ[String] = ISZ(s"$baseId.$jvmSuffix")
+
+  @strictpure def jsId(baseId: String): ISZ[String] = ISZ(s"$baseId.$jsSuffix")
+
+  @strictpure def sharedJvmId(baseId: String): ISZ[String] = sharedId(baseId) ++ jvmId(baseId)
+
+  @strictpure def sharedJsId(baseId: String): ISZ[String] = sharedId(baseId) ++ jsId(baseId)
+
   def dirs(base: Os.Path, segss: ISZ[ISZ[String]]): ISZ[String] = {
     var r = ISZ[String]()
     for (segs <- segss) {
@@ -56,13 +72,13 @@ object ProjectUtil {
     return dirs(base, ISZ(ISZ("src", "main", "resources"), ISZ("src", "test", "resources")))
   }
 
-  @pure def moduleShared(baseId: String,
+  @pure def moduleShared(id: String,
                          baseDir: Os.Path,
                          sharedDeps: ISZ[String],
                          sharedIvyDeps: ISZ[String]): Module = {
-    val sharedDir = baseDir / "shared"
+    val sharedDir = baseDir / sharedSuffix
     val shared = Module(
-      id = s"$baseId.shared",
+      id = id,
       deps = sharedDeps,
       targets = Module.allTargets,
       ivyDeps = sharedIvyDeps,
@@ -72,13 +88,13 @@ object ProjectUtil {
     return shared
   }
 
-  @pure def moduleJvm(baseId: String,
+  @pure def moduleJvm(id: String,
                       baseDir: Os.Path,
                       jvmDeps: ISZ[String],
                       jvmIvyDeps: ISZ[String]): Module = {
-    val jvmDir = baseDir / "jvm"
+    val jvmDir = baseDir / jvmSuffix
     val jvm = Module(
-      id = s"$baseId.jvm",
+      id = id,
       deps = jvmDeps,
       targets = ISZ(Target.Jvm),
       ivyDeps = jvmIvyDeps,
@@ -88,13 +104,13 @@ object ProjectUtil {
     return jvm
   }
 
-  @pure def moduleJs(baseId: String,
+  @pure def moduleJs(id: String,
                      baseDir: Os.Path,
                      jsDeps: ISZ[String],
                      jsIvyDeps: ISZ[String]): Module = {
-    val jsDir = baseDir / "js"
+    val jsDir = baseDir / jsSuffix
     val js = Module(
-      id = s"$baseId.js",
+      id = id,
       deps = jsDeps,
       targets = ISZ(Target.Js),
       ivyDeps = jsIvyDeps,
@@ -110,7 +126,7 @@ object ProjectUtil {
                             sharedIvyDeps: ISZ[String],
                             jvmDeps: ISZ[String],
                             jvmIvyDeps: ISZ[String]): (Module, Module) = {
-    val shared = moduleShared(baseId, baseDir, sharedDeps, sharedIvyDeps)
+    val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
     val jvm = moduleJvm(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps)
     return (shared, jvm)
   }
@@ -121,7 +137,7 @@ object ProjectUtil {
                            sharedIvyDeps: ISZ[String],
                            jsDeps: ISZ[String],
                            jsIvyDeps: ISZ[String]): (Module, Module) = {
-    val shared = moduleShared(baseId, baseDir, sharedDeps, sharedIvyDeps)
+    val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
     var js = moduleJs(baseId, baseDir, jsDeps, jsIvyDeps)
     js = js(sourcePaths = shared.sourcePaths ++ js.sourcePaths, resourcePaths = shared.resourcePaths ++ js.resourcePaths)
     return (shared, js)
@@ -137,7 +153,7 @@ object ProjectUtil {
                               jsIvyDeps: ISZ[String]): (Module, Module, Module) = {
     val (shared, js) = moduleSharedJs(baseId, baseDir, sharedDeps, sharedIvyDeps, jsDeps, jsIvyDeps)
     val jvm = moduleJvm(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps)
-    return (shared, jvm, js)
+    return (shared, jvm, js(id = s"$baseId-$jsSuffix"))
   }
 
 }
