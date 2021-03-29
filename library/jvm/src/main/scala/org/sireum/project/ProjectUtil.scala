@@ -36,11 +36,11 @@ object ProjectUtil {
 
   @strictpure def id(baseId: String): ISZ[String] = ISZ(baseId)
 
-  @strictpure def sharedId(baseId: String): ISZ[String] = ISZ(s"$baseId.$sharedSuffix")
+  @strictpure def sharedId(baseId: String): ISZ[String] = ISZ(s"$baseId-$sharedSuffix")
 
-  @strictpure def jvmId(baseId: String): ISZ[String] = ISZ(s"$baseId.$jvmSuffix")
+  @strictpure def jvmId(baseId: String): ISZ[String] = ISZ(s"$baseId-$jvmSuffix")
 
-  @strictpure def jsId(baseId: String): ISZ[String] = ISZ(s"$baseId.$jsSuffix")
+  @strictpure def jsId(baseId: String): ISZ[String] = ISZ(s"$baseId-$jsSuffix")
 
   @strictpure def sharedJvmId(baseId: String): ISZ[String] = sharedId(baseId) ++ jvmId(baseId)
 
@@ -156,4 +156,47 @@ object ProjectUtil {
     return (shared, jvm, js(id = s"$baseId-$jsSuffix"))
   }
 
+  @pure def toDot(p: Project): String = {
+    @pure def node2st(name: String): ST = {
+      p.modules.get(name) match {
+        case Some(m) =>
+          val targets = HashSet.empty[Target.Type] ++ m.targets
+          if (targets.contains(Target.Jvm) && targets.contains(Target.Js)) {
+            return st"""[shape = "rect", label="$name"]"""
+          } else if (targets.contains(Target.Jvm)) {
+            return st"""[shape = "trapezium", label="$name"]"""
+          } else {
+            return st"""[shape = "invtrapezium", label="$name"]"""
+          }
+        case _ => return st"$name"
+      }
+    }
+    return p.poset.toST(node2st _).render
+  }
+
+  def projectCli(args: ISZ[String], project: Project): Unit = {
+
+    def usage(): Unit = {
+      println("Usage: [ json ]")
+    }
+
+    var isDot = T
+
+    args match {
+      case ISZ(string"json") => isDot = F
+      case ISZ(string"-h") =>
+        usage()
+        Os.exit(0)
+      case ISZ() =>
+      case _ =>
+        usage()
+        Os.exit(-1)
+    }
+
+    if (isDot) {
+      println(toDot(project))
+    } else {
+      println(JSON.fromProject(project, T))
+    }
+  }
 }

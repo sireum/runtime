@@ -52,7 +52,7 @@ object Project {
     while (names.nonEmpty) {
       var newNames = HashSSet.empty[String]
       for (name <- names) {
-        modules.get(name) match {
+        other.modules.get(name) match {
           case Some(m) => r = r + m
           case _ =>
         }
