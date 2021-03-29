@@ -70,4 +70,4 @@ val testShared = moduleShared(
 
 val project = Project.empty + macrosShared + libraryShared + libraryJvm + testShared
 
-println(JSON.fromProject(project, T))
+projectCli(Os.cliArgs, project)
