@@ -36,15 +36,10 @@ object Project {
 @datatype class Project(val modules: HashSMap[String, Module],
                         val poset: Poset[String]) {
 
-  @pure def +(module: Module): Project = {
-    Contract(
-      Requires(
-        !modules.contains(module.id),
-        All(module.targets)(t => All(module.deps)(p => Exists(modules.get(p).get.targets)(pt => pt == t)))
-      )
-    )
-    return Project(modules = modules + module.id ~> module, poset = poset.addParents(module.id, module.deps))
-  }
+  @strictpure def +(module: Module): Project = Project(
+    modules = modules + module.id ~> module,
+    poset = poset.addParents(module.id, module.deps)
+  )
 
   @pure def ++(other: Project): Project = {
     var r = this
@@ -65,19 +60,20 @@ object Project {
 
 }
 
-
 @enum object Target {
   'Jvm
   'Js
 }
 
-object Module {
-  val allTargets: ISZ[Target.Type] = ISZ(Target.Jvm, Target.Js)
-}
-
 @datatype class Module(val id: String,
+                       val basePath: String,
                        val deps: ISZ[String],
                        val targets: ISZ[Target.Type],
                        val ivyDeps: ISZ[String],
-                       val sourcePaths: ISZ[String],
-                       val resourcePaths: ISZ[String])
+                       val sources: ISZ[String],
+                       val resources: ISZ[String],
+                       val testSources: ISZ[String])
+
+object Module {
+  val allTargets: ISZ[Target.Type] = ISZ(Target.Jvm, Target.Js)
+}

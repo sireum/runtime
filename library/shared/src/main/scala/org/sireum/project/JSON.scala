@@ -60,11 +60,13 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Module""""),
         ("id", printString(o.id)),
+        ("basePath", printString(o.basePath)),
         ("deps", printISZ(T, o.deps, printString _)),
         ("targets", printISZ(F, o.targets, printTargetType _)),
         ("ivyDeps", printISZ(T, o.ivyDeps, printString _)),
-        ("sourcePaths", printISZ(T, o.sourcePaths, printString _)),
-        ("resourcePaths", printISZ(T, o.resourcePaths, printString _))
+        ("sources", printISZ(T, o.sources, printString _)),
+        ("resources", printISZ(T, o.resources, printString _)),
+        ("testSources", printISZ(T, o.testSources, printString _))
       ))
     }
 
@@ -128,6 +130,9 @@ object JSON {
       parser.parseObjectKey("id")
       val id = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("basePath")
+      val basePath = parser.parseString()
+      parser.parseObjectNext()
       parser.parseObjectKey("deps")
       val deps = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
@@ -137,13 +142,16 @@ object JSON {
       parser.parseObjectKey("ivyDeps")
       val ivyDeps = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      parser.parseObjectKey("sourcePaths")
-      val sourcePaths = parser.parseISZ(parser.parseString _)
+      parser.parseObjectKey("sources")
+      val sources = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      parser.parseObjectKey("resourcePaths")
-      val resourcePaths = parser.parseISZ(parser.parseString _)
+      parser.parseObjectKey("resources")
+      val resources = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      return Module(id, deps, targets, ivyDeps, sourcePaths, resourcePaths)
+      parser.parseObjectKey("testSources")
+      val testSources = parser.parseISZ(parser.parseString _)
+      parser.parseObjectNext()
+      return Module(id, basePath, deps, targets, ivyDeps, sources, resources, testSources)
     }
 
     def eof(): B = {

@@ -54,7 +54,7 @@ object ProjectUtil {
         p = p / seg
       }
       if (p.exists) {
-        r = r :+ p.string
+        r = r :+ st"${Os.fileSep}${(segs, Os.fileSep)}".render
       }
     }
     return r
@@ -63,7 +63,11 @@ object ProjectUtil {
   def mavenSourceDirs(base: Os.Path): ISZ[String] = {
     return dirs(base, ISZ(
       ISZ("src", "main", "java"),
-      ISZ("src", "main", "scala"),
+      ISZ("src", "main", "scala")))
+  }
+
+  def mavenTestSourceDirs(base: Os.Path): ISZ[String] = {
+    return dirs(base, ISZ(
       ISZ("src", "test", "java"),
       ISZ("src", "test", "scala")))
   }
@@ -79,11 +83,13 @@ object ProjectUtil {
     val sharedDir = baseDir / sharedSuffix
     val shared = Module(
       id = id,
+      basePath = baseDir.string,
       deps = sharedDeps,
       targets = Module.allTargets,
       ivyDeps = sharedIvyDeps,
-      sourcePaths = mavenSourceDirs(sharedDir),
-      resourcePaths = mavenResourceDirs(sharedDir)
+      sources = mavenSourceDirs(sharedDir),
+      resources = mavenResourceDirs(sharedDir),
+      testSources = mavenTestSourceDirs(sharedDir)
     )
     return shared
   }
@@ -95,11 +101,13 @@ object ProjectUtil {
     val jvmDir = baseDir / jvmSuffix
     val jvm = Module(
       id = id,
+      basePath = baseDir.string,
       deps = jvmDeps,
       targets = ISZ(Target.Jvm),
       ivyDeps = jvmIvyDeps,
-      sourcePaths = mavenSourceDirs(jvmDir),
-      resourcePaths = mavenResourceDirs(jvmDir)
+      sources = mavenSourceDirs(jvmDir),
+      resources = mavenResourceDirs(jvmDir),
+      testSources = mavenTestSourceDirs(jvmDir)
     )
     return jvm
   }
@@ -111,11 +119,13 @@ object ProjectUtil {
     val jsDir = baseDir / jsSuffix
     val js = Module(
       id = id,
+      basePath = baseDir.string,
       deps = jsDeps,
       targets = ISZ(Target.Js),
       ivyDeps = jsIvyDeps,
-      sourcePaths = mavenSourceDirs(jsDir),
-      resourcePaths = mavenResourceDirs(jsDir)
+      sources = mavenSourceDirs(jsDir),
+      resources = mavenResourceDirs(jsDir),
+      testSources = mavenTestSourceDirs(jsDir)
     )
     return js
   }
@@ -139,7 +149,10 @@ object ProjectUtil {
                            jsIvyDeps: ISZ[String]): (Module, Module) = {
     val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
     var js = moduleJs(baseId, baseDir, jsDeps, jsIvyDeps)
-    js = js(sourcePaths = shared.sourcePaths ++ js.sourcePaths, resourcePaths = shared.resourcePaths ++ js.resourcePaths)
+    js = js(
+      sources = shared.sources ++ js.sources,
+      resources = shared.resources ++ js.resources,
+      testSources = shared.testSources ++ js.testSources)
     return (shared, js)
   }
 
