@@ -72,7 +72,8 @@ object Project {
                        val ivyDeps: ISZ[String],
                        val sources: ISZ[String],
                        val resources: ISZ[String],
-                       val testSources: ISZ[String])
+                       val testSources: ISZ[String],
+                       val testResources: ISZ[String])
 
 object Module {
   val allTargets: ISZ[Target.Type] = ISZ(Target.Jvm, Target.Js)

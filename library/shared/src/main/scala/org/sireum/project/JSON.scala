@@ -66,7 +66,8 @@ object JSON {
         ("ivyDeps", printISZ(T, o.ivyDeps, printString _)),
         ("sources", printISZ(T, o.sources, printString _)),
         ("resources", printISZ(T, o.resources, printString _)),
-        ("testSources", printISZ(T, o.testSources, printString _))
+        ("testSources", printISZ(T, o.testSources, printString _)),
+        ("testResources", printISZ(T, o.testResources, printString _))
       ))
     }
 
@@ -151,7 +152,10 @@ object JSON {
       parser.parseObjectKey("testSources")
       val testSources = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      return Module(id, basePath, deps, targets, ivyDeps, sources, resources, testSources)
+      parser.parseObjectKey("testResources")
+      val testResources = parser.parseISZ(parser.parseString _)
+      parser.parseObjectNext()
+      return Module(id, basePath, deps, targets, ivyDeps, sources, resources, testSources, testResources)
     }
 
     def eof(): B = {

@@ -73,7 +73,11 @@ object ProjectUtil {
   }
 
   def mavenResourceDirs(base: Os.Path): ISZ[String] = {
-    return dirs(base, ISZ(ISZ("src", "main", "resources"), ISZ("src", "test", "resources")))
+    return dirs(base, ISZ(ISZ("src", "main", "resources")))
+  }
+
+  def mavenTestResourceDirs(base: Os.Path): ISZ[String] = {
+    return dirs(base, ISZ(ISZ("src", "test", "resources")))
   }
 
   @pure def moduleShared(id: String,
@@ -89,7 +93,8 @@ object ProjectUtil {
       ivyDeps = sharedIvyDeps,
       sources = mavenSourceDirs(sharedDir),
       resources = mavenResourceDirs(sharedDir),
-      testSources = mavenTestSourceDirs(sharedDir)
+      testSources = mavenTestSourceDirs(sharedDir),
+      testResources = mavenTestResourceDirs(sharedDir)
     )
     return shared
   }
@@ -107,7 +112,8 @@ object ProjectUtil {
       ivyDeps = jvmIvyDeps,
       sources = mavenSourceDirs(jvmDir),
       resources = mavenResourceDirs(jvmDir),
-      testSources = mavenTestSourceDirs(jvmDir)
+      testSources = mavenTestSourceDirs(jvmDir),
+      testResources = mavenTestResourceDirs(jvmDir)
     )
     return jvm
   }
@@ -125,7 +131,8 @@ object ProjectUtil {
       ivyDeps = jsIvyDeps,
       sources = mavenSourceDirs(jsDir),
       resources = mavenResourceDirs(jsDir),
-      testSources = mavenTestSourceDirs(jsDir)
+      testSources = mavenTestSourceDirs(jsDir),
+      testResources = mavenTestResourceDirs(jsDir)
     )
     return js
   }
