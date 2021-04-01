@@ -40,6 +40,7 @@ object Os_Ext {
   {
     java.util.logging.LogManager.getLogManager.reset()
     System.setProperty("jna.nosys", "true")
+    System.setProperty("java.net.useSystemProxies", "true")
   }
 
   lazy val buffSize: scala.Int = {
