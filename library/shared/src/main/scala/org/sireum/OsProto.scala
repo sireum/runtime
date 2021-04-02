@@ -68,6 +68,10 @@ object OsProto {
 
     @pure def script: Proc
 
+    @pure def outLineAction(f: String => B): Proc
+
+    @pure def errLineAction(f: String => B): Proc
+
     def run(): Proc.Result
 
     def runCheck(): Proc.Result
