@@ -33,13 +33,15 @@ package org.sireum
   'Tests
 }
 
+@datatype class CoursierFileInfo(org: String, module: String, val path: Os.Path)
+
 @ext object Coursier {
 
   def setCache(path: Os.Path): Unit = $
 
   def addMavenRepositories(urls: ISZ[String]): Unit = $
 
-  def fetch(deps: ISZ[String]): ISZ[Os.Path] = $
+  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = $
 
-  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[Os.Path] = $
+  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = $
 }

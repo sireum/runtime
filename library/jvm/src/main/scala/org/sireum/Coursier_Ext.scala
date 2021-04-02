@@ -33,7 +33,7 @@ object Coursier_Ext {
 
   var repositories: ISZ[Repository] = ISZ(
     Repositories.sonatype("releases"),
-    Repositories.jitpack,
+    Repositories.jitpack
   )
 
   def toDeps(deps: ISZ[String]): Seq[Dependency] =
@@ -48,9 +48,9 @@ object Coursier_Ext {
     repositories = repositories ++ (for (url <- urls) yield MavenRepository(url.value))
   }
 
-  def fetch(deps: ISZ[String]): ISZ[Os.Path] = fetchClassifiers(deps, ISZ(CoursierClassifier.Default))
+  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = fetchClassifiers(deps, ISZ(CoursierClassifier.Default))
 
-  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[Os.Path] = {
+  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
     var fetch = Fetch().
       addDependencies(toDeps(deps): _*).
       withRepositories(repositories.elements)
@@ -64,6 +64,7 @@ object Coursier_Ext {
       case Some(cache) => fetch = fetch.withCache(cache)
       case _ =>
     }
-    ISZ(fetch.run().map(f => Os.path(f.getCanonicalPath)) :_*)
+    ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
+      CoursierFileInfo(q._1.module.organization.value, q._1.module.name.value, Os.path(q._4.getCanonicalPath))): _*)
   }
 }
