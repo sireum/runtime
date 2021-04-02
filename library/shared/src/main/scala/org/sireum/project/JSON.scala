@@ -61,6 +61,7 @@ object JSON {
         ("type", st""""Module""""),
         ("id", printString(o.id)),
         ("basePath", printString(o.basePath)),
+        ("subPathOpt", printOption(T, o.subPathOpt, printString _)),
         ("deps", printISZ(T, o.deps, printString _)),
         ("targets", printISZ(F, o.targets, printTargetType _)),
         ("ivyDeps", printISZ(T, o.ivyDeps, printString _)),
@@ -134,6 +135,9 @@ object JSON {
       parser.parseObjectKey("basePath")
       val basePath = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("subPathOpt")
+      val subPathOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
       parser.parseObjectKey("deps")
       val deps = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
@@ -155,7 +159,7 @@ object JSON {
       parser.parseObjectKey("testResources")
       val testResources = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      return Module(id, basePath, deps, targets, ivyDeps, sources, resources, testSources, testResources)
+      return Module(id, basePath, subPathOpt, deps, targets, ivyDeps, sources, resources, testSources, testResources)
     }
 
     def eof(): B = {

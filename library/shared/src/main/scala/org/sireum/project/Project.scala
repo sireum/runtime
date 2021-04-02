@@ -67,6 +67,7 @@ object Project {
 
 @datatype class Module(val id: String,
                        val basePath: String,
+                       val subPathOpt: Option[String],
                        val deps: ISZ[String],
                        val targets: ISZ[Target.Type],
                        val ivyDeps: ISZ[String],

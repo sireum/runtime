@@ -88,6 +88,7 @@ object ProjectUtil {
     val shared = Module(
       id = id,
       basePath = baseDir.string,
+      subPathOpt = Some(s"${Os.fileSep}$sharedSuffix"),
       deps = sharedDeps,
       targets = Module.allTargets,
       ivyDeps = sharedIvyDeps,
@@ -107,6 +108,7 @@ object ProjectUtil {
     val jvm = Module(
       id = id,
       basePath = baseDir.string,
+      subPathOpt = Some(s"${Os.fileSep}$jvmSuffix"),
       deps = jvmDeps,
       targets = ISZ(Target.Jvm),
       ivyDeps = jvmIvyDeps,
@@ -126,6 +128,7 @@ object ProjectUtil {
     val js = Module(
       id = id,
       basePath = baseDir.string,
+      subPathOpt = Some(s"${Os.fileSep}$jsSuffix"),
       deps = jsDeps,
       targets = ISZ(Target.Js),
       ivyDeps = jsIvyDeps,
@@ -155,11 +158,7 @@ object ProjectUtil {
                            jsDeps: ISZ[String],
                            jsIvyDeps: ISZ[String]): (Module, Module) = {
     val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
-    var js = moduleJs(baseId, baseDir, jsDeps, jsIvyDeps)
-    js = js(
-      sources = shared.sources ++ js.sources,
-      resources = shared.resources ++ js.resources,
-      testSources = shared.testSources ++ js.testSources)
+    val js = moduleJs(baseId, baseDir, jsDeps :+ shared.id, jsIvyDeps)
     return (shared, js)
   }
 
@@ -188,7 +187,7 @@ object ProjectUtil {
           } else {
             return st"""[shape = "invtrapezium", label="$name"]"""
           }
-        case _ => return st"$name"
+        case _ => return st"""[shape = "octagon", label="$name"]"""
       }
     }
     return p.poset.toST(node2st _).render
@@ -218,5 +217,14 @@ object ProjectUtil {
     } else {
       println(JSON.fromProject(project, T))
     }
+  }
+
+  @pure def projectJsonLine(text: String): Option[String] = {
+    for (line <- ops.StringOps(text).split((c: C) => c === '\n')) {
+      if (ops.StringOps(line).startsWith("{  \"type\" : \"Project\"")) {
+        return Some(line)
+      }
+    }
+    return None()
   }
 }
