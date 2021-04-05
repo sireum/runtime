@@ -227,4 +227,44 @@ object ProjectUtil {
     }
     return None()
   }
+
+  def loadFromBaseDirs(baseDirs: ISZ[Os.Path]): Option[Project] = {
+    var r = Project.empty
+    for (baseDir <- baseDirs) {
+      val pJsonFile = baseDir / "project.json"
+      val cmdFile = baseDir / "bin" / "project.cmd"
+      var loaded = F
+      if (pJsonFile.exists && cmdFile.exists && cmdFile.lastModified < pJsonFile.lastModified) {
+        JSON.toProject(pJsonFile.read) match {
+          case Either.Left(prj) =>
+            println(s"Loading from $pJsonFile ...")
+            r = r ++ prj
+            loaded = T
+          case _ =>
+        }
+      }
+      if (!loaded) {
+        println(s"Loading from $cmdFile ...")
+        val pr = proc"$cmdFile json".run()
+        if (pr.ok) {
+          projectJsonLine(pr.out) match {
+            case Some(line) => JSON.toProject(line) match {
+              case Either.Left(prj) =>
+                r = r ++ prj
+                loaded = T
+                pJsonFile.writeOver(JSON.fromProject(prj, F))
+                println(s"Wrote $pJsonFile")
+              case _ =>
+            }
+            case _ =>
+          }
+        }
+      }
+      if (!loaded) {
+        eprintln(s"Failed to load from $cmdFile")
+        return None()
+      }
+    }
+    return Some(r)
+  }
 }
