@@ -138,8 +138,8 @@ object Reporter {
               else if (m1pos.beginLine > m2pos.beginLine) F
               else if (m1pos.beginColumn < m2pos.beginColumn) T
               else if (m1pos.beginColumn > m2pos.beginColumn) F
-              else m1.text.size < m2.text.size
-            case _ => m1.text.size < m2.text.size
+              else false
+            case _ => false
           }
         })
     }
