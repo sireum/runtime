@@ -29,6 +29,7 @@ import coursier._
 
 object Coursier_Ext {
 
+  var scalaVersion: String = scala.util.Properties.versionNumberString
   var cacheOpt: Option[cache.FileCache[util.Task]] = None()
 
   var repositories: ISZ[Repository] = ISZ(
@@ -37,8 +38,12 @@ object Coursier_Ext {
   )
 
   def toDeps(deps: ISZ[String]): Seq[Dependency] =
-    parse.DependencyParser.dependencies(deps.elements.map(_.value), scala.util.Properties.versionNumberString).
+    parse.DependencyParser.dependencies(deps.elements.map(_.value), scalaVersion.value).
       either.getOrElse(halt(s"Invalid dependencies: $deps"))
+
+  def setScalaVersion(version: String): Unit = {
+    scalaVersion = version
+  }
 
   def setCache(path: Os.Path): Unit = {
     cacheOpt = Some(cache.FileCache().withLocation(path.string.value))
@@ -48,7 +53,8 @@ object Coursier_Ext {
     repositories = repositories ++ (for (url <- urls) yield MavenRepository(url.value))
   }
 
-  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = fetchClassifiers(deps, ISZ(CoursierClassifier.Default))
+  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] =
+    fetchClassifiers(deps, ISZ(CoursierClassifier.Default))
 
   def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
     var fetch = Fetch().
