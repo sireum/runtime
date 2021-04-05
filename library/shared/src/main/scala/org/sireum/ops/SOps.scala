@@ -370,7 +370,7 @@ import org.sireum._
     return r
   }
 
-  @pure def mParMap[U](f: T => U @pure): IS[Z, U] = {
+  @pure def mParMap[U](f: T => U): IS[Z, U] = {
     val r = ISZOpsUtil.mParMap(s, f)
     return r
   }
