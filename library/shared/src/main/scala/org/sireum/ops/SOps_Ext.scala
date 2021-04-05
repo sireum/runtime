@@ -31,7 +31,7 @@ import org.sireum.$internal.CollectionCompat.ParConverters._
 object ISOps_Ext {
   val MinimumParallelThreshold: Int = 8
 
-  def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+  def mParMap[I, V, U](s: IS[I, V], f: V => U): IS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val t = Thread.currentThread
@@ -42,22 +42,14 @@ object ISOps_Ext {
     if (Thread.interrupted()) throw new InterruptedException
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => if (u == null) r else g(r, u.asInstanceOf[U]))
+    IS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
-  def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
-    val elements = s.elements
-    val ies = elements.indices.zip(elements)
-    val t = Thread.currentThread
-    val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) =>
-        if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
-      }) else ies.map { p => (p._1, f(p._2))}
-    if (Thread.interrupted()) throw new InterruptedException
-    val a = new Array[scala.Any](elements.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldRight(init)((u, r) => if (u == null) r else g(r, u.asInstanceOf[U]))
-  }
+  def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R =
+    mParMap(s, f).elements.foldLeft(init)((r, u) => if (u == null) r else g(r, u))
+
+  def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R): R =
+    mParMap(s, f).elements.foldRight(init)((u, r) => if (u == null) r else g(r, u))
 
   @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
@@ -72,6 +64,10 @@ object ISOps_Ext {
 }
 
 object ISZOpsUtil_Ext {
+  def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
+
+  def parMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
+
   def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)
 
   def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R = ISOps_Ext.mParMapFoldLeft(s, f, g, init)
@@ -84,7 +80,8 @@ object ISZOpsUtil_Ext {
 }
 
 object MSOps_Ext {
-  def mParMapFoldLeft[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
+
+  def mParMap[I, V, U](s: MS[I, V], f: V => U): MS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val irs =
@@ -92,19 +89,14 @@ object MSOps_Ext {
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
+    MS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
-  def mParMapFoldRight[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R = {
-    val elements = s.elements
-    val ies = elements.indices.zip(elements)
-    val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ies, { p: (Int, V) => (p._1, f(p._2)) })
-      else ies.map { p => (p._1, f(p._2))}
-    val a = new Array[scala.Any](elements.length)
-    irs.foreach { p => a(p._1) = p._2 }
-    a.foldLeft(init)((r, u) => g(r, u.asInstanceOf[U]))
-  }
+  def mParMapFoldLeft[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R =
+    mParMap(s, f).elements.foldLeft(init)((r, u) => g(r, u))
+
+  def mParMapFoldRight[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R): R =
+    mParMap(s, f).elements.foldRight(init)((u, r) => if (u == null) r else g(r, u))
 
   @pure def sortWith[I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
@@ -119,6 +111,10 @@ object MSOps_Ext {
 }
 
 object MSZOpsUtil_Ext {
+  def mParMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMap(s, f)
+
+  def parMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMap(s, f)
+
   def mParMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldLeft(s, f, g, init)
 
   def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R = MSOps_Ext.mParMapFoldLeft(s, f, g, init)

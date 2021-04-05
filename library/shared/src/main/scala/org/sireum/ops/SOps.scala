@@ -141,20 +141,21 @@ import org.sireum._
 }
 
 @ext object ISZOpsUtil {
+
+  @pure def parMap[V, U](s: IS[Z, V], f: V => U @pure): IS[Z, U] = $
+
+  def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = $
+
   @pure def parMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
-//    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def parMapFoldRight[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
-//    l""" ensures ISZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldRight[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def sortWith[T](s: IS[Z, T], lt: (T, T) => B @pure): IS[Z, T] = $
-//    l""" ensures result.size ≡ s.size
-//                 ∀i: [0, result.size - 1) lt(i, i + 1)
-//                 SOps.isPermutation(s, result)         """
+
 }
 
 @datatype class ISZOps[T](s: IS[Z, T]) extends SOps[Z, T] with ISOps[Z, T] {
@@ -364,6 +365,16 @@ import org.sireum._
     return s.map(f)
   }
 
+  @pure def parMap[U](f: T => U @pure): IS[Z, U] = {
+    val r = ISZOpsUtil.parMap(s, f)
+    return r
+  }
+
+  @pure def mParMap[U](f: T => U @pure): IS[Z, U] = {
+    val r = ISZOpsUtil.mParMap(s, f)
+    return r
+  }
+
   @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
     val r = ISZOpsUtil.parMapFoldLeft(s, f, g, init)
     return r
@@ -461,20 +472,21 @@ import org.sireum._
 
 
 @ext object MSZOpsUtil {
+
+  @pure def parMap[V, U](s: MS[Z, V], f: V => U @pure): MS[Z, U] = $
+
+  def mParMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = $
+
   @pure def parMapFoldLeft[T, U, R](s: MS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
-//    l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldLeft[T, U, R](s: MS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def parMapFoldRight[T, U, R](s: MS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
-//    l""" ensures MSZOps(s.map(f)).foldLeft(g, init) """
 
   def mParMapFoldRight[T, U, R](s: MS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
 
   @pure def sortWith[T](s: MS[Z, T], lt: (T, T) => B @pure): MS[Z, T] = $
-//    l""" ensures result.size ≡ s.size
-//                 ∀i: [0, result.size - 1) lt(i, i + 1)
-//                 SOps.isPermutation(s, result)         """
+
 }
 
 @datatype class MSZOps[T](s: MS[Z, T]) extends SOps[Z, T] with MSOps[Z, T] {
@@ -676,6 +688,16 @@ import org.sireum._
 //                 ∀i: [0, result.size)  result(i) ≡ f(s(i)) """
 
     return s.map(f)
+  }
+
+  @pure def parMap[U](f: T => U @pure): MS[Z, U] = {
+    val r = MSZOpsUtil.parMap(s, f)
+    return r
+  }
+
+  def mParMap[U](f: T => U): MS[Z, U] = {
+    val r = MSZOpsUtil.mParMap(s, f)
+    return r
   }
 
   @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
