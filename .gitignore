@@ -19,3 +19,4 @@ target
 /cache
 *.cmd.jar
 *.cmd.com
+project.json
