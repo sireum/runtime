@@ -497,14 +497,20 @@ object Os_Ext {
   }
 
   def zip(path: String, target: String): Unit = {
+    def normPath(p: String): Predef.String = if (Os.isWin) p.value.replace('\\', '/') else p.value
     val zip = new ZOS(JFiles.newOutputStream(toNIO(target)))
     try {
       for (file <- Os.Path.walk(Os.path(path), F, T, _ => T)) {
-        zip.putNextEntry(new ZE(relativize(path, file.string).value))
+        zip.putNextEntry(new ZE(normPath(relativize(path, file.string))))
         JFiles.copy(toNIO(file.string), zip)
+        zip.flush()
         zip.closeEntry()
       }
-    } finally zip.close()
+    } finally {
+      zip.flush()
+      zip.finish()
+      zip.close()
+    }
   }
 
   def unzip(path: String, target: String): Unit = {
