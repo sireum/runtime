@@ -68,7 +68,35 @@ object JSON {
         ("sources", printISZ(T, o.sources, printString _)),
         ("resources", printISZ(T, o.resources, printString _)),
         ("testSources", printISZ(T, o.testSources, printString _)),
-        ("testResources", printISZ(T, o.testResources, printString _))
+        ("testResources", printISZ(T, o.testResources, printString _)),
+        ("publishInfoOpt", printOption(F, o.publishInfoOpt, printPublishInfo _))
+      ))
+    }
+
+    @pure def printPublishInfo(o: PublishInfo): ST = {
+      return printObject(ISZ(
+        ("type", st""""PublishInfo""""),
+        ("description", printString(o.description)),
+        ("url", printString(o.url)),
+        ("licenses", printISZ(F, o.licenses, printPublishInfoLicense _)),
+        ("developers", printISZ(F, o.developers, printPublishInfoDeveloper _))
+      ))
+    }
+
+    @pure def printPublishInfoLicense(o: PublishInfo.License): ST = {
+      return printObject(ISZ(
+        ("type", st""""PublishInfo.License""""),
+        ("name", printString(o.name)),
+        ("url", printString(o.url)),
+        ("distribution", printString(o.distribution))
+      ))
+    }
+
+    @pure def printPublishInfoDeveloper(o: PublishInfo.Developer): ST = {
+      return printObject(ISZ(
+        ("type", st""""PublishInfo.Developer""""),
+        ("id", printString(o.id)),
+        ("name", printString(o.name))
       ))
     }
 
@@ -159,7 +187,73 @@ object JSON {
       parser.parseObjectKey("testResources")
       val testResources = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
-      return Module(id, basePath, subPathOpt, deps, targets, ivyDeps, sources, resources, testSources, testResources)
+      parser.parseObjectKey("publishInfoOpt")
+      val publishInfoOpt = parser.parseOption(parsePublishInfo _)
+      parser.parseObjectNext()
+      return Module(id, basePath, subPathOpt, deps, targets, ivyDeps, sources, resources, testSources, testResources, publishInfoOpt)
+    }
+
+    def parsePublishInfo(): PublishInfo = {
+      val r = parsePublishInfoT(F)
+      return r
+    }
+
+    def parsePublishInfoT(typeParsed: B): PublishInfo = {
+      if (!typeParsed) {
+        parser.parseObjectType("PublishInfo")
+      }
+      parser.parseObjectKey("description")
+      val description = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("url")
+      val url = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("licenses")
+      val licenses = parser.parseISZ(parsePublishInfoLicense _)
+      parser.parseObjectNext()
+      parser.parseObjectKey("developers")
+      val developers = parser.parseISZ(parsePublishInfoDeveloper _)
+      parser.parseObjectNext()
+      return PublishInfo(description, url, licenses, developers)
+    }
+
+    def parsePublishInfoLicense(): PublishInfo.License = {
+      val r = parsePublishInfoLicenseT(F)
+      return r
+    }
+
+    def parsePublishInfoLicenseT(typeParsed: B): PublishInfo.License = {
+      if (!typeParsed) {
+        parser.parseObjectType("PublishInfo.License")
+      }
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("url")
+      val url = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("distribution")
+      val distribution = parser.parseString()
+      parser.parseObjectNext()
+      return PublishInfo.License(name, url, distribution)
+    }
+
+    def parsePublishInfoDeveloper(): PublishInfo.Developer = {
+      val r = parsePublishInfoDeveloperT(F)
+      return r
+    }
+
+    def parsePublishInfoDeveloperT(typeParsed: B): PublishInfo.Developer = {
+      if (!typeParsed) {
+        parser.parseObjectType("PublishInfo.Developer")
+      }
+      parser.parseObjectKey("id")
+      val id = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("name")
+      val name = parser.parseString()
+      parser.parseObjectNext()
+      return PublishInfo.Developer(id, name)
     }
 
     def eof(): B = {
@@ -212,6 +306,60 @@ object JSON {
       return r
     }
     val r = to(s, fModule _)
+    return r
+  }
+
+  def fromPublishInfo(o: PublishInfo, isCompact: B): String = {
+    val st = Printer.printPublishInfo(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toPublishInfo(s: String): Either[PublishInfo, Json.ErrorMsg] = {
+    def fPublishInfo(parser: Parser): PublishInfo = {
+      val r = parser.parsePublishInfo()
+      return r
+    }
+    val r = to(s, fPublishInfo _)
+    return r
+  }
+
+  def fromPublishInfoLicense(o: PublishInfo.License, isCompact: B): String = {
+    val st = Printer.printPublishInfoLicense(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toPublishInfoLicense(s: String): Either[PublishInfo.License, Json.ErrorMsg] = {
+    def fPublishInfoLicense(parser: Parser): PublishInfo.License = {
+      val r = parser.parsePublishInfoLicense()
+      return r
+    }
+    val r = to(s, fPublishInfoLicense _)
+    return r
+  }
+
+  def fromPublishInfoDeveloper(o: PublishInfo.Developer, isCompact: B): String = {
+    val st = Printer.printPublishInfoDeveloper(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toPublishInfoDeveloper(s: String): Either[PublishInfo.Developer, Json.ErrorMsg] = {
+    def fPublishInfoDeveloper(parser: Parser): PublishInfo.Developer = {
+      val r = parser.parsePublishInfoDeveloper()
+      return r
+    }
+    val r = to(s, fPublishInfoDeveloper _)
     return r
   }
 

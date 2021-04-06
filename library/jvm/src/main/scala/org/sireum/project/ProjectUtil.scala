@@ -27,12 +27,26 @@
 package org.sireum.project
 
 import org.sireum._
+import org.sireum.project.PublishInfo._
 
 object ProjectUtil {
 
   val sharedSuffix: String = "shared"
   val jvmSuffix: String = "jvm"
   val jsSuffix: String = "js"
+
+  val bsd2License: License = License(
+    name = "BSD 2-Clause",
+    url = "https://spdx.org/licenses/BSD-2-Clause.html",
+    distribution = "repo"
+  )
+  val bsd2: ISZ[License] = ISZ(bsd2License)
+
+  val robby: Developer = Developer(id = "robby-phd", name = "Robby")
+  val johnHatcliff: Developer = Developer(id = "John-Hatcliff", name = "John Hatcliff")
+  val jasonBelt: Developer = Developer(id = "jasonbelt", name = "Jason Belt")
+  val thari: Developer = Developer(id = "thari", name = "Hariharan Thiagarajan")
+  val matthewWeis: Developer = Developer(id = "MatthewWeisCaps", name = "Matthew Weis")
 
   @strictpure def id(baseId: String): ISZ[String] = ISZ(baseId)
 
@@ -80,10 +94,11 @@ object ProjectUtil {
     return dirs(base, ISZ(ISZ("src", "test", "resources")))
   }
 
-  @pure def moduleShared(id: String,
-                         baseDir: Os.Path,
-                         sharedDeps: ISZ[String],
-                         sharedIvyDeps: ISZ[String]): Module = {
+  @pure def moduleSharedPub(id: String,
+                            baseDir: Os.Path,
+                            sharedDeps: ISZ[String],
+                            sharedIvyDeps: ISZ[String],
+                            pubOpt: Option[PublishInfo]): Module = {
     val sharedDir = baseDir / sharedSuffix
     val shared = Module(
       id = id,
@@ -95,15 +110,29 @@ object ProjectUtil {
       sources = mavenSourceDirs(sharedDir),
       resources = mavenResourceDirs(sharedDir),
       testSources = mavenTestSourceDirs(sharedDir),
-      testResources = mavenTestResourceDirs(sharedDir)
+      testResources = mavenTestResourceDirs(sharedDir),
+      publishInfoOpt = pubOpt
     )
     return shared
   }
 
-  @pure def moduleJvm(id: String,
-                      baseDir: Os.Path,
-                      jvmDeps: ISZ[String],
-                      jvmIvyDeps: ISZ[String]): Module = {
+  @strictpure def moduleShared(id: String,
+                               baseDir: Os.Path,
+                               sharedDeps: ISZ[String],
+                               sharedIvyDeps: ISZ[String]): Module =
+    moduleSharedPub(
+      id = id,
+      baseDir = baseDir,
+      sharedDeps = sharedDeps,
+      sharedIvyDeps = sharedIvyDeps,
+      pubOpt = None()
+    )
+
+  @pure def moduleJvmPub(id: String,
+                         baseDir: Os.Path,
+                         jvmDeps: ISZ[String],
+                         jvmIvyDeps: ISZ[String],
+                         pubOpt: Option[PublishInfo]): Module = {
     val jvmDir = baseDir / jvmSuffix
     val jvm = Module(
       id = id,
@@ -115,15 +144,23 @@ object ProjectUtil {
       sources = mavenSourceDirs(jvmDir),
       resources = mavenResourceDirs(jvmDir),
       testSources = mavenTestSourceDirs(jvmDir),
-      testResources = mavenTestResourceDirs(jvmDir)
+      testResources = mavenTestResourceDirs(jvmDir),
+      publishInfoOpt = pubOpt
     )
     return jvm
   }
 
-  @pure def moduleJs(id: String,
-                     baseDir: Os.Path,
-                     jsDeps: ISZ[String],
-                     jsIvyDeps: ISZ[String]): Module = {
+  @strictpure def moduleJvm(id: String,
+                            baseDir: Os.Path,
+                            jvmDeps: ISZ[String],
+                            jvmIvyDeps: ISZ[String]): Module =
+    moduleJvmPub(id, baseDir, jvmDeps, jvmIvyDeps, None())
+
+  @pure def moduleJsPub(id: String,
+                        baseDir: Os.Path,
+                        jsDeps: ISZ[String],
+                        jsIvyDeps: ISZ[String],
+                        pubOpt: Option[PublishInfo]): Module = {
     val jsDir = baseDir / jsSuffix
     val js = Module(
       id = id,
@@ -135,45 +172,127 @@ object ProjectUtil {
       sources = mavenSourceDirs(jsDir),
       resources = mavenResourceDirs(jsDir),
       testSources = mavenTestSourceDirs(jsDir),
-      testResources = mavenTestResourceDirs(jsDir)
+      testResources = mavenTestResourceDirs(jsDir),
+      publishInfoOpt = pubOpt
     )
     return js
   }
 
-  @pure def moduleSharedJvm(baseId: String,
-                            baseDir: Os.Path,
-                            sharedDeps: ISZ[String],
-                            sharedIvyDeps: ISZ[String],
-                            jvmDeps: ISZ[String],
-                            jvmIvyDeps: ISZ[String]): (Module, Module) = {
-    val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
-    val jvm = moduleJvm(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps)
+  @strictpure def moduleJs(id: String,
+                           baseDir: Os.Path,
+                           jsDeps: ISZ[String],
+                           jsIvyDeps: ISZ[String]): Module =
+    moduleJsPub(
+      id = id,
+      baseDir = baseDir,
+      jsDeps = jsDeps,
+      jsIvyDeps = jsIvyDeps,
+      pubOpt = None()
+    )
+
+  @pure def moduleSharedJvmPub(baseId: String,
+                               baseDir: Os.Path,
+                               sharedDeps: ISZ[String],
+                               sharedIvyDeps: ISZ[String],
+                               jvmDeps: ISZ[String],
+                               jvmIvyDeps: ISZ[String],
+                               pubOpt: Option[PublishInfo]): (Module, Module) = {
+    val shared = moduleSharedPub(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps, pubOpt)
+    val jvm = moduleJvmPub(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps, pubOpt)
     return (shared, jvm)
   }
 
-  @pure def moduleSharedJs(baseId: String,
-                           baseDir: Os.Path,
-                           sharedDeps: ISZ[String],
-                           sharedIvyDeps: ISZ[String],
-                           jsDeps: ISZ[String],
-                           jsIvyDeps: ISZ[String]): (Module, Module) = {
-    val shared = moduleShared(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps)
-    val js = moduleJs(baseId, baseDir, jsDeps :+ shared.id, jsIvyDeps)
-    return (shared, js)
-  }
+  @strictpure def moduleSharedJvm(baseId: String,
+                                  baseDir: Os.Path,
+                                  sharedDeps: ISZ[String],
+                                  sharedIvyDeps: ISZ[String],
+                                  jvmDeps: ISZ[String],
+                                  jvmIvyDeps: ISZ[String]): (Module, Module) =
+    moduleSharedJvmPub(
+      baseId = baseId,
+      baseDir = baseDir,
+      sharedDeps = sharedDeps,
+      sharedIvyDeps = sharedIvyDeps,
+      jvmDeps = jvmDeps,
+      jvmIvyDeps = jvmIvyDeps,
+      pubOpt = None()
+    )
 
-  @pure def moduleSharedJvmJs(baseId: String,
+
+  @pure def moduleSharedJsPub(baseId: String,
                               baseDir: Os.Path,
                               sharedDeps: ISZ[String],
                               sharedIvyDeps: ISZ[String],
-                              jvmDeps: ISZ[String],
-                              jvmIvyDeps: ISZ[String],
                               jsDeps: ISZ[String],
-                              jsIvyDeps: ISZ[String]): (Module, Module, Module) = {
-    val (shared, js) = moduleSharedJs(baseId, baseDir, sharedDeps, sharedIvyDeps, jsDeps, jsIvyDeps)
-    val jvm = moduleJvm(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps)
+                              jsIvyDeps: ISZ[String],
+                              pubOpt: Option[PublishInfo]): (Module, Module) = {
+    val shared = moduleSharedPub(s"$baseId-$sharedSuffix", baseDir, sharedDeps, sharedIvyDeps, pubOpt)
+    val js = moduleJsPub(baseId, baseDir, jsDeps :+ shared.id, jsIvyDeps, pubOpt)
+    return (shared, js)
+  }
+
+  @strictpure def moduleSharedJs(baseId: String,
+                                 baseDir: Os.Path,
+                                 sharedDeps: ISZ[String],
+                                 sharedIvyDeps: ISZ[String],
+                                 jsDeps: ISZ[String],
+                                 jsIvyDeps: ISZ[String]): (Module, Module) =
+    moduleSharedJsPub(
+      baseId = baseId,
+      baseDir = baseDir,
+      sharedDeps = sharedDeps,
+      sharedIvyDeps = sharedIvyDeps,
+      jsDeps = jsDeps,
+      jsIvyDeps = jsIvyDeps,
+      pubOpt = None()
+    )
+
+  @pure def moduleSharedJvmJsPub(baseId: String,
+                                 baseDir: Os.Path,
+                                 sharedDeps: ISZ[String],
+                                 sharedIvyDeps: ISZ[String],
+                                 jvmDeps: ISZ[String],
+                                 jvmIvyDeps: ISZ[String],
+                                 jsDeps: ISZ[String],
+                                 jsIvyDeps: ISZ[String],
+                                 pubOpt: Option[PublishInfo]): (Module, Module, Module) = {
+    val (shared, js) = moduleSharedJsPub(baseId, baseDir, sharedDeps, sharedIvyDeps, jsDeps, jsIvyDeps, pubOpt)
+    val jvm = moduleJvmPub(baseId, baseDir, jvmDeps :+ shared.id, jvmIvyDeps, pubOpt)
     return (shared, jvm, js(id = s"$baseId-$jsSuffix"))
   }
+
+  @strictpure def moduleSharedJvmJs(baseId: String,
+                                    baseDir: Os.Path,
+                                    sharedDeps: ISZ[String],
+                                    sharedIvyDeps: ISZ[String],
+                                    jvmDeps: ISZ[String],
+                                    jvmIvyDeps: ISZ[String],
+                                    jsDeps: ISZ[String],
+                                    jsIvyDeps: ISZ[String]): (Module, Module, Module) =
+    moduleSharedJvmJsPub(
+      baseId = baseId,
+      baseDir = baseDir,
+      sharedDeps = sharedDeps,
+      sharedIvyDeps = sharedIvyDeps,
+      jvmDeps = jvmDeps,
+      jvmIvyDeps = jvmIvyDeps,
+      jsDeps = jsDeps,
+      jsIvyDeps = jsIvyDeps,
+      pubOpt = None()
+    )
+
+  @strictpure def pub(desc: String,
+                      url: String,
+                      licenses: ISZ[PublishInfo.License],
+                      devs: ISZ[PublishInfo.Developer]): Option[PublishInfo] =
+    Some(
+      PublishInfo(
+        description = desc,
+        url = url,
+        licenses = licenses,
+        developers = devs
+      )
+    )
 
   @pure def toDot(p: Project): String = {
     @pure def node2st(name: String): ST = {
@@ -190,6 +309,7 @@ object ProjectUtil {
         case _ => return st"""[shape = "octagon", label="$name"]"""
       }
     }
+
     return p.poset.toST(node2st _).render
   }
 

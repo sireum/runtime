@@ -74,8 +74,25 @@ object Project {
                        val sources: ISZ[String],
                        val resources: ISZ[String],
                        val testSources: ISZ[String],
-                       val testResources: ISZ[String])
+                       val testResources: ISZ[String],
+                       val publishInfoOpt: Option[PublishInfo])
 
 object Module {
   val allTargets: ISZ[Target.Type] = ISZ(Target.Jvm, Target.Js)
+}
+
+@datatype class PublishInfo(val description: String,
+                            val url: String,
+                            val licenses: ISZ[PublishInfo.License],
+                            val developers: ISZ[PublishInfo.Developer])
+
+object PublishInfo {
+
+  @datatype class License(val name: String,
+                          val url: String,
+                          val distribution: String)
+
+  @datatype class Developer(val id: String,
+                            val name: String)
+
 }
