@@ -71,6 +71,10 @@ object Coursier_Ext {
       case _ =>
     }
     ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
-      CoursierFileInfo(q._1.module.organization.value, q._1.module.name.value, Os.path(q._4.getCanonicalPath))): _*)
+      CoursierFileInfo(
+        q._1.module.organization.value,
+        q._1.module.name.value,
+        q._1.version,
+        Os.path(q._4.getCanonicalPath))): _*)
   }
 }

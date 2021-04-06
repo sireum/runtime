@@ -33,7 +33,10 @@ package org.sireum
   'Tests
 }
 
-@datatype class CoursierFileInfo(org: String, module: String, val path: Os.Path)
+@datatype class CoursierFileInfo(val org: String,
+                                 val module: String,
+                                 val version: String,
+                                 val path: Os.Path)
 
 @ext object Coursier {
 
