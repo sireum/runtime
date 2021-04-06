@@ -1483,7 +1483,7 @@ object Json {
           val v = f()
           parseObjectNext()
           return Some(v)
-        case "None" =>
+        case _ =>
           return None()
       }
     }
@@ -1496,7 +1496,7 @@ object Json {
           val v = f()
           parseObjectNext()
           return MSome(v)
-        case "None" =>
+        case _ =>
           return MNone()
       }
     }
