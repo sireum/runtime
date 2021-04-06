@@ -381,6 +381,10 @@ object Os {
       return Path.Impl(s"$value$fileSep$name")
     }
 
+    @pure def /+(names: ISZ[String]): Path = {
+      return Path.Impl(st"$value$fileSep${(names, fileSep)}".render)
+    }
+
     def call(args: ISZ[String]): Os.Proc = {
       return Os.proc(((if (Os.isWin) ISZ[String]("cmd", "/c") else ISZ[String]("sh")) :+ string) ++ args)
     }
@@ -455,6 +459,10 @@ object Os {
 
     def list: ISZ[Path] = {
       return for (filename <- Ext.list(value)) yield this / filename
+    }
+
+    def md5: String = {
+      return Ext.md5(value)
     }
 
     def moveTo(target: Path): Unit = {
@@ -554,6 +562,10 @@ object Os {
 
     def removeOnExit(): Unit = {
       Ext.removeOnExit(value)
+    }
+
+    def sha1: String = {
+      return Ext.sha1(value)
     }
 
     def slash(args: ISZ[String]): Unit = {
@@ -769,6 +781,8 @@ object Os {
 
     def list(path: String): ISZ[String] = $
 
+    def md5(path: String): String = $
+
     def move(path: String, target: String, over: B): Unit = $
 
     def mkdir(path: String, all: B): Unit = $
@@ -808,6 +822,8 @@ object Os {
     def removeAll(path: String): Unit = $
 
     def removeOnExit(path: String): Unit = $
+
+    def sha1(path: String): String = $
 
     def slashDir: String = $
 

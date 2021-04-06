@@ -201,6 +201,8 @@ object Os_Ext {
 
   def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).toIndexedSeq.map(String(_)): _*)
 
+  def md5(path: String): String = digest(path, "MD5")
+
   def move(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
     val t = toNIO(target)
@@ -464,6 +466,8 @@ object Os_Ext {
   def removeOnExit(path: String): Unit = {
     toIO(path).deleteOnExit()
   }
+
+  def sha1(path: String): String = digest(path, "SHA1")
 
   def slashDir: String = {
     try if (isNative) return parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").
@@ -883,6 +887,12 @@ object Os_Ext {
       case _ => o.toString
     }
     r
+  }
+
+  private def digest(path: String, name: String): String = {
+    val md = java.security.MessageDigest.getInstance(name.value)
+    val digest = md.digest(readU8s(path).elements.map(_.value).toArray)
+    st"${(for (d <- digest) yield U8(d)).toSeq}".render.value.toLowerCase
   }
 
   private def toIO(path: String): JFile = new JFile(path.value)
