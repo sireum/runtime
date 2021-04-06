@@ -17,7 +17,7 @@ exit /B %errorlevel%
 // #Sireum
 
 import org.sireum._
-import org.sireum.project.{Project, JSON}
+import org.sireum.project.Project
 import org.sireum.project.ProjectUtil._
 
 val macros = "macros"
@@ -26,7 +26,7 @@ val test = "test"
 
 val homeDir = Os.slashDir.up.canon
 
-val macrosShared = moduleShared(
+val macrosShared = moduleSharedPub(
   id = macros,
   baseDir = homeDir / macros,
   sharedDeps = ISZ(),
@@ -34,17 +34,29 @@ val macrosShared = moduleShared(
     "org.scala-lang:scala-library:",
     "org.scala-lang.modules::scala-parallel-collections:",
     "org.scala-lang.modules::scala-java8-compat:"
+  ),
+  pubOpt = pub(
+    desc = "Scala Macros for Slang",
+    url = "github.com/sireum/runtime",
+    licenses = org.sireum.project.ProjectUtil.bsd2,
+    devs = ISZ(robby)
   )
 )
 
-val testShared = moduleShared(
+val testShared = moduleSharedPub(
   id = test,
   baseDir = homeDir / test,
   sharedDeps = ISZ(macrosShared.id),
-  sharedIvyDeps = ISZ("org.scalatest::scalatest::")
+  sharedIvyDeps = ISZ("org.scalatest::scalatest::"),
+  pubOpt = pub(
+    desc = "Test Framework for Slang",
+    url = "github.com/sireum/runtime",
+    licenses = org.sireum.project.ProjectUtil.bsd2,
+    devs = ISZ(robby)
+  )
 )
 
-val (libraryShared, libraryJvm) = moduleSharedJvm(
+val (libraryShared, libraryJvm) = moduleSharedJvmPub(
   baseId = library,
   baseDir = homeDir / library,
   sharedDeps = ISZ(testShared.id),
@@ -55,6 +67,12 @@ val (libraryShared, libraryJvm) = moduleSharedJvm(
     "com.lihaoyi::os-lib:",
     "org.kohsuke:github-api:",
     "io.get-coursier::coursier:"
+  ),
+  pubOpt = pub(
+    desc = "Slang Runtime Library",
+    url = "github.com/sireum/runtime",
+    licenses = org.sireum.project.ProjectUtil.bsd2,
+    devs = ISZ(robby)
   )
 )
 
