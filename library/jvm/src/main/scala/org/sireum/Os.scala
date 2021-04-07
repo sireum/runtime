@@ -461,6 +461,10 @@ object Os {
       return for (filename <- Ext.list(value)) yield this / filename
     }
 
+    def mergeFrom(sources: ISZ[Os.Path]): Unit = {
+      Ext.mergeFrom(value, for (p <- sources) yield p.value)
+    }
+
     def md5: String = {
       return Ext.md5(value)
     }
@@ -780,6 +784,8 @@ object Os {
     def length(path: String): Z = $
 
     def list(path: String): ISZ[String] = $
+
+    def mergeFrom(path: String, sources: ISZ[String]): Unit = $
 
     def md5(path: String): String = $
 

@@ -24,10 +24,16 @@
  */
 package org.sireum
 
-import java.io.{PrintWriter, File => JFile, BufferedInputStream => BIS, BufferedOutputStream => BOS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
+import java.io.{
+  PrintWriter, File => JFile, BufferedInputStream => BIS, BufferedOutputStream => BOS, FileOutputStream => FOS,
+  FileInputStream => FIS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW
+}
 import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
-import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO}
+import java.nio.file.{
+  AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath,
+  Paths => JPaths, StandardCopyOption => SCO
+}
 import java.util.concurrent.{TimeUnit => TU}
 import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => ZOS}
 
@@ -200,6 +206,28 @@ object Os_Ext {
     else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
 
   def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).toIndexedSeq.map(String(_)): _*)
+
+  def mergeFrom(path: String, sources: ISZ[String]): Unit = {
+    copy(sources(0), path, T)
+    val outOs = new FOS(toIO(path), writeAppend(path, Os.Path.WriteMode.Append))
+    try {
+      val buffer = new Array[Byte](1000000)
+      for (i <- 1 until sources.length) {
+        val p = sources(i)
+        val is = new FIS(toIO(p))
+        try {
+          var n = is.read(buffer)
+          while (n > 0) {
+            outOs.write(buffer, 0, n)
+            n = is.read(buffer)
+          }
+        } finally is.close()
+      }
+    } finally {
+      outOs.flush()
+      outOs.close()
+    }
+  }
 
   def md5(path: String): String = digest(path, "MD5")
 
