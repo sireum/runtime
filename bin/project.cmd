@@ -38,7 +38,7 @@ val macrosShared = moduleSharedPub(
   pubOpt = pub(
     desc = "Scala Macros for Slang",
     url = "github.com/sireum/runtime",
-    licenses = org.sireum.project.ProjectUtil.bsd2,
+    licenses = bsd2,
     devs = ISZ(robby)
   )
 )
@@ -51,7 +51,7 @@ val testShared = moduleSharedPub(
   pubOpt = pub(
     desc = "Test Framework for Slang",
     url = "github.com/sireum/runtime",
-    licenses = org.sireum.project.ProjectUtil.bsd2,
+    licenses = bsd2,
     devs = ISZ(robby)
   )
 )
@@ -71,7 +71,7 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
   pubOpt = pub(
     desc = "Slang Runtime Library",
     url = "github.com/sireum/runtime",
-    licenses = org.sireum.project.ProjectUtil.bsd2,
+    licenses = bsd2,
     devs = ISZ(robby)
   )
 )
