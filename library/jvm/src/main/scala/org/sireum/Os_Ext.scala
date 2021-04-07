@@ -259,8 +259,13 @@ object Os_Ext {
   }
 
   def mkdir(path: String, all: B): Unit = {
-    if (all) JFiles.createDirectories(toNIO(path))
-    else JFiles.createDirectory(toNIO(path))
+    val p = toNIO(path)
+    if (JFiles.isRegularFile(p)) {
+      halt(s"Cannot create a directory on existing an existing file $path")
+    }
+    if (JFiles.exists(p)) return
+    if (all) JFiles.createDirectories(p)
+    else JFiles.createDirectory(p)
   }
 
   def mklink(path: String, target: String): Unit = {
