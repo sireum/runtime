@@ -69,6 +69,7 @@ import DependencyManager._
 
 @record class DependencyManager(val project: Project,
                                 val versions: HashSMap[String, String],
+                                val isJs: B,
                                 val withSource: B,
                                 val withDoc: B,
                                 val javaHome: Os.Path,
@@ -115,11 +116,12 @@ import DependencyManager._
     for (m <- project.modules.values) {
       for (ivyDep <- m.ivyDeps) {
         val v = getVersion(ivyDep)
-        r = r + ivyDep ~> s"$ivyDep$v"
         val ivyDepOps = ops.StringOps(ivyDep)
-        if (ivyDepOps.endsWith("::")) {
+        if (isJs && ivyDepOps.endsWith("::")) {
           val dep = s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
           r = r + ivyDep ~> s"$dep$v"
+        } else {
+          r = r + ivyDep ~> s"$ivyDep$v"
         }
       }
     }
