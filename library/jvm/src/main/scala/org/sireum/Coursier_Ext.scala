@@ -30,7 +30,7 @@ import coursier._
 object Coursier_Ext {
 
   var scalaVersion: String = scala.util.Properties.versionNumberString
-  var cacheOpt: Option[cache.FileCache[util.Task]] = None()
+  var cacheOpt: Option[Os.Path] = None()
 
   var repositories: ISZ[Repository] = ISZ(
     Repositories.sonatype("releases"),
@@ -45,8 +45,8 @@ object Coursier_Ext {
     scalaVersion = version
   }
 
-  def setCache(path: Os.Path): Unit = {
-    cacheOpt = Some(cache.FileCache().withLocation(path.string.value))
+  def setCache(pathOpt: Option[Os.Path]): Unit = {
+    cacheOpt = pathOpt
   }
 
   def addMavenRepositories(urls: ISZ[String]): Unit = {
@@ -67,7 +67,7 @@ object Coursier_Ext {
       case CoursierClassifier.Tests => fetch = fetch.addClassifiers(Classifier.tests)
     }
     cacheOpt match {
-      case Some(cache) => fetch = fetch.withCache(cache)
+      case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
       case _ =>
     }
     ISZ((for (q <- fetch.runResult().detailedArtifacts) yield

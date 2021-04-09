@@ -40,11 +40,13 @@ package org.sireum
 
 @ext object Coursier {
 
+  def cacheOpt: Option[Os.Path] = $
+
   def scalaVersion: String = $
 
   def setScalaVersion(version: String): Unit = $
 
-  def setCache(path: Os.Path): Unit = $
+  def setCache(pathOpt: Option[Os.Path]): Unit = $
 
   def addMavenRepositories(urls: ISZ[String]): Unit = $
 
