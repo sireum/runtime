@@ -2,7 +2,7 @@
 // @formatter:off
 
 /*
- Copyright (c) 2019, Robby, Kansas State University
+ Copyright (c) 2021, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ object JSON {
         ("description", printString(o.description)),
         ("header", printString(o.header)),
         ("usage", printString(o.usage)),
+        ("usageDescOpt", printOption(T, o.usageDescOpt, printString _)),
         ("opts", printISZ(F, o.opts, printCliOptOpt _)),
         ("groups", printISZ(F, o.groups, printCliOptOptGroup _))
       ))
@@ -217,13 +218,16 @@ object JSON {
       parser.parseObjectKey("usage")
       val usage = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("usageDescOpt")
+      val usageDescOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
       parser.parseObjectKey("opts")
       val opts = parser.parseISZ(parseCliOptOpt _)
       parser.parseObjectNext()
       parser.parseObjectKey("groups")
       val groups = parser.parseISZ(parseCliOptOptGroup _)
       parser.parseObjectNext()
-      return CliOpt.Tool(name, command, description, header, usage, opts, groups)
+      return CliOpt.Tool(name, command, description, header, usage, usageDescOpt, opts, groups)
     }
 
     def parseCliOptOptGroup(): CliOpt.OptGroup = {

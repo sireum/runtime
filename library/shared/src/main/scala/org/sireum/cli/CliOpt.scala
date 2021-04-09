@@ -49,7 +49,7 @@ object CliOpt {
     val description: String,
     val header: String,
     val unlisted: B,
-    subs: ISZ[CliOpt]
+    val subs: ISZ[CliOpt]
   ) extends CliOpt {
 
     @pure def command: String = {
@@ -62,34 +62,35 @@ object CliOpt {
     val command: String,
     val description: String,
     val header: String,
-    usage: String,
-    opts: ISZ[Opt],
-    groups: ISZ[OptGroup]
+    val usage: String,
+    val usageDescOpt: Option[String],
+    val opts: ISZ[Opt],
+    val groups: ISZ[OptGroup]
   ) extends CliOpt {
     override def unlisted: B = {
       return F
     }
   }
 
-  @datatype class OptGroup(name: String, opts: ISZ[Opt])
+  @datatype class OptGroup(val name: String, val opts: ISZ[Opt])
 
-  @datatype class Opt(name: String, longKey: String, shortKey: Option[C], tpe: Type, description: String)
+  @datatype class Opt(val name: String, val longKey: String, val shortKey: Option[C], val tpe: Type, val description: String)
 
   @datatype trait Type
 
   object Type {
 
-    @datatype class Flag(default: B) extends Type
+    @datatype class Flag(val default: B) extends Type
 
-    @datatype class Num(sep: Option[C], default: Z, min: Option[Z], max: Option[Z]) extends Type
+    @datatype class Num(val sep: Option[C], val default: Z, val min: Option[Z], val max: Option[Z]) extends Type
 
-    @datatype class NumChoice(sep: Option[C], choices: ISZ[Z]) extends Type
+    @datatype class NumChoice(val sep: Option[C], val choices: ISZ[Z]) extends Type
 
-    @datatype class Str(sep: Option[C], default: Option[String]) extends Type
+    @datatype class Str(val sep: Option[C], val default: Option[String]) extends Type
 
-    @datatype class Choice(name: String, sep: Option[C], elements: ISZ[String]) extends Type
+    @datatype class Choice(val name: String, val sep: Option[C], val elements: ISZ[String]) extends Type
 
-    @datatype class Path(multiple: B, default: Option[String]) extends Type
+    @datatype class Path(val multiple: B, val default: Option[String]) extends Type
 
   }
 
