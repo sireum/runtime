@@ -75,7 +75,11 @@ object Project {
                        val resources: ISZ[String],
                        val testSources: ISZ[String],
                        val testResources: ISZ[String],
-                       val publishInfoOpt: Option[PublishInfo])
+                       val publishInfoOpt: Option[PublishInfo]) {
+
+  @strictpure def hasTarget(target: Target.Type): B = ops.ISZOps(targets).contains(target)
+
+}
 
 object Module {
   val allTargets: ISZ[Target.Type] = ISZ(Target.Jvm, Target.Js)
