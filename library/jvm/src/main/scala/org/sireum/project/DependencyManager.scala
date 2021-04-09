@@ -1,0 +1,242 @@
+// #Sireum
+/*
+ Copyright (c) 2021, Robby, Kansas State University
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice, this
+    list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package org.sireum.project
+
+import org.sireum._
+
+object DependencyManager {
+  @datatype class Lib(val name: String,
+                      val org: String,
+                      val module: String,
+                      val main: String,
+                      val sourcesOpt: Option[String],
+                      val javadocOpt: Option[String])
+
+  val javaKey: String = "org.sireum.version.zulu"
+  val jbrKey: String = "org.sireum.version.jbr"
+  val scalacPluginKey: String = "org.sireum%%scalac-plugin%"
+  val scalaKey: String = "org.scala-lang%scala-library%"
+  val scalaJsKey: String = "org.scala-js%%%scalajs-compiler%"
+  val scalaTestKey: String = "org.scalatest%%scalatest%%"
+
+  val jarSuffix: String = ".jar"
+  val sourceJarSuffix: String = "-sources.jar"
+  val docJarSuffix: String = "-javadoc.jar"
+
+  val ignoredLibraryNames: HashSet[String] = HashSet ++ ISZ[String](
+    "org.scala-lang.scala-library", "org.scala-lang.scala-reflect", "org.scala-lang.scala-compiler"
+  )
+
+  @pure def buildClassifiers(withSource: B, withDoc: B): ISZ[CoursierClassifier.Type] = {
+    var classifiers = ISZ[CoursierClassifier.Type](CoursierClassifier.Default)
+    if (withSource) {
+      classifiers = classifiers :+ CoursierClassifier.Sources
+    }
+    if (withDoc) {
+      classifiers = classifiers :+ CoursierClassifier.Javadoc
+    }
+    return classifiers
+  }
+
+  @strictpure def libName(cif: CoursierFileInfo): String = s"${cif.org}.${cif.module}"
+}
+
+import DependencyManager._
+
+@record class DependencyManager(val project: Project,
+                                val versions: HashSMap[String, String],
+                                val withSource: B,
+                                val withDoc: B,
+                                val javaHome: Os.Path,
+                                val scalaHome: Os.Path,
+                                val sireumJar: Os.Path,
+                                val scalacPlugin: Os.Path,
+                                val cacheOpt: Option[Os.Path]) {
+
+  val javaVersion: String = versions.get(DependencyManager.javaKey) match {
+    case Some(v) => v
+    case _ => halt(s"Could not find Java version (key: ${DependencyManager.javaKey})")
+  }
+
+  val scalaVersion: String = versions.get(DependencyManager.scalaKey) match {
+    case Some(v) => v
+    case _ => halt(s"Could not find Scala version (key: ${DependencyManager.scalaKey})")
+  }
+
+  val scalaMajorVersion: String = {
+    val verOps = ops.StringOps(scalaVersion)
+    val i = verOps.indexOf('.')
+    val j = verOps.indexOfFrom('.', i + 1)
+    verOps.substring(0, j)
+  }
+
+  val scalaJsVersion: String = versions.get(DependencyManager.scalaJsKey) match {
+    case Some(v) => v
+    case _ => halt(s"Could not find Scala.js version (key: ${DependencyManager.scalaJsKey})")
+  }
+
+  val sjsSuffix: String = {
+    val verOps = ops.StringOps(scalaJsVersion)
+    val i = verOps.indexOf('.')
+    s"_sjs${verOps.substring(0, i)}"
+  }
+
+  val scalaTestVersion: String = versions.get(DependencyManager.scalaTestKey) match {
+    case Some(v) => v
+    case _ => halt(s"Could not find ScalaTest version (key: ${DependencyManager.scalaTestKey})")
+  }
+
+  val ivyDeps: HashSMap[String, String] = {
+    var r = HashSMap.empty[String, String]
+    for (m <- project.modules.values) {
+      for (ivyDep <- m.ivyDeps) {
+        val v = getVersion(ivyDep)
+        r = r + ivyDep ~> s"$ivyDep$v"
+        val ivyDepOps = ops.StringOps(ivyDep)
+        if (ivyDepOps.endsWith("::")) {
+          val dep = s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
+          r = r + ivyDep ~> s"$dep$v"
+        }
+      }
+    }
+    r
+  }
+
+  val libMap: HashSMap[String, Lib] = {
+    var r = HashSMap.empty[String, Lib]
+    for (cif <- fetchClassifiers(ivyDeps.values, buildClassifiers(withSource, withDoc))) {
+      val name = libName(cif)
+      val p = cif.path
+      val pNameOps = ops.StringOps(p.string)
+      if (!ignoredLibraryNames.contains(name)) {
+        var lib: Lib = r.get(name) match {
+          case Some(l) => l
+          case _ => Lib(name, cif.org, cif.module, "", None(), None())
+        }
+        if (pNameOps.endsWith(sourceJarSuffix)) {
+          lib = lib(sourcesOpt = Some(p.string))
+        } else if (pNameOps.endsWith(docJarSuffix)) {
+          lib = lib(javadocOpt = Some(p.string))
+        } else if (pNameOps.endsWith(jarSuffix)) {
+          lib = lib(main = p.string)
+        } else {
+          halt(s"Expecting a file with .jar extension but found '$p'")
+        }
+        r = r + name ~> lib
+      }
+    }
+    r
+  }
+
+  var tLibMap: HashMap[String, ISZ[Lib]] = HashMap.empty
+
+  var dLibMap: HashMap[String, ISZ[Lib]] = HashMap.empty
+
+  @pure def getVersion(ivyDep: String): String = {
+    versions.get(ops.StringOps(ivyDep).replaceAllChars(':', '%')) match {
+      case Some(v) => return v
+      case _ => halt(s"Could not find version information for '$ivyDep' in $versions")
+    }
+  }
+
+  @pure def getModule(id: String): Module = {
+    project.modules.get(id) match {
+      case Some(m) => return m
+      case _ => halt(s"Could not find module with ID '$id'")
+    }
+  }
+
+  @memoize def computeTransitiveDeps(m: Module): ISZ[String] = {
+    var r = HashSSet.empty[String]
+    for (mDep <- m.deps) {
+      r = r + mDep ++ computeTransitiveDeps(getModule(mDep))
+    }
+    return r.elements
+  }
+
+  @memoize def computeTransitiveIvyDeps(isJs: B, m: Module): ISZ[String] = {
+    var r = HashSSet.empty[String]
+    for (mid <- m.deps) {
+      r = r ++ computeTransitiveIvyDeps(isJs, project.modules.get(mid).get)
+    }
+    for (id <- m.ivyDeps) {
+      if (isJs) {
+        val idOps = ops.StringOps(id)
+        if (idOps.endsWith("::")) {
+          val dep = s"${idOps.substring(0, id.size - 2)}$sjsSuffix:"
+          r = r + ivyDeps.get(dep).get
+        } else {
+          r = r + ivyDeps.get(id).get
+        }
+      } else {
+        r = r + ivyDeps.get(id).get
+      }
+    }
+    return r.elements
+  }
+
+  def fetchTransitiveLibs(isJs: B, m: Module): ISZ[Lib] = {
+    tLibMap.get(m.id) match {
+      case Some(libs) => return libs
+      case _ =>
+    }
+    val r: ISZ[Lib] =
+      for (cif <- fetch(computeTransitiveIvyDeps(isJs, m)) if !ignoredLibraryNames.contains(libName(cif))) yield libMap.get(libName(cif)).get
+    tLibMap = tLibMap + m.id ~> r
+    return r
+  }
+
+  def fetchDiffLibs(isJs: B, m: Module): ISZ[Lib] = {
+    dLibMap.get(m.id) match {
+      case Some(libs) => return libs
+      case _ =>
+    }
+    var s = HashSSet ++ fetchTransitiveLibs(isJs, m)
+    for (mDep <- m.deps) {
+      s = s -- fetchTransitiveLibs(isJs, getModule(mDep))
+    }
+    val r = s.elements
+    dLibMap = dLibMap + m.id ~> r
+    return r
+  }
+
+  def fetch(ivyDeps: ISZ[String]): ISZ[CoursierFileInfo] = {
+    return fetchClassifiers(ivyDeps, ISZ(CoursierClassifier.Default))
+  }
+
+  def fetchClassifiers(ivyDeps: ISZ[String], classifiers: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
+    val oldScalaVersion = Coursier.scalaVersion
+    val oldCacheOpt = Coursier.cacheOpt
+    Coursier.setScalaVersion(scalaVersion)
+    Coursier.setCache(cacheOpt)
+    val r = Coursier.fetchClassifiers(ivyDeps, classifiers)
+    Coursier.setScalaVersion(oldScalaVersion)
+    Coursier.setCache(oldCacheOpt)
+    return r
+  }
+}
+
