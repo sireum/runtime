@@ -32,6 +32,7 @@ object DependencyManager {
   @datatype class Lib(val name: String,
                       val org: String,
                       val module: String,
+                      val version: String,
                       val main: String,
                       val sourcesOpt: Option[String],
                       val javadocOpt: Option[String])
@@ -137,7 +138,7 @@ import DependencyManager._
       if (!ignoredLibraryNames.contains(name)) {
         var lib: Lib = r.get(name) match {
           case Some(l) => l
-          case _ => Lib(name, cif.org, cif.module, "", None(), None())
+          case _ => Lib(name, cif.org, cif.module, cif.version, "", None(), None())
         }
         if (pNameOps.endsWith(sourceJarSuffix)) {
           lib = lib(sourcesOpt = Some(p.string))
@@ -180,10 +181,10 @@ import DependencyManager._
     return r.elements
   }
 
-  @memoize def computeTransitiveIvyDeps(isJs: B, m: Module): ISZ[String] = {
+  @memoize def computeTransitiveIvyDeps(m: Module): ISZ[String] = {
     var r = HashSSet.empty[String]
     for (mid <- m.deps) {
-      r = r ++ computeTransitiveIvyDeps(isJs, project.modules.get(mid).get)
+      r = r ++ computeTransitiveIvyDeps(project.modules.get(mid).get)
     }
     for (id <- m.ivyDeps) {
       if (isJs) {
@@ -201,25 +202,25 @@ import DependencyManager._
     return r.elements
   }
 
-  def fetchTransitiveLibs(isJs: B, m: Module): ISZ[Lib] = {
+  def fetchTransitiveLibs(m: Module): ISZ[Lib] = {
     tLibMap.get(m.id) match {
       case Some(libs) => return libs
       case _ =>
     }
     val r: ISZ[Lib] =
-      for (cif <- fetch(computeTransitiveIvyDeps(isJs, m)) if !ignoredLibraryNames.contains(libName(cif))) yield libMap.get(libName(cif)).get
+      for (cif <- fetch(computeTransitiveIvyDeps(m)) if !ignoredLibraryNames.contains(libName(cif))) yield libMap.get(libName(cif)).get
     tLibMap = tLibMap + m.id ~> r
     return r
   }
 
-  def fetchDiffLibs(isJs: B, m: Module): ISZ[Lib] = {
+  def fetchDiffLibs(m: Module): ISZ[Lib] = {
     dLibMap.get(m.id) match {
       case Some(libs) => return libs
       case _ =>
     }
-    var s = HashSSet ++ fetchTransitiveLibs(isJs, m)
+    var s = HashSSet ++ fetchTransitiveLibs(m)
     for (mDep <- m.deps) {
-      s = s -- fetchTransitiveLibs(isJs, getModule(mDep))
+      s = s -- fetchTransitiveLibs(getModule(mDep))
     }
     val r = s.elements
     dLibMap = dLibMap + m.id ~> r
