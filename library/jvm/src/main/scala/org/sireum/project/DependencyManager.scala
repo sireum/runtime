@@ -189,7 +189,7 @@ import DependencyManager._
     for (id <- m.ivyDeps) {
       if (isJs) {
         val idOps = ops.StringOps(id)
-        if (idOps.endsWith("::")) {
+        if (isJs && idOps.endsWith("::")) {
           val dep = s"${idOps.substring(0, id.size - 2)}$sjsSuffix:"
           r = r + ivyDeps.get(dep).get
         } else {
