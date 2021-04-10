@@ -187,17 +187,7 @@ import DependencyManager._
       r = r ++ computeTransitiveIvyDeps(project.modules.get(mid).get)
     }
     for (id <- m.ivyDeps) {
-      if (isJs) {
-        val idOps = ops.StringOps(id)
-        if (isJs && idOps.endsWith("::")) {
-          val dep = s"${idOps.substring(0, id.size - 2)}$sjsSuffix:"
-          r = r + ivyDeps.get(dep).get
-        } else {
-          r = r + ivyDeps.get(id).get
-        }
-      } else {
-        r = r + ivyDeps.get(id).get
-      }
+      r = r + ivyDeps.get(id).get
     }
     return r.elements
   }
