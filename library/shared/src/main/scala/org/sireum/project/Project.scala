@@ -41,6 +41,14 @@ object Project {
     poset = poset.addParents(module.id, module.deps)
   )
 
+  @strictpure override def hash: Z = modules.hash
+
+  @strictpure def isEqual(other: Project): B = modules == other.modules
+
+  @strictpure def <=(other: Project): B = modules == (other.modules -- (other.modules.keys -- modules.keys))
+
+  @strictpure def >=(other: Project): B = (modules -- (modules.keys -- other.modules.keys)) == other.modules
+
   @pure def ++(other: Project): Project = {
     var r = this
     var names = other.poset.rootNodes
@@ -54,6 +62,72 @@ object Project {
         newNames = newNames.union(other.poset.childrenOf(name))
       }
       names = newNames.elements
+    }
+    return r
+  }
+
+  @pure def stripPubInfo: Project = {
+    var r = Project.empty
+    for (m <- modules.values) {
+      r = r + m(publishInfoOpt = None())
+    }
+    return r
+  }
+
+  @pure def slice(mids: ISZ[String]): Project = {
+    if (mids.isEmpty) {
+      return this
+    }
+    var tmids = HashSet.empty[String]
+    def rec(mid: String): Unit = {
+      tmids = tmids + mid
+      modules.get(mid) match {
+        case Some(m) =>
+          for (mDep <- m.deps) {
+            rec(mDep)
+          }
+        case _ =>
+      }
+    }
+    for (mid <- mids) {
+      rec(mid)
+    }
+    var r = Project.empty
+    for (p <- modules.entries if tmids.contains(p._1)) {
+      r = r + p._2
+    }
+    return r
+  }
+
+  @pure def openDeps: Map[String, ISZ[String]] = {
+    val mids = modules.keys
+    var r = Map.empty[String, ISZ[String]]
+    for (m <- modules.values) {
+      val diff = m.deps -- mids
+      if (diff.nonEmpty) {
+        r = r + m.id ~> diff
+      }
+    }
+    return r
+  }
+
+  @pure def illTargets: Map[String, Map[String, ISZ[Target.Type]]] = {
+    var r = Map.empty[String, Map[String, ISZ[Target.Type]]]
+    for (m <- modules.values) {
+      var map = Map.empty[String, ISZ[Target.Type]]
+      for (mDep <- m.deps) {
+        modules.get(mDep) match {
+          case Some(m2) =>
+            val diff = m.targets -- m2.targets
+            if (diff.nonEmpty) {
+              map = map + m2.id ~> diff
+            }
+          case _ =>
+        }
+      }
+      if (map.nonEmpty) {
+        r = r + m.id ~> map
+      }
     }
     return r
   }

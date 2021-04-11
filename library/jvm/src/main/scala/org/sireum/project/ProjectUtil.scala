@@ -355,8 +355,8 @@ object ProjectUtil {
       val cmdFile = baseDir / "bin" / "project.cmd"
       var loaded = F
       if (pJsonFile.exists && cmdFile.exists && cmdFile.lastModified < pJsonFile.lastModified) {
-        JSON.toProject(pJsonFile.read) match {
-          case Either.Left(prj) =>
+        load(pJsonFile) match {
+          case Some(prj) =>
             println(s"Loading from $pJsonFile ...")
             r = r ++ prj
             loaded = T
@@ -372,7 +372,7 @@ object ProjectUtil {
               case Either.Left(prj) =>
                 r = r ++ prj
                 loaded = T
-                pJsonFile.writeOver(JSON.fromProject(prj, F))
+                store(pJsonFile, prj)
                 println(s"Wrote $pJsonFile")
               case _ =>
             }
@@ -386,5 +386,23 @@ object ProjectUtil {
       }
     }
     return Some(r)
+  }
+
+  def load(path: Os.Path): Option[Project] = {
+    val parser = org.sireum.project.JSON.Parser(path.read)
+    val m = parser.parser.parseHashSMap(parser.parser.parseString _, parser.parseModule _)
+    if (parser.errorOpt.nonEmpty) {
+      return None()
+    }
+    var r = Project.empty
+    for (m <- m.values) {
+      r = r + m
+    }
+    return Some(r)
+  }
+
+  def store(path: Os.Path, prj: Project): Unit = {
+    path.writeOver(Json.Printer.printHashSMap(F, prj.modules, Json.Printer.printString _,
+      org.sireum.project.JSON.Printer.printModule _).render)
   }
 }
