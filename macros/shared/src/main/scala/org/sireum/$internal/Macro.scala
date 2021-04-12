@@ -277,7 +277,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
       val v = r.readLine()
       r.close()
-      if (v.trim == "") "" else "*"
+      if (v != null && v.trim == "") "" else "*"
     }
 
     val hash = {
@@ -297,7 +297,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
       val v = r.readLine()
       r.close()
-      if (v.trim == "") "" else "*"
+      if (v != null && v.trim == "") "" else "*"
     }
 
     val version = {
