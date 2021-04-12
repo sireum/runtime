@@ -38,6 +38,8 @@ object Macro {
 
   def version: String = macro Macro.versionImpl
 
+  def commitHash: String = macro Macro.commitHashImpl
+
   def eval[T](c: scala.reflect.macros.blackbox.Context)(
     t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
     val tree = t.asInstanceOf[c.Tree]
@@ -269,11 +271,43 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 
+  def commitHashImpl: c.Tree = {
+    val star = {
+      val p = Runtime.getRuntime.exec(Array("git", "status", "--porcelain"))
+      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
+      val v = r.readLine()
+      r.close()
+      if (v.trim == "") "" else "*"
+    }
+
+    val hash = {
+      val p = Runtime.getRuntime.exec(Array("git", "log", "-n", "1", "--pretty=format:%H"))
+      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
+      val v = r.readLine()
+      r.close()
+      v
+    }
+
+    c.universe.Literal(c.universe.Constant(s"$hash$star"))
+  }
+
   def versionImpl: c.Tree = {
-    val p = Runtime.getRuntime.exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"))
-    val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
-    val v = r.readLine()
-    r.close()
-    c.universe.Literal(c.universe.Constant(v))
+    val star = {
+      val p = Runtime.getRuntime.exec(Array("git", "status", "--porcelain"))
+      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
+      val v = r.readLine()
+      r.close()
+      if (v.trim == "") "" else "*"
+    }
+
+    val version = {
+      val p = Runtime.getRuntime.exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"))
+      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
+      val v = r.readLine()
+      r.close()
+      v
+    }
+
+    c.universe.Literal(c.universe.Constant(s"$version$star"))
   }
 }
