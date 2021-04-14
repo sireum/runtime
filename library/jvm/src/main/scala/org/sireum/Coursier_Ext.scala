@@ -34,7 +34,8 @@ object Coursier_Ext {
 
   var repositories: ISZ[Repository] = ISZ(
     Repositories.sonatype("releases"),
-    Repositories.jitpack
+    Repositories.jitpack,
+    MavenRepository((Os.home / ".m2" / "repository").toUri.value)
   )
 
   def toDeps(deps: ISZ[String]): Seq[Dependency] =
