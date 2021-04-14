@@ -272,42 +272,14 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 
   def commitHashImpl: c.Tree = {
-    val star = {
-      val p = Runtime.getRuntime.exec(Array("git", "status", "--porcelain"))
-      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
-      val v = r.readLine()
-      r.close()
-      if (v != null && v.trim == "") "" else "*"
-    }
-
-    val hash = {
-      val p = Runtime.getRuntime.exec(Array("git", "log", "-n", "1", "--pretty=format:%H"))
-      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
-      val v = r.readLine()
-      r.close()
-      v
-    }
-
+    val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = os.pwd).out.trim())  "" else "*"
+    val hash = os.proc("git", "log", "-n", "1", "--pretty=format:%H").call(cwd = os.pwd).out.trim()
     c.universe.Literal(c.universe.Constant(s"$hash$star"))
   }
 
   def versionImpl: c.Tree = {
-    val star = {
-      val p = Runtime.getRuntime.exec(Array("git", "status", "--porcelain"))
-      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
-      val v = r.readLine()
-      r.close()
-      if (v != null && v.trim == "") "" else "*"
-    }
-
-    val version = {
-      val p = Runtime.getRuntime.exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"))
-      val r = new java.io.LineNumberReader(new java.io.InputStreamReader(p.getInputStream))
-      val v = r.readLine()
-      r.close()
-      v
-    }
-
+    val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = os.pwd).out.trim())  "" else "*"
+    val version = os.proc("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h").call(cwd = os.pwd).out.trim()
     c.universe.Literal(c.universe.Constant(s"$version$star"))
   }
 }
