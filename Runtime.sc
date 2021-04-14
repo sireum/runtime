@@ -60,10 +60,7 @@ object Module {
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion",
       ivy"org.scala-lang.modules::scala-parallel-collections:$parCollectionVersion",
-      ivy"org.scala-lang.modules::scala-java8-compat:$java8CompatVersion"
-    )
-
-    final override def jvmIvyDeps = Agg(
+      ivy"org.scala-lang.modules::scala-java8-compat:$java8CompatVersion",
       ivy"com.lihaoyi::os-lib:$osLibVersion"
     )
 
