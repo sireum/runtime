@@ -65,17 +65,13 @@ import org.sireum._
   }
 
   def run(dm: DependencyManager): T = {
-    val base: String = module.subPathOpt match {
-      case Some(p) => s"${module.basePath}$p"
-      case _ => module.basePath
-    }
     var sourceFiles = ISZ[Os.Path]()
     var testSourceFiles = ISZ[Os.Path]()
-    for (source <- module.sources) {
-      sourceFiles = sourceFiles ++ findSources(Os.path(s"$base$source"))
+    for (source <- ProjectUtil.moduleSources(module)) {
+      sourceFiles = sourceFiles ++ findSources(source)
     }
-    for (testSource <- module.testSources) {
-      testSourceFiles = testSourceFiles ++ findSources(Os.path(s"$base$testSource"))
+    for (testSource <- ProjectUtil.moduleTestSources(module)) {
+      testSourceFiles = testSourceFiles ++ findSources(testSource)
     }
 
     val fingerprintMap = HashMap.empty[String, String] ++ (

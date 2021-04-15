@@ -63,13 +63,7 @@ object ProjectUtil {
   def dirs(base: Os.Path, segss: ISZ[ISZ[String]]): ISZ[String] = {
     var r = ISZ[String]()
     for (segs <- segss) {
-      var p = base
-      for (seg <- segs) {
-        p = p / seg
-      }
-      if (p.exists) {
-        r = r :+ st"${Os.fileSep}${(segs, Os.fileSep)}".render
-      }
+      r = r :+ st"${(segs, Os.fileSep)}".render
     }
     return r
   }
@@ -405,4 +399,25 @@ object ProjectUtil {
     path.writeOver(Json.Printer.printHashSMap(F, prj.modules, Json.Printer.printString _,
       org.sireum.project.JSON.Printer.printModule _).render)
   }
+
+  @strictpure def pathSep(base: Os.Path, sub: String): Os.Path =
+    if (ops.StringOps(sub).startsWith(Os.fileSep)) Os.path(s"$base$sub")
+    else base / sub
+
+  @strictpure def moduleBasePath(m: Module): Os.Path = m.subPathOpt match {
+    case Some(sp) => pathSep(Os.path(m.basePath), sp)
+    case _ => Os.path(m.basePath)
+  }
+
+  @strictpure def moduleSources(m: Module): ISZ[Os.Path] =
+    for (p <- for (source <- m.sources) yield pathSep(moduleBasePath(m), source) if p.exists) yield p
+
+  @strictpure def moduleResources(m: Module): ISZ[Os.Path] =
+    for (p <- for (resource <- m.resources) yield pathSep(moduleBasePath(m), resource) if p.exists) yield p
+
+  @strictpure def moduleTestSources(m: Module): ISZ[Os.Path] =
+    for (p <- for (testSource <- m.testSources) yield pathSep(moduleBasePath(m), testSource) if p.exists) yield p
+
+  @strictpure def moduleTestResources(m: Module): ISZ[Os.Path] =
+    for (p <- for (testResource <- m.testResources) yield pathSep(moduleBasePath(m), testResource) if p.exists) yield p
 }
