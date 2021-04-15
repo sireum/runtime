@@ -271,12 +271,28 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 
+  def exec(command: Array[String], dir: java.io.File): (Int, String) = {
+    val pb = new ProcessBuilder(command: _*)
+    pb.redirectErrorStream(true)
+    pb.directory(dir)
+    val exec = pb.start()
+
+    val br = new java.io.BufferedReader(new java.io.InputStreamReader(exec.getInputStream))
+    val sb = new StringBuilder
+    var c = br.read()
+    while (c != -1) {
+      sb.append(c.toChar)
+      c = br.read()
+    }
+    val code = exec.waitFor()
+    return (code, sb.toString)
+  }
+
   def commitHashImpl: c.Tree = {
     val f = c.enclosingPosition.pos.source.file.file
-    val pwd = os.Path(f.getParentFile.toPath)
-    print(s"Retrieving commit hash for ${f.getName} from $pwd: ")
-    val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = pwd).out.trim())  "" else "*"
-    val hash = os.proc("git", "log", "-n", "1", "--pretty=format:%H").call(cwd = pwd).out.trim()
+    print(s"Retrieving commit hash for ${f.getName} from ${f.getParent}: ")
+    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile)._2.trim == "") "" else "*"
+    val hash = exec(Array("git", "log", "-n", "1", "--pretty=format:%H"), f.getParentFile)._2.trim
     val r = s"$hash$star"
     println(r)
     c.universe.Literal(c.universe.Constant(r))
@@ -284,11 +300,10 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def versionImpl: c.Tree = {
     val f = c.enclosingPosition.pos.source.file.file
-    val pwd = os.Path(f.getParentFile.toPath)
-    print(s"Retrieving version for ${f.getName} from $pwd: ")
-    val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = pwd).out.trim())  "" else "*"
-    val version = os.proc("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h").call(cwd = pwd).out.trim()
-    val r = s"$version$star"
+    print(s"Retrieving commit hash for ${f.getName} from ${f.getParent}: ")
+    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile)._2.trim == "") "" else "*"
+    val v = exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"), f.getParentFile)._2.trim
+    val r = s"$v$star"
     println(r)
     c.universe.Literal(c.universe.Constant(r))
   }

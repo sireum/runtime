@@ -33,8 +33,7 @@ val macrosShared = moduleSharedPub(
   sharedIvyDeps = ISZ(
     "org.scala-lang:scala-library:",
     "org.scala-lang.modules::scala-parallel-collections:",
-    "org.scala-lang.modules::scala-java8-compat:",
-    "com.lihaoyi::os-lib:"
+    "org.scala-lang.modules::scala-java8-compat:"
   ),
   pubOpt = pub(
     desc = "Scala Macros for Slang",
@@ -65,6 +64,7 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
   jvmDeps = ISZ(),
   jvmIvyDeps = ISZ(
     "com.zaxxer:nuprocess:",
+    "com.lihaoyi::os-lib:",
     "org.kohsuke:github-api:",
     "io.get-coursier::coursier:",
     "org.ow2.asm:asm:"

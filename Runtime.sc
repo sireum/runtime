@@ -60,8 +60,7 @@ object Module {
     final override def ivyDeps = Agg(
       ivy"org.scala-lang:scala-reflect:$scalaVersion",
       ivy"org.scala-lang.modules::scala-parallel-collections:$parCollectionVersion",
-      ivy"org.scala-lang.modules::scala-java8-compat:$java8CompatVersion",
-      ivy"com.lihaoyi::os-lib:$osLibVersion"
+      ivy"org.scala-lang.modules::scala-java8-compat:$java8CompatVersion"
     )
 
     final override def testIvyDeps = Agg.empty
@@ -116,6 +115,7 @@ object Module {
 
     final override def jvmIvyDeps = Agg(
       ivy"com.zaxxer:nuprocess:$nuProcessVersion",
+      ivy"com.lihaoyi::os-lib:$osLibVersion",
       ivy"org.kohsuke:github-api:$githubVersion",
       ivy"io.get-coursier::coursier:$coursierVersion",
       ivy"org.ow2.asm:asm:$asmVersion"
