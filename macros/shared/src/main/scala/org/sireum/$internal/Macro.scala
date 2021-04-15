@@ -271,9 +271,9 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 
-  def exec(command: Array[String], dir: java.io.File): (Int, String) = {
+  def exec(command: Array[String], dir: java.io.File): String = {
     val pb = new ProcessBuilder(command: _*)
-    pb.redirectErrorStream(true)
+    //pb.redirectErrorStream(true)
     pb.directory(dir)
     val exec = pb.start()
 
@@ -284,27 +284,27 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       sb.append(c.toChar)
       c = br.read()
     }
-    val code = exec.waitFor()
-    return (code, sb.toString)
+    exec.waitFor()
+    return sb.toString
   }
 
   def commitHashImpl: c.Tree = {
     val f = c.enclosingPosition.pos.source.file.file
-    print(s"Retrieving commit hash for ${f.getName} from ${f.getParent}: ")
-    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile)._2.trim == "") "" else "*"
-    val hash = exec(Array("git", "log", "-n", "1", "--pretty=format:%H"), f.getParentFile)._2.trim
+    //print(s"Retrieving commit hash for ${f.getName} from ${f.getParent}: ")
+    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile).trim == "") "" else "*"
+    val hash = exec(Array("git", "log", "-n", "1", "--pretty=format:%H"), f.getParentFile).trim
     val r = s"$hash$star"
-    println(r)
+    //println(r)
     c.universe.Literal(c.universe.Constant(r))
   }
 
   def versionImpl: c.Tree = {
     val f = c.enclosingPosition.pos.source.file.file
-    print(s"Retrieving commit hash for ${f.getName} from ${f.getParent}: ")
-    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile)._2.trim == "") "" else "*"
-    val v = exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"), f.getParentFile)._2.trim
+    //print(s"Retrieving version for ${f.getName} from ${f.getParent}: ")
+    val star = if (exec(Array("git", "status", "--porcelain"), f.getParentFile).trim == "") "" else "*"
+    val v = exec(Array("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h"), f.getParentFile).trim
     val r = s"$v$star"
-    println(r)
+    //println(r)
     c.universe.Literal(c.universe.Constant(r))
   }
 }
