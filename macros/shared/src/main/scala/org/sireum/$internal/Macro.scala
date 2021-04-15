@@ -272,16 +272,24 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def isJsImpl: c.Tree = if (isJsCheck) q"true" else q"false"
 
   def commitHashImpl: c.Tree = {
-    val pwd = os.Path(c.enclosingPosition.pos.source.file.file.getParentFile.toPath)
+    val f = c.enclosingPosition.pos.source.file.file
+    val pwd = os.Path(f.getParentFile.toPath)
+    print(s"Retrieving commit hash for ${f.getName} from $pwd: ")
     val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = pwd).out.trim())  "" else "*"
     val hash = os.proc("git", "log", "-n", "1", "--pretty=format:%H").call(cwd = pwd).out.trim()
-    c.universe.Literal(c.universe.Constant(s"$hash$star"))
+    val r = s"$hash$star"
+    println(r)
+    c.universe.Literal(c.universe.Constant(r))
   }
 
   def versionImpl: c.Tree = {
-    val pwd = os.Path(c.enclosingPosition.pos.source.file.file.getParentFile.toPath)
+    val f = c.enclosingPosition.pos.source.file.file
+    val pwd = os.Path(f.getParentFile.toPath)
+    print(s"Retrieving version for ${f.getName} from $pwd: ")
     val star = if ("" == os.proc("git", "status", "--porcelain").call(cwd = pwd).out.trim())  "" else "*"
     val version = os.proc("git", "log", "-n", "1", "--date=format:%Y%m%d", "--pretty=format:4.%cd.%h").call(cwd = pwd).out.trim()
-    c.universe.Literal(c.universe.Constant(s"$version$star"))
+    val r = s"$version$star"
+    println(r)
+    c.universe.Literal(c.universe.Constant(r))
   }
 }
