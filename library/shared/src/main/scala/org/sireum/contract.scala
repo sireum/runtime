@@ -181,10 +181,7 @@ trait contract {
 
     trait StepBuilder2 {
       def by(just: Justification): ProofStep
-    }
-
-    trait JustificationBuilder {
-      def apply(args: Any*): Justification
+      def by(just: Predef.String): ProofStep
     }
 
     trait SequentBuilder {
@@ -1310,8 +1307,6 @@ trait contract {
   implicit def $toStepBuilder(stepNo: Int): Contract.StepBuilder = ???
 
   implicit def $toStepBuilder(stepNo: Z): Contract.StepBuilder = ???
-
-  implicit def $toJustificationBuilder(name: String): Contract.JustificationBuilder = ???
 
   implicit def $toJustification(name: String): Contract.Justification = ???
 

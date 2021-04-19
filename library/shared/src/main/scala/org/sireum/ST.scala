@@ -134,7 +134,7 @@ object ST {
       val sz = s.length
       val sb = new _root_.java.lang.StringBuilder(sz)
       while (i < sz) {
-        s(i) match {
+        s.charAt(i) match {
           case '\r' =>
             l = if (sb.length > 0) "\r" :: sb.toString :: l else "\r" :: l
             sb.setLength(0)
@@ -158,7 +158,7 @@ object ST {
       def trimNlPart(): Int = {
         val part = parts(i)
         val j = part.indexOf("\n")
-        if (j >= 0 && (0 until j).forall(k => isWs(part(k)))) {
+        if (j >= 0 && (0 until j).forall(k => isWs(part.charAt(k)))) {
           trim(includeNewLine = true)
           j
         } else 0

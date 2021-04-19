@@ -183,7 +183,7 @@ object Z extends $ZCompanion[Z] {
 
     @inline def apply(s: String): Z = {
       val ns = helper.normNum(s.value)
-      if (ns.length > 2 && ns.head == '0' && ns(1).toLower == 'x') MP(scala.BigInt(ns.substring(2), 16))
+      if (ns.length > 2 && ns.head == '0' && ns.charAt(1).toLower == 'x') MP(scala.BigInt(ns.substring(2), 16))
       else MP(scala.BigInt(ns))
     }
 

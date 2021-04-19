@@ -400,6 +400,18 @@ package object sireum extends $internal.PackageTrait with contract {
 
   final implicit class $PredefString2String(val _value: Predef.String) extends AnyVal {
 
+    @inline def apply(arg: AnyRef): Nothing = halt("")
+
+    @inline def apply(arg: Boolean): Nothing = halt("")
+
+    @inline def apply(arg: Byte): Nothing = halt("")
+
+    @inline def apply(arg: Short): Nothing = halt("")
+
+    @inline def apply(arg: Char): Nothing = halt("")
+
+    @inline def apply(arg0: Any, arg1: Any, args: Any*): Nothing = halt("")
+
     @inline def hash: Z = String(_value).hash
 
     @inline def string: String = String(_value)
