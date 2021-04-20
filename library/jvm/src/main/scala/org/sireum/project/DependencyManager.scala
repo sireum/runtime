@@ -161,7 +161,7 @@ import DependencyManager._
   var dLibMap: HashMap[String, ISZ[Lib]] = HashMap.empty
 
   @pure def getVersion(ivyDep: String): String = {
-    versions.get(ops.StringOps(ivyDep).replaceAllChars(':', '%')) match {
+    versions.get(ivyDep) match {
       case Some(v) => return v
       case _ => halt(s"Could not find version information for '$ivyDep' in $versions")
     }
