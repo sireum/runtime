@@ -71,6 +71,8 @@ object String {
 
 final class String(val value: Predef.String) extends AnyVal with Immutable with $internal.HasBoxer {
 
+  def apply(args: scala.Any*): Contract.Justification = halt("")
+
   @inline def native: Predef.String = value
 
   @inline def string: String = this
