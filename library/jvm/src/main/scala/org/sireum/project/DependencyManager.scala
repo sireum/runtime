@@ -39,11 +39,11 @@ object DependencyManager {
 
   val javaKey: String = "org.sireum.version.zulu"
   val jbrKey: String = "org.sireum.version.jbr"
-  val scalacPluginKey: String = "org.sireum%%scalac-plugin%"
-  val scalaKey: String = "org.scala-lang%scala-library%"
-  val scalaJsKey: String = "org.scala-js%%%scalajs-compiler%"
-  val scalaTestKey: String = "org.scalatest%%scalatest%%"
-  val libraryKey: String = "org.sireum.kekinian%%library%"
+  val scalacPluginKey: String = "org.sireum::scalac-plugin:"
+  val scalaKey: String = "org.scala-lang:scala-library:"
+  val scalaJsKey: String = "org.scala-js:::scalajs-compiler:"
+  val scalaTestKey: String = "org.scalatest::scalatest::"
+  val libraryKey: String = "org.sireum.kekinian::library:"
 
   val jarSuffix: String = ".jar"
   val sourceJarSuffix: String = "-sources.jar"
