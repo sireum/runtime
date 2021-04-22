@@ -33,9 +33,9 @@ object Coursier_Ext {
   var cacheOpt: Option[Os.Path] = None()
 
   var repositories: ISZ[Repository] = ISZ(
+    MavenRepository((Os.home / ".m2" / "repository").toUri.value),
     Repositories.sonatype("releases"),
-    Repositories.jitpack,
-    MavenRepository((Os.home / ".m2" / "repository").toUri.value)
+    Repositories.jitpack
   )
 
   def toDeps(deps: ISZ[String]): Seq[Dependency] =
