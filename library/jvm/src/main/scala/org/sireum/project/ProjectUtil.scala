@@ -383,6 +383,9 @@ object ProjectUtil {
   }
 
   def load(path: Os.Path): Option[Project] = {
+    if (!path.isFile) {
+      return None()
+    }
     val parser = org.sireum.project.JSON.Parser(path.read)
     val m = parser.parser.parseHashSMap(parser.parser.parseString _, parser.parseModule _)
     if (parser.errorOpt.nonEmpty) {
