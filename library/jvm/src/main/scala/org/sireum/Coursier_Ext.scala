@@ -29,12 +29,15 @@ import coursier._
 
 object Coursier_Ext {
 
+  val localMavenRepo: Repository = MavenRepository((Os.home / ".m2" / "repository").toUri.value)
+  val sonatypeReleaseRepo: Repository = Repositories.sonatype("releases")
+
   var scalaVersion: String = scala.util.Properties.versionNumberString
   var cacheOpt: Option[Os.Path] = None()
 
   var repositories: ISZ[Repository] = ISZ(
-    MavenRepository((Os.home / ".m2" / "repository").toUri.value),
-    Repositories.sonatype("releases"),
+    localMavenRepo,
+    sonatypeReleaseRepo,
     Repositories.jitpack
   )
 
@@ -77,5 +80,22 @@ object Coursier_Ext {
         q._1.module.name.value,
         q._1.version,
         Os.path(q._4.getCanonicalPath))): _*)
+  }
+
+  def isRuntimePublishedLocally(version: String): B = {
+    val libKey = project.DependencyManager.libraryKey
+    try {
+      var fetch = Fetch().addDependencies(toDeps(ISZ(s"$libKey$version")): _*).
+        withRepositories(Seq(localMavenRepo,sonatypeReleaseRepo)).
+        withMainArtifacts()
+      cacheOpt match {
+        case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
+        case _ =>
+      }
+      fetch.run()
+      return T
+    } catch {
+      case _: Throwable => return F
+    }
   }
 }

@@ -53,4 +53,6 @@ package org.sireum
   def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = $
 
   def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = $
+
+  def isRuntimePublishedLocally(version: String): B = $
 }
