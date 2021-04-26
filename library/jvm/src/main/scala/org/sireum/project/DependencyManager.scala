@@ -76,9 +76,12 @@ import DependencyManager._
                                 val withDoc: B,
                                 val javaHome: Os.Path,
                                 val scalaHome: Os.Path,
-                                val sireumJar: Os.Path,
-                                val scalacPlugin: Os.Path,
+                                val sireumHome: Os.Path,
                                 val cacheOpt: Option[Os.Path]) {
+
+  val sireumJar: Os.Path = sireumHome / "bin" / "sireum.jar"
+
+  val scalacPlugin: Os.Path = sireumHome / "lib" / s"scalac-plugin-${versions.get(scalacPluginKey).get}.jar"
 
   val javaVersion: String = versions.get(DependencyManager.javaKey) match {
     case Some(v) => v
