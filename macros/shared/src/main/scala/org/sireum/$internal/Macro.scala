@@ -88,7 +88,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def lDef[T](args: c.Expr[Any]*): c.Expr[T] =
     c.Expr[T]( q"""halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")""")
 
-  def $[T]: c.Expr[T] = c.Expr[T]( q"""halt("Slang '$$' should have been erased by the Sireum Scala compiler plugin.")""")
+  def $[T]: c.Expr[T] = c.Expr[T]( q"""halt("Cannot invoke this method")""")
 
   def extractParts: Seq[c.Tree] = (c.prefix.tree match {
     case q"org.sireum.`package`.$$Slang(scala.StringContext.apply(..$ps)).$_" => ps
