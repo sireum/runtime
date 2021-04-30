@@ -33,6 +33,8 @@ class enum extends StaticAnnotation
 
 class ext(name: String = "") extends StaticAnnotation
 
+class just(name: String = "") extends StaticAnnotation
+
 class hidden extends StaticAnnotation
 
 class memoize extends StaticAnnotation
