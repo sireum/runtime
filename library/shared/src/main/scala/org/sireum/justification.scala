@@ -108,30 +108,31 @@ object justification {
         )
       }
     }
-  }
 
-  object pred {
+    object pred {
 
-    @just def AllI(assumeAToAllSub: Z): Unit = $
+      @just def AllI(assumeAToAllSub: Z): Unit = $
 
-    @just("allE") def AllE[T](allP: Z): Unit = $
+      @just("allE") def AllE[T](allP: Z): Unit = $
 
-    @just("existsI") def ExistsI[T](PE: Z): Unit = $
+      @just("existsI") def ExistsI[T](PE: Z): Unit = $
 
-    @just def ExistsE[T](existsP: Z, aPaToQSub: Z): Unit = $
+      @just def ExistsE[T](existsP: Z, aPaToQSub: Z): Unit = $
 
-    @pure def allE[T](P: T => B @pure, E: T): Unit = {
-      Contract(
-        Requires(All{(x: T) => P(x)}),
-        Ensures(P(E))
-      )
-    }
+      @pure def allE[T](P: T => B @pure, E: T): Unit = {
+        Contract(
+          Requires(All{(x: T) => P(x)}),
+          Ensures(P(E))
+        )
+      }
 
-    @pure def existsI[T](P: T => B @pure, E: T): Unit = {
-      Contract(
-        Requires(P(E)),
-        Ensures(Exists{(x: T) => P(x)})
-      )
+      @pure def existsI[T](P: T => B @pure, E: T): Unit = {
+        Contract(
+          Requires(P(E)),
+          Ensures(Exists{(x: T) => P(x)})
+        )
+      }
+
     }
 
   }
