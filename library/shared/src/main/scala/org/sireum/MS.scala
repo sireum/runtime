@@ -298,7 +298,10 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def size: Z = length
 
-  def firstIndex: I = if (companion.isZeroIndex) companion(0) else companion.Min
+  def firstIndex: I = {
+    assert(nonEmpty, "firstIndex can only be used on non-empty MS")
+    if (companion.isZeroIndex) companion(0) else companion.Min
+  }
 
   def lastIndex: I = {
     assert(nonEmpty, "lastIndex can only be used on non-empty MS")
