@@ -112,6 +112,11 @@ object Position {
     }
 
   }
+
+  @strictpure def to(other: Position): Position = FlatPos(uriOpt, conversions.Z.toU32(beginLine),
+    conversions.Z.toU32(beginColumn), conversions.Z.toU32(other.endLine), conversions.Z.toU32(other.endColumn),
+    conversions.Z.toU32(offset), conversions.Z.toU32(length + other.length)
+  )
 }
 
 @datatype class FlatPos(
