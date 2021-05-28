@@ -117,8 +117,16 @@ object helper {
     arg match {
       case x: MutableMarker => assignMut[T](x)
       case _ => arg
-      //case _: ImmutableMarker => arg
-      //case _ => halt(topValueError + s": $arg (of ${arg.getClass.getName})")
+    }
+  }
+
+  def retMut[T](x: MutableMarker): T =
+    (if (x.$owned) x.$clone else x).asInstanceOf[T]
+
+  def ret[T](arg: T): T = {
+    arg match {
+      case x: MutableMarker => retMut[T](x)
+      case _ => arg
     }
   }
 
@@ -187,6 +195,8 @@ object helper {
   import scala.language.experimental.macros
 
   def $assign[T](arg: T): T = macro $internal.Macro.$assign
+
+  def $ret[T](arg: T): T = macro $internal.Macro.$ret
 
   def $tmatch[T](arg: T): T = macro $internal.Macro.$tmatch
 
