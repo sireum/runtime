@@ -36,11 +36,11 @@ object Option {
 @datatype trait Option[T] {
 
   @pure def isEmpty: B = Contract.Only(
-    Ensures(this == None[T]())
+    Ensures(Res == (this == None[T]()))
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(!isEmpty)
+    Ensures(Res == !isEmpty)
   )
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
@@ -89,7 +89,7 @@ object Option {
 
   @pure def get: T = Contract.Only(
     Requires(nonEmpty),
-    Ensures(this == Some(Res))
+    Ensures(Some(Res) == this)
   )
 
   @pure def getOrElse(default: => T): T = Contract.Only(
@@ -99,7 +99,7 @@ object Option {
     ),
     Case(
       Requires(nonEmpty),
-      Ensures(this == Some(Res))
+      Ensures(Some(Res) == this)
     )
   )
 
@@ -110,7 +110,7 @@ object Option {
     ),
     Case(
       Requires(nonEmpty),
-      Ensures(this == Some(Res))
+      Ensures(Some(Res) == this)
     )
   )
 
