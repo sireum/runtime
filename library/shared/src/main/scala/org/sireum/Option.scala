@@ -28,150 +28,216 @@ package org.sireum
 
 object Option {
 
-  @pure def some[T](value: T): Option[T] = {
-    return Some(value)
-  }
+  @strictpure def some[T](value: T): Option[T] = Some(value)
 
-  @pure def none[T](): Option[T] = {
-    return None()
-  }
+  @strictpure def none[T](): Option[T] = None()
 }
 
 @datatype trait Option[T] {
 
-  @pure def isEmpty: B
+  @pure def isEmpty: B = Contract.Only(
+    Ensures(this == None[T]())
+  )
 
-  @pure def nonEmpty: B
+  @pure def nonEmpty: B = Contract.Only(
+    Ensures(!isEmpty)
+  )
 
-  @pure def map[T2](f: T => T2 @pure): Option[T2]
+  @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == None[T2]())
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(Res == Some(f(get)))
+    )
+  )
 
-  @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2]
+  @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == None[T2]())
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def forall(f: T => B @pure): B
+  @pure def forall(f: T => B @pure): B = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == T)
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def exists(f: T => B @pure): B
+  @pure def exists(f: T => B @pure): B = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == F)
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def get: T
+  @pure def get: T = Contract.Only(
+    Requires(nonEmpty),
+    Ensures(this == Some(Res))
+  )
 
-  @pure def getOrElse(default: => T): T
+  @pure def getOrElse(default: => T): T = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == default)
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(this == Some(Res))
+    )
+  )
 
-  @pure def getOrElseEager(default: T): T
+  @pure def getOrElseEager(default: T): T = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == default)
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(this == Some(Res))
+    )
+  )
 
-  @pure def toIS: IS[Z, T]
+  @pure def toIS: IS[Z, T] = Contract.Only(
+    Case(
+      Requires(isEmpty),
+      Ensures(Res == ISZ[T]())
+    ),
+    Case(
+      Requires(nonEmpty),
+      Ensures(Res == ISZ[T](get))
+    )
+  )
 
   def foreach[V](f: T => V): Unit
 }
 
 @datatype class None[T] extends Option[T] {
 
-  @pure def isEmpty: B = {
+  @pure override def isEmpty: B = {
     Contract(Ensures(Res))
 
     return T
   }
 
-  @pure def nonEmpty: B = {
+  @pure override def nonEmpty: B = {
     Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def map[T2](f: T => T2 @pure): Option[T2] = {
+  @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
     Contract(Ensures(Res == None[T2]()))
     return None[T2]()
   }
 
-  @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
+  @pure override def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
     Contract(Ensures(Res == None[T2]()))
     return None[T2]()
   }
 
-  @pure def forall(f: T => B @pure): B = {
+  @pure override def forall(f: T => B @pure): B = {
     Contract(Ensures(Res))
     return T
   }
 
-  @pure def exists(f: T => B @pure): B = {
+  @pure override def exists(f: T => B @pure): B = {
     Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def getOrElse(default: => T): T = {
+  @pure override def getOrElse(default: => T): T = {
     Contract(Ensures(Res == default))
     return default
   }
 
-  @pure def getOrElseEager(default: T): T = {
+  @pure override def getOrElseEager(default: T): T = {
     Contract(Ensures(Res == default))
     return default
   }
 
-  @pure def get: T = {
+  @pure override def get: T = {
     Contract(Requires(F))
     halt("Invalid 'None' operation 'get'.")
   }
 
-  @pure def toIS: IS[Z, T] = {
+  @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(Res[ISZ[T]].size == 0))
     return IS[Z, T]()
   }
 
-  def foreach[V](f: T => V): Unit = {}
+  override def foreach[V](f: T => V): Unit = {}
 }
 
 @datatype class Some[T](value: T) extends Option[T] {
 
-  @pure def isEmpty: B = {
+  @pure override def isEmpty: B = {
     Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def nonEmpty: B = {
+  @pure override def nonEmpty: B = {
     Contract(Ensures(Res))
     return T
   }
 
-  @pure def map[T2](f: T => T2 @pure): Option[T2] = {
+  @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
     Contract(Ensures(Res == Some(f(value))))
     return Some(f(value))
   }
 
-  @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
+  @pure override def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
     Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def forall(f: T => B @pure): B = {
+  @pure override def forall(f: T => B @pure): B = {
     Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def exists(f: T => B @pure): B = {
+  @pure override def exists(f: T => B @pure): B = {
     Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def getOrElse(default: => T): T = {
+  @pure override def getOrElse(default: => T): T = {
     Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def getOrElseEager(default: T): T = {
+  @pure override def getOrElseEager(default: T): T = {
     Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def get: T = {
+  @pure override def get: T = {
     Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def toIS: IS[Z, T] = {
+  @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(Res == ISZ(value)))
 
     return ISZ(value)
   }
 
-  def foreach[V](f: T => V): Unit = {
+  override def foreach[V](f: T => V): Unit = {
     f(value)
   }
 }
