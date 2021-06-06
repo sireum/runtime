@@ -897,7 +897,7 @@ object Os_Ext {
       } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
-      if (isNative || p.shouldUseStandardLib) {
+      if (T || isNative || p.shouldUseStandardLib) {
         standardLib()
       } else {
         try {
