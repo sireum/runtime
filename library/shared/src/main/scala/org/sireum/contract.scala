@@ -327,6 +327,8 @@ trait contract {
 
   def |-(conclusion: B): Contract.Sequent = ???
 
+  def ⊢(conclusion: B): Contract.Sequent = ???
+
   object All {
 
     def apply[T](p: T => Boolean): B = halt("This form of All is not executable")
