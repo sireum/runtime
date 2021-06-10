@@ -346,4 +346,8 @@ object StringOps {
     }
     return r
   }
+
+  @pure def escapeST: ST = {
+    return st"""${(conversions.String.toCis(s), "")}"""
+  }
 }

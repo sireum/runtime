@@ -30,11 +30,11 @@ import org.sireum._
 
 @datatype class COps(c: C) {
 
-  def toUnicodeHex: (C, C, C, C) = {
+  @pure def toUnicodeHex: (C, C, C, C) = {
     return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))
   }
 
-  def toUpper: C = {
+  @pure def toUpper: C = {
     if ('a' <= c && c <= 'z') {
       return c - '\u0020'
     } else {
@@ -42,7 +42,7 @@ import org.sireum._
     }
   }
 
-  def toLower: C = {
+  @pure def toLower: C = {
     if ('A' <= c && c <= 'Z') {
       return c + '\u0020'
     } else {
@@ -50,10 +50,30 @@ import org.sireum._
     }
   }
 
+  @pure def escapeString: String = {
+    c match {
+      case '\b' => return "\\b"
+      case '\t' => return "\\t"
+      case '\n' => return "\\n"
+      case '\f' => return "\\f"
+      case '\r' => return "\\r"
+      case '"' =>  return "\\\""
+      case '\'' => return "\\\'"
+      case '\\' => return "\\\\"
+      case _ =>
+    }
+    if ('\u0020' <= c && c <= '\u007e') {
+      return c.string
+    } else {
+      val q = toUnicodeHex
+      return s"\\u${q._1}${q._2}${q._3}${q._4}"
+    }
+  }
+
 }
 
 object COps {
-  def c2hex(c: C): Option[C] = {
+  @pure def c2hex(c: C): Option[C] = {
     c.native match {
       case '0' => return Some('\u0000')
       case '1' => return Some('\u0001')
@@ -81,7 +101,7 @@ object COps {
     }
   }
 
-  def hex2c(c: C): C = {
+  @pure def hex2c(c: C): C = {
     val r: C = c.native match {
       case '\u0000' => '0'
       case '\u0001' => '1'
@@ -103,7 +123,7 @@ object COps {
     return r
   }
 
-  def fromUnicodeHex(hex: ISZ[C]): Option[C] = {
+  @pure def fromUnicodeHex(hex: ISZ[C]): Option[C] = {
     if (hex.size != 4) {
       return None[C]()
     }
