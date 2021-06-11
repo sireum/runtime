@@ -29,35 +29,35 @@ object justification {
 
   @just def Premise: Unit = $
 
-  @just def Auto(stepNumbers: ISZ[Z]): Unit = $
+  @just def Auto(stepNumbers: ISZ[StepId]): Unit = $
 
   object natded {
 
     object prop {
 
-      @just("andI") def AndI(p: Z, q: Z): Unit = $
+      @just("andI") def AndI(p: StepId, q: StepId): Unit = $
 
-      @just("andE1") def AndE1(pAndQ: Z): Unit = $
+      @just("andE1") def AndE1(pAndQ: StepId): Unit = $
 
-      @just("andE2") def AndE2(pAndQ: Z): Unit = $
+      @just("andE2") def AndE2(pAndQ: StepId): Unit = $
 
-      @just("orI1") def OrI1(p: Z): Unit = $
+      @just("orI1") def OrI1(p: StepId): Unit = $
 
-      @just("orI2") def OrI2(q: Z): Unit = $
+      @just("orI2") def OrI2(q: StepId): Unit = $
 
-      @just def OrE(pOrQ: Z, pToRSub: Z, qToRSub: Z): Unit = $
+      @just def OrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
 
-      @just def ImplyI(assumePToQSub: Z): Unit = $
+      @just def ImplyI(assumePToQSub: StepId): Unit = $
 
-      @just("implyE") def ImplyE(pImplyQ: Z, q: Z): Unit = $
+      @just("implyE") def ImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
-      @just def NegI(assumePToBottomSub: Z): Unit = $
+      @just def NegI(assumePToBottomSub: StepId): Unit = $
 
-      @just("negE") def NegE(p: Z, notP: Z): Unit = $
+      @just("negE") def NegE(p: StepId, notP: StepId): Unit = $
 
-      @just def BottomE(bottom: Z): Unit = $
+      @just def BottomE(bottom: StepId): Unit = $
 
-      @just def PbC(assumeNotRToBottom: Z): Unit = $
+      @just def PbC(assumeNotRToBottom: StepId): Unit = $
 
       @pure def andI(p: B, q: B): Unit = {
         Deduce((p, q) |- (p & q))
@@ -90,13 +90,13 @@ object justification {
 
     object pred {
 
-      @just def AllI(assumeAToAllSub: Z): Unit = $
+      @just def AllI(assumeAToAllSub: StepId): Unit = $
 
-      @just("allE") def AllE[T](allP: Z): Unit = $
+      @just("allE") def AllE[T](allP: StepId): Unit = $
 
-      @just("existsI") def ExistsI[T](PE: Z): Unit = $
+      @just("existsI") def ExistsI[T](PE: StepId): Unit = $
 
-      @just def ExistsE[T](existsP: Z, aPaToQSub: Z): Unit = $
+      @just def ExistsE[T](existsP: StepId, aPaToQSub: StepId): Unit = $
 
       @pure def allE[T](P: T => B@pure, E: T): Unit = {
         Deduce(All { (x: T) => P(x) } |- P(E))
