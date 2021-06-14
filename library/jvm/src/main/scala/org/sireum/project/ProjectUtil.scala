@@ -1,6 +1,6 @@
 // #Sireum
 /*
- Copyright (c) 2021, Robby, Kansas State University
+ Copyright (c) 2017-2021, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ object ProjectUtil {
 
   val bsd2License: License = License(
     name = "BSD 2-Clause",
-    url = "https://spdx.org/licenses/BSD-2-Clause.html",
+    url = "https://github.com/sireum/kekinian/blob/master/license.txt",
     distribution = "repo"
   )
   val bsd2: ISZ[License] = ISZ(bsd2License)
