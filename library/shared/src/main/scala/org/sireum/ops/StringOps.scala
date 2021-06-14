@@ -30,6 +30,38 @@ import org.sireum._
 import org.sireum.message.Reporter
 
 object StringOps {
+  @pure def replace(content: ISZ[C], offsetOldNewStringMap: HashMap[Z, (String, String)]): Either[String, String] = {
+    if (offsetOldNewStringMap.isEmpty) {
+      return Either.Left(conversions.String.fromCis(content))
+    }
+    var m = offsetOldNewStringMap
+    var r = ISZ[C]()
+    val size = content.size
+    var i: Z = 0
+    while (i < size) {
+      m.get(i) match {
+        case Some(pair@(oldString, newString)) =>
+          val oldChars = conversions.String.toCis(oldString)
+          for (j <- 0 until oldChars.size) {
+            if (i + j >= size || content(i + j) != oldChars(j)) {
+              var cs = ISZ[C]()
+              for (k <- 0 until oldChars.size if i + k < size) {
+                cs = cs :+ content(i + k)
+              }
+              return Either.Right(st"""Expecting "${(oldChars, "")}" at offset $i, but found "${(cs, "")}" instead""".render)
+            }
+          }
+          r = r ++ conversions.String.toCis(newString)
+          i = i + oldString.size
+          m = m - i ~> pair
+        case _ =>
+          r = r :+ content(i)
+          i = i + 1
+      }
+    }
+    return Either.Left(conversions.String.fromCis(r))
+  }
+
   @pure def substring(cis: ISZ[C], start: Z, until: Z): String = {
     if (until - start <= 0) {
       return ""
@@ -349,5 +381,9 @@ object StringOps {
 
   @pure def escapeST: ST = {
     return st"""${(conversions.String.toCis(s), "")}"""
+  }
+
+  @pure def replaceStrings(offsetOldNewStringMap: HashMap[Z, (String, String)]): Either[String, String] = {
+    return StringOps.replace(conversions.String.toCis(s), offsetOldNewStringMap)
   }
 }
