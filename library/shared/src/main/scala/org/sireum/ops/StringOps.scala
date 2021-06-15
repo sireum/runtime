@@ -331,6 +331,16 @@ object StringOps {
     return if (i <= j) StringOps.substring(cis, i, j + 1) else ""
   }
 
+  @pure def trimTrailing: String = {
+    val size = s.size
+    val cis = conversions.String.toCis(s)
+    var j = size - 1
+    while (j >= 0 && cis(j).isWhitespace) {
+      j = j - 1
+    }
+    return if (0 <= j) StringOps.substring(cis, 0, j + 1) else ""
+  }
+
   @pure def size: Z = {
     return s.size
   }
@@ -366,7 +376,7 @@ object StringOps {
             }
             r = r + name ~> st"${(code, "\n")}".render
           } else {
-            code = code :+ line2
+            code = code :+ ops.StringOps(line2).trimTrailing
           }
           i = i + 1
         }
