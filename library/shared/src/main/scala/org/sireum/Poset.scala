@@ -286,10 +286,10 @@ object Poset {
 import Poset._
 
 @datatype class Poset[T](
-  nodes: HashSMap[T, Z],
-  nodesInverse: IS[Z, T],
-  parents: HashSMap[Z, HashSSet[Z]],
-  children: HashSMap[Z, HashSSet[Z]]
+  val nodes: HashSMap[T, Z],
+  val nodesInverse: IS[Z, T],
+  val parents: HashSMap[Z, HashSSet[Z]],
+  val children: HashSMap[Z, HashSSet[Z]]
 ) {
 
   val emptySet: HashSSet[T] = HashSSet.empty

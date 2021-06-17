@@ -37,7 +37,7 @@ package org.sireum
 
 object Either {
 
-  @datatype class Left[L, R](value: L) extends Either[L, R] {
+  @datatype class Left[L, R](val value: L) extends Either[L, R] {
 
     @pure override def isLeft: B = {
       Contract(Ensures(Res))
@@ -71,7 +71,7 @@ object Either {
 
   }
 
-  @datatype class Right[L, R](value: R) extends Either[L, R] {
+  @datatype class Right[L, R](val value: R) extends Either[L, R] {
 
     @pure override def isLeft: B = {
       Contract(Ensures(!Res[B]))

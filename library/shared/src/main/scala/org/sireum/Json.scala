@@ -73,16 +73,16 @@ object Json {
     @pure def fromBoolean(o: T): B
   }
 
-  @datatype class ErrorMsg(line: Z, column: Z, message: String)
+  @datatype class ErrorMsg(val line: Z, val column: Z, val message: String)
 
   @enum object ValueKind {
-    'String
-    'Number
-    'Object
-    'Array
-    'True
-    'False
-    'Null
+    "String"
+    "Number"
+    "Object"
+    "Array"
+    "True"
+    "False"
+    "Null"
   }
 
   object Printer {

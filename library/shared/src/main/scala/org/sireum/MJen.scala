@@ -228,7 +228,7 @@ object MJen {
 
   object Internal {
 
-    @record class ISImpl[I, T](s: IS[I, T]) extends MJen[T] {
+    @record class ISImpl[I, T](val s: IS[I, T]) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- s) {
@@ -245,7 +245,7 @@ object MJen {
       }
     }
 
-    @record class MSImpl[I, T](s: MS[I, T]) extends MJen[T] {
+    @record class MSImpl[I, T](val s: MS[I, T]) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- s) {
@@ -262,7 +262,7 @@ object MJen {
       }
     }
 
-    @record class MapImpl[K, T](m: Map[K, T]) extends MJen[(K, T)] {
+    @record class MapImpl[K, T](val m: Map[K, T]) extends MJen[(K, T)] {
       override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- m.entries) {
@@ -279,7 +279,7 @@ object MJen {
       }
     }
 
-    @record class HashMapImpl[K, T](m: HashMap[K, T]) extends MJen[(K, T)] {
+    @record class HashMapImpl[K, T](val m: HashMap[K, T]) extends MJen[(K, T)] {
       override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (ms <- m.mapEntries) {
@@ -300,7 +300,7 @@ object MJen {
       }
     }
 
-    @record class Filtered[T](gen: MJen[T], p: T => B) extends MJen[T] {
+    @record class Filtered[T](val gen: MJen[T], val p: T => B) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         def ap(o: T): MJen.Action = {
           var r = p(o)
@@ -321,7 +321,7 @@ object MJen {
       }
     }
 
-    @record class Mapped[U, T](gen: MJen[T], f: T => U@pure) extends MJen[U] {
+    @record class Mapped[U, T](val gen: MJen[T], val f: T => U@pure) extends MJen[U] {
       override def generate(g: U => MJen.Action): MJen.Action = {
         def ap(o: T): MJen.Action = {
           val r = g(f(o))
@@ -337,7 +337,7 @@ object MJen {
       }
     }
 
-    @record class FlatMapped[U, T](gen: MJen[T], f: T => MJen[U]@pure) extends MJen[U] {
+    @record class FlatMapped[U, T](val gen: MJen[T], val f: T => MJen[U]@pure) extends MJen[U] {
       override def generate(g: U => MJen.Action): MJen.Action = {
         def ap(o: T): MJen.Action = {
           def ap2(o2: U): MJen.Action = {
@@ -358,7 +358,7 @@ object MJen {
       }
     }
 
-    @record class Sliced[T](gen: MJen[T], start: Z, end: Z) extends MJen[T] {
+    @record class Sliced[T](val gen: MJen[T], val start: Z, val end: Z) extends MJen[T] {
       def generate(f: T => MJen.Action): MJen.Action = {
         var count = 0
 
@@ -388,7 +388,7 @@ object MJen {
       }
     }
 
-    @record class TakeWhile[T](gen: MJen[T], p: T => B) extends MJen[T] {
+    @record class TakeWhile[T](val gen: MJen[T], val p: T => B) extends MJen[T] {
       def generate(f: T => MJen.Action): MJen.Action = {
         def ap(o: T): MJen.Action = {
           var r = p(o)
@@ -409,7 +409,7 @@ object MJen {
       }
     }
 
-    @record class DropWhile[T](gen: MJen[T], p: T => B) extends MJen[T] {
+    @record class DropWhile[T](val gen: MJen[T], val p: T => B) extends MJen[T] {
       def generate(f: T => MJen.Action): MJen.Action = {
         var started = F
 
@@ -438,7 +438,7 @@ object MJen {
       }
     }
 
-    @record class ZipWithIndexed[T](gen: MJen[T]) extends MJen[(T, Z)] {
+    @record class ZipWithIndexed[T](val gen: MJen[T]) extends MJen[(T, Z)] {
       def generate(f: ((T, Z)) => MJen.Action): MJen.Action = {
         var i = 0
 
@@ -457,7 +457,7 @@ object MJen {
       }
     }
 
-    @record class Zipped[T, U](gen: MJen[T], gen2: MJen[U]) extends MJen[(T, U)] {
+    @record class Zipped[T, U](val gen: MJen[T], val gen2: MJen[U]) extends MJen[(T, U)] {
       def generate(f: ((T, U)) => MJen.Action): MJen.Action = {
         var g = gen
         var g2 = gen2
@@ -484,7 +484,7 @@ object MJen {
       }
     }
 
-    @record class Concat[T](gen: MJen[T], gen2: MJen[T]) extends MJen[T] {
+    @record class Concat[T](val gen: MJen[T], val gen2: MJen[T]) extends MJen[T] {
       def generate(f: T => MJen.Action): MJen.Action = {
         var r = gen.generate(f)
         if (!r) {
@@ -499,7 +499,7 @@ object MJen {
       }
     }
 
-    @record class Product[T, U](gen: MJen[T], gen2: MJen[U]) extends MJen[(T, U)] {
+    @record class Product[T, U](val gen: MJen[T], val gen2: MJen[U]) extends MJen[(T, U)] {
       def generate(f: ((T, U)) => MJen.Action): MJen.Action = {
         def ap(o: T): MJen.Action = {
           def ap2(o2: U): MJen.Action = {

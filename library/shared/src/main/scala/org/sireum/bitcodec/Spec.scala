@@ -70,14 +70,14 @@ object Spec {
     @strictpure def isScalar: B = T
   }
 
-  @datatype class Bits(val name: String, size: Z) extends Base {
+  @datatype class Bits(val name: String, val size: Z) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size)
     }
     @strictpure def isScalar: B = size <= 64
   }
 
-  @datatype class BytesImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
+  @datatype class BytesImpl(val name: String, val size: Z, val signed: B, val minOpt: Option[Z], val maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 8)
     }
@@ -130,7 +130,7 @@ object Spec {
     return BytesImpl(name, size, F, Some(min), Some(max))
   }
 
-  @datatype class ShortsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
+  @datatype class ShortsImpl(val name: String, val size: Z, val signed: B, val minOpt: Option[Z], val maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 16)
     }
@@ -183,7 +183,7 @@ object Spec {
     return ShortsImpl(name, size, F, Some(min), Some(max))
   }
 
-  @datatype class IntsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
+  @datatype class IntsImpl(val name: String, val size: Z, val signed: B, val minOpt: Option[Z], val maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
@@ -236,7 +236,7 @@ object Spec {
     return IntsImpl(name, size, F, Some(min), Some(max))
   }
 
-  @datatype class LongsImpl(val name: String, size: Z, signed: B, minOpt: Option[Z], maxOpt: Option[Z]) extends Base {
+  @datatype class LongsImpl(val name: String, val size: Z, val signed: B, val minOpt: Option[Z], val maxOpt: Option[Z]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 64)
     }
@@ -289,7 +289,7 @@ object Spec {
     return LongsImpl(name, size, F, Some(min), Some(max))
   }
 
-  @datatype class FloatsImpl(val name: String, size: Z, minOpt: Option[F32], maxOpt: Option[F32]) extends Base {
+  @datatype class FloatsImpl(val name: String, val size: Z, val minOpt: Option[F32], val maxOpt: Option[F32]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 32)
     }
@@ -312,7 +312,7 @@ object Spec {
     return FloatsImpl(name, size, Some(min), Some(max))
   }
 
-  @datatype class DoublesImpl(val name: String, size: Z, minOpt: Option[F64], maxOpt: Option[F64]) extends Base {
+  @datatype class DoublesImpl(val name: String, val size: Z, val minOpt: Option[F64], val maxOpt: Option[F64]) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(size * 64)
     }
@@ -335,7 +335,7 @@ object Spec {
     return DoublesImpl(name, size, Some(min), Some(max))
   }
 
-  @datatype class Enum(val name: String, objectName: String) extends Base {
+  @datatype class Enum(val name: String, val objectName: String) extends Base {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return Some(enumMaxSize(objectName))
     }
@@ -344,7 +344,7 @@ object Spec {
 
   @strictpure def Concat(name: String, elements: ISZ[Spec]): ConcatImpl = ConcatImpl(name, elements, None())
 
-  @datatype class ConcatImpl(val name: String, elements: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
+  @datatype class ConcatImpl(val name: String, val elements: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var r: Z = 0
       for (e <- elements) {
@@ -363,15 +363,15 @@ object Spec {
     def polyDesc: Spec.PolyDesc
   }
 
-  @datatype class PolyDesc(compName: String, name: String, max: Z, dependsOn: ISZ[String], elementsOpt: Option[ISZ[Spec]], asOpt: Option[String])
+  @datatype class PolyDesc(val compName: String, val name: String, val max: Z, val dependsOn: ISZ[String], val elementsOpt: Option[ISZ[Spec]], val asOpt: Option[String])
 
   @strictpure def Union[T](name: String, dependsOn: ISZ[String], choice: T => Z@pure, subs: ISZ[Spec]): UnionImpl[T] =
     UnionImpl[T](name, dependsOn, choice, subs, None())
 
   @datatype class UnionImpl[T](val name: String,
-                               dependsOn: ISZ[String],
-                               @hidden choice: T => Z@pure,
-                               subs: ISZ[Spec],
+                               val dependsOn: ISZ[String],
+                               @hidden val choice: T => Z@pure,
+                               val subs: ISZ[Spec],
                                @hidden val asOpt: Option[String]) extends Composite with Poly {
     val polyDesc: Spec.PolyDesc = PolyDesc("Union", name, -1, dependsOn, Some(subs), asOpt)
 
@@ -393,10 +393,10 @@ object Spec {
   }
 
   @datatype class RepeatImpl[T](val name: String,
-                                maxElements: Z,
-                                dependsOn: ISZ[String],
-                                @hidden size: T => Z@pure,
-                                element: Base) extends Spec with Poly {
+                                val maxElements: Z,
+                                val dependsOn: ISZ[String],
+                                @hidden val size: T => Z@pure,
+                                val element: Base) extends Spec with Poly {
     val polyDesc: Spec.PolyDesc = PolyDesc("Repeat", name, maxElements, dependsOn, Some(ISZ(element)), None())
 
     @strictpure def isScalar: B = F
@@ -419,9 +419,9 @@ object Spec {
   }
 
   @datatype class RawImpl[T](val name: String,
-                             maxSize: Z,
-                             dependsOn: ISZ[String],
-                             @hidden size: T => Z@pure) extends Spec with Poly {
+                             val maxSize: Z,
+                             val dependsOn: ISZ[String],
+                             @hidden val size: T => Z@pure) extends Spec with Poly {
     val polyDesc: Spec.PolyDesc = PolyDesc("Raw", name, maxSize, dependsOn, None(), None())
 
     @strictpure def isScalar: B = F
@@ -442,7 +442,7 @@ object Spec {
 
   @strictpure def PredUnion(name: String, subs: ISZ[PredSpec]): PredUnionImpl = PredUnionImpl(name, subs, None())
 
-  @datatype class PredUnionImpl(val name: String, subs: ISZ[PredSpec], @hidden val asOpt: Option[String]) extends Composite {
+  @datatype class PredUnionImpl(val name: String, val subs: ISZ[PredSpec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var max: Z = 0
       for (sub <- subs) {
@@ -459,7 +459,7 @@ object Spec {
     @strictpure def as(name: String): PredUnionImpl = this(asOpt = Some(name))
   }
 
-  @datatype class PredRepeatWhileImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+  @datatype class PredRepeatWhileImpl(val name: String, val maxElements: Z, val preds: ISZ[Pred], val element: Base) extends Spec {
     @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
@@ -482,7 +482,7 @@ object Spec {
     return PredRepeatWhileImpl(name, maxElements, preds, element)
   }
 
-  @datatype class PredRepeatUntilImpl(val name: String, maxElements: Z, preds: ISZ[Pred], element: Base) extends Spec {
+  @datatype class PredRepeatUntilImpl(val name: String, val maxElements: Z, val preds: ISZ[Pred], val element: Base) extends Spec {
     @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
@@ -503,7 +503,7 @@ object Spec {
 
   @strictpure def GenUnion(name: String, subs: ISZ[Spec]): GenUnionImpl = GenUnionImpl(name, subs, None())
 
-  @datatype class GenUnionImpl(val name: String, subs: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
+  @datatype class GenUnionImpl(val name: String, val subs: ISZ[Spec], @hidden val asOpt: Option[String]) extends Composite {
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       var max: Z = 0
       for (sub <- subs) {
@@ -520,7 +520,7 @@ object Spec {
     @strictpure def as(name: String): GenUnionImpl = this(asOpt = Some(name))
   }
 
-  @datatype class GenRepeatImpl(val name: String, maxElements: Z, element: Base) extends Spec {
+  @datatype class GenRepeatImpl(val name: String, val maxElements: Z, val element: Base) extends Spec {
     @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       element.computeMaxSizeOpt(enumMaxSize) match {
@@ -539,7 +539,7 @@ object Spec {
     return GenRepeatImpl(name, maxElements, element)
   }
 
-  @datatype class GenRawImpl(val name: String, maxSize: Z) extends Spec {
+  @datatype class GenRawImpl(val name: String, val maxSize: Z) extends Spec {
     @strictpure def isScalar: B = F
     override def computeMaxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return if (maxSize >= 0) Some(maxSize) else None()
@@ -555,7 +555,7 @@ object Spec {
     return GenRawImpl(name, maxSize)
   }
 
-  @datatype class Pads(size: Z) extends Spec {
+  @datatype class Pads(val size: Z) extends Spec {
     def name: String = {
       return ""
     }
@@ -567,7 +567,7 @@ object Spec {
     }
   }
 
-  @datatype class PredSpec(preds: ISZ[Pred], spec: Spec) {
+  @datatype class PredSpec(val preds: ISZ[Pred], val spec: Spec) {
     def maxSizeOpt(enumMaxSize: String => Z): Option[Z] = {
       return spec.computeMaxSizeOpt(enumMaxSize)
     }
@@ -577,29 +577,29 @@ object Spec {
 
   object Pred {
 
-    @datatype class Boolean(value: B) extends Pred
+    @datatype class Boolean(val value: B) extends Pred
 
-    @datatype class Bits(size: Z, value: Z) extends Pred
+    @datatype class Bits(val size: Z, val value: Z) extends Pred
 
-    @datatype class Bytes(value: ISZ[Z]) extends Pred
+    @datatype class Bytes(val value: ISZ[Z]) extends Pred
 
-    @datatype class Shorts(value: ISZ[Z]) extends Pred
+    @datatype class Shorts(val value: ISZ[Z]) extends Pred
 
-    @datatype class Ints(value: ISZ[Z]) extends Pred
+    @datatype class Ints(val value: ISZ[Z]) extends Pred
 
-    @datatype class Longs(value: ISZ[Z]) extends Pred
+    @datatype class Longs(val value: ISZ[Z]) extends Pred
 
-    @datatype class Floats(value: ISZ[F32]) extends Pred
+    @datatype class Floats(val value: ISZ[F32]) extends Pred
 
-    @datatype class Doubles(value: ISZ[F64]) extends Pred
+    @datatype class Doubles(val value: ISZ[F64]) extends Pred
 
-    @datatype class Skip(size: Z) extends Pred
+    @datatype class Skip(val size: Z) extends Pred
 
-    @datatype class Between(size: Z, lo: Z, hi: Z) extends Pred
+    @datatype class Between(val size: Z, val lo: Z, val hi: Z) extends Pred
 
-    @datatype class Not(pred: Pred) extends Pred
+    @datatype class Not(val pred: Pred) extends Pred
 
-    @datatype class Or(preds: ISZ[Pred]) extends Pred
+    @datatype class Or(val preds: ISZ[Pred]) extends Pred
 
 
   }

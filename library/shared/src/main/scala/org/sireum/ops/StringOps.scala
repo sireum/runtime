@@ -126,7 +126,7 @@ object StringOps {
   }
 }
 
-@datatype class StringOps(s: String) {
+@datatype class StringOps(val s: String) {
 
   @pure def first: C = {
 //    l""" requires s.size > 0 """

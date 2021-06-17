@@ -37,16 +37,16 @@ import S64._
 object MessagePack {
 
   @enum object Kind {
-    'NIL
-    'BOOLEAN
-    'INTEGER
-    'FLOAT
-    'STRING
-    'ARRAY
-    'MAP
-    'BINARY
-    'EXTENSION
-    'NONE
+    "NIL"
+    "BOOLEAN"
+    "INTEGER"
+    "FLOAT"
+    "STRING"
+    "ARRAY"
+    "MAP"
+    "BINARY"
+    "EXTENSION"
+    "NONE"
   }
 
   val TimestampExtType: S8 = s8"-1"
@@ -1932,11 +1932,11 @@ object MessagePack {
     def skip(n: Z): Unit
   }
 
-  @datatype class ErrorMsg(offset: Z, message: String)
+  @datatype class ErrorMsg(val offset: Z, val message: String)
 
   object Reader {
 
-    @record class Impl(buf: ISZ[U8], var curr: Z) extends Reader {
+    @record class Impl(val buf: ISZ[U8], var curr: Z) extends Reader {
       var pooling: B = F
       var stringPool: MSZ[String] = MSZ()
       var docInfoPool: MSZ[message.DocInfo] = MSZ()

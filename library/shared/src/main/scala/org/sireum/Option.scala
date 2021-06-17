@@ -184,7 +184,7 @@ object Option {
   override def foreach[V](f: T => V): Unit = {}
 }
 
-@datatype class Some[T](value: T) extends Option[T] {
+@datatype class Some[T](val value: T) extends Option[T] {
 
   @pure override def isEmpty: B = {
     Contract(Ensures(!Res[B]))

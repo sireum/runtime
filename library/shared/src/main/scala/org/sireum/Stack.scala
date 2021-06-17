@@ -35,7 +35,7 @@ object Stack {
   }
 }
 
-@datatype class Stack[T](elements: ISZ[T]) {
+@datatype class Stack[T](val elements: ISZ[T]) {
 
   @pure def size: Z = {
     return elements.size

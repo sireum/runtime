@@ -244,7 +244,7 @@ object Jen {
 
   object Internal {
 
-    @datatype class ISImpl[I, T](s: IS[I, T]) extends Jen[T] {
+    @datatype class ISImpl[I, T](val s: IS[I, T]) extends Jen[T] {
       override def generate(f: T => Jen.Action): Jen.Action = {
         var last = Jen.Continue
         for (e <- s) {
@@ -261,7 +261,7 @@ object Jen {
       }
     }
 
-    @datatype class MapImpl[K, T](m: Map[K, T]) extends Jen[(K, T)] {
+    @datatype class MapImpl[K, T](val m: Map[K, T]) extends Jen[(K, T)] {
       override def generate(f: ((K, T)) => Jen.Action): Jen.Action = {
         var last = Jen.Continue
         for (e <- m.entries) {
@@ -278,7 +278,7 @@ object Jen {
       }
     }
 
-    @datatype class HashMapImpl[K, T](m: HashMap[K, T]) extends Jen[(K, T)] {
+    @datatype class HashMapImpl[K, T](val m: HashMap[K, T]) extends Jen[(K, T)] {
       override def generate(f: ((K, T)) => Jen.Action): Jen.Action = {
         var last = Jen.Continue
         for (ms <- m.mapEntries) {
@@ -299,7 +299,7 @@ object Jen {
       }
     }
 
-    @datatype class Filtered[T](gen: Jen[T], p: T => B) extends Jen[T] {
+    @datatype class Filtered[T](val gen: Jen[T], val p: T => B) extends Jen[T] {
       override def generate(f: T => Jen.Action): Jen.Action = {
         def ap(o: T): Jen.Action = {
           var r = p(o)
@@ -320,7 +320,7 @@ object Jen {
       }
     }
 
-    @datatype class Mapped[U, T](gen: Jen[T], f: T => U@pure) extends Jen[U] {
+    @datatype class Mapped[U, T](val gen: Jen[T], val f: T => U@pure) extends Jen[U] {
       override def generate(g: U => Jen.Action): Jen.Action = {
         def ap(o: T): Jen.Action = {
           val r = g(f(o))
@@ -336,7 +336,7 @@ object Jen {
       }
     }
 
-    @datatype class FlatMapped[U, T](gen: Jen[T], f: T => Jen[U]@pure) extends Jen[U] {
+    @datatype class FlatMapped[U, T](val gen: Jen[T], val f: T => Jen[U]@pure) extends Jen[U] {
       override def generate(g: U => Jen.Action): Jen.Action = {
         def ap(o: T): Jen.Action = {
           def ap2(o2: U): Jen.Action = {
@@ -357,7 +357,7 @@ object Jen {
       }
     }
 
-    @datatype class Sliced[T](gen: Jen[T], start: Z, end: Z) extends Jen[T] {
+    @datatype class Sliced[T](val gen: Jen[T], val start: Z, val end: Z) extends Jen[T] {
       def generate(f: T => Jen.Action): Jen.Action = {
         var count = 0
 
@@ -387,7 +387,7 @@ object Jen {
       }
     }
 
-    @datatype class TakeWhile[T](gen: Jen[T], p: T => B) extends Jen[T] {
+    @datatype class TakeWhile[T](val gen: Jen[T], val p: T => B) extends Jen[T] {
       def generate(f: T => Jen.Action): Jen.Action = {
         def ap(o: T): Jen.Action = {
           var r = p(o)
@@ -408,7 +408,7 @@ object Jen {
       }
     }
 
-    @datatype class DropWhile[T](gen: Jen[T], p: T => B) extends Jen[T] {
+    @datatype class DropWhile[T](val gen: Jen[T], val p: T => B) extends Jen[T] {
       def generate(f: T => Jen.Action): Jen.Action = {
         var started = F
 
@@ -437,7 +437,7 @@ object Jen {
       }
     }
 
-    @datatype class ZipWithIndexed[T](gen: Jen[T]) extends Jen[(T, Z)] {
+    @datatype class ZipWithIndexed[T](val gen: Jen[T]) extends Jen[(T, Z)] {
       def generate(f: ((T, Z)) => Jen.Action): Jen.Action = {
         var i = 0
 
@@ -456,7 +456,7 @@ object Jen {
       }
     }
 
-    @datatype class Zipped[T, U](gen: Jen[T], gen2: Jen[U]) extends Jen[(T, U)] {
+    @datatype class Zipped[T, U](val gen: Jen[T], val gen2: Jen[U]) extends Jen[(T, U)] {
       def generate(f: ((T, U)) => Jen.Action): Jen.Action = {
         var g = gen
         var g2 = gen2
@@ -483,7 +483,7 @@ object Jen {
       }
     }
 
-    @datatype class Concat[T](gen: Jen[T], gen2: Jen[T]) extends Jen[T] {
+    @datatype class Concat[T](val gen: Jen[T], val gen2: Jen[T]) extends Jen[T] {
       def generate(f: T => Jen.Action): Jen.Action = {
         var r = gen.generate(f)
         if (!r) {
@@ -498,7 +498,7 @@ object Jen {
       }
     }
 
-    @datatype class Product[T, U](gen: Jen[T], gen2: Jen[U]) extends Jen[(T, U)] {
+    @datatype class Product[T, U](val gen: Jen[T], val gen2: Jen[U]) extends Jen[(T, U)] {
       def generate(f: ((T, U)) => Jen.Action): Jen.Action = {
         def ap(o: T): Jen.Action = {
           def ap2(o2: U): Jen.Action = {

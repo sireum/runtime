@@ -118,7 +118,7 @@ object MOption {
   def foreach[V](f: T => V): Unit = {}
 }
 
-@record class MSome[T](value: T) extends MOption[T] {
+@record class MSome[T](val value: T) extends MOption[T] {
 
   @pure def isEmpty: B = {
 //    l""" ensures  result ≡ F """

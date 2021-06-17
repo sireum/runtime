@@ -37,7 +37,7 @@ package org.sireum
 
 object MEither {
 
-  @record class Left[L, R](value: L) extends MEither[L, R] {
+  @record class Left[L, R](val value: L) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
 //      l""" ensures result ≡ T """
@@ -71,7 +71,7 @@ object MEither {
 
   }
 
-  @record class Right[L, R](value: R) extends MEither[L, R] {
+  @record class Right[L, R](val value: R) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
 //      l""" ensures result ≡ F """

@@ -43,7 +43,7 @@ object HashMap {
 
 }
 
-@datatype class HashMap[K, T](mapEntries: ISZ[Map[K, T]], size: Z) {
+@datatype class HashMap[K, T](val mapEntries: ISZ[Map[K, T]], val size: Z) {
 
   @pure def entries: ISZ[(K, T)] = {
     var r = ISZ[(K, T)]()

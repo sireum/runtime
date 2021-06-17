@@ -147,11 +147,11 @@ object SHA3 {
 
 import SHA3._
 
-@record class SHA3(capacityWords: Z) {
+@record class SHA3(val capacityWords: Z) {
   var saved: U64 = u64"0"
   var byteIndex: U64 = u64"0"
   var wordIndex: Z = 0
-  var s: MSZ[U64] = MS.create(25, u64"0")
+  var s: MSZ[U64] = MS.create[Z, U64](25, u64"0")
 
   def update(buf: ISZ[U8]): Unit = {
 

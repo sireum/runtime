@@ -30,10 +30,10 @@ import org.sireum._
 import org.sireum.U64._
 
 @enum object Level {
-  'InternalError
-  'Error
-  'Warning
-  'Info
+  "InternalError"
+  "Error"
+  "Warning"
+  "Info"
 }
 
 @datatype class Message(val level: Level.Type, val posOpt: Option[Position], val kind: String, val text: String) {
@@ -121,12 +121,12 @@ object Position {
 
 @datatype class FlatPos(
   val uriOpt: Option[String],
-  beginLine32: U32,
-  beginColumn32: U32,
-  endLine32: U32,
-  endColumn32: U32,
-  offset32: U32,
-  length32: U32
+  val beginLine32: U32,
+  val beginColumn32: U32,
+  val endLine32: U32,
+  val endColumn32: U32,
+  val offset32: U32,
+  val length32: U32
 ) extends Position {
 
   @pure override def beginLine: Z = {
@@ -154,7 +154,7 @@ object Position {
   }
 }
 
-@datatype class PosInfo(info: DocInfo, offsetLength: U64) extends Position {
+@datatype class PosInfo(val info: DocInfo, val offsetLength: U64) extends Position {
 
   @pure override def uriOpt: Option[String] = {
     return info.uriOpt

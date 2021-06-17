@@ -29,7 +29,7 @@ package org.sireum.ops
 import org.sireum._
 import org.sireum.Graph
 
-@datatype class GraphOps[W, E](graph: Graph[W, E]) {
+@datatype class GraphOps[W, E](val graph: Graph[W, E]) {
 
   @pure def getEdgeData(e: Graph.Edge[W, E]): Option[E] = {
     e match {

@@ -83,10 +83,10 @@ object UnionFind {
 }
 
 @datatype class UnionFind[T](
-  elements: HashSMap[T, UnionFind.Index],
-  elementsInverse: IS[UnionFind.Index, T],
-  parentOf: IS[UnionFind.Index, UnionFind.Index],
-  sizeOf: IS[UnionFind.Index, UnionFind.Index]
+  val elements: HashSMap[T, UnionFind.Index],
+  val elementsInverse: IS[UnionFind.Index, T],
+  val parentOf: IS[UnionFind.Index, UnionFind.Index],
+  val sizeOf: IS[UnionFind.Index, UnionFind.Index]
 ) {
 
   @pure def size: Z = {

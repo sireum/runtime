@@ -42,7 +42,7 @@ object Map {
 
 }
 
-@datatype class Map[K, T](entries: ISZ[(K, T)]) {
+@datatype class Map[K, T](val entries: ISZ[(K, T)]) {
 
   @pure def keys: ISZ[K] = {
     var r = ISZ[K]()

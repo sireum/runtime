@@ -135,8 +135,8 @@ object Project {
 }
 
 @enum object Target {
-  'Jvm
-  'Js
+  "Jvm"
+  "Js"
 }
 
 @datatype class Module(val id: String,

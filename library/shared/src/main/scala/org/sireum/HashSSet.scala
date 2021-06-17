@@ -41,7 +41,7 @@ object HashSSet {
   }
 }
 
-@datatype class HashSSet[T](map: HashSMap[T, B]) {
+@datatype class HashSSet[T](val map: HashSMap[T, B]) {
 
   @pure def +(e: T): HashSSet[T] = {
     return HashSSet(map + e ~> T)

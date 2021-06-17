@@ -38,7 +38,7 @@ object Set {
 
 }
 
-@datatype class Set[T](map: Map[T, B]) {
+@datatype class Set[T](val map: Map[T, B]) {
 
   @pure def +(e: T): Set[T] = {
     return Set(map + e ~> T)

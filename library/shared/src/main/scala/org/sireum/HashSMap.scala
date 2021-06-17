@@ -42,7 +42,7 @@ object HashSMap {
 
 }
 
-@datatype class HashSMap[K, T](map: HashMap[K, T], keys: ISZ[K]) {
+@datatype class HashSMap[K, T](val map: HashMap[K, T], val keys: ISZ[K]) {
 
   @pure def size: Z = {
     return keys.size

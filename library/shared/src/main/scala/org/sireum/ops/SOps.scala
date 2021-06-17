@@ -158,7 +158,7 @@ import org.sireum._
 
 }
 
-@datatype class ISZOps[T](s: IS[Z, T]) extends SOps[Z, T] with ISOps[Z, T] {
+@datatype class ISZOps[T](val s: IS[Z, T]) extends SOps[Z, T] with ISOps[Z, T] {
 
   @pure def :+(e: T): IS[Z, T] = {
 //    l""" ensures result.size ≡ s.size + 1
@@ -489,7 +489,7 @@ import org.sireum._
 
 }
 
-@datatype class MSZOps[T](s: MS[Z, T]) extends SOps[Z, T] with MSOps[Z, T] {
+@datatype class MSZOps[T](val s: MS[Z, T]) extends SOps[Z, T] with MSOps[Z, T] {
 
   @pure def :+(e: T): MS[Z, T] = {
 //    l""" ensures result.size ≡ s.size + 1
@@ -1091,7 +1091,7 @@ object ISZBOps {
   }
 }
 
-@datatype class ISZBOps(s: IS[Z, B]) extends SBOps[Z] {
+@datatype class ISZBOps(val s: IS[Z, B]) extends SBOps[Z] {
 
   @pure def toU8: U8 = {
 //    l""" requires s.size ≡ 8

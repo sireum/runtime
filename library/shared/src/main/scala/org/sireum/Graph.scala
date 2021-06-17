@@ -74,7 +74,7 @@ object Graph {
 
     object Edges {
 
-      @datatype class Set[E](set: HashSet[Internal.Edge[E]]) extends Edges[E] {
+      @datatype class Set[E](val set: HashSet[Internal.Edge[E]]) extends Edges[E] {
 
         @pure override def elements: ISZ[Internal.Edge[E]] = {
           return set.elements
@@ -97,7 +97,7 @@ object Graph {
         }
       }
 
-      @datatype class Bag[E](set: HashSBag[Internal.Edge[E]]) extends Edges[E] {
+      @datatype class Bag[E](val set: HashSBag[Internal.Edge[E]]) extends Edges[E] {
 
         @pure override def elements: ISZ[Internal.Edge[E]] = {
           return set.elements

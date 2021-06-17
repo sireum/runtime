@@ -99,9 +99,9 @@ import ContractUtil._
 object CircularQueue {
 
   @enum object Policy {
-    'NoDrop
-    'DropFront
-    'DropRear
+    "NoDrop"
+    "DropFront"
+    "DropRear"
   }
 
   @strictpure def inv[E](max: Z, default: E, scrub: B, queue: MSZ[E], front: Z, rear: Z, numOfElements: Z): B =
@@ -149,7 +149,7 @@ object CircularQueue {
   @record class NoDrop[E](val max: Z,
                           val default: E,
                           val scrub: B,
-                          queue: MSZ[E],
+                          val queue: MSZ[E],
                           var front: Z,
                           var rear: Z,
                           var numOfElements: Z) extends CircularQueue[E] {
@@ -262,7 +262,7 @@ object CircularQueue {
   @record class DropFront[E](val max: Z,
                              val default: E,
                              val scrub: B,
-                             queue: MSZ[E],
+                             val queue: MSZ[E],
                              var front: Z,
                              var rear: Z,
                              var numOfElements: Z) extends CircularQueue[E] {
@@ -377,7 +377,7 @@ object CircularQueue {
   @record class DropRear[E](val max: Z,
                             val default: E,
                             val scrub: B,
-                            queue: MSZ[E],
+                            val queue: MSZ[E],
                             var front: Z,
                             var rear: Z,
                             var numOfElements: Z) extends CircularQueue[E] {
