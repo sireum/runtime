@@ -116,7 +116,7 @@ object Os_Ext {
     } else JFiles.copy(toNIO(path), toNIO(target), SCO.COPY_ATTRIBUTES)
   }
 
-  def download(path: String, url: String): Unit = {
+  def download(path: String, url: String): B = {
     def nativ(): Unit = {
       if (Os.isWin) {
         val p = path.value.replace(' ', '␣')
@@ -153,14 +153,19 @@ object Os_Ext {
         java.net.CookieHandler.setDefault(default)
       }
     }
-    if (isNative) {
-      nativ()
-    } else {
-      try {
-        jvm()
-      } catch {
-        case _: UnsatisfiedLinkError => nativ()
+    try {
+      if (isNative) {
+        nativ()
+      } else {
+        try {
+          jvm()
+        } catch {
+          case _: UnsatisfiedLinkError => nativ()
+        }
       }
+      T
+    } catch {
+      case _: Throwable => F
     }
   }
 

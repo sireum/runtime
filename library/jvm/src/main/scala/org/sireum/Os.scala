@@ -415,8 +415,8 @@ object Os {
       Ext.copy(value, target.value, T)
     }
 
-    def downloadFrom(url: String): Unit = {
-      Ext.download(value, url)
+    def downloadFrom(url: String): B = {
+      return Ext.download(value, url)
     }
 
     def exists: B = {
@@ -757,7 +757,7 @@ object Os {
 
     def copy(path: String, target: String, over: B): Unit = $
 
-    def download(path: String, url: String): Unit = $
+    def download(path: String, url: String): B = $
 
     def env(name: String): Option[String] = $
 
