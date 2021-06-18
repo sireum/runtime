@@ -64,6 +64,8 @@ object Os_Ext {
 
   val pathSep: String = java.io.File.pathSeparator
 
+  val pathSepChar: C = java.io.File.pathSeparatorChar
+
   lazy val cwd: String = canon(System.getProperty("user.dir"))
 
   lazy val home: String = canon(System.getProperty("user.home"))

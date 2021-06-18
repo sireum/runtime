@@ -75,6 +75,10 @@ object Os {
     return Ext.pathSep
   }
 
+  @pure def pathSepChar: C = {
+    return Ext.pathSepChar
+  }
+
   @pure def kind: Kind.Type = {
     return Ext.os
   }
@@ -744,6 +748,8 @@ object Os {
     @pure def lineSep: String = $
 
     @pure def pathSep: String = $
+
+    @pure def pathSepChar: C = $
 
     @pure def os: Kind.Type = $
 
