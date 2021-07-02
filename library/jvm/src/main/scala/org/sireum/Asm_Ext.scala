@@ -52,7 +52,7 @@ object Asm_Ext {
       process(Paths.get((path / "scala" / "collection" / "immutable" / "VM.class").value.value))
       process(Paths.get((path / "scala" / "runtime" / "Statics.class").value.value))
     } else {
-      val fs = FileSystems.newFileSystem(Paths.get(path.value.value))
+      val fs = FileSystems.newFileSystem(Paths.get(path.value.value), null.asInstanceOf[ClassLoader])
       process(fs.getPath("/scala/collection/immutable/VM.class"))
       process(fs.getPath("/scala/runtime/Statics.class"))
       fs.close()
