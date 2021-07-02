@@ -778,16 +778,12 @@ object Os_Ext {
     def standardLib(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
-        for ((k, v) <- System.getenv().asScala) {
-          val key = k.toString
-          val value = v.toString
+        for ((key, value) <- System.getenv().asScala) {
           m(key) = value
         }
       }
       for ((k, v) <- p.envMap.entries.elements) {
-        val key = k.toString
-        val value = v.toString
-        m(key) = value
+        m(k.value) = v.value
       }
       if (p.shouldPrintEnv) {
         for ((k, v) <- m) {
@@ -803,7 +799,7 @@ object Os_Ext {
         if (p.isErrAsOut) pOut else _root_.os.ProcessOutput(po.fErr)
       val stdin: _root_.os.ProcessInput = p.in match {
         case Some(s) => s.value
-        case _ => _root_.os.Pipe
+        case _ => _root_.os.Inherit
       }
       val sp = _root_.os.proc(p.cmds.elements.map(_.value: _root_.os.Shellable)).
         spawn(cwd = _root_.os.Path(toIO(p.wd.value).getCanonicalPath),
@@ -835,9 +831,7 @@ object Os_Ext {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
-        for ((k, v) <- System.getenv().asScala) {
-          val key = k.toString
-          val value = v.toString
+        for ((key, value) <- System.getenv().asScala) {
           m(key) = value
         }
       }
@@ -876,10 +870,11 @@ object Os_Ext {
       val np = npb.start()
       if (np != null && np.isRunning) {
         p.in match {
-          case Some(in) => np.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
+          case Some(in) =>
+            np.writeStdin(BB.wrap(in.value.getBytes(SC.UTF_8)))
+            np.closeStdin(false)
           case _ =>
         }
-        np.closeStdin(false)
         val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
         if (exitCode != scala.Int.MinValue) {
           po.fEnd()
