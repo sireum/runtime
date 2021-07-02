@@ -34,8 +34,9 @@ object Coursier_Ext {
 
   var scalaVersion: String = scala.util.Properties.versionNumberString
   var cacheOpt: Option[Os.Path] = None()
+  var mavenRepoUrls: ISZ[String] = ISZ()
 
-  var repositories: ISZ[Repository] = ISZ(
+  val repositories: ISZ[Repository] = ISZ(
     localMavenRepo,
     sonatypeReleaseRepo,
     Repositories.jitpack
@@ -54,7 +55,11 @@ object Coursier_Ext {
   }
 
   def addMavenRepositories(urls: ISZ[String]): Unit = {
-    repositories = repositories ++ (for (url <- urls) yield MavenRepository(url.value))
+    mavenRepoUrls = (HashSSet ++ mavenRepoUrls ++ urls).elements
+  }
+
+  def setMavenRepositories(urls: ISZ[String]): Unit = {
+    mavenRepoUrls = (HashSSet ++ urls).elements
   }
 
   def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] =
@@ -63,7 +68,7 @@ object Coursier_Ext {
   def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
     var fetch = Fetch().
       addDependencies(toDeps(deps): _*).
-      withRepositories(repositories.elements)
+      withRepositories(repositories.elements ++ (for (url <- mavenRepoUrls.elements) yield MavenRepository(url.value)))
     for (cl <- cls.elements) cl match {
       case CoursierClassifier.Default => fetch = fetch.withMainArtifacts()
       case CoursierClassifier.Javadoc => fetch = fetch.addClassifiers(Classifier.javadoc)

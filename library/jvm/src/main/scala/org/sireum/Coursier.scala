@@ -50,6 +50,10 @@ package org.sireum
 
   def addMavenRepositories(urls: ISZ[String]): Unit = $
 
+  def setMavenRepositories(urls: ISZ[String]): Unit = $
+
+  def mavenRepoUrls: ISZ[String] = $
+
   def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = $
 
   def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = $
