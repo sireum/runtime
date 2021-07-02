@@ -41,7 +41,8 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Project""""),
         ("modules", printHashSMap(F, o.modules, printString _, printModule _)),
-        ("poset", printPoset(T, o.poset, printString _))
+        ("poset", printPoset(T, o.poset, printString _)),
+        ("mavenRepoUrls", printISZ(T, o.mavenRepoUrls, printString _))
       ))
     }
 
@@ -124,7 +125,10 @@ object JSON {
       parser.parseObjectKey("poset")
       val poset = parser.parsePoset(parser.parseString _)
       parser.parseObjectNext()
-      return Project(modules, poset)
+      parser.parseObjectKey("mavenRepoUrls")
+      val mavenRepoUrls = parser.parseISZ(parser.parseString _)
+      parser.parseObjectNext()
+      return Project(modules, poset, mavenRepoUrls)
     }
 
     def parseTargetType(): Target.Type = {

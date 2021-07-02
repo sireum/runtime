@@ -30,15 +30,25 @@ package org.sireum.project
 import org.sireum._
 
 object Project {
-  @strictpure def empty: Project = Project(HashSMap.empty, Poset.empty)
+  @strictpure def empty: Project = Project(HashSMap.empty, Poset.empty, ISZ())
 }
 
 @datatype class Project(val modules: HashSMap[String, Module],
-                        val poset: Poset[String]) {
+                        val poset: Poset[String],
+                        val mavenRepoUrls: ISZ[String]) {
 
   @strictpure def +(module: Module): Project = Project(
     modules = modules + module.id ~> module,
-    poset = poset.addParents(module.id, module.deps)
+    poset = poset.addParents(module.id, module.deps),
+    mavenRepoUrls = mavenRepoUrls
+  )
+
+  @strictpure def addMavenRepository(url: String): Project = Project(
+    modules = modules, poset = poset, mavenRepoUrls = mavenRepoUrls :+ url
+  )
+
+  @strictpure def addMavenRepositories(urls: ISZ[String]): Project = Project(
+    modules = modules, poset = poset, mavenRepoUrls = mavenRepoUrls ++ urls
   )
 
   @strictpure override def hash: Z = modules.hash
@@ -63,6 +73,7 @@ object Project {
       }
       names = newNames.elements
     }
+    r = r(mavenRepoUrls = (HashSSet ++ r.mavenRepoUrls ++ other.mavenRepoUrls).elements)
     return r
   }
 

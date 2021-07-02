@@ -390,20 +390,19 @@ object ProjectUtil {
       return None()
     }
     val parser = org.sireum.project.JSON.Parser(path.read)
-    val m = parser.parser.parseHashSMap(parser.parser.parseString _, parser.parseModule _)
+    val p = parser.parseProject()
     if (parser.errorOpt.nonEmpty) {
       return None()
     }
-    var r = Project.empty
-    for (m <- m.values) {
+    var r = Project.empty(mavenRepoUrls = p.mavenRepoUrls)
+    for (m <- p.modules.values) {
       r = r + m
     }
     return Some(r)
   }
 
   def store(path: Os.Path, prj: Project): Unit = {
-    path.writeOver(Json.Printer.printHashSMap(F, prj.modules, Json.Printer.printString _,
-      org.sireum.project.JSON.Printer.printModule _).render)
+    path.writeOver(org.sireum.project.JSON.fromProject(prj(poset = Poset.empty), F))
   }
 
   @strictpure def pathSep(base: Os.Path, sub: String): Os.Path =
