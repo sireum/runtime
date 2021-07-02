@@ -359,7 +359,7 @@ object ProjectUtil {
       }
       if (!loaded) {
         println(s"Loading from $cmdFile ...")
-        val pr = proc"$cmdFile json".run()
+        val pr = proc"$cmdFile json".redirectErr.run()
         if (pr.ok) {
           projectJsonLine(pr.out) match {
             case Some(line) => JSON.toProject(line) match {
@@ -372,10 +372,13 @@ object ProjectUtil {
             }
             case _ =>
           }
+        } else {
+          eprintln(s"Failed to load from $cmdFile")
+          println(pr.out)
+          eprintln(pr.err)
         }
       }
       if (!loaded) {
-        eprintln(s"Failed to load from $cmdFile")
         return None()
       }
     }
