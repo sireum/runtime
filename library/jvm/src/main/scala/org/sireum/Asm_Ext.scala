@@ -33,8 +33,7 @@ import java.nio.file.{FileSystems, Files, Path, Paths}
 object Asm_Ext {
   val api: Int = Opcodes.ASM9
 
-  def rewriteReleaseFence(jar: Os.Path): Unit = {
-    val fs = FileSystems.newFileSystem(Paths.get(jar.value.value), null.asInstanceOf[ClassLoader])
+  def rewriteReleaseFence(path: Os.Path): Unit = {
 
     def process(p: Path): Unit = {
       if (!Files.exists(p)) {
@@ -49,9 +48,16 @@ object Asm_Ext {
       Files.write(p, cw.toByteArray)
     }
 
-    process(fs.getPath("/scala/collection/immutable/VM.class"))
-    process(fs.getPath("/scala/runtime/Statics.class"))
-    fs.close()
+    if (path.isDir) {
+      process(Paths.get((path / "scala" / "collection" / "immutable" / "VM.class").value.value))
+      process(Paths.get((path / "scala" / "runtime" / "Statics.class").value.value))
+    } else {
+      val fs = FileSystems.newFileSystem(Paths.get(path.value.value))
+      process(fs.getPath("/scala/collection/immutable/VM.class"))
+      process(fs.getPath("/scala/runtime/Statics.class"))
+      fs.close()
+    }
+
   }
 
   object ReleaseFence {
