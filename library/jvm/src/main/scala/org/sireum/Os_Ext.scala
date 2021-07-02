@@ -32,7 +32,7 @@ import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
 import java.nio.file.{
   AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath,
-  Paths => JPaths, StandardCopyOption => SCO
+  Paths => JPaths, StandardCopyOption => SCO, StandardOpenOption => SOO,
 }
 import java.util.concurrent.{TimeUnit => TU}
 import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => ZOS}
@@ -545,7 +545,10 @@ object Os_Ext {
 
   def zip(path: String, target: String): Unit = {
     def normPath(p: String): Predef.String = if (Os.isWin) p.value.replace('\\', '/') else p.value
-    val zip = new ZOS(JFiles.newOutputStream(toNIO(target)))
+    val f = toNIO(target)
+    val zip = new ZOS(
+      if (f.toFile.exists) JFiles.newOutputStream(f, SOO.WRITE, SOO.APPEND)
+      else JFiles.newOutputStream(f, SOO.WRITE, SOO.CREATE_NEW))
     try {
       for (file <- Os.Path.walk(Os.path(path), F, T, _ => T)) {
         zip.putNextEntry(new ZE(normPath(relativize(path, file.string))))
