@@ -746,7 +746,7 @@ object Os_Ext {
             val ss = s.split('\n')
             for (i <- 0 until ss.length - 1) {
               val line = ss(i)
-              if (la.toString.apply(line)) {
+              if (la(line).asInstanceOf[B]) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -759,7 +759,7 @@ object Os_Ext {
             baosLine.reset()
             baos.write(line.getBytes(SC.UTF_8))
             if (bytes(n - 1) == newLine) {
-              if (la.toString.apply(line)) {
+              if (la(line).asInstanceOf[B]) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
