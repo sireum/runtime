@@ -696,7 +696,7 @@ object Os_Ext {
     val errLine = new java.io.ByteArrayOutputStream()
     val newLine: Byte  = '\n'.toByte
 
-    def fEnd(): Unit = {
+    def fEnd(): (String, String) = {
       if (outLine.size != 0) {
         val bs = outLine.toByteArray
         out.write(bs)
@@ -720,6 +720,12 @@ object Os_Ext {
         }
         errLine.reset()
       }
+      if (p.isErrAsOut) {
+        err.writeTo(out)
+        return (out.toString(SC.UTF_8.name), "")
+      } else {
+        return (out.toString(SC.UTF_8.name), err.toString(SC.UTF_8.name))
+      }
     }
 
     def fOut(bytes: Array[Byte], n: Int): Unit = f(F, bytes, n)
@@ -740,7 +746,7 @@ object Os_Ext {
             val ss = s.split('\n')
             for (i <- 0 until ss.length - 1) {
               val line = ss(i)
-              if (la(line)) {
+              if (la.value(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -753,7 +759,7 @@ object Os_Ext {
             baosLine.reset()
             baos.write(line.getBytes(SC.UTF_8))
             if (bytes(n - 1) == newLine) {
-              if (la(line)) {
+              if (la.value(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -811,8 +817,8 @@ object Os_Ext {
       var term: Boolean = false
       term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
       if (term) {
-        po.fEnd()
-        return Os.Proc.Result.Normal(sp.exitCode(), po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
+        val (pout, perr) = po.fEnd()
+        return Os.Proc.Result.Normal(sp.exitCode(), pout, perr)
       }
       if (sp.isAlive()) {
         try {
@@ -827,8 +833,8 @@ object Os_Ext {
             case _: Throwable =>
           }
       }
-      po.fEnd()
-      Os.Proc.Result.Timeout(po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
+      val (pout, perr) = po.fEnd()
+      Os.Proc.Result.Timeout(pout, perr)
     }
     def nuProcess(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
@@ -880,9 +886,8 @@ object Os_Ext {
         }
         val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
         if (exitCode != scala.Int.MinValue) {
-          po.fEnd()
-          return Os.Proc.Result.Normal(exitCode,
-            po.out.toString(SC.UTF_8.name), po.err.toString(SC.UTF_8.name))
+          val (pout, perr) = po.fEnd()
+          return Os.Proc.Result.Normal(exitCode, pout, perr)
         }
         if (np.isRunning) try {
           np.destroy(false)
@@ -895,12 +900,12 @@ object Os_Ext {
           catch {
             case _: Throwable =>
           }
-        po.fEnd()
-        Os.Proc.Result.Timeout(po.out.toString, po.err.toString)
+        val (pout, perr) = po.fEnd()
+        Os.Proc.Result.Timeout(pout, perr)
       } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
-      if (T || isNative || p.shouldUseStandardLib) {
+      if (isNative || p.shouldUseStandardLib) {
         standardLib()
       } else {
         try {
