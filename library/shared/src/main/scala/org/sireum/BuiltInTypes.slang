@@ -449,3 +449,11 @@ package org.sireum
       )
     )
 }
+
+@ext object Sireum {
+
+  def run(args: ISZ[String]): Z = $
+
+  def initRuntimeLibrary(): Unit = $
+
+}
