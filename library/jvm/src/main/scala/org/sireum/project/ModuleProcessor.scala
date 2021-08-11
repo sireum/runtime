@@ -45,7 +45,8 @@ import org.sireum._
 
   @pure def fileFilter(file: Os.Path): B
 
-  def process(shouldProcess: B,
+  def process(o: T,
+              shouldProcess: B,
               dm: DependencyManager,
               sourceFiles: ISZ[Os.Path],
               testSourceFiles: ISZ[Os.Path]): (T, B)
@@ -64,7 +65,7 @@ import org.sireum._
     }
   }
 
-  def run(dm: DependencyManager): T = {
+  def run(o: T, dm: DependencyManager): T = {
     var sourceFiles = ISZ[Os.Path]()
     var testSourceFiles = ISZ[Os.Path]()
     for (source <- ProjectUtil.moduleSources(module)) {
@@ -92,7 +93,7 @@ import org.sireum._
       fingerprintCache.removeAll()
     }
 
-    val (r, save) = process(shouldProcess, dm, sourceFiles, testSourceFiles)
+    val (r, save) = process(o, shouldProcess, dm, sourceFiles, testSourceFiles)
     if (save) {
       fingerprintCache.writeOver(Json.Printer.printHashMap(F, fingerprintMap, Json.Printer.printString _,
         Json.Printer.printString _).render)
