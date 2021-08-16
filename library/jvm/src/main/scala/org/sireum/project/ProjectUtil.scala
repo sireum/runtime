@@ -334,8 +334,21 @@ object ProjectUtil {
   }
 
   @pure def projectJsonLine(text: String): Option[String] = {
+    val prefix = "{  \"type\" : \"Project\""
     for (line <- ops.StringOps(text).split((c: C) => c === '\n')) {
-      if (ops.StringOps(line).startsWith("{  \"type\" : \"Project\"")) {
+      var first = 0
+      var last = line.size - 1
+      val lineCis = conversions.String.toCis(line)
+      while (first < line.size && lineCis(first) != '{') {
+        first = first + 1
+      }
+      while (last >= 0 && lineCis(last) != '}') {
+        last = last - 1
+      }
+      val slicedLine: String =
+        if (first == 0 && last == line.size) line
+        else conversions.String.fromCis(ops.ISZOps(lineCis).slice(first, last + 1))
+      if (ops.StringOps(slicedLine).startsWith(prefix)) {
         return Some(line)
       }
     }
