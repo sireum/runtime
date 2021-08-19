@@ -2508,6 +2508,8 @@ import org.sireum.Z64._
 
   @pure def toCis(s: String): IS[Z, C] = $
 
+  @pure def toCStream(s: String): Jen[C] = $
+
   @pure def toCms(s: String): MS[Z, C] = $
 
   @pure def toU8is(s: String): IS[Z, U8] = $

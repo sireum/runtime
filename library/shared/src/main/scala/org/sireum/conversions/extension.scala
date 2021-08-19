@@ -2163,6 +2163,28 @@ object String_Ext {
     toCms(s).toIS
   }
 
+  @pure def toCStream(s: String): Jen[C] =
+    new Jen[C] {
+      override def generate(f: C => Jen.Action): Jen.Action = {
+        var i = 0
+        val ps = s.value
+        var last = Jen.Continue
+        val len = ps.codePointCount(0, ps.length)
+        while (i < len) {
+          val e = ps.codePointAt(i)
+          last = f(C(e))
+          if (!last) {
+            return Jen.End
+          }
+          i = i + 1
+        }
+        return last
+      }
+      override def string: String = {
+        return s"Jen($s)"
+      }
+    }
+
   @pure def toCms(s: String): MS[Z, C] = {
     val str = s.value
     val n = str.codePointCount(0, str.length)
