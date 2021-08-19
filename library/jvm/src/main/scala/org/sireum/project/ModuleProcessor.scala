@@ -28,7 +28,7 @@ package org.sireum.project
 
 import org.sireum._
 
-@sig trait ModuleProcessor[T] {
+@msig trait ModuleProcessor[I, M] {
   @pure def root: Os.Path
 
   @pure def module: Module
@@ -45,11 +45,12 @@ import org.sireum._
 
   @pure def fileFilter(file: Os.Path): B
 
-  def process(o: T,
+  def process(imm: I,
+              mut: M,
               shouldProcess: B,
               dm: DependencyManager,
               sourceFiles: ISZ[Os.Path],
-              testSourceFiles: ISZ[Os.Path]): (T, B)
+              testSourceFiles: ISZ[Os.Path]): (I, B)
 
   def findSources(path: Os.Path): ISZ[Os.Path] = {
     return if (path.exists) for (p <- Os.Path.walk(path, F, followSymLink, fileFilter _)) yield p else ISZ()
@@ -65,7 +66,7 @@ import org.sireum._
     }
   }
 
-  def run(o: T, dm: DependencyManager): T = {
+  def run(imm: I, mut: M, dm: DependencyManager): I = {
     var sourceFiles = ISZ[Os.Path]()
     var testSourceFiles = ISZ[Os.Path]()
     for (source <- ProjectUtil.moduleSources(module)) {
@@ -93,7 +94,7 @@ import org.sireum._
       fingerprintCache.removeAll()
     }
 
-    val (r, save) = process(o, shouldProcess, dm, sourceFiles, testSourceFiles)
+    val (r, save) = process(imm, mut, shouldProcess, dm, sourceFiles, testSourceFiles)
     if (save) {
       fingerprintCache.writeOver(Json.Printer.printHashMap(F, fingerprintMap, Json.Printer.printString _,
         Json.Printer.printString _).render)
