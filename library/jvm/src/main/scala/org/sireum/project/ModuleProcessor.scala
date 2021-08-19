@@ -43,7 +43,7 @@ import org.sireum._
 
   @pure def outDir: Os.Path
 
-  @pure def fileFilter(file: Os.Path): B
+  @pure def fileFilter(imm: I, file: Os.Path): B
 
   def process(imm: I,
               mut: M,
@@ -52,8 +52,9 @@ import org.sireum._
               sourceFiles: ISZ[Os.Path],
               testSourceFiles: ISZ[Os.Path]): (I, B)
 
-  def findSources(path: Os.Path): ISZ[Os.Path] = {
-    return if (path.exists) for (p <- Os.Path.walk(path, F, followSymLink, fileFilter _)) yield p else ISZ()
+  def findSources(imm: I, path: Os.Path): ISZ[Os.Path] = {
+    val filter = (f: Os.Path) => fileFilter(imm, f)
+    return if (path.exists) for (p <- Os.Path.walk(path, F, followSymLink, filter)) yield p else ISZ()
   }
 
   @pure def fingerprint(p: Os.Path): String = {
@@ -70,10 +71,10 @@ import org.sireum._
     var sourceFiles = ISZ[Os.Path]()
     var testSourceFiles = ISZ[Os.Path]()
     for (source <- ProjectUtil.moduleSources(module)) {
-      sourceFiles = sourceFiles ++ findSources(source)
+      sourceFiles = sourceFiles ++ findSources(imm, source)
     }
     for (testSource <- ProjectUtil.moduleTestSources(module)) {
-      testSourceFiles = testSourceFiles ++ findSources(testSource)
+      testSourceFiles = testSourceFiles ++ findSources(imm, testSource)
     }
 
     val fingerprintMap = HashMap.empty[String, String] ++ (
