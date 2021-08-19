@@ -63,7 +63,7 @@ import org.sireum._
       sha.update(p.readU8s)
       return st"${sha.finalise()}".render
     } else {
-      return s"${p.lastModified}}"
+      return s"${p.lastModified}"
     }
   }
 
