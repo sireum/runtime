@@ -133,30 +133,35 @@ import DependencyManager._
     r
   }
 
-  val libMap: HashSMap[String, Lib] = {
-    var r = HashSMap.empty[String, Lib]
-    for (cif <- fetchClassifiers(ivyDeps.values, buildClassifiers(withSource, withDoc))) {
-      val name = libName(cif)
-      val p = cif.path
-      val pNameOps = ops.StringOps(p.string)
-      if (!ignoredLibraryNames.contains(name)) {
-        var lib: Lib = r.get(name) match {
-          case Some(l) => l
-          case _ => Lib(name, cif.org, cif.module, cif.version, "", None(), None())
+  var _libMap: HashSMap[String, Lib] = HashSMap.empty
+
+  def libMap: HashSMap[String, Lib] = {
+    if (_libMap.isEmpty) {
+      var r = HashSMap.empty[String, Lib]
+      for (cif <- fetchClassifiers(ivyDeps.values, buildClassifiers(withSource, withDoc))) {
+        val name = libName(cif)
+        val p = cif.path
+        val pNameOps = ops.StringOps(p.string)
+        if (!ignoredLibraryNames.contains(name)) {
+          var lib: Lib = r.get(name) match {
+            case Some(l) => l
+            case _ => Lib(name, cif.org, cif.module, cif.version, "", None(), None())
+          }
+          if (pNameOps.endsWith(sourceJarSuffix)) {
+            lib = lib(sourcesOpt = Some(p.string))
+          } else if (pNameOps.endsWith(docJarSuffix)) {
+            lib = lib(javadocOpt = Some(p.string))
+          } else if (pNameOps.endsWith(jarSuffix)) {
+            lib = lib(main = p.string)
+          } else {
+            halt(s"Expecting a file with .jar extension but found '$p'")
+          }
+          r = r + name ~> lib
         }
-        if (pNameOps.endsWith(sourceJarSuffix)) {
-          lib = lib(sourcesOpt = Some(p.string))
-        } else if (pNameOps.endsWith(docJarSuffix)) {
-          lib = lib(javadocOpt = Some(p.string))
-        } else if (pNameOps.endsWith(jarSuffix)) {
-          lib = lib(main = p.string)
-        } else {
-          halt(s"Expecting a file with .jar extension but found '$p'")
-        }
-        r = r + name ~> lib
       }
+      _libMap = r
     }
-    r
+    return _libMap
   }
 
   var tLibMap: HashMap[String, ISZ[Lib]] = HashMap.empty
