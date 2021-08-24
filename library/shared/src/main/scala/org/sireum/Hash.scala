@@ -46,7 +46,7 @@ object Hash {
 
     var i: Z = 0
     if (dataSize > 3) {
-      do {
+      while (dataSize - i >= 4) {
         val d =
           conversions.U8.toU32(data(i)) |
             (conversions.U8.toU32(data(i + 1)) << u32"8") |
@@ -56,7 +56,7 @@ object Hash {
         h = process(d, h)
         h = (h << u32"13") | (h >> u32"19")
         h = (h * u32"5") + u32"0xE6546B64"
-      } while (dataSize - i >= 4)
+      }
     }
 
     dataSize - i match {
@@ -157,7 +157,7 @@ object Hash {
       var c = ~a
       var d = rot(b, u32"5")
 
-      do {
+      while (dataSize - i >= 16) {
         val w0 = fetch(i)
         val w1 = fetch(i + 4)
         val w2 = fetch(i + 8)
@@ -170,7 +170,7 @@ object Hash {
         b = prime1 * (c02 + w3)
         a = prime0 * (d13 |^ w2)
         i = i + 16
-      } while (dataSize - i >= 16)
+      }
 
       c = c + a
       d = d + b
@@ -393,7 +393,7 @@ object Hash {
         var c = rot(dataSize64, u64"17") + seed
         var d = dataSize64 |^ rot(seed, u64"17")
 
-        do {
+        while (dataSize - i >= 32) {
           val w0 = fetch(i)
           val w1 = fetch(i + 8)
           val w2 = fetch(i + 16)
@@ -406,7 +406,7 @@ object Hash {
           a = a |^ (prime1 * (d02 + w3))
           b = b |^ (prime0 * (c13 + w2))
           i = i + 32
-        } while (dataSize - i >= 32)
+        }
 
         a = a |^ (prime6 * (rot(c, u64"17") + d))
         b = b |^ (prime5 * (c + rot(d, u64"17")))
@@ -453,7 +453,7 @@ object Hash {
         var c: U64 = rot(dataSize64, u64"23") + ~seed
         var d: U64 = ~dataSize64 + rot(seed, u64"19")
 
-        do {
+        while (dataSize - i >= 32) {
           val w0 = fetch(i + 0)
           val w1 = fetch(i + 8)
           val w2 = fetch(i + 16)
@@ -466,7 +466,7 @@ object Hash {
           b = b |^ (prime6 * (c13 + w2))
           a = a |^ (prime5 * (d02 + w3))
           i = i + 32
-        } while (dataSize - i >= 32)
+        }
 
         a = a |^ (prime6 * (c + rot(d, u64"23")))
         b = b |^ (prime5 * (rot(c, u64"19") + d))
