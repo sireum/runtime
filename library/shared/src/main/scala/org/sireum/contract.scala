@@ -364,6 +364,15 @@ trait contract {
       return T
     }
 
+    def apply(seq: scala.collection.immutable.Range)(p: Z => Boolean): B = {
+      for (e <- seq) {
+        if (!p(e)) {
+          return F
+        }
+      }
+      return T
+    }
+
     def apply[I, T](seq: IS[I, T])(p: T => Boolean): B = {
       for (e <- seq) {
         if (!p(e)) {
@@ -863,6 +872,15 @@ trait contract {
     def apply[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](p: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Boolean): B = halt("This form of Exists is not executable")
 
     def apply[I](seq: ZRange[I])(p: I => Boolean): B = {
+      for (e <- seq) {
+        if (p(e)) {
+          return T
+        }
+      }
+      return F
+    }
+
+    def apply(seq: scala.collection.immutable.Range)(p: Z => Boolean): B = {
       for (e <- seq) {
         if (p(e)) {
           return T
