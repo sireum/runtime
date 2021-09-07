@@ -35,7 +35,7 @@ object ISOps_Ext {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val t = Thread.currentThread
-    val cores = if (numOfCores < 2) 2 else numOfCores.toInt
+    val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
     val irs =
       if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(cores, ies, { p: (Int, V) =>
         if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
@@ -45,12 +45,6 @@ object ISOps_Ext {
     irs.foreach { p => a(p._1) = p._2 }
     IS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
-
-  def mParMapFoldLeft[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z = Runtime.getRuntime.availableProcessors): R =
-    mParMap(s, f, numOfCores).elements.foldLeft(init)((r, u) => if (u == null) r else g(r, u))
-
-  def mParMapFoldRight[I, V, U, R](s: IS[I, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z = Runtime.getRuntime.availableProcessors): R =
-    mParMap(s, f, numOfCores).elements.foldRight(init)((u, r) => if (u == null) r else g(r, u))
 
   @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
@@ -73,30 +67,6 @@ object ISZOpsUtil_Ext {
 
   def parMapCores[V, U](s: IS[Z, V], f: V => U, numOfCores: Z): IS[Z, U] = ISOps_Ext.mParMap(s, f, numOfCores)
 
-  def mParMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    ISOps_Ext.mParMapFoldLeft(s, f, g, init)
-
-  def parMapFoldLeft[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    ISOps_Ext.mParMapFoldLeft(s, f, g, init)
-
-  def mParMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    ISOps_Ext.mParMapFoldRight(s, f, g, init)
-
-  def parMapFoldRight[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    ISOps_Ext.mParMapFoldRight(s, f, g, init)
-
-  def mParMapFoldLeftCores[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    ISOps_Ext.mParMapFoldLeft(s, f, g, init, numOfCores)
-
-  def parMapFoldLeftCores[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    ISOps_Ext.mParMapFoldLeft(s, f, g, init, numOfCores)
-
-  def mParMapFoldRightCores[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    ISOps_Ext.mParMapFoldRight(s, f, g, init, numOfCores)
-
-  def parMapFoldRightCores[V, U, R](s: IS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    ISOps_Ext.mParMapFoldRight(s, f, g, init, numOfCores)
-
   @pure def sortWith[V](s: IS[Z, V], lt: (V, V) => B): IS[Z, V] = ISOps_Ext.sortWith(s, lt)
 }
 
@@ -105,7 +75,7 @@ object MSOps_Ext {
   def mParMap[I, V, U](s: MS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): MS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
-    val cores = if (numOfCores < 2) 2 else numOfCores.toInt
+    val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
     val irs =
       if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(cores, ies, { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
@@ -113,11 +83,6 @@ object MSOps_Ext {
     irs.foreach { p => a(p._1) = p._2 }
     MS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
-  def mParMapFoldLeft[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z = Runtime.getRuntime.availableProcessors): R =
-    mParMap(s, f, numOfCores).elements.foldLeft(init)((r, u) => g(r, u))
-
-  def mParMapFoldRight[I, V, U, R](s: MS[I, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z = Runtime.getRuntime.availableProcessors): R =
-    mParMap(s, f, numOfCores).elements.foldRight(init)((u, r) => if (u == null) r else g(r, u))
 
   @pure def sortWith[I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
@@ -139,30 +104,6 @@ object MSZOpsUtil_Ext {
   def mParMapCores[V, U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = MSOps_Ext.mParMap(s, f, numOfCores)
 
   def parMapCores[V, U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = MSOps_Ext.mParMap(s, f, numOfCores)
-
-  def mParMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    MSOps_Ext.mParMapFoldLeft(s, f, g, init)
-
-  def parMapFoldLeft[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    MSOps_Ext.mParMapFoldLeft(s, f, g, init)
-
-  def mParMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    MSOps_Ext.mParMapFoldRight(s, f, g, init)
-
-  def parMapFoldRight[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R): R =
-    MSOps_Ext.mParMapFoldRight(s, f, g, init)
-
-  def mParMapFoldLeftCores[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    MSOps_Ext.mParMapFoldLeft(s, f, g, init, numOfCores)
-
-  def parMapFoldLeftCores[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    MSOps_Ext.mParMapFoldLeft(s, f, g, init, numOfCores)
-
-  def mParMapFoldRightCores[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    MSOps_Ext.mParMapFoldRight(s, f, g, init, numOfCores)
-
-  def parMapFoldRightCores[V, U, R](s: MS[Z, V], f: V => U, g: (R, U) => R, init: R, numOfCores: Z): R =
-    MSOps_Ext.mParMapFoldRight(s, f, g, init, numOfCores)
 
   @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B): MS[Z, V] = MSOps_Ext.sortWith(s, lt)
 }
