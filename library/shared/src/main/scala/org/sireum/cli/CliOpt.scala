@@ -84,6 +84,8 @@ object CliOpt {
 
     @datatype class Num(val sep: Option[C], val default: Z, val min: Option[Z], val max: Option[Z]) extends Type
 
+    @datatype class NumFlag(val default: Z, val min: Option[Z], val max: Option[Z]) extends Type
+
     @datatype class NumChoice(val sep: Option[C], val choices: ISZ[Z]) extends Type
 
     @datatype class Str(val sep: Option[C], val default: Option[String]) extends Type

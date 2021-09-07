@@ -92,6 +92,7 @@ object JSON {
       o match {
         case o: CliOpt.Type.Flag => return printCliOptTypeFlag(o)
         case o: CliOpt.Type.Num => return printCliOptTypeNum(o)
+        case o: CliOpt.Type.NumFlag => return printCliOptTypeNumFlag(o)
         case o: CliOpt.Type.NumChoice => return printCliOptTypeNumChoice(o)
         case o: CliOpt.Type.Str => return printCliOptTypeStr(o)
         case o: CliOpt.Type.Choice => return printCliOptTypeChoice(o)
@@ -110,6 +111,15 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""CliOpt.Type.Num""""),
         ("sep", printOption(T, o.sep, printC _)),
+        ("default", printZ(o.default)),
+        ("min", printOption(T, o.min, printZ _)),
+        ("max", printOption(T, o.max, printZ _))
+      ))
+    }
+
+    @pure def printCliOptTypeNumFlag(o: CliOpt.Type.NumFlag): ST = {
+      return printObject(ISZ(
+        ("type", st""""CliOpt.Type.NumFlag""""),
         ("default", printZ(o.default)),
         ("min", printOption(T, o.min, printZ _)),
         ("max", printOption(T, o.max, printZ _))
@@ -276,10 +286,11 @@ object JSON {
     }
 
     def parseCliOptType(): CliOpt.Type = {
-      val t = parser.parseObjectTypes(ISZ("CliOpt.Type.Flag", "CliOpt.Type.Num", "CliOpt.Type.NumChoice", "CliOpt.Type.Str", "CliOpt.Type.Choice", "CliOpt.Type.Path"))
+      val t = parser.parseObjectTypes(ISZ("CliOpt.Type.Flag", "CliOpt.Type.Num", "CliOpt.Type.NumFlag", "CliOpt.Type.NumChoice", "CliOpt.Type.Str", "CliOpt.Type.Choice", "CliOpt.Type.Path"))
       t.native match {
         case "CliOpt.Type.Flag" => val r = parseCliOptTypeFlagT(T); return r
         case "CliOpt.Type.Num" => val r = parseCliOptTypeNumT(T); return r
+        case "CliOpt.Type.NumFlag" => val r = parseCliOptTypeNumFlagT(T); return r
         case "CliOpt.Type.NumChoice" => val r = parseCliOptTypeNumChoiceT(T); return r
         case "CliOpt.Type.Str" => val r = parseCliOptTypeStrT(T); return r
         case "CliOpt.Type.Choice" => val r = parseCliOptTypeChoiceT(T); return r
@@ -325,6 +336,27 @@ object JSON {
       val max = parser.parseOption(parser.parseZ _)
       parser.parseObjectNext()
       return CliOpt.Type.Num(sep, default, min, max)
+    }
+
+    def parseCliOptTypeNumFlag(): CliOpt.Type.NumFlag = {
+      val r = parseCliOptTypeNumFlagT(F)
+      return r
+    }
+
+    def parseCliOptTypeNumFlagT(typeParsed: B): CliOpt.Type.NumFlag = {
+      if (!typeParsed) {
+        parser.parseObjectType("CliOpt.Type.NumFlag")
+      }
+      parser.parseObjectKey("default")
+      val default = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("min")
+      val min = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      parser.parseObjectKey("max")
+      val max = parser.parseOption(parser.parseZ _)
+      parser.parseObjectNext()
+      return CliOpt.Type.NumFlag(default, min, max)
     }
 
     def parseCliOptTypeNumChoice(): CliOpt.Type.NumChoice = {
@@ -560,6 +592,24 @@ object JSON {
       return r
     }
     val r = to(s, fCliOptTypeNum _)
+    return r
+  }
+
+  def fromCliOptTypeNumFlag(o: CliOpt.Type.NumFlag, isCompact: B): String = {
+    val st = Printer.printCliOptTypeNumFlag(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toCliOptTypeNumFlag(s: String): Either[CliOpt.Type.NumFlag, Json.ErrorMsg] = {
+    def fCliOptTypeNumFlag(parser: Parser): CliOpt.Type.NumFlag = {
+      val r = parser.parseCliOptTypeNumFlag()
+      return r
+    }
+    val r = to(s, fCliOptTypeNumFlag _)
     return r
   }
 
