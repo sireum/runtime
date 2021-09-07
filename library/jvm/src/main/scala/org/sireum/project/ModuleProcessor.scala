@@ -35,7 +35,7 @@ import org.sireum._
 
   @pure def force: B
 
-  @pure def par: B
+  @pure def par: Z
 
   @pure def sha3: B
 
@@ -78,8 +78,8 @@ import org.sireum._
     }
 
     val fingerprintMap = HashMap.empty[String, String] ++ (
-      if (par && sha3) ops.ISZOps(sourceFiles ++ testSourceFiles).
-        mParMap((p: Os.Path) => (root.relativize(p).string, fingerprint(p)))
+      if (par > 1 && sha3) ops.ISZOps(sourceFiles ++ testSourceFiles).
+        mParMapCores((p: Os.Path) => (root.relativize(p).string, fingerprint(p)), par)
       else for (p <- sourceFiles ++ testSourceFiles) yield (root.relativize(p).string, fingerprint(p))
       )
 
