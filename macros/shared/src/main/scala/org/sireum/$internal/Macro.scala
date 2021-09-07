@@ -30,7 +30,7 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
-  def parMap[T, U](arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
+  def parMap[T, U](cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
@@ -208,9 +208,15 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     r
   }
 
-  def parMapImpl(arg: c.Tree, f: c.Tree): c.Tree =
+  def parMapImpl(cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).toIndexedSeq"
-    else q"$arg.par.map($f).toIndexedSeq"
+    else
+      q"""{
+  val pool = new _root_.java.util.concurrent.ForkJoinPool($cores);
+  val pc = $arg.par
+  pc.tasksupport = new _root_.scala.collection.parallel.ForkJoinTaskSupport(pool)
+  pc.map($f).toIndexedSeq
+}"""
 
   def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
 

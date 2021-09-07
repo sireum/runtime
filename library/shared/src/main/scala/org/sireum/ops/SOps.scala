@@ -146,6 +146,10 @@ import org.sireum._
 
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = $
 
+  @pure def parMapCores[V, U](s: IS[Z, V], f: V => U @pure, numOfCores: Z): IS[Z, U] = $
+
+  def mParMapCores[V, U](s: IS[Z, V], f: V => U, numOfCores: Z): IS[Z, U] = $
+
   @pure def parMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
 
   def mParMapFoldLeft[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
@@ -153,6 +157,14 @@ import org.sireum._
   @pure def parMapFoldRight[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R): R = $
 
   def mParMapFoldRight[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R): R = $
+
+  @pure def parMapFoldLeftCores[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = $
+
+  def mParMapFoldLeftCores[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = $
+
+  @pure def parMapFoldRightCores[T, U, R](s: IS[Z, T], f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = $
+
+  def mParMapFoldRightCores[T, U, R](s: IS[Z, T], f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = $
 
   @pure def sortWith[T](s: IS[Z, T], lt: (T, T) => B @pure): IS[Z, T] = $
 
