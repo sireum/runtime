@@ -60,30 +60,37 @@ object Asm_Ext {
 
   }
 
+  def rewriteSetSecurityManager(path: Os.Path): Unit = {
+
+    def process(p: Path): Unit = {
+      if (!Files.exists(p)) {
+        return
+      }
+      if (Files.isDirectory(p)) {
+        Files.list(p).forEach(process)
+      } else if (p.toUri.toASCIIString.endsWith(".class")) {
+        val is = Files.newInputStream(p)
+        val cr = new ClassReader(is)
+        val cw = new ClassWriter(0)
+        val cv = new SecurityManager.CVisitor(cw)
+        cr.accept(cv, 0)
+        is.close()
+        Files.write(p, cw.toByteArray)
+      }
+    }
+
+    if (path.isDir) {
+      process(Paths.get(path.value.value))
+    } else {
+      val fs = FileSystems.newFileSystem(Paths.get(path.value.value), null.asInstanceOf[ClassLoader])
+      fs.getRootDirectories.forEach(process)
+      fs.close()
+    }
+  }
+
   object ReleaseFence {
 
-    class MVisitor(visitor: MethodVisitor) extends MethodVisitor(api) {
-
-      override def visitParameter(name: Predef.String, access: Int): Unit =
-        visitor.visitParameter(name, access)
-
-      override def visitAnnotationDefault(): AnnotationVisitor =
-        visitor.visitAnnotationDefault()
-
-      override def visitAnnotation(descriptor: Predef.String, visible: Boolean): AnnotationVisitor =
-        visitor.visitAnnotation(descriptor, visible)
-
-      override def visitAnnotableParameterCount(parameterCount: Int, visible: Boolean): Unit =
-        visitor.visitAnnotableParameterCount(parameterCount, visible)
-
-      override def visitParameterAnnotation(parameter: Int, descriptor: Predef.String, visible: Boolean): AnnotationVisitor =
-        visitor.visitParameterAnnotation(parameter, descriptor, visible)
-
-      override def visitTypeAnnotation(typeRef: Int, typePath: TypePath, descriptor: Predef.String, visible: Boolean): AnnotationVisitor =
-        visitor.visitTypeAnnotation(typeRef, typePath, descriptor, visible)
-
-      override def visitAttribute(attribute: Attribute): Unit =
-        visitor.visitAttribute(attribute)
+    class MVisitor(visitor: MethodVisitor) extends MethodVisitor(api, visitor) {
 
       override def visitCode(): Unit = {
         visitor.visitCode()
@@ -92,9 +99,6 @@ object Asm_Ext {
         visitor.visitInsn(Opcodes.RETURN)
       }
 
-      override def visitEnd(): Unit = {
-        visitor.visitEnd()
-      }
     }
 
     class CVisitor(cw: ClassWriter) extends ClassVisitor(api, cw) {
@@ -105,5 +109,26 @@ object Asm_Ext {
       }
     }
 
+  }
+
+  object SecurityManager {
+
+    class MVisitor(visitor: MethodVisitor) extends MethodVisitor(api, visitor) {
+      override def visitMethodInsn(opcode: Int, owner: Predef.String, name: Predef.String, descriptor: Predef.String, isInterface: Boolean): Unit = {
+        if (opcode == Opcodes.INVOKESTATIC && owner == "java/lang/System" && name == "setSecurityManager") {
+          visitor.visitInsn(Opcodes.POP)
+        } else {
+          visitor.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+        }
+      }
+    }
+
+    class CVisitor(cw: ClassWriter) extends ClassVisitor(api, cw) {
+      override def visitMethod(access: Int, name: Predef.String, descriptor: Predef.String, signature: Predef.String,
+                               exceptions: Array[Predef.String]): MethodVisitor = {
+        val visitor = super.visitMethod(access, name, descriptor, signature, exceptions)
+        return new MVisitor(visitor)
+      }
+    }
   }
 }

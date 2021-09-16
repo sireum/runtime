@@ -27,4 +27,5 @@ package org.sireum
 
 @ext object Asm {
   def rewriteReleaseFence(jar: Os.Path): Unit = $
+  def rewriteSetSecurityManager(path: Os.Path): Unit = $
 }
