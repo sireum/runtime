@@ -81,7 +81,29 @@ import DependencyManager._
 
   val sireumJar: Os.Path = sireumHome / "bin" / "sireum.jar"
 
-  val scalacPlugin: Os.Path = sireumHome / "lib" / s"scalac-plugin-${versions.get(scalacPluginKey).get}.jar"
+  val _scalacPlugin: Os.Path = sireumHome / "lib" / s"scalac-plugin-${versions.get(scalacPluginKey).get}.jar"
+
+  def scalacPlugin: Os.Path = {
+    if (_scalacPlugin.exists) {
+      return _scalacPlugin
+    }
+    val version = versions.get(scalacPluginKey).get
+    val url = s"https://github.com/sireum/scalac-plugin/releases/download/$version/scalac-plugin-$version.jar"
+    val cacheDir: Os.Path = Os.env("SIREUM_CACHE") match {
+      case Some(v) => Os.path(v)
+      case _ => Os.home / "Downloads" / "sireum"
+    }
+    cacheDir.mkdirAll()
+    _scalacPlugin.up.mkdirAll()
+    val pluginCache = cacheDir / _scalacPlugin.name
+    if (!pluginCache.exists) {
+      println(s"Please wait while downloading Slang scalac plugin $version ...")
+      pluginCache.downloadFrom(url)
+      println()
+    }
+    pluginCache.copyOverTo(_scalacPlugin)
+    return _scalacPlugin
+  }
 
   val javaVersion: String = versions.get(DependencyManager.javaKey) match {
     case Some(v) => v
