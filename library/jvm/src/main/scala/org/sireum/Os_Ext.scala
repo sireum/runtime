@@ -313,8 +313,13 @@ object Os_Ext {
     }
   }
 
-  def relativize(path: String, other: String): String =
-    toIO(path).getCanonicalFile.toPath.relativize(toIO(other).getCanonicalFile.toPath).toString
+  def relativize(path: String, other: String): String = {
+    val p = toIO(path).getCanonicalFile
+    val o = toIO(other).getCanonicalFile
+    try p.toPath.relativize(o.toPath).toString catch {
+      case _: IllegalArgumentException => o.getCanonicalPath
+    }
+  }
 
   def read(path: String): String = new Predef.String(JFiles.readAllBytes(toNIO(path)), SC.UTF_8)
 
