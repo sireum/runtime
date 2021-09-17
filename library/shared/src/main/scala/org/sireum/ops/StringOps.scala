@@ -396,4 +396,39 @@ object StringOps {
   @pure def replaceStrings(offsetOldNewStringMap: HashMap[Z, (String, String)]): Either[String, String] = {
     return StringOps.replace(conversions.String.toCis(s), offsetOldNewStringMap)
   }
+
+  @pure def compareVersion(other: String): Z = {
+    @pure def removePrefix(str: String): String = {
+      val cis = conversions.String.toCis(str)
+      var i = 0
+      while (i < cis.size) {
+        val c = cis(i)
+        if (c === '_' || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c === '$') {
+          i = i + 1
+        } else {
+          return ops.StringOps(str).substring(i, str.size)
+        }
+      }
+      return ""
+    }
+    val v1Ops = ops.StringOps(removePrefix(s))
+    val v2Ops = ops.StringOps(removePrefix(other))
+    val p = (c: C) => c === '.'
+    val v1s = v1Ops.split(p)
+    val v2s = v2Ops.split(p)
+    val size: Z = if (v1s.size <= v2s.size) v1s.size else v2s.size
+    for (i <- 0 until size) {
+      (Z(v1s(i)), Z(v2s(i))) match {
+        case (Some(v1), Some(v2)) =>
+          if (v1 < v2) {
+            return -1
+          } else if (v1 > v2) {
+            return 1
+          }
+        case (_, _) =>
+          return 0
+      }
+    }
+    return 0
+  }
 }
