@@ -27,6 +27,7 @@
 package org.sireum.project
 
 import org.sireum._
+import org.sireum.message.Reporter
 
 @msig trait ModuleProcessor[I, M] {
   @pure def root: Os.Path
@@ -50,7 +51,8 @@ import org.sireum._
               shouldProcess: B,
               dm: DependencyManager,
               sourceFiles: ISZ[Os.Path],
-              testSourceFiles: ISZ[Os.Path]): (I, B)
+              testSourceFiles: ISZ[Os.Path],
+              reporter: Reporter): (I, B)
 
   def findSources(imm: I, path: Os.Path): ISZ[Os.Path] = {
     val filter = (f: Os.Path) => fileFilter(imm, f)
@@ -67,7 +69,7 @@ import org.sireum._
     }
   }
 
-  def run(imm: I, mut: M, dm: DependencyManager): I = {
+  def run(imm: I, mut: M, dm: DependencyManager, reporter: Reporter): I = {
     var sourceFiles = ISZ[Os.Path]()
     var testSourceFiles = ISZ[Os.Path]()
     for (source <- ProjectUtil.moduleSources(module)) {
@@ -95,7 +97,7 @@ import org.sireum._
       fingerprintCache.removeAll()
     }
 
-    val (r, save) = process(imm, mut, shouldProcess, dm, sourceFiles, testSourceFiles)
+    val (r, save) = process(imm, mut, shouldProcess, dm, sourceFiles, testSourceFiles, reporter)
     if (save) {
       fingerprintCache.writeOver(Json.Printer.printHashMap(F, fingerprintMap, Json.Printer.printString _,
         Json.Printer.printString _).render)
