@@ -30,6 +30,7 @@ import org.sireum.$internal.CollectionCompat.ParConverters._
 
 object ISOps_Ext {
   val MinimumParallelThreshold: Int = 2
+  val poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef] = new _root_.java.util.concurrent.atomic.AtomicReference(null)
 
   def mParMap[I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
     val elements = s.elements
@@ -37,7 +38,7 @@ object ISOps_Ext {
     val t = Thread.currentThread
     val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
     val irs =
-      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(cores, ies, { p: (Int, V) =>
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(poolRef, cores, ies, { p: (Int, V) =>
         if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
       }) else ies.map { p => (p._1, f(p._2))}
     if (Thread.interrupted()) throw new InterruptedException
@@ -77,7 +78,8 @@ object MSOps_Ext {
     val ies = elements.indices.zip(elements)
     val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
     val irs =
-      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(cores, ies, { p: (Int, V) => (p._1, f(p._2)) })
+      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ISOps_Ext.poolRef, cores, ies,
+        { p: (Int, V) => (p._1, f(p._2)) })
       else ies.map { p => (p._1, f(p._2))}
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }

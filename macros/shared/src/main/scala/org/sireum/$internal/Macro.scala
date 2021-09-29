@@ -30,7 +30,8 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
-  def parMap[T, U](cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
+  def parMap[T, U](poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef],
+                   cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
@@ -208,14 +209,18 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     r
   }
 
-  def parMapImpl(cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
+  def parMapImpl(poolRef: c.Tree, cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).toIndexedSeq"
     else
       q"""{
-  val pool = new _root_.java.util.concurrent.ForkJoinPool($cores);
-  val pc = $arg.par
-  pc.tasksupport = new _root_.scala.collection.parallel.ForkJoinTaskSupport(pool)
-  pc.map($f).toIndexedSeq
+  val newPool = new _root_.java.util.concurrent.ForkJoinPool($cores)
+  val success = $poolRef.compareAndSet(null, newPool)
+  if (!success) newPool.shutdown()
+  val pc = _root_.scala.collection.parallel.mutable.ParArray($arg: _*)
+  pc.tasksupport = new _root_.scala.collection.parallel.ForkJoinTaskSupport($poolRef.get.asInstanceOf[_root_.java.util.concurrent.ForkJoinPool])
+  val r = pc.map($f).toIndexedSeq
+  if (success) $poolRef.getAndSet(null).asInstanceOf[_root_.java.util.concurrent.ForkJoinPool].shutdown()
+  r
 }"""
 
   def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
