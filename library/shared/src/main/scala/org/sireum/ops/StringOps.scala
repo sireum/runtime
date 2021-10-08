@@ -390,7 +390,7 @@ object StringOps {
   }
 
   @pure def escapeST: ST = {
-    return st"""${(conversions.String.toCis(s), "")}"""
+    return st"""${(for (c <- conversions.String.toCis(s)) yield ops.COps(c).escapeString, "")}"""
   }
 
   @pure def replaceStrings(offsetOldNewStringMap: HashMap[Z, (String, String)]): Either[String, String] = {
