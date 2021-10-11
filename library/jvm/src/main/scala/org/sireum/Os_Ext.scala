@@ -586,7 +586,7 @@ object Os_Ext {
     val f = toIO(path)
     if (f.exists && mode == Os.Path.WriteMode.Regular)
       throw new FileAlreadyExistsException(s"$path already exists")
-    mkdir(f.getParentFile.getCanonicalPath, T)
+    mkdir(f.getCanonicalFile.getParent, T)
     if (mode == Os.Path.WriteMode.Append) true
     else {
       removeAll(path)
@@ -916,7 +916,7 @@ object Os_Ext {
         try {
           nuProcess()
         } catch {
-          case _: UnsatisfiedLinkError | _: NumberFormatException | _: ExceptionInInitializerError =>
+          case _: UnsatisfiedLinkError | _: NumberFormatException | _: ExceptionInInitializerError | _: NoSuchMethodError =>
             isNative = T
             standardLib()
         }
