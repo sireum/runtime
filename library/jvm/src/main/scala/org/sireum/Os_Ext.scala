@@ -208,10 +208,6 @@ object Os_Ext {
 
   def length(path: String): Z = toIO(path).length
 
-  @pure def lines(path: String, count: Z): ISZ[String] =
-    if (count <= 0) ISZ(JFiles.lines(toNIO(path), SC.UTF_8).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
-    else ISZ(JFiles.lines(toNIO(path), SC.UTF_8).limit(count.toLong).toArray.toIndexedSeq.map(s => String(s.toString)): _*)
-
   def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).toIndexedSeq.map(String(_)): _*)
 
   def mergeFrom(path: String, sources: ISZ[String]): Unit = {
@@ -343,12 +339,14 @@ object Os_Ext {
       override def generate(f: String => Jen.Action): Jen.Action = {
         val stream = JFiles.lines(toNIO(p), SC.UTF_8)
         var last = Jen.Continue
-        for (e <- stream.iterator.asScala) {
-          last = f(e)
-          if (!last) {
-            return Jen.End
+        try {
+          for (e <- stream.iterator.asScala) {
+            last = f(e)
+            if (!last) {
+              return Jen.End
+            }
           }
-        }
+        } finally stream.close()
         return last
       }
     }
@@ -413,12 +411,14 @@ object Os_Ext {
       override def generate(f: String => Jen.Action): Jen.Action = {
         val stream = JFiles.lines(toNIO(p), SC.UTF_8)
         var last = Jen.Continue
-        for (e <- stream.iterator.asScala) {
-          last = f(e)
-          if (!last) {
-            return Jen.End
+        try {
+          for (e <- stream.iterator.asScala) {
+            last = f(e)
+            if (!last) {
+              return Jen.End
+            }
           }
-        }
+        } finally stream.close()
         return last
       }
     }
