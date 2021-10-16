@@ -561,9 +561,9 @@ object Json {
         ISZ(
           ("type", printString("Message")),
           ("level", printZ(o.level.ordinal)),
+          ("message", printString(o.text)),
           ("posOpt", printOption(F, o.posOpt, printPosition _)),
-          ("kind", printString(o.kind)),
-          ("message", printString(o.text))
+          ("kind", printString(o.kind))
         )
       )
     }
@@ -1820,14 +1820,14 @@ object Json {
       parseObjectKey("level")
       val level = message.Level.byOrdinal(parseZ()).getOrElse(message.Level.InternalError)
       parseObjectNext()
+      parseObjectKey("message")
+      val msg = parseString()
+      parseObjectNext()
       parseObjectKey("posOpt")
       val posOpt = parseOption(parsePosition _)
       parseObjectNext()
       parseObjectKey("kind")
       val kind = parseString()
-      parseObjectNext()
-      parseObjectKey("message")
-      val msg = parseString()
       parseObjectNext()
       return message.Message(level, posOpt, kind, msg)
     }
