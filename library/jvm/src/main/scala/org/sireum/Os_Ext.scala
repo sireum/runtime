@@ -938,6 +938,8 @@ object Os_Ext {
     r
   }
 
+  def size(path: String): Z = toIO(path).length
+
   private def digest(path: String, name: String): String = {
     val md = java.security.MessageDigest.getInstance(name.value)
     val digest = md.digest(readU8s(path).elements.map(_.value).toArray)

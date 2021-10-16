@@ -75,6 +75,10 @@ object Os {
     return Ext.pathSep
   }
 
+  @pure def lineSep: String = {
+    return Ext.lineSep
+  }
+
   @pure def pathSepChar: C = {
     return Ext.pathSepChar
   }
@@ -576,6 +580,10 @@ object Os {
       return Ext.sha1(value)
     }
 
+    def size: Z = {
+      return Ext.size(value)
+    }
+
     def slash(args: ISZ[String]): Unit = {
       val nativ = this / ".com"
       if (nativ.exists && this.lastModified < nativ.lastModified) {
@@ -838,6 +846,8 @@ object Os {
     def sha1(path: String): String = $
 
     def slashDir: String = $
+
+    def size(path: String): Z = $
 
     def temp(prefix: String, suffix: String): String = $
 
