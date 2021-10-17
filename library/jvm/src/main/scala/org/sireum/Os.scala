@@ -286,80 +286,95 @@ object Os {
     }
   }
 
-  @datatype class Proc(cmds: ISZ[String],
-                       wd: Path,
-                       envMap: Map[String, String],
-                       shouldAddEnv: B,
-                       in: Option[String],
-                       isErrAsOut: B,
-                       shouldOutputConsole: B,
-                       isErrBuffered: B,
-                       shouldPrintEnv: B,
-                       shouldPrintCommands: B,
-                       timeoutInMillis: Z,
-                       shouldUseStandardLib: B,
-                       isScript: B,
-                       outLineActionOpt: Option[String => B],
-                       errLineActionOpt: Option[String => B]) extends OsProto.Proc {
+  @datatype class Proc(val cmds: ISZ[String],
+                       val wd: Path,
+                       val envMap: Map[String, String],
+                       val shouldAddEnv: B,
+                       val in: Option[String],
+                       val isErrAsOut: B,
+                       val shouldOutputConsole: B,
+                       val isErrBuffered: B,
+                       val shouldPrintEnv: B,
+                       val shouldPrintCommands: B,
+                       val timeoutInMillis: Z,
+                       val shouldUseStandardLib: B,
+                       val isScript: B,
+                       val outLineActionOpt: Option[String => B],
+                       val errLineActionOpt: Option[String => B]) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
-      return this(cmds = cmds ++ cs)
+      val thisL = this
+      return thisL(cmds = cmds ++ cs)
     }
 
     @pure def at(dir: OsProto.Path): Proc = {
-      return this(wd = Os.Path.Impl(dir.string))
+      val thisL = this
+      return thisL(wd = Os.Path.Impl(dir.string))
     }
 
     @pure def env(m: ISZ[(String, String)]): Proc = {
-      return this(envMap = this.envMap ++ m)
+      val thisL = this
+      return thisL(envMap = this.envMap ++ m)
     }
 
     @pure def input(content: String): Proc = {
-      return this(in = Some(content))
+      val thisL = this
+      return thisL(in = Some(content))
     }
 
     @pure def timeout(millis: Z): Proc = {
-      return this(timeoutInMillis = millis)
+      val thisL = this
+      return thisL(timeoutInMillis = millis)
     }
 
     @pure def dontInheritEnv: Proc = {
-      return this(shouldAddEnv = F)
+      val thisL = this
+      return thisL(shouldAddEnv = F)
     }
 
     @pure def redirectErr: Proc = {
-      return this(isErrAsOut = T)
+      val thisL = this
+      return thisL(isErrAsOut = T)
     }
 
     @pure def bufferErr: Proc = {
-      return this(isErrBuffered = T)
+      val thisL = this
+      return thisL(isErrBuffered = T)
     }
 
     @pure def console: Proc = {
-      return this(shouldOutputConsole = T)
+      val thisL = this
+      return thisL(shouldOutputConsole = T)
     }
 
     @pure def echoEnv: Proc = {
-      return this(shouldPrintEnv = T)
+      val thisL = this
+      return thisL(shouldPrintEnv = T)
     }
 
     @pure def echo: Proc = {
-      return this(shouldPrintCommands = T)
+      val thisL = this
+      return thisL(shouldPrintCommands = T)
     }
 
     @pure def standard: Proc = {
-      return this(shouldUseStandardLib = T)
+      val thisL = this
+      return thisL(shouldUseStandardLib = T)
     }
 
     @pure def script: Proc = {
-      return this(isScript = T)
+      val thisL = this
+      return thisL(isScript = T)
     }
 
     @pure def outLineAction(f: String => B): Proc = {
-      return this(outLineActionOpt = Some(f))
+      val thisL = this
+      return thisL(outLineActionOpt = Some(f))
     }
 
     @pure def errLineAction(f: String => B): Proc = {
-      return this(errLineActionOpt = Some(f))
+      val thisL = this
+      return thisL(errLineActionOpt = Some(f))
     }
 
     def run(): Proc.Result = {
