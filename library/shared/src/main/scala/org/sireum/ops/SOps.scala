@@ -28,7 +28,7 @@ package org.sireum.ops
 
 import org.sireum._
 
-@sig trait SOps[I, T] {
+@sig trait ISOps[I, T] {
 
   @pure def contains(e: T): B
 
@@ -53,10 +53,6 @@ import org.sireum._
   @pure def indexOf(e: T): I
 
   @pure def last: T
-
-}
-
-@sig trait ISOps[I, T] {
 
   @pure def :+(e: T): IS[I, T]
 
@@ -98,7 +94,31 @@ import org.sireum._
 
 }
 
-@sig trait MSOps[I, T] {
+@msig trait MSOps[I, T] {
+
+  @pure def contains(e: T): B
+
+  @pure def exists(p: T => B @pure): B
+
+  @pure def first: T
+
+  @pure def foldLeft[R](f: (R, T) => R @pure, init: R): R
+
+  @pure def foldRight[R](f: (R, T) => R @pure, init: R): R
+
+  @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
+
+  def mParMapFoldLeft[U, R](f: T => U, g: (R, U) => R, init: R): R
+
+  @pure def parMapFoldRight[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
+
+  def mParMapFoldRight[U, R](f: T => U, g: (R, U) => R, init: R): R
+
+  @pure def forall(p: T => B @pure): B
+
+  @pure def indexOf(e: T): I
+
+  @pure def last: T
 
   @pure def :+(e: T): MS[I, T]
 
@@ -154,7 +174,7 @@ import org.sireum._
 
 }
 
-@datatype class ISZOps[T](val s: IS[Z, T]) extends SOps[Z, T] with ISOps[Z, T] {
+@datatype class ISZOps[T](val s: IS[Z, T]) extends ISOps[Z, T] {
 
   @pure def :+(e: T): IS[Z, T] = {
 //    l""" ensures result.size ≡ s.size + 1
@@ -519,7 +539,7 @@ import org.sireum._
 
 }
 
-@datatype class MSZOps[T](val s: MS[Z, T]) extends SOps[Z, T] with MSOps[Z, T] {
+@record class MSZOps[T](val s: MS[Z, T]) extends MSOps[Z, T] {
 
   @pure def :+(e: T): MS[Z, T] = {
 //    l""" ensures result.size ≡ s.size + 1
