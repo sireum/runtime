@@ -28,5 +28,8 @@ import org.sireum._
 
 object Console_Ext {
 
-  def readLine(): String = new _root_.java.util.Scanner(_root_.java.lang.System.in).nextLine
+  def readLine(): String = {
+    val r = _root_.scala.Console.in.readLine
+    if (r == null) "" else r
+  }
 }
