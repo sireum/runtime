@@ -29,7 +29,7 @@ import scala.annotation.StaticAnnotation
 
 class datatype extends StaticAnnotation
 
-class enum extends StaticAnnotation
+class `enum` extends StaticAnnotation
 
 class ext(name: String = "") extends StaticAnnotation
 
