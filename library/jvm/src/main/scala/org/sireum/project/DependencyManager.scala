@@ -43,7 +43,10 @@ object DependencyManager {
   val scalaKey: String = "org.scala-lang:scala-library:"
   val scalaJsKey: String = "org.scala-js:::scalajs-compiler:"
   val scalaTestKey: String = "org.scalatest::scalatest::"
+  val macrosKey: String = "org.sireum.kekinian::macros:"
+  val testKey: String = "org.sireum.kekinian::test:"
   val libraryKey: String = "org.sireum.kekinian::library:"
+  val librarySharedKey: String = "org.sireum.kekinian::library-shared:"
 
   val jarSuffix: String = ".jar"
   val sourceJarSuffix: String = "-sources.jar"

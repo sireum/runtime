@@ -28,7 +28,7 @@ package org.sireum
 import org.sireum.$internal.{RC, Trie}
 
 object Library_Ext {
-  def map: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../..", "../../../../../../jvm/src/main/scala")) { (p, f) =>
+  def sharedMap: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../..")) { (p, f) =>
     val filename = p.last
     if (filename.endsWith(".slang")) true
     else if (filename.endsWith(".scala")) {
@@ -39,10 +39,27 @@ object Library_Ext {
     } else false
   }
 
-  def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(map)
+  def jvmMap: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../../../../../../jvm/src/main/scala")) { (p, f) =>
+    val filename = p.last
+    if (filename.endsWith(".slang")) true
+    else if (filename.endsWith(".scala")) {
+      val r = _root_.java.nio.file.Files.newBufferedReader(f.toPath, _root_.java.nio.charset.StandardCharsets.UTF_8)
+      val line: Predef.String = r.readLine
+      r.close()
+      line != null && line.replaceAllLiterally(" ", "").contains("#Sireum")
+    } else false
+  }
 
-  def files: ISZ[(Option[String], String)] =
-    ISZ(map.toSeq.
+  def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(sharedMap ++ jvmMap)
+
+  def sharedFiles: ISZ[(Option[String], String)] =
+    ISZ(sharedMap.toSeq.
       map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
+
+  def jvmFiles: ISZ[(Option[String], String)] =
+    ISZ(jvmMap.toSeq.
+      map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
+
+  def files: ISZ[(Option[String], String)] = sharedFiles ++ jvmFiles
 
 }

@@ -27,6 +27,8 @@ package org.sireum
 
 @ext object Library {
 
+  def sharedFiles: ISZ[(Option[String], String)] = $
+
   def files: ISZ[(Option[String], String)] = $
 
 }
