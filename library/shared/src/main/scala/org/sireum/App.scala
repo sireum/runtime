@@ -30,11 +30,13 @@ trait App {
   def main(args: ISZ[String]): Z
 
   final def main(args: Array[Predef.String]): Unit = {
-    Runtime.getRuntime.addShutdownHook(new Thread {
-      override def run(): Unit = {
-        atExit()
-      }
-    })
+    $internal.###(!$internal.Macro.isJs) {
+      Runtime.getRuntime.addShutdownHook(new Thread {
+        override def run(): Unit = {
+          atExit()
+        }
+      })
+    }
     App.args = ISZ(args.toIndexedSeq.map(String(_)): _*)
     System.exit(main(App.args).toInt)
   }
