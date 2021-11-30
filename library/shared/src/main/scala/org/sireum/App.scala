@@ -25,12 +25,14 @@
 
 package org.sireum
 
+import org.sireum.$internal.###
+
 trait App {
 
   def main(args: ISZ[String]): Z
 
   final def main(args: Array[Predef.String]): Unit = {
-    $internal.###(!$internal.Macro.isJs) {
+    ###(!$internal.Macro.isJs) {
       Runtime.getRuntime.addShutdownHook(new Thread {
         override def run(): Unit = {
           atExit()
