@@ -61,7 +61,7 @@ import Macro._
 
 class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
-  val isJsCheck: Boolean = scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
+  val isJsCheck: Boolean = "true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess
 
   import c.universe._
 
