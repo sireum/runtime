@@ -32,7 +32,7 @@ trait App {
   def main(args: ISZ[String]): Z
 
   final def main(args: Array[Predef.String]): Unit = {
-    ###(!$internal.Macro.isJs) {
+    ###("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess) {
       Runtime.getRuntime.addShutdownHook(new Thread {
         override def run(): Unit = {
           atExit()
