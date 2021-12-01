@@ -40,7 +40,10 @@ trait App {
       })
     }
     App.args = ISZ(args.toIndexedSeq.map(String(_)): _*)
-    System.exit(main(App.args).toInt)
+    val r = main(App.args).toInt
+    ###(!("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess)) {
+      System.exit(r)
+    }
   }
 
   def atExit(): Unit = {}
