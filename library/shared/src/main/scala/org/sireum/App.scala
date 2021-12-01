@@ -44,6 +44,7 @@ trait App {
     ###(!("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess)) {
       System.exit(r)
     }
+    return
   }
 
   def atExit(): Unit = {}
