@@ -25,6 +25,13 @@
 
 package org.sireum;
 
-public class Os_ExtJava {
+import java.util.function.Supplier;
+
+public class NativeUtil {
   public static boolean isNative = java.lang.Boolean.getBoolean("com.oracle.graalvm.isaot");
+
+  public static <T> T nonNative(T dflt, Supplier<T> f) {
+    if (f != null) return f.get();
+    return dflt;
+  }
 }

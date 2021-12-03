@@ -70,7 +70,7 @@ object Os_Ext {
 
   lazy val home: String = canon(System.getProperty("user.home"))
 
-  var isNative: B = Os_ExtJava.isNative
+  var isNative: B = NativeUtil.isNative
 
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)).toIndexedSeq: _*)
 
