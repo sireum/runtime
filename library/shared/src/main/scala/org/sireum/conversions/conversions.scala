@@ -2462,6 +2462,8 @@ import org.sireum.Z64._
 
   @pure def toF32(n: F32): F32 =
     $ // l""" ensures result ≡ n """
+
+  @pure def toR(n: F32): R = $
 }
 
 @ext object F64 {
@@ -2474,6 +2476,8 @@ import org.sireum.Z64._
 
   @pure def toF64(n: F64): F64 =
     $ // l""" ensures result ≡ n """
+
+  @pure def toR(n: F64): R = $
 }
 
 @ext object R {
