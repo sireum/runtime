@@ -69,7 +69,7 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Presentation""""),
         ("name", printString(o.name)),
-        ("gap", printZ(o.gap)),
+        ("delay", printZ(o.delay)),
         ("textVolume", printF64(o.textVolume)),
         ("trailing", printZ(o.trailing)),
         ("granularity", printZ(o.granularity)),
@@ -158,8 +158,8 @@ object JSON {
       parser.parseObjectKey("name")
       val name = parser.parseString()
       parser.parseObjectNext()
-      parser.parseObjectKey("gap")
-      val gap = parser.parseZ()
+      parser.parseObjectKey("delay")
+      val delay = parser.parseZ()
       parser.parseObjectNext()
       parser.parseObjectKey("textVolume")
       val textVolume = parser.parseF64()
@@ -173,7 +173,7 @@ object JSON {
       parser.parseObjectKey("entries")
       val entries = parser.parseISZ(parsePresentationEntry _)
       parser.parseObjectNext()
-      return Presentation(name, gap, textVolume, trailing, granularity, entries)
+      return Presentation(name, delay, textVolume, trailing, granularity, entries)
     }
 
     def eof(): B = {
