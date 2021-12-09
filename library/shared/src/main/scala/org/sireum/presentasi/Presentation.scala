@@ -41,6 +41,7 @@ object Presentation {
   @datatype class Video(val path: String,
                         val delay: Z,
                         val volume: F64,
+                        val rate: F64,
                         val start: F64,
                         val end: F64,
                         val textOpt: Option[String]) extends Entry

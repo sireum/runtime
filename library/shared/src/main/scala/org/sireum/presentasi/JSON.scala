@@ -59,6 +59,7 @@ object JSON {
         ("path", printString(o.path)),
         ("delay", printZ(o.delay)),
         ("volume", printF64(o.volume)),
+        ("rate", printF64(o.rate)),
         ("start", printF64(o.start)),
         ("end", printF64(o.end)),
         ("textOpt", printOption(T, o.textOpt, printString _))
@@ -134,6 +135,9 @@ object JSON {
       parser.parseObjectKey("volume")
       val volume = parser.parseF64()
       parser.parseObjectNext()
+      parser.parseObjectKey("rate")
+      val rate = parser.parseF64()
+      parser.parseObjectNext()
       parser.parseObjectKey("start")
       val start = parser.parseF64()
       parser.parseObjectNext()
@@ -143,7 +147,7 @@ object JSON {
       parser.parseObjectKey("textOpt")
       val textOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Presentation.Video(path, delay, volume, start, end, textOpt)
+      return Presentation.Video(path, delay, volume, rate, start, end, textOpt)
     }
 
     def parsePresentation(): Presentation = {
