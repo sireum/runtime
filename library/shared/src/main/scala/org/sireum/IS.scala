@@ -306,7 +306,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def apply(index: I): V = {
     val i = index.asInstanceOf[ZLike[_]].toIndex
-    assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+    assert(Z.MP.zero <= i && i < length, s"Array indexing out of bounds: $index")
     boxer.lookup[V](data, i)
   }
 
@@ -316,7 +316,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       val a = boxer.clone(data, length, length, Z.MP.zero)
       for ((index, v) <- args) {
         val i = index.asInstanceOf[ZLike[_]].toIndex
-        assert(Z.MP.zero <= i && i <= length, s"Array indexing out of bounds: $index")
+        assert(Z.MP.zero <= i && i < length, s"Array indexing out of bounds: $index")
         boxer.store(a, i, v)
       }
       IS[I, V](companion, a, length, boxer)
