@@ -93,6 +93,8 @@ object B_Ext {
 
 object C_Ext {
   @pure def toU32(c: C): U32 = org.sireum.U32(c.value)
+
+  @pure def toCodePoints(c: C): ISZ[C] = ISZ(Character.toChars(c.value).map(C(_)).toSeq: _*)
 }
 
 object Z_Ext {

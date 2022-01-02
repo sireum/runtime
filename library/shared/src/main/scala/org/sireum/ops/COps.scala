@@ -64,6 +64,12 @@ import org.sireum._
     }
     if ('\u0020' <= c && c <= '\u007e') {
       return c.string
+    } else if (c > '\uFFFF') {
+      var r: String = ""
+      for (cpc <- conversions.C.toCodePoints(c)) {
+        r = s"$r${COps(cpc).escapeString}"
+      }
+      return r
     } else {
       val q = toUnicodeHex
       return s"\\u${q._1}${q._2}${q._3}${q._4}"
@@ -102,7 +108,7 @@ object COps {
   }
 
   @pure def hex2c(c: C): C = {
-    val r: C = c.native match {
+    val r: C = (c & '\u000F').native match {
       case '\u0000' => '0'
       case '\u0001' => '1'
       case '\u0002' => '2'

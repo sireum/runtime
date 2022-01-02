@@ -97,6 +97,7 @@ import org.sireum.Z64._
 
 @ext object C {
   @pure def toU32(c: C): U32 = $
+  @pure def toCodePoints(c: C): ISZ[C] = $
 }
 
 @ext object Z {
