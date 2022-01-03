@@ -218,3 +218,18 @@ object Position {
     return if (i <= min) computeLC(min) else computeLC(max)
   }
 }
+
+object DocInfo {
+
+  @pure def create(uriOpt: Option[String], input: String): DocInfo = {
+    val inputOps = ops.StringOps(input)
+    var i = inputOps.indexOf('\n')
+    var lineOffsets = ISZ[U32]()
+    while (0 <= i && i < input.size) {
+      lineOffsets = lineOffsets :+ conversions.Z.toU32(i)
+      i = inputOps.indexOfFrom('\n', i + 1)
+    }
+    return DocInfo(uriOpt, lineOffsets)
+  }
+
+}
