@@ -29,11 +29,13 @@
 package org.sireum.parser
 
 import org.sireum._
+import org.sireum.U32._
 import org.sireum.message.{DocInfo, Position}
 
 @datatype trait ParseTree {
   @pure def ruleName: String
   @pure def toST: ST
+  @pure def tipe: U32
 
   override def string: String = {
     return toST.render
@@ -50,6 +52,7 @@ object ParseTree {
 
   @datatype class Leaf(val text: String,
                        @hidden val ruleName: String,
+                       @hidden val tipe: U32,
                        @hidden val isHidden: B,
                        @hidden val posOpt: Option[Position]) extends ParseTree {
     @pure override def toST: ST = {
@@ -60,6 +63,7 @@ object ParseTree {
 
   @datatype class Node(val children: ISZ[ParseTree],
                        @hidden val ruleName: String,
+                       @hidden val tipe: U32,
                        @hidden val errorOpt: Option[ErrorInfo]) extends ParseTree {
     @strictpure override def toST: ST = st"""$ruleName(${(for (child <- children) yield child.toST, ", ")})"""
   }
@@ -100,7 +104,7 @@ object ParseTree {
   }
 
   object Node {
-    @strictpure def empty: Node = Node(ISZ(), "Tree", None())
+    @strictpure def empty: Node = Node(ISZ(), "Tree", u32"-1", None())
   }
 
   @sig trait BinaryPrecedenceOps[Builder, T] {

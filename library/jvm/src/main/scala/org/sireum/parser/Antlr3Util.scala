@@ -40,13 +40,28 @@ object Antlr3Util {
 
     import org.antlr.runtime.{Token => AntlrToken}
 
+    var cache: scala.collection.mutable.HashMap[String, org.sireum.U32] = scala.collection.mutable.HashMap.empty
+    def sha3(s: String): org.sireum.U32 = {
+      cache.get(s) match {
+        case Some(r) => return r
+        case _ =>
+      }
+      import org.sireum._
+      val sha3 = crypto.SHA3.init256
+      sha3.update(conversions.String.toU8is(s))
+      val r = U32(st"0x${(ops.ISZOps(sha3.finalise()).take(4), "")}".render).get
+      cache(s) = r
+      return r
+    }
+
     override def create(payload: AntlrToken): AnyRef = {
       val t = payload.getType
-      val name = if (t == -1) "<EOF>" else tokenNames(t)
+      val name = if (t == -1) "EOF" else tokenNames(t)
       val offset = payload.getLine + payload.getCharPositionInLine
       val length = payload.getText.length
       val offsetLength = (org.sireum.conversions.Z.toU64(offset) << org.sireum.U64(32)) | org.sireum.U64(length)
-      ParseTree.Leaf(payload.getText, name, false, org.sireum.Some(org.sireum.message.PosInfo(docInfo, offsetLength)))
+      ParseTree.Leaf(payload.getText, name, org.sireum.U32(payload.getType), false,
+        org.sireum.Some(org.sireum.message.PosInfo(docInfo, offsetLength)))
     }
 
     override def dupNode(treeNode: Any): AnyRef = halt("Infeasible")
@@ -58,7 +73,7 @@ object Antlr3Util {
     override def errorNode(input: TokenStream, start: AntlrToken, stop: AntlrToken, e: RecognitionException): AnyRef = {
       import org.sireum._
       val name = Thread.currentThread.getStackTrace()(2).getMethodName
-      ParseTree.Node(ISZ(), name,
+      ParseTree.Node(ISZ(), name, U32(-1),
         Some(ParseTree.ErrorInfo(None(), if (e.getMessage == null) e.getClass.getName else e.getMessage)))
     }
 
@@ -76,7 +91,7 @@ object Antlr3Util {
       case _ =>
         val node = root.asInstanceOf[Node]
         val name = Thread.currentThread.getStackTrace()(2).getMethodName
-        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, org.sireum.None())
+        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, sha3(name), org.sireum.None())
     }
 
     override def getUniqueID(node: Any): Int = halt("Infeasible")
