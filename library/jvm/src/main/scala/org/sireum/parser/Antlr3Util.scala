@@ -73,8 +73,7 @@ object Antlr3Util {
     override def errorNode(input: TokenStream, start: AntlrToken, stop: AntlrToken, e: RecognitionException): AnyRef = {
       import org.sireum._
       val name = Thread.currentThread.getStackTrace()(2).getMethodName
-      ParseTree.Node(ISZ(), name, U32(-1),
-        Some(ParseTree.ErrorInfo(None(), if (e.getMessage == null) e.getClass.getName else e.getMessage)))
+      ParseTree.Node(ISZ(), s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", U32(-1))
     }
 
     override def isNil(tree: Any): Boolean = halt("Infeasible")
@@ -91,7 +90,7 @@ object Antlr3Util {
       case _ =>
         val node = root.asInstanceOf[Node]
         val name = Thread.currentThread.getStackTrace()(2).getMethodName
-        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, sha3(name), org.sireum.None())
+        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, sha3(name))
     }
 
     override def getUniqueID(node: Any): Int = halt("Infeasible")

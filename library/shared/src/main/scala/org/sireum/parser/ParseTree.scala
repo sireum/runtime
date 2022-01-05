@@ -47,9 +47,6 @@ object ParseTree {
   @datatype class Result(val tree: ParseTree,
                          val docInfo: DocInfo)
 
-  @datatype class ErrorInfo(val posOpt: Option[Position],
-                            val message: String)
-
   @datatype class Leaf(val text: String,
                        @hidden val ruleName: String,
                        @hidden val tipe: U32,
@@ -63,8 +60,7 @@ object ParseTree {
 
   @datatype class Node(val children: ISZ[ParseTree],
                        @hidden val ruleName: String,
-                       @hidden val tipe: U32,
-                       @hidden val errorOpt: Option[ErrorInfo]) extends ParseTree {
+                       @hidden val tipe: U32) extends ParseTree {
     @strictpure override def toST: ST = st"""$ruleName(${(for (child <- children) yield child.toST, ", ")})"""
   }
 
@@ -104,7 +100,7 @@ object ParseTree {
   }
 
   object Node {
-    @strictpure def empty: Node = Node(ISZ(), "Tree", u32"-1", None())
+    @strictpure def empty: Node = Node(ISZ(), "Tree", u32"-1")
   }
 
   @sig trait BinaryPrecedenceOps[Builder, T] {
