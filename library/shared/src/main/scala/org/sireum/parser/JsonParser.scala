@@ -26,18 +26,20 @@
 
 // This file is auto-generated from JSON.g
 
-package org.sireum.parser.json
+package org.sireum.parser
 
 
 import org.sireum._
 import org.sireum.U32._
 import org.sireum.U64._
 import org.sireum.conversions.U32.toC
-import org.sireum.parser.ParseTree
 
-@range(min = 0, max = 9) class State
+object Json {
+  @range(min = 0, max = 9) class State
+}
 
-import State._
+import Json.State
+import Json.State._
 
 object JsonParser {
 
