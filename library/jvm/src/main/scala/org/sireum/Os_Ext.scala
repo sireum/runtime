@@ -377,7 +377,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8)
+        val fr = new CodepointStream(new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8))
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -475,7 +475,7 @@ object Os_Ext {
       override def path: Os.Path = Os.Path.Impl(p)
 
       override def generate(f: C => Jen.Action): Jen.Action = {
-        val fr = new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8)
+        val fr = new CodepointStream(new ISR(new BIS(JFiles.newInputStream(toNIO(p)), buffSize), SC.UTF_8))
         try {
           var last = Jen.Continue
           var c = fr.read()
@@ -949,4 +949,20 @@ object Os_Ext {
   private def toIO(path: String): JFile = new JFile(path.value)
 
   private def toNIO(path: String): JPath = JPaths.get(path.value)
+
+  class CodepointStream(reader: java.io.Reader) extends java.io.Closeable {
+    def read(): Int = {
+      val unit0 = reader.read
+      if (unit0 < 0) return unit0 // EOF
+      if (!Character.isHighSurrogate(unit0.toChar)) return unit0
+      val unit1 = reader.read
+      if (unit1 < 0) return unit1
+      if (!Character.isLowSurrogate(unit1.toChar)) halt("Invalid surrogate pair")
+      return Character.toCodePoint(unit0.toChar, unit1.toChar)
+    }
+
+    override def close(): Unit = {
+      reader.close()
+    }
+  }
 }
