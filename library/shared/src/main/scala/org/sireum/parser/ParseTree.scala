@@ -43,9 +43,6 @@ import org.sireum.message.{DocInfo, Position}
 }
 
 object ParseTree {
-  
-  @datatype class Result(val tree: ParseTree,
-                         val docInfo: DocInfo)
 
   @datatype class Leaf(val text: String,
                        @hidden val ruleName: String,
