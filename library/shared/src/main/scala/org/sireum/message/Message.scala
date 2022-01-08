@@ -113,10 +113,35 @@ object Position {
 
   }
 
-  @strictpure def to(other: Position): Position = FlatPos(uriOpt, conversions.Z.toU32(beginLine),
-    conversions.Z.toU32(beginColumn), conversions.Z.toU32(other.endLine), conversions.Z.toU32(other.endColumn),
-    conversions.Z.toU32(offset), conversions.Z.toU32(length + other.length)
-  )
+  @pure def to(other: Position): Position = {
+    val pos1 = this
+    val pos2 = other
+    var docInfoOpt: Option[message.DocInfo] = None()
+    pos1 match {
+      case pos1: PosInfo => docInfoOpt = Some(pos1.info)
+      case _ =>
+        pos2 match {
+          case pos2: PosInfo => docInfoOpt = Some(pos2.info)
+          case _ =>
+        }
+    }
+    docInfoOpt match {
+      case Some(info) =>
+        return PosInfo(info, (conversions.Z.toU64(pos1.offset) << u64"32") |
+          conversions.Z.toU64(pos2.offset + pos2.length - pos1.offset))
+      case _ =>
+        return FlatPos(
+          uriOpt = pos1.uriOpt,
+          beginLine32 = conversions.Z.toU32(pos1.beginLine),
+          beginColumn32 = conversions.Z.toU32(pos1.beginColumn),
+          endLine32 = conversions.Z.toU32(pos2.endLine),
+          endColumn32 = conversions.Z.toU32(pos2.endColumn),
+          offset32 = conversions.Z.toU32(pos1.offset),
+          length32 = conversions.Z.toU32(pos2.offset + pos2.length - pos1.offset)
+        )
+    }
+  }
+
 }
 
 @datatype class FlatPos(
@@ -226,7 +251,7 @@ object DocInfo {
     var i = inputOps.indexOf('\n')
     var lineOffsets = ISZ[U32](u32"0")
     while (0 <= i && i < input.size) {
-      lineOffsets = lineOffsets :+ conversions.Z.toU32(i)
+      lineOffsets = lineOffsets :+ conversions.Z.toU32(i + 1)
       i = inputOps.indexOfFrom('\n', i + 1)
     }
     return DocInfo(uriOpt, lineOffsets)
