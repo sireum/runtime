@@ -129,6 +129,52 @@ object JsonParser {
     }
   }
 
+  @datatype class IndexableToken(val input: Indexable.Pos[C], val skipHidden: B) extends Indexable[Result] {
+    val lexer: JsonLexer = JsonLexer(input)
+
+    override def at(i: Z): Result = {
+      return _at(i)
+    }
+
+    override def has(i: Z): B = {
+      return _has(i)
+    }
+
+    @memoize def _has(i: Z): B = {
+      assert(i >= 0)
+      if (i == 0) {
+        return T
+      }
+      if (!_has(i - 1)) {
+        return F
+      }
+      val prev = _at(i - 1)
+      return prev.kind == Result.Kind.Normal && prev.newIndex != -1
+    }
+
+    @memoize def _at(i: Z): Result = {
+      if (i == 0) {
+        if (input.has(0)) {
+          lexer.tokenize(0, skipHidden) match {
+            case Some(result) => return result
+            case _ =>
+          }
+        }
+        return Result(Result.Kind.Normal, eofLeaf, -1)
+      } else {
+        val prev = _at(i - 1)
+        if (input.has(prev.newIndex)) {
+          lexer.tokenize(prev.newIndex, skipHidden) match {
+            case Some(result) => return result
+            case _ =>
+          }
+        }
+        return Result(Result.Kind.Normal, eofLeaf, -1)
+      }
+    }
+
+  }
+
   val kind: String = "JsonParser"
 
   val minChar: C = '\u0000'
@@ -151,8 +197,8 @@ object JsonParser {
   val T_object: U32 = u32"0x5ED5358F"
   val T_array: U32 = u32"0xB11A9723"
 
-  val errorLeaf: ParseTree.Leaf = ParseTree.Leaf("", "<ERROR>", u32"0xE3CDEDDA", F, None())
-  val eofLeaf: ParseTree.Leaf = ParseTree.Leaf("", "EOF", u32"0xFC5CB374", F, None())
+  val errorLeaf: ParseTree.Leaf = ParseTree.Leaf("<ERROR>", "<ERROR>", u32"0xE3CDEDDA", F, None())
+  val eofLeaf: ParseTree.Leaf = ParseTree.Leaf("<EOF>", "EOF", u32"0xFC5CB374", F, None())
 
   def parse(uriOpt: Option[String], input: String, reporter: message.Reporter): Option[ParseTree] = {
     val docInfo = message.DocInfo.create(uriOpt, input)
@@ -160,7 +206,7 @@ object JsonParser {
     if (reporter.hasError) {
       return None()
     }
-    val r = JsonParser(tokens).parseValueFile(0)
+    val r = JsonParser(Indexable.fromIsz(tokens)).parseValueFile(0)
     r.kind match {
       case Result.Kind.Normal => return Some(r.tree)
       case Result.Kind.LexicalError =>
@@ -169,17 +215,40 @@ object JsonParser {
       case Result.Kind.GrammaticalError =>
         val idx: Z = if (r.newIndex < 0) -r.newIndex else r.newIndex
         if (idx < tokens.size) {
-          reporter.error(tokens(idx).posOpt, kind, s"Could not parse token: ${tokens(idx).text}")
+          val token = tokens(idx).leaf
+          reporter.error(token.posOpt, kind, s"Could not parse token: \"${ops.StringOps(token.text).escapeST.render}\"")
         } else {
-          reporter.error(tokens(idx - 1).posOpt, kind, "Expecting more input but reached the end")
+          val token = tokens(idx - 1).leaf
+          reporter.error(token.posOpt, kind, "Expecting more input but reached the end")
+        }
+        return None()
+    }
+  }
+
+  def parseStream(input: Indexable.Pos[C], reporter: message.Reporter): Option[ParseTree] = {
+    val it = IndexableToken(input, T)
+    val r = JsonParser(it).parseValueFile(0)
+    r.kind match {
+      case Result.Kind.Normal => return Some(r.tree)
+      case Result.Kind.LexicalError =>
+        reporter.error(input.posOpt(r.newIndex, 1), kind, s"Could not recognize token")
+        return None()
+      case Result.Kind.GrammaticalError =>
+        val idx: Z = if (r.newIndex < 0) -r.newIndex else r.newIndex
+        if (it.has(idx)) {
+          val token = it.at(idx).leaf
+          reporter.error(token.posOpt, kind, s"Could not parse token: \"${ops.StringOps(token.text).escapeST.render}\"")
+        } else {
+          val token = it.at(idx - 1).leaf
+          reporter.error(token.posOpt, kind, "Expecting more input but reached the end")
         }
         return None()
     }
   }
 
   def lex(input: String, docInfo: message.DocInfo, skipHidden: B, stopAtError: B,
-          reporter: message.Reporter): ISZ[ParseTree.Leaf] = {
-    return JsonLexer(input, docInfo).tokenizeAll(skipHidden, stopAtError, reporter)
+          reporter: message.Reporter): ISZ[Result] = {
+    return JsonLexer(Indexable.fromIszDocInfo(conversions.String.toCis(input), docInfo)).tokenizeAll(skipHidden, stopAtError, reporter)
   }
 
   @strictpure def offsetLength(offset: Z, length: Z): U64 =
@@ -189,12 +258,19 @@ object JsonParser {
 
 import JsonParser._
 
-@datatype class JsonParser(tokens: ISZ[ParseTree.Leaf]) {
+@datatype class JsonParser(tokens: Indexable[Result]) {
 
   @pure def parseValueFile(i: Z): Result = {
     val ctx = Context.create("valueFile", u32"0x94F3E412" /* valueFile */, ISZ(state"2"), i)
 
-    while (ctx.j < tokens.size) {
+    while (tokens.has(ctx.j)) {
+      val token: ParseTree.Leaf = {
+        val result = tokens.at(ctx.j)
+        if (result.kind != Result.Kind.Normal) {
+          return result
+        }
+        result.leaf
+      }
       ctx.state match {
         case state"0" =>
           ctx.found = F
@@ -207,9 +283,9 @@ import JsonParser._
           }
         case state"1" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xFC5CB374" /* EOF */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"2")
               ctx.found = T
@@ -232,7 +308,14 @@ import JsonParser._
   @pure def parseValue(i: Z): Result = {
     val ctx = Context.create("value", u32"0x82EEA07A" /* value */, ISZ(state"1"), i)
 
-    while (ctx.j < tokens.size) {
+    while (tokens.has(ctx.j)) {
+      val token: ParseTree.Leaf = {
+        val result = tokens.at(ctx.j)
+        if (result.kind != Result.Kind.Normal) {
+          return result
+        }
+        result.leaf
+      }
       ctx.state match {
         case state"0" =>
           ctx.found = F
@@ -246,29 +329,29 @@ import JsonParser._
               return Result.error(ctx.isLexical, ctx.failIndex)
             }
           }
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xA7CF0FE0" /* STRING */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
             case u32"0x28C20CF1" /* NUMBER */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
             case u32"0xAFEF039D" /* "true" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
             case u32"0xD8AFD1B9" /* "false" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
             case u32"0x3EA44541" /* "null" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
@@ -291,13 +374,20 @@ import JsonParser._
   @pure def parseObject(i: Z): Result = {
     val ctx = Context.create("object", u32"0x5ED5358F" /* object */, ISZ(state"8"), i)
 
-    while (ctx.j < tokens.size) {
+    while (tokens.has(ctx.j)) {
+      val token: ParseTree.Leaf = {
+        val result = tokens.at(ctx.j)
+        if (result.kind != Result.Kind.Normal) {
+          return result
+        }
+        result.leaf
+      }
       ctx.state match {
         case state"0" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xFDCE65E5" /* "{" */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
@@ -308,14 +398,14 @@ import JsonParser._
           }
         case state"1" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xA7CF0FE0" /* STRING */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"2")
               ctx.found = T
             case u32"0x5BF60471" /* "}" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"8")
               ctx.found = T
@@ -326,9 +416,9 @@ import JsonParser._
           }
         case state"2" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0x763C38BE" /* ":" */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"3")
               ctx.found = T
@@ -348,14 +438,14 @@ import JsonParser._
           }
         case state"4" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0x45445E21" /* "," */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"5")
               ctx.found = T
             case u32"0x5BF60471" /* "}" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"8")
               ctx.found = T
@@ -366,9 +456,9 @@ import JsonParser._
           }
         case state"5" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xA7CF0FE0" /* STRING */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"6")
               ctx.found = T
@@ -379,9 +469,9 @@ import JsonParser._
           }
         case state"6" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0x763C38BE" /* ":" */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"7")
               ctx.found = T
@@ -413,13 +503,20 @@ import JsonParser._
   @pure def parseArray(i: Z): Result = {
     val ctx = Context.create("array", u32"0xB11A9723" /* array */, ISZ(state"4"), i)
 
-    while (ctx.j < tokens.size) {
+    while (tokens.has(ctx.j)) {
+      val token: ParseTree.Leaf = {
+        val result = tokens.at(ctx.j)
+        if (result.kind != Result.Kind.Normal) {
+          return result
+        }
+        result.leaf
+      }
       ctx.state match {
         case state"0" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0xA44269E9" /* "[" */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"1")
               ctx.found = T
@@ -434,9 +531,9 @@ import JsonParser._
           if (n_value > 0 && parseValueH(ctx, state"2")) {
             return Result.error(ctx.isLexical, ctx.failIndex)
           }
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0x9977908D" /* "]" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"4")
               ctx.found = T
@@ -447,14 +544,14 @@ import JsonParser._
           }
         case state"2" =>
           ctx.found = F
-          tokens(ctx.j).tipe match {
+          token.tipe match {
             case u32"0x45445E21" /* "," */ =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"3")
               ctx.found = T
             case u32"0x9977908D" /* "]" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ tokens(ctx.j)
+              ctx.trees = ctx.trees :+ token
               ctx.j = ctx.j + 1
               ctx.update(state"4")
               ctx.found = T
@@ -556,45 +653,53 @@ import JsonParser._
   }
 
   @pure def predictValueFile(j: Z): Z = {
-    tokens(j).tipe match {
-      case u32"0xA7CF0FE0" /* STRING */ => return 1
-      case u32"0x28C20CF1" /* NUMBER */ => return 1
-      case u32"0xFDCE65E5" /* "{" */ => return 1
-      case u32"0xA44269E9" /* "[" */ => return 1
-      case u32"0xAFEF039D" /* "true" */ => return 1
-      case u32"0xD8AFD1B9" /* "false" */ => return 1
-      case u32"0x3EA44541" /* "null" */ => return 1
-      case _ =>
+    if (tokens.at(j).kind == Result.Kind.Normal) {
+      tokens.at(j).leaf.tipe match {
+        case u32"0xA7CF0FE0" /* STRING */ => return 1
+        case u32"0x28C20CF1" /* NUMBER */ => return 1
+        case u32"0xFDCE65E5" /* "{" */ => return 1
+        case u32"0xA44269E9" /* "[" */ => return 1
+        case u32"0xAFEF039D" /* "true" */ => return 1
+        case u32"0xD8AFD1B9" /* "false" */ => return 1
+        case u32"0x3EA44541" /* "null" */ => return 1
+        case _ =>
+      }
     }
     return 0
   }
 
   @pure def predictArray(j: Z): Z = {
-    tokens(j).tipe match {
-      case u32"0xA44269E9" /* "[" */ => return 1
-      case _ =>
+    if (tokens.at(j).kind == Result.Kind.Normal) {
+      tokens.at(j).leaf.tipe match {
+        case u32"0xA44269E9" /* "[" */ => return 1
+        case _ =>
+      }
     }
     return 0
   }
 
   @pure def predictValue(j: Z): Z = {
-    tokens(j).tipe match {
-      case u32"0xA7CF0FE0" /* STRING */ => return 1
-      case u32"0x28C20CF1" /* NUMBER */ => return 1
-      case u32"0xFDCE65E5" /* "{" */ => return 1
-      case u32"0xA44269E9" /* "[" */ => return 1
-      case u32"0xAFEF039D" /* "true" */ => return 1
-      case u32"0xD8AFD1B9" /* "false" */ => return 1
-      case u32"0x3EA44541" /* "null" */ => return 1
-      case _ =>
+    if (tokens.at(j).kind == Result.Kind.Normal) {
+      tokens.at(j).leaf.tipe match {
+        case u32"0xA7CF0FE0" /* STRING */ => return 1
+        case u32"0x28C20CF1" /* NUMBER */ => return 1
+        case u32"0xFDCE65E5" /* "{" */ => return 1
+        case u32"0xA44269E9" /* "[" */ => return 1
+        case u32"0xAFEF039D" /* "true" */ => return 1
+        case u32"0xD8AFD1B9" /* "false" */ => return 1
+        case u32"0x3EA44541" /* "null" */ => return 1
+        case _ =>
+      }
     }
     return 0
   }
 
   @pure def predictObject(j: Z): Z = {
-    tokens(j).tipe match {
-      case u32"0xFDCE65E5" /* "{" */ => return 1
-      case _ =>
+    if (tokens.at(j).kind == Result.Kind.Normal) {
+      tokens.at(j).leaf.tipe match {
+        case u32"0xFDCE65E5" /* "{" */ => return 1
+        case _ =>
+      }
     }
     return 0
   }
@@ -617,37 +722,44 @@ import JsonParser._
 
 }
 
-@datatype class JsonLexer(input: String, docInfo: message.DocInfo) {
+@datatype class JsonLexer(cis: Indexable.Pos[C]) {
 
-  val cis: ISZ[C] = conversions.String.toCis(input)
-
-  def tokenizeAll(skipHidden: B, stopAtError: B, reporter: message.Reporter): ISZ[ParseTree.Leaf] = {
+  def tokenizeAll(skipHidden: B, stopAtError: B, reporter: message.Reporter): ISZ[Result] = {
     var i: Z = 0
-    var r = ISZ[ParseTree.Leaf]()
-    while (i < cis.size) {
-      val result = tokenize(i)
-      result match {
-        case Result(Result.Kind.Normal, token: ParseTree.Leaf, _) =>
-          i = result.newIndex
-          if (!(skipHidden && token.isHidden)) {
-            r = r :+ token
+    var r = ISZ[Result]()
+    var done = F
+    while (!done && cis.has(i)) {
+      tokenize(i, skipHidden) match {
+        case Some(result) =>
+          if (result.kind == Result.Kind.Normal) {
+            i = result.newIndex
+            r = r :+ result
+          } else {
+            val posOpt = cis.posOpt(i, 1)
+            reporter.error(posOpt, kind, s"Could not recognize token")
+            if (stopAtError) {
+              return r
+            }
+            r = r :+ result(tree = errorLeaf(text = conversions.String.fromCis(ISZ(cis.at(i))), posOpt = posOpt))
+            i = i + 1
           }
-        case _ =>
-          val posOpt: Option[message.Position] = Some(message.PosInfo(docInfo, offsetLength(i, 1)))
-          reporter.error(posOpt, kind, s"Could not recognize token")
-          if (stopAtError) {
-            return r
-          }
-          r = r :+ errorLeaf(text = conversions.String.fromCis(ISZ(cis(i))), posOpt = posOpt)
-          i = i + 1
+        case _ => done = T
       }
     }
-    r = r :+ eofLeaf
+    r = r :+ Result.create(eofLeaf, -1)
     return r
   }
 
-  @pure def tokenize(i: Z): Result = {
+  @pure def tokenize(i: Z, skipHidden: B): Option[Result] = {
     val r = MBox(Result.error(T, i))
+    tokenizeH(r, i)
+    while (skipHidden && r.value.leaf.isHidden && cis.has(r.value.newIndex)) {
+      tokenizeH(r, r.value.newIndex)
+    }
+    return if (skipHidden && r.value.leaf.isHidden) None() else Some(r.value)
+  }
+
+  def tokenizeH(r: MBox[Result], i: Z): Unit = {
     updateToken(r, lex_true(i))
     updateToken(r, lex_false(i))
     updateToken(r, lex_null(i))
@@ -660,7 +772,6 @@ import JsonParser._
     updateToken(r, lex_STRING(i))
     updateToken(r, lex_NUMBER(i))
     updateToken(r, lex_WS(i))
-    return r.value
   }
 
   def updateToken(r: MBox[Result], rOpt: Option[Result]): Unit = {
@@ -671,10 +782,10 @@ import JsonParser._
   }
 
   @pure def lit_true(i: Z): Z = {
-    if (i + 4 >= cis.size) {
+    if (!cis.has(i + 4)) {
       return -1
     }
-    if (cis(i) === 't' && cis(i + 1) === 'r' && cis(i + 2) === 'u' && cis(i + 3) === 'e') {
+    if (cis.at(i) === 't' && cis.at(i + 1) === 'r' && cis.at(i + 2) === 'u' && cis.at(i + 3) === 'e') {
       return i + 4
     }
     return -1
@@ -684,10 +795,10 @@ import JsonParser._
      lexH(index, lit_true(index), """'true'""", u32"0xAFEF039D" /* "true" */, F)
 
   @pure def lit_false(i: Z): Z = {
-    if (i + 5 >= cis.size) {
+    if (!cis.has(i + 5)) {
       return -1
     }
-    if (cis(i) === 'f' && cis(i + 1) === 'a' && cis(i + 2) === 'l' && cis(i + 3) === 's' && cis(i + 4) === 'e') {
+    if (cis.at(i) === 'f' && cis.at(i + 1) === 'a' && cis.at(i + 2) === 'l' && cis.at(i + 3) === 's' && cis.at(i + 4) === 'e') {
       return i + 5
     }
     return -1
@@ -697,10 +808,10 @@ import JsonParser._
      lexH(index, lit_false(index), """'false'""", u32"0xD8AFD1B9" /* "false" */, F)
 
   @pure def lit_null(i: Z): Z = {
-    if (i + 4 >= cis.size) {
+    if (!cis.has(i + 4)) {
       return -1
     }
-    if (cis(i) === 'n' && cis(i + 1) === 'u' && cis(i + 2) === 'l' && cis(i + 3) === 'l') {
+    if (cis.at(i) === 'n' && cis.at(i + 1) === 'u' && cis.at(i + 2) === 'l' && cis.at(i + 3) === 'l') {
       return i + 4
     }
     return -1
@@ -710,7 +821,7 @@ import JsonParser._
      lexH(index, lit_null(index), """'null'""", u32"0x3EA44541" /* "null" */, F)
 
   @pure def lit_u007B(i: Z): Z = {
-    if (i < cis.size && cis(i) === '{') {
+    if (cis.has(i) && cis.at(i) === '{') {
       return i + 1
     }
     return -1
@@ -720,7 +831,7 @@ import JsonParser._
      lexH(index, lit_u007B(index), """'{'""", u32"0xFDCE65E5" /* "{" */, F)
 
   @pure def lit_u003A(i: Z): Z = {
-    if (i < cis.size && cis(i) === ':') {
+    if (cis.has(i) && cis.at(i) === ':') {
       return i + 1
     }
     return -1
@@ -730,7 +841,7 @@ import JsonParser._
      lexH(index, lit_u003A(index), """':'""", u32"0x763C38BE" /* ":" */, F)
 
   @pure def lit_u002C(i: Z): Z = {
-    if (i < cis.size && cis(i) === ',') {
+    if (cis.has(i) && cis.at(i) === ',') {
       return i + 1
     }
     return -1
@@ -740,7 +851,7 @@ import JsonParser._
      lexH(index, lit_u002C(index), """','""", u32"0x45445E21" /* "," */, F)
 
   @pure def lit_u007D(i: Z): Z = {
-    if (i < cis.size && cis(i) === '}') {
+    if (cis.has(i) && cis.at(i) === '}') {
       return i + 1
     }
     return -1
@@ -750,7 +861,7 @@ import JsonParser._
      lexH(index, lit_u007D(index), """'}'""", u32"0x5BF60471" /* "}" */, F)
 
   @pure def lit_u005B(i: Z): Z = {
-    if (i < cis.size && cis(i) === '[') {
+    if (cis.has(i) && cis.at(i) === '[') {
       return i + 1
     }
     return -1
@@ -760,7 +871,7 @@ import JsonParser._
      lexH(index, lit_u005B(index), """'['""", u32"0xA44269E9" /* "[" */, F)
 
   @pure def lit_u005D(i: Z): Z = {
-    if (i < cis.size && cis(i) === ']') {
+    if (cis.has(i) && cis.at(i) === ']') {
       return i + 1
     }
     return -1
@@ -772,10 +883,10 @@ import JsonParser._
   @pure def dfa_STRING(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2"), i)
 
-    while (ctx.j < cis.size) {
+    while (cis.has(ctx.j)) {
       ctx.state match {
         case state"0" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '"') {
             ctx.update(state"1")
@@ -785,7 +896,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"1" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (' ' <= c && c <= '!' || '#' <= c && c <= '[' || ']' <= c && c <= maxChar) {
             ctx.update(state"1")
@@ -804,7 +915,7 @@ import JsonParser._
           }
         case state"2" => return ctx.afterAcceptIndex
         case state"3" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '"' || c === '/' || c === '\\' || c === 'b' || c === 'f' || c === 'n' || c === 'r' || c === 't') {
             ctx.update(state"1")
@@ -818,7 +929,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"4" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"5")
@@ -828,7 +939,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"5" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"6")
@@ -838,7 +949,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"6" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"7")
@@ -848,7 +959,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"7" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"1")
@@ -870,10 +981,10 @@ import JsonParser._
   @pure def dfa_NUMBER(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2", state"4", state"7", state"8", state"9"), i)
 
-    while (ctx.j < cis.size) {
+    while (cis.has(ctx.j)) {
       ctx.state match {
         case state"0" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '-') {
             ctx.update(state"1")
@@ -891,7 +1002,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"1" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '0') {
             ctx.update(state"2")
@@ -905,7 +1016,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"2" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '.') {
             ctx.update(state"3")
@@ -919,7 +1030,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"3" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"4")
@@ -929,7 +1040,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"4" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"4")
@@ -943,7 +1054,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"5" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '+' || c === '-') {
             ctx.update(state"6")
@@ -961,7 +1072,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"6" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '0') {
             ctx.update(state"7")
@@ -976,7 +1087,7 @@ import JsonParser._
           }
         case state"7" => return ctx.afterAcceptIndex
         case state"8" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"8")
@@ -986,7 +1097,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"9" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if (c === '.') {
             ctx.update(state"3")
@@ -1016,10 +1127,10 @@ import JsonParser._
   @pure def dfa_WS(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"1"), i)
 
-    while (ctx.j < cis.size) {
+    while (cis.has(ctx.j)) {
       ctx.state match {
         case state"0" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('\u0009' <= c && c <= '\u000A' || c === '\u000D' || c === ' ') {
             ctx.update(state"1")
@@ -1029,7 +1140,7 @@ import JsonParser._
             return ctx.afterAcceptIndex
           }
         case state"1" =>
-          val c = cis(ctx.j)
+          val c = cis.at(ctx.j)
           var found = F
           if ('\u0009' <= c && c <= '\u000A' || c === '\u000D' || c === ' ') {
             ctx.update(state"1")
@@ -1059,9 +1170,8 @@ import JsonParser._
 
   @pure def lexH(index: Z, newIndex: Z, name: String, tipe: U32, isHidden: B): Option[Result] = {
     if (newIndex > 0) {
-      return Some(Result.create(ParseTree.Leaf(ops.StringOps.substring(cis, index, newIndex),
-        name, tipe, isHidden, Some(message.PosInfo(docInfo, offsetLength(index, newIndex - index)))),
-        newIndex))
+      return Some(Result.create(ParseTree.Leaf(conversions.String.fromCis(for (i <- index until newIndex) yield cis.at(i)),
+        name, tipe, isHidden, cis.posOpt(index, newIndex - index)), newIndex))
     } else {
       return None()
     }
