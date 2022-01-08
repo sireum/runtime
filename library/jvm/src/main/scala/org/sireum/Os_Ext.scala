@@ -453,11 +453,11 @@ object Os_Ext {
     new G
   }
 
-  def readIndexableCPath(path: String): Indexable.Pos[C] = readIndexableC(Some(toUri(path)), new FR(path.value))
+  def readIndexableCPath(path: String): Indexable.Pos[C] with AutoCloseable = readIndexableC(Some(toUri(path)), new FR(path.value))
 
-  def readIndexableCUrl(url: String): Indexable.Pos[C] = readIndexableC(Some(url), new ISR(new java.net.URL(url.value).openStream()))
+  def readIndexableCUrl(url: String): Indexable.Pos[C] with AutoCloseable = readIndexableC(Some(url), new ISR(new java.net.URL(url.value).openStream()))
 
-  def readIndexableC(uriOpt: Option[String], reader: java.io.Reader): Indexable.Pos[C] = new Indexable.Pos[C] {
+  def readIndexableC(uriOpt: Option[String], reader: java.io.Reader): Indexable.Pos[C] with AutoCloseable = new Indexable.Pos[C] with AutoCloseable {
     import org.sireum.U32._
     import org.sireum.U64._
 
@@ -507,6 +507,11 @@ object Os_Ext {
     override def toString: Predef.String = s"Indexable.Pos[C](${uriOpt.get})"
 
     override def string: String = toString
+
+    override def close(): Unit = {
+      done = true
+      cpr.close()
+    }
   }
 
   def readCMStream(p: String): Os.Path.MJen[C] = {
