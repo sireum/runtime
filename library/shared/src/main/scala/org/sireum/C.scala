@@ -53,21 +53,16 @@ object C {
 
   def random: C = {
     val r = new _root_.java.util.Random
-    var c = r.nextInt.toChar
-    while (0xD800 <= c && c <= 0xDFFF) {
-      c = r.nextInt.toChar
-    }
-    C(c.toInt)
+    C(r.nextInt.toChar.toInt)
   }
 
-  def unapply(c: C): scala.Option[scala.Int] = scala.Some(c.value)
+  def unapply(c: C): scala.Some[scala.Int] = scala.Some(c.value)
 
   import scala.language.implicitConversions
 
   @inline def apply(c: scala.Int): C = new C(c)
 
   @inline implicit def apply(c: scala.Char): C = {
-    require(!(0xD800 <= c && c <= 0xDFFF))
     new C(c.toInt)
   }
 
@@ -75,12 +70,9 @@ object C {
 
 final class C(val value: scala.Int) extends AnyVal with Immutable with $internal.HasBoxer {
 
-  @inline def native: scala.Char = {
-    require(!(0xD800 <= value && value <= 0xDFFF))
-    value.toChar
-  }
+  @inline def native: scala.Char = value.toChar
 
-  @inline def unary_~(other: C): C = C(~value)
+  @inline def unary_~ : C = C(~value)
 
   @inline def +(other: C): C = C(value + other.value)
 
