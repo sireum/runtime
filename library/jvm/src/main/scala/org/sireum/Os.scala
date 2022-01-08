@@ -87,6 +87,10 @@ object Os {
     return Ext.os
   }
 
+  @pure def readIndexableCFrom(url: String): Indexable.Pos[C] = {
+    return Ext.readIndexableCUrl(url)
+  }
+
   @pure def path(value: String): Path = {
     if (isWin) {
       val sOps = ops.StringOps(value)
@@ -246,7 +250,7 @@ object Os {
             if (pred(p)) {
               add(p)
             }
-            val tOpt = p.readSymLink 
+            val tOpt = p.readSymLink
             tOpt match {
               case Some(t) => rec(t)
               case _ =>
@@ -575,6 +579,10 @@ object Os {
       return Ext.readCStream(value)
     }
 
+    def readIndexableC: Indexable.Pos[C] = {
+      return Ext.readIndexableCPath(value)
+    }
+
     def readCMStream: MJen[C] = {
       return Ext.readCMStream(value)
     }
@@ -845,6 +853,10 @@ object Os {
     def readU8Stream(path: String): Path.Jen[U8] = $
 
     def readCStream(path: String): Path.Jen[C] = $
+
+    def readIndexableCPath(path: String): Indexable.Pos[C] = $
+
+    def readIndexableCUrl(url: String): Indexable.Pos[C] = $
 
     def readLineMStream(path: String): Path.MJen[String] = $
 

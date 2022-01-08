@@ -24,22 +24,16 @@
  */
 package org.sireum
 
-import java.io.{
-  PrintWriter, File => JFile, BufferedInputStream => BIS, BufferedOutputStream => BOS, FileOutputStream => FOS,
-  FileInputStream => FIS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW
-}
+import java.io.{PrintWriter, BufferedInputStream => BIS, BufferedOutputStream => BOS, File => JFile, FileInputStream => FIS, FileOutputStream => FOS, FileReader => FR, InputStreamReader => ISR, OutputStreamWriter => OSW}
 import java.nio.{ByteBuffer => BB}
 import java.nio.charset.{StandardCharsets => SC}
-import java.nio.file.{
-  AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath,
-  Paths => JPaths, StandardCopyOption => SCO, StandardOpenOption => SOO,
-}
+import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsException, Files => JFiles, LinkOption => LO, Path => JPath, Paths => JPaths, StandardCopyOption => SCO, StandardOpenOption => SOO}
 import java.util.concurrent.{TimeUnit => TU}
 import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => ZOS}
-
 import com.zaxxer.nuprocess._
 import org.sireum.$internal.CollectionCompat
 import org.sireum.$internal.CollectionCompat.Converters._
+import org.sireum.message.{FlatPos, Position}
 
 object Os_Ext {
 
@@ -457,6 +451,62 @@ object Os_Ext {
       }
     }
     new G
+  }
+
+  def readIndexableCPath(path: String): Indexable.Pos[C] = readIndexableC(Some(toUri(path)), new FR(path.value))
+
+  def readIndexableCUrl(url: String): Indexable.Pos[C] = readIndexableC(Some(url), new ISR(new java.net.URL(url.value).openStream()))
+
+  def readIndexableC(uriOpt: Option[String], reader: java.io.Reader): Indexable.Pos[C] = new Indexable.Pos[C] {
+    import org.sireum.U32._
+    import org.sireum.U64._
+
+    val buffer: scala.collection.mutable.ArrayBuffer[C] = scala.collection.mutable.ArrayBuffer.empty
+    var lineOffsets: ISZ[U32] = ISZ(u32"0")
+    var done: Boolean = false
+    val cpr: CodepointStream = new CodepointStream(reader)
+
+    override def posOpt(offset: Z, length: Z): Option[Position] = {
+      val i = offset + length - 1
+      assert(has(offset + length - 1), s"Index out of bounds: $i")
+      val docInfo = message.DocInfo(uriOpt, lineOffsets)
+      val lc1 = docInfo.lineColumn((conversions.Z.toU64(offset) << u64"32") | conversions.Z.toU64(length))
+      val lc2 = docInfo.lineColumn((conversions.Z.toU64(offset + length - 1) << u64"32") | conversions.Z.toU64(1))
+      return Some(FlatPos(
+        uriOpt = uriOpt,
+        beginLine32 = conversions.U64.toU32(lc1 >> u64"32"),
+        beginColumn32 = conversions.U64.toU32(lc1 & u64"0xFFFFFFFF"),
+        endLine32 = conversions.U64.toU32(lc2 >> u64"32"),
+        endColumn32 = conversions.U64.toU32(lc2 & u64"0xFFFFFFFF"),
+        offset32 = conversions.Z.toU32(offset),
+        length32 = conversions.Z.toU32(length)
+      ))
+    }
+
+    override def at(i: Z): C = {
+      assert(has(i), s"Index out of bounds: $i")
+      buffer(i.toInt)
+    }
+
+    override def has(i: Z): B = {
+      while (!done && i >= buffer.size) {
+        val cp = cpr.read()
+        if (cp < 0) {
+          done = true
+          cpr.close()
+        } else {
+          buffer.addOne(C(cp))
+          if (cp == '\n') {
+            lineOffsets = lineOffsets :+ conversions.Z.toU32(i + 1)
+          }
+        }
+      }
+      return i < buffer.size
+    }
+
+    override def toString: Predef.String = s"Indexable.Pos[C](${uriOpt.get})"
+
+    override def string: String = toString
   }
 
   def readCMStream(p: String): Os.Path.MJen[C] = {
