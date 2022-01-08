@@ -78,9 +78,23 @@ object JsonParser {
                         var failIndex: Z,
                         var isLexical: B) {
 
-    def update(newState: State): Unit = {
+    def updateTerminal(token: ParseTree.Leaf, newState: State): Unit = {
+      found = T
+      j = j + 1
       initial = F
       state = newState
+      trees = trees :+ token
+      if (accepting(state)) {
+        resOpt = Some(Result.create(ParseTree.Node(trees, ruleName, ruleType), j))
+      }
+    }
+
+    def updateNonTerminal(r: Result, newState: State): Unit = {
+      found = T
+      initial = F
+      j = r.newIndex
+      state = newState
+      trees = trees :+ r.tree
       if (accepting(state)) {
         resOpt = Some(Result.create(ParseTree.Node(trees, ruleName, ruleType), j))
       }
@@ -110,9 +124,10 @@ object JsonParser {
     }
   }
 
-  @record class LContext(val accepting: IS[State, B], var state: State, var j: Z, var afterAcceptIndex: Z) {
+  @record class LContext(val accepting: IS[State, B], var state: State, var j: Z, var afterAcceptIndex: Z, var found: B) {
     def update(newState: State): Unit = {
       state = newState
+      found = T
       if (accepting(state)) {
         afterAcceptIndex = j + 1
       }
@@ -125,7 +140,7 @@ object JsonParser {
       for (accept <- accepts) {
         accepting(accept) = T
       }
-      return LContext(accepting = accepting.toIS, state = state"0", j = i, afterAcceptIndex = -1)
+      return LContext(accepting = accepting.toIS, state = state"0", j = i, afterAcceptIndex = -1, found = F)
     }
   }
 
@@ -284,11 +299,7 @@ import JsonParser._
         case state"1" =>
           ctx.found = F
           token.tipe match {
-            case u32"0xFC5CB374" /* EOF */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"2")
-              ctx.found = T
+            case u32"0xFC5CB374" /* EOF */ => ctx.updateTerminal(token, state"2")
             case _ =>
           }
           if (!ctx.found) {
@@ -324,37 +335,16 @@ import JsonParser._
           for (n <- 1 to 1 by -1 if !ctx.found) {
             if (n_object == n && parseObjectH(ctx, state"1")) {
               return Result.error(ctx.isLexical, ctx.failIndex)
-            }
-            if (!ctx.found && n_array == n && parseArrayH(ctx, state"1")) {
+            } else if (n_array == n && parseArrayH(ctx, state"1")) {
               return Result.error(ctx.isLexical, ctx.failIndex)
             }
           }
           token.tipe match {
-            case u32"0xA7CF0FE0" /* STRING */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
-            case u32"0x28C20CF1" /* NUMBER */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
-            case u32"0xAFEF039D" /* "true" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
-            case u32"0xD8AFD1B9" /* "false" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
-            case u32"0x3EA44541" /* "null" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
+            case u32"0xA7CF0FE0" /* STRING */ if !ctx.found => ctx.updateTerminal(token, state"1")
+            case u32"0x28C20CF1" /* NUMBER */ if !ctx.found => ctx.updateTerminal(token, state"1")
+            case u32"0xAFEF039D" /* "true" */ if !ctx.found => ctx.updateTerminal(token, state"1")
+            case u32"0xD8AFD1B9" /* "false" */ if !ctx.found => ctx.updateTerminal(token, state"1")
+            case u32"0x3EA44541" /* "null" */ if !ctx.found => ctx.updateTerminal(token, state"1")
             case _ =>
           }
           if (!ctx.found) {
@@ -386,11 +376,7 @@ import JsonParser._
         case state"0" =>
           ctx.found = F
           token.tipe match {
-            case u32"0xFDCE65E5" /* "{" */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
+            case u32"0xFDCE65E5" /* "{" */ => ctx.updateTerminal(token, state"1")
             case _ =>
           }
           if (!ctx.found) {
@@ -399,16 +385,8 @@ import JsonParser._
         case state"1" =>
           ctx.found = F
           token.tipe match {
-            case u32"0xA7CF0FE0" /* STRING */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"2")
-              ctx.found = T
-            case u32"0x5BF60471" /* "}" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"8")
-              ctx.found = T
+            case u32"0xA7CF0FE0" /* STRING */ => ctx.updateTerminal(token, state"2")
+            case u32"0x5BF60471" /* "}" */ if !ctx.found => ctx.updateTerminal(token, state"8")
             case _ =>
           }
           if (!ctx.found) {
@@ -417,11 +395,7 @@ import JsonParser._
         case state"2" =>
           ctx.found = F
           token.tipe match {
-            case u32"0x763C38BE" /* ":" */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"3")
-              ctx.found = T
+            case u32"0x763C38BE" /* ":" */ => ctx.updateTerminal(token, state"3")
             case _ =>
           }
           if (!ctx.found) {
@@ -439,16 +413,8 @@ import JsonParser._
         case state"4" =>
           ctx.found = F
           token.tipe match {
-            case u32"0x45445E21" /* "," */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"5")
-              ctx.found = T
-            case u32"0x5BF60471" /* "}" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"8")
-              ctx.found = T
+            case u32"0x45445E21" /* "," */ => ctx.updateTerminal(token, state"5")
+            case u32"0x5BF60471" /* "}" */ if !ctx.found => ctx.updateTerminal(token, state"8")
             case _ =>
           }
           if (!ctx.found) {
@@ -457,11 +423,7 @@ import JsonParser._
         case state"5" =>
           ctx.found = F
           token.tipe match {
-            case u32"0xA7CF0FE0" /* STRING */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"6")
-              ctx.found = T
+            case u32"0xA7CF0FE0" /* STRING */ => ctx.updateTerminal(token, state"6")
             case _ =>
           }
           if (!ctx.found) {
@@ -470,11 +432,7 @@ import JsonParser._
         case state"6" =>
           ctx.found = F
           token.tipe match {
-            case u32"0x763C38BE" /* ":" */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"7")
-              ctx.found = T
+            case u32"0x763C38BE" /* ":" */ => ctx.updateTerminal(token, state"7")
             case _ =>
           }
           if (!ctx.found) {
@@ -515,11 +473,7 @@ import JsonParser._
         case state"0" =>
           ctx.found = F
           token.tipe match {
-            case u32"0xA44269E9" /* "[" */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"1")
-              ctx.found = T
+            case u32"0xA44269E9" /* "[" */ => ctx.updateTerminal(token, state"1")
             case _ =>
           }
           if (!ctx.found) {
@@ -532,11 +486,7 @@ import JsonParser._
             return Result.error(ctx.isLexical, ctx.failIndex)
           }
           token.tipe match {
-            case u32"0x9977908D" /* "]" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"4")
-              ctx.found = T
+            case u32"0x9977908D" /* "]" */ if !ctx.found => ctx.updateTerminal(token, state"4")
             case _ =>
           }
           if (!ctx.found) {
@@ -545,16 +495,8 @@ import JsonParser._
         case state"2" =>
           ctx.found = F
           token.tipe match {
-            case u32"0x45445E21" /* "," */ =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"3")
-              ctx.found = T
-            case u32"0x9977908D" /* "]" */ if !ctx.found =>
-              ctx.trees = ctx.trees :+ token
-              ctx.j = ctx.j + 1
-              ctx.update(state"4")
-              ctx.found = T
+            case u32"0x45445E21" /* "," */ => ctx.updateTerminal(token, state"3")
+            case u32"0x9977908D" /* "]" */ if !ctx.found => ctx.updateTerminal(token, state"4")
             case _ =>
           }
           if (!ctx.found) {
@@ -583,11 +525,7 @@ import JsonParser._
   def parseValueH(ctx: Context, nextState: State): B = {
     val r = parseValue(ctx.j)
     r.kind match {
-      case Result.Kind.Normal =>
-        ctx.trees = ctx.trees :+ r.tree
-        ctx.j = r.newIndex
-        ctx.update(nextState)
-        ctx.found = T
+      case Result.Kind.Normal => ctx.updateNonTerminal(r, nextState)
       case Result.Kind.LexicalError =>
         ctx.failIndex = r.newIndex
         ctx.isLexical = T
@@ -607,11 +545,7 @@ import JsonParser._
   def parseObjectH(ctx: Context, nextState: State): B = {
     val r = parseObject(ctx.j)
     r.kind match {
-      case Result.Kind.Normal =>
-        ctx.trees = ctx.trees :+ r.tree
-        ctx.j = r.newIndex
-        ctx.update(nextState)
-        ctx.found = T
+      case Result.Kind.Normal => ctx.updateNonTerminal(r, nextState)
       case Result.Kind.LexicalError =>
         ctx.failIndex = r.newIndex
         ctx.isLexical = T
@@ -631,11 +565,7 @@ import JsonParser._
   def parseArrayH(ctx: Context, nextState: State): B = {
     val r = parseArray(ctx.j)
     r.kind match {
-      case Result.Kind.Normal =>
-        ctx.trees = ctx.trees :+ r.tree
-        ctx.j = r.newIndex
-        ctx.update(nextState)
-        ctx.found = T
+      case Result.Kind.Normal => ctx.updateNonTerminal(r, nextState)
       case Result.Kind.LexicalError =>
         ctx.failIndex = r.newIndex
         ctx.isLexical = T
@@ -791,8 +721,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_true(index: Z): Option[Result] =
-     lexH(index, lit_true(index), """'true'""", u32"0xAFEF039D" /* "true" */, F)
+  @strictpure def lex_true(index: Z): Option[Result] = lexH(index, lit_true(index), """'true'""", u32"0xAFEF039D" /* "true" */, F)
 
   @pure def lit_false(i: Z): Z = {
     if (!cis.has(i + 5)) {
@@ -804,8 +733,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_false(index: Z): Option[Result] =
-     lexH(index, lit_false(index), """'false'""", u32"0xD8AFD1B9" /* "false" */, F)
+  @strictpure def lex_false(index: Z): Option[Result] = lexH(index, lit_false(index), """'false'""", u32"0xD8AFD1B9" /* "false" */, F)
 
   @pure def lit_null(i: Z): Z = {
     if (!cis.has(i + 4)) {
@@ -817,8 +745,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_null(index: Z): Option[Result] =
-     lexH(index, lit_null(index), """'null'""", u32"0x3EA44541" /* "null" */, F)
+  @strictpure def lex_null(index: Z): Option[Result] = lexH(index, lit_null(index), """'null'""", u32"0x3EA44541" /* "null" */, F)
 
   @pure def lit_u007B(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === '{') {
@@ -827,8 +754,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u007B(index: Z): Option[Result] =
-     lexH(index, lit_u007B(index), """'{'""", u32"0xFDCE65E5" /* "{" */, F)
+  @strictpure def lex_u007B(index: Z): Option[Result] = lexH(index, lit_u007B(index), """'{'""", u32"0xFDCE65E5" /* "{" */, F)
 
   @pure def lit_u003A(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === ':') {
@@ -837,8 +763,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u003A(index: Z): Option[Result] =
-     lexH(index, lit_u003A(index), """':'""", u32"0x763C38BE" /* ":" */, F)
+  @strictpure def lex_u003A(index: Z): Option[Result] = lexH(index, lit_u003A(index), """':'""", u32"0x763C38BE" /* ":" */, F)
 
   @pure def lit_u002C(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === ',') {
@@ -847,8 +772,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u002C(index: Z): Option[Result] =
-     lexH(index, lit_u002C(index), """','""", u32"0x45445E21" /* "," */, F)
+  @strictpure def lex_u002C(index: Z): Option[Result] = lexH(index, lit_u002C(index), """','""", u32"0x45445E21" /* "," */, F)
 
   @pure def lit_u007D(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === '}') {
@@ -857,8 +781,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u007D(index: Z): Option[Result] =
-     lexH(index, lit_u007D(index), """'}'""", u32"0x5BF60471" /* "}" */, F)
+  @strictpure def lex_u007D(index: Z): Option[Result] = lexH(index, lit_u007D(index), """'}'""", u32"0x5BF60471" /* "}" */, F)
 
   @pure def lit_u005B(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === '[') {
@@ -867,8 +790,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u005B(index: Z): Option[Result] =
-     lexH(index, lit_u005B(index), """'['""", u32"0xA44269E9" /* "[" */, F)
+  @strictpure def lex_u005B(index: Z): Option[Result] = lexH(index, lit_u005B(index), """'['""", u32"0xA44269E9" /* "[" */, F)
 
   @pure def lit_u005D(i: Z): Z = {
     if (cis.has(i) && cis.at(i) === ']') {
@@ -877,8 +799,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u005D(index: Z): Option[Result] =
-     lexH(index, lit_u005D(index), """']'""", u32"0x9977908D" /* "]" */, F)
+  @strictpure def lex_u005D(index: Z): Option[Result] = lexH(index, lit_u005D(index), """']'""", u32"0x9977908D" /* "]" */, F)
 
   @pure def dfa_STRING(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2"), i)
@@ -887,85 +808,72 @@ import JsonParser._
       ctx.state match {
         case state"0" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '"') {
             ctx.update(state"1")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"1" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (' ' <= c && c <= '!' || '#' <= c && c <= '[' || ']' <= c && c <= maxChar) {
             ctx.update(state"1")
-            found = T
-          }
-          if (!found && (c === '"')) {
+          } else if (c === '"') {
             ctx.update(state"2")
-            found = T
-          }
-          if (!found && (c === '\\')) {
+          } else if (c === '\\') {
             ctx.update(state"3")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"2" => return ctx.afterAcceptIndex
         case state"3" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '"' || c === '/' || c === '\\' || c === 'b' || c === 'f' || c === 'n' || c === 'r' || c === 't') {
             ctx.update(state"1")
-            found = T
-          }
-          if (!found && (c === 'u')) {
+          } else if (c === 'u') {
             ctx.update(state"4")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"4" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"5")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"5" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"6")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"6" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"7")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"7" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9' || 'A' <= c && c <= 'F' || 'a' <= c && c <= 'f') {
             ctx.update(state"1")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case _ => halt("Infeasible")
@@ -975,8 +883,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_STRING(index: Z): Option[Result] =
-     lexH(index, dfa_STRING(index), """STRING""", u32"0xA7CF0FE0", F)
+  @strictpure def lex_STRING(index: Z): Option[Result] = lexH(index, dfa_STRING(index), """STRING""", u32"0xA7CF0FE0", F)
 
   @pure def dfa_NUMBER(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2", state"4", state"7", state"8", state"9"), i)
@@ -985,133 +892,104 @@ import JsonParser._
       ctx.state match {
         case state"0" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '-') {
             ctx.update(state"1")
-            found = T
-          }
-          if (!found && (c === '0')) {
+          } else if (c === '0') {
             ctx.update(state"2")
-            found = T
-          }
-          if (!found && ('1' <= c && c <= '9')) {
+          } else if ('1' <= c && c <= '9') {
             ctx.update(state"9")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"1" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '0') {
             ctx.update(state"2")
-            found = T
-          }
-          if (!found && ('1' <= c && c <= '9')) {
+          } else if ('1' <= c && c <= '9') {
             ctx.update(state"9")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"2" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '.') {
             ctx.update(state"3")
-            found = T
-          }
-          if (!found && (c === 'E' || c === 'e')) {
+          } else if (c === 'E' || c === 'e') {
             ctx.update(state"5")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"3" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"4")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"4" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"4")
-            found = T
-          }
-          if (!found && (c === 'E' || c === 'e')) {
+          } else if (c === 'E' || c === 'e') {
             ctx.update(state"5")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"5" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '+' || c === '-') {
             ctx.update(state"6")
-            found = T
-          }
-          if (!found && (c === '0')) {
+          } else if (c === '0') {
             ctx.update(state"7")
-            found = T
-          }
-          if (!found && ('1' <= c && c <= '9')) {
+          } else if ('1' <= c && c <= '9') {
             ctx.update(state"8")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"6" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '0') {
             ctx.update(state"7")
-            found = T
-          }
-          if (!found && ('1' <= c && c <= '9')) {
+          } else if ('1' <= c && c <= '9') {
             ctx.update(state"8")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"7" => return ctx.afterAcceptIndex
         case state"8" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('0' <= c && c <= '9') {
             ctx.update(state"8")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"9" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if (c === '.') {
             ctx.update(state"3")
-            found = T
-          }
-          if (!found && ('0' <= c && c <= '9')) {
+          } else if ('0' <= c && c <= '9') {
             ctx.update(state"9")
-            found = T
-          }
-          if (!found && (c === 'E' || c === 'e')) {
+          } else if (c === 'E' || c === 'e') {
             ctx.update(state"5")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case _ => halt("Infeasible")
@@ -1121,8 +999,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_NUMBER(index: Z): Option[Result] =
-     lexH(index, dfa_NUMBER(index), """NUMBER""", u32"0x28C20CF1", F)
+  @strictpure def lex_NUMBER(index: Z): Option[Result] = lexH(index, dfa_NUMBER(index), """NUMBER""", u32"0x28C20CF1", F)
 
   @pure def dfa_WS(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"1"), i)
@@ -1131,22 +1008,20 @@ import JsonParser._
       ctx.state match {
         case state"0" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('\u0009' <= c && c <= '\u000A' || c === '\u000D' || c === ' ') {
             ctx.update(state"1")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case state"1" =>
           val c = cis.at(ctx.j)
-          var found = F
+          ctx.found = F
           if ('\u0009' <= c && c <= '\u000A' || c === '\u000D' || c === ' ') {
             ctx.update(state"1")
-            found = T
           }
-          if (!found) {
+          if (!ctx.found) {
             return ctx.afterAcceptIndex
           }
         case _ => halt("Infeasible")
@@ -1156,8 +1031,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_WS(index: Z): Option[Result] =
-     lexH(index, dfa_WS(index), """WS""", u32"0x0E3F5D1E", T)
+  @strictpure def lex_WS(index: Z): Option[Result] = lexH(index, dfa_WS(index), """WS""", u32"0x0E3F5D1E", T)
 
   @pure def hidden(i: Z): Z = {
      var j: Z = -1
