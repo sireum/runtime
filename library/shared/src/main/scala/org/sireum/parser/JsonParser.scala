@@ -175,7 +175,6 @@ object JsonParser {
             case _ =>
           }
         }
-        return Result(Result.Kind.Normal, eofLeaf, -1)
       } else {
         val prev = _at(i - 1)
         if (input.has(prev.newIndex)) {
@@ -184,8 +183,8 @@ object JsonParser {
             case _ =>
           }
         }
-        return Result(Result.Kind.Normal, eofLeaf, -1)
       }
+      return Result(Result.Kind.Normal, eofLeaf, -1)
     }
 
   }
@@ -240,7 +239,7 @@ object JsonParser {
     }
   }
 
-  def parseStream(input: Indexable.Pos[C], reporter: message.Reporter): Option[ParseTree] = {
+  def parseIndexable(input: Indexable.Pos[C], reporter: message.Reporter): Option[ParseTree] = {
     val it = IndexableToken(input, T)
     val r = JsonParser(it).parseValueFile(0)
     r.kind match {
@@ -276,7 +275,7 @@ import JsonParser._
 @datatype class JsonParser(tokens: Indexable[Result]) {
 
   @pure def parseValueFile(i: Z): Result = {
-    val ctx = Context.create("valueFile", u32"0x94F3E412" /* valueFile */, ISZ(state"2"), i)
+    val ctx = Context.create("valueFile", u32"0x94F3E412", ISZ(state"2"), i)
 
     while (tokens.has(ctx.j)) {
       val token: ParseTree.Leaf = {
@@ -317,7 +316,7 @@ import JsonParser._
   }
 
   @pure def parseValue(i: Z): Result = {
-    val ctx = Context.create("value", u32"0x82EEA07A" /* value */, ISZ(state"1"), i)
+    val ctx = Context.create("value", u32"0x82EEA07A", ISZ(state"1"), i)
 
     while (tokens.has(ctx.j)) {
       val token: ParseTree.Leaf = {
@@ -339,13 +338,15 @@ import JsonParser._
               return Result.error(ctx.isLexical, ctx.failIndex)
             }
           }
-          token.tipe match {
-            case u32"0xA7CF0FE0" /* STRING */ if !ctx.found => ctx.updateTerminal(token, state"1")
-            case u32"0x28C20CF1" /* NUMBER */ if !ctx.found => ctx.updateTerminal(token, state"1")
-            case u32"0xAFEF039D" /* "true" */ if !ctx.found => ctx.updateTerminal(token, state"1")
-            case u32"0xD8AFD1B9" /* "false" */ if !ctx.found => ctx.updateTerminal(token, state"1")
-            case u32"0x3EA44541" /* "null" */ if !ctx.found => ctx.updateTerminal(token, state"1")
-            case _ =>
+          if (!ctx.found) {
+            token.tipe match {
+              case u32"0xA7CF0FE0" /* STRING */ => ctx.updateTerminal(token, state"1")
+              case u32"0x28C20CF1" /* NUMBER */ => ctx.updateTerminal(token, state"1")
+              case u32"0xAFEF039D" /* "true" */ => ctx.updateTerminal(token, state"1")
+              case u32"0xD8AFD1B9" /* "false" */ => ctx.updateTerminal(token, state"1")
+              case u32"0x3EA44541" /* "null" */ => ctx.updateTerminal(token, state"1")
+              case _ =>
+            }
           }
           if (!ctx.found) {
             return retVal(ctx.max, ctx.resOpt, ctx.initial, T)
@@ -362,7 +363,7 @@ import JsonParser._
   }
 
   @pure def parseObject(i: Z): Result = {
-    val ctx = Context.create("object", u32"0x5ED5358F" /* object */, ISZ(state"8"), i)
+    val ctx = Context.create("object", u32"0x5ED5358F", ISZ(state"8"), i)
 
     while (tokens.has(ctx.j)) {
       val token: ParseTree.Leaf = {
@@ -386,7 +387,7 @@ import JsonParser._
           ctx.found = F
           token.tipe match {
             case u32"0xA7CF0FE0" /* STRING */ => ctx.updateTerminal(token, state"2")
-            case u32"0x5BF60471" /* "}" */ if !ctx.found => ctx.updateTerminal(token, state"8")
+            case u32"0x5BF60471" /* "}" */ => ctx.updateTerminal(token, state"8")
             case _ =>
           }
           if (!ctx.found) {
@@ -414,7 +415,7 @@ import JsonParser._
           ctx.found = F
           token.tipe match {
             case u32"0x45445E21" /* "," */ => ctx.updateTerminal(token, state"5")
-            case u32"0x5BF60471" /* "}" */ if !ctx.found => ctx.updateTerminal(token, state"8")
+            case u32"0x5BF60471" /* "}" */ => ctx.updateTerminal(token, state"8")
             case _ =>
           }
           if (!ctx.found) {
@@ -459,7 +460,7 @@ import JsonParser._
   }
 
   @pure def parseArray(i: Z): Result = {
-    val ctx = Context.create("array", u32"0xB11A9723" /* array */, ISZ(state"4"), i)
+    val ctx = Context.create("array", u32"0xB11A9723", ISZ(state"4"), i)
 
     while (tokens.has(ctx.j)) {
       val token: ParseTree.Leaf = {
@@ -485,9 +486,11 @@ import JsonParser._
           if (n_value > 0 && parseValueH(ctx, state"2")) {
             return Result.error(ctx.isLexical, ctx.failIndex)
           }
-          token.tipe match {
-            case u32"0x9977908D" /* "]" */ if !ctx.found => ctx.updateTerminal(token, state"4")
-            case _ =>
+          if (!ctx.found) {
+            token.tipe match {
+              case u32"0x9977908D" /* "]" */ => ctx.updateTerminal(token, state"4")
+              case _ =>
+            }
           }
           if (!ctx.found) {
             return retVal(ctx.max, ctx.resOpt, ctx.initial, T)
@@ -496,7 +499,7 @@ import JsonParser._
           ctx.found = F
           token.tipe match {
             case u32"0x45445E21" /* "," */ => ctx.updateTerminal(token, state"3")
-            case u32"0x9977908D" /* "]" */ if !ctx.found => ctx.updateTerminal(token, state"4")
+            case u32"0x9977908D" /* "]" */ => ctx.updateTerminal(token, state"4")
             case _ =>
           }
           if (!ctx.found) {
@@ -583,8 +586,9 @@ import JsonParser._
   }
 
   @pure def predictValueFile(j: Z): Z = {
-    if (tokens.at(j).kind == Result.Kind.Normal) {
-      tokens.at(j).leaf.tipe match {
+    val tokenJ = tokens.at(j)
+    if (tokenJ.kind == Result.Kind.Normal) {
+      tokenJ.leaf.tipe match {
         case u32"0xA7CF0FE0" /* STRING */ => return 1
         case u32"0x28C20CF1" /* NUMBER */ => return 1
         case u32"0xFDCE65E5" /* "{" */ => return 1
@@ -599,8 +603,9 @@ import JsonParser._
   }
 
   @pure def predictArray(j: Z): Z = {
-    if (tokens.at(j).kind == Result.Kind.Normal) {
-      tokens.at(j).leaf.tipe match {
+    val tokenJ = tokens.at(j)
+    if (tokenJ.kind == Result.Kind.Normal) {
+      tokenJ.leaf.tipe match {
         case u32"0xA44269E9" /* "[" */ => return 1
         case _ =>
       }
@@ -609,8 +614,9 @@ import JsonParser._
   }
 
   @pure def predictValue(j: Z): Z = {
-    if (tokens.at(j).kind == Result.Kind.Normal) {
-      tokens.at(j).leaf.tipe match {
+    val tokenJ = tokens.at(j)
+    if (tokenJ.kind == Result.Kind.Normal) {
+      tokenJ.leaf.tipe match {
         case u32"0xA7CF0FE0" /* STRING */ => return 1
         case u32"0x28C20CF1" /* NUMBER */ => return 1
         case u32"0xFDCE65E5" /* "{" */ => return 1
@@ -625,8 +631,9 @@ import JsonParser._
   }
 
   @pure def predictObject(j: Z): Z = {
-    if (tokens.at(j).kind == Result.Kind.Normal) {
-      tokens.at(j).leaf.tipe match {
+    val tokenJ = tokens.at(j)
+    if (tokenJ.kind == Result.Kind.Normal) {
+      tokenJ.leaf.tipe match {
         case u32"0xFDCE65E5" /* "{" */ => return 1
         case _ =>
       }
