@@ -26,6 +26,7 @@
 import mill._
 import mill.scalalib._
 import org.sireum.mill.SireumModule._
+import org.sireum.mill.SireumModule.scalaVersion
 
 //interp.load.ivy("com.lihaoyi" %% "mill-contrib-bsp" % System.getProperty("MILL_VERSION"))
 
