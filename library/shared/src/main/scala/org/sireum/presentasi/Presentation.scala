@@ -60,8 +60,8 @@ object Presentation {
   @strictpure def +(entry: Presentation.Entry): Presentation =
     Presentation(name, delay, textVolume, trailing, granularity, entries :+ entry)
 
-  @strictpure def ++(entries: ISZ[Presentation.Entry]): Presentation =
-    Presentation(name, delay, textVolume, trailing, granularity, entries ++ entries)
+  @strictpure def ++(es: ISZ[Presentation.Entry]): Presentation =
+    Presentation(name, delay, textVolume, trailing, granularity, entries ++ es)
 
   def cli(args: ISZ[String]): Unit = {
     println(JSON.fromPresentation(this, T))
