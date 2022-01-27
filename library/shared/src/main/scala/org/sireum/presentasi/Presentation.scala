@@ -46,22 +46,23 @@ object Presentation {
                         val end: F64,
                         val textOpt: Option[String]) extends Entry
 
-  @strictpure def empty: Presentation = Presentation("Presentasi", 2000, 1.0, 2000, 1, ISZ())
+  @strictpure def empty: Presentation = Presentation("Presentasi", 2000, 250, 1.0, 2000, 1, ISZ())
 
 }
 
 @datatype class Presentation(val name: String,
                              val delay: Z,
+                             val vseekDelay: Z,
                              val textVolume: F64,
                              val trailing: Z,
                              val granularity: Z,
                              val entries: ISZ[Presentation.Entry]) {
 
   @strictpure def +(entry: Presentation.Entry): Presentation =
-    Presentation(name, delay, textVolume, trailing, granularity, entries :+ entry)
+    Presentation(name, delay, vseekDelay, textVolume, trailing, granularity, entries :+ entry)
 
   @strictpure def ++(es: ISZ[Presentation.Entry]): Presentation =
-    Presentation(name, delay, textVolume, trailing, granularity, entries ++ es)
+    Presentation(name, delay, vseekDelay, textVolume, trailing, granularity, entries ++ es)
 
   def cli(args: ISZ[String]): Unit = {
     println(JSON.fromPresentation(this, T))
