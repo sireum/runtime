@@ -39,29 +39,30 @@ object JSON {
 
     @pure def printPresentationEntry(o: Presentation.Entry): ST = {
       o match {
-        case o: Presentation.Slide => return printPresentationSlide(o)
-        case o: Presentation.Video => return printPresentationVideo(o)
+        case o: Presentation.SlideEntry => return printPresentationSlideEntry(o)
+        case o: Presentation.VideoEntry => return printPresentationVideoEntry(o)
       }
     }
 
-    @pure def printPresentationSlide(o: Presentation.Slide): ST = {
+    @pure def printPresentationSlideEntry(o: Presentation.SlideEntry): ST = {
       return printObject(ISZ(
-        ("type", st""""Presentation.Slide""""),
+        ("type", st""""Presentation.SlideEntry""""),
         ("path", printString(o.path)),
         ("delay", printZ(o.delay)),
         ("text", printString(o.text))
       ))
     }
 
-    @pure def printPresentationVideo(o: Presentation.Video): ST = {
+    @pure def printPresentationVideoEntry(o: Presentation.VideoEntry): ST = {
       return printObject(ISZ(
-        ("type", st""""Presentation.Video""""),
+        ("type", st""""Presentation.VideoEntry""""),
         ("path", printString(o.path)),
         ("delay", printZ(o.delay)),
         ("volume", printF64(o.volume)),
         ("rate", printF64(o.rate)),
         ("start", printF64(o.start)),
         ("end", printF64(o.end)),
+        ("useVideoDuration", printB(o.useVideoDuration)),
         ("textOpt", printOption(T, o.textOpt, printString _))
       ))
     }
@@ -70,6 +71,7 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Presentation""""),
         ("name", printString(o.name)),
+        ("args", printISZ(T, o.args, printString _)),
         ("delay", printZ(o.delay)),
         ("vseekDelay", printZ(o.vseekDelay)),
         ("textVolume", printF64(o.textVolume)),
@@ -89,22 +91,22 @@ object JSON {
     }
 
     def parsePresentationEntry(): Presentation.Entry = {
-      val t = parser.parseObjectTypes(ISZ("Presentation.Slide", "Presentation.Video"))
+      val t = parser.parseObjectTypes(ISZ("Presentation.SlideEntry", "Presentation.VideoEntry"))
       t.native match {
-        case "Presentation.Slide" => val r = parsePresentationSlideT(T); return r
-        case "Presentation.Video" => val r = parsePresentationVideoT(T); return r
-        case _ => val r = parsePresentationVideoT(T); return r
+        case "Presentation.SlideEntry" => val r = parsePresentationSlideEntryT(T); return r
+        case "Presentation.VideoEntry" => val r = parsePresentationVideoEntryT(T); return r
+        case _ => val r = parsePresentationVideoEntryT(T); return r
       }
     }
 
-    def parsePresentationSlide(): Presentation.Slide = {
-      val r = parsePresentationSlideT(F)
+    def parsePresentationSlideEntry(): Presentation.SlideEntry = {
+      val r = parsePresentationSlideEntryT(F)
       return r
     }
 
-    def parsePresentationSlideT(typeParsed: B): Presentation.Slide = {
+    def parsePresentationSlideEntryT(typeParsed: B): Presentation.SlideEntry = {
       if (!typeParsed) {
-        parser.parseObjectType("Presentation.Slide")
+        parser.parseObjectType("Presentation.SlideEntry")
       }
       parser.parseObjectKey("path")
       val path = parser.parseString()
@@ -115,17 +117,17 @@ object JSON {
       parser.parseObjectKey("text")
       val text = parser.parseString()
       parser.parseObjectNext()
-      return Presentation.Slide(path, delay, text)
+      return Presentation.SlideEntry(path, delay, text)
     }
 
-    def parsePresentationVideo(): Presentation.Video = {
-      val r = parsePresentationVideoT(F)
+    def parsePresentationVideoEntry(): Presentation.VideoEntry = {
+      val r = parsePresentationVideoEntryT(F)
       return r
     }
 
-    def parsePresentationVideoT(typeParsed: B): Presentation.Video = {
+    def parsePresentationVideoEntryT(typeParsed: B): Presentation.VideoEntry = {
       if (!typeParsed) {
-        parser.parseObjectType("Presentation.Video")
+        parser.parseObjectType("Presentation.VideoEntry")
       }
       parser.parseObjectKey("path")
       val path = parser.parseString()
@@ -145,10 +147,13 @@ object JSON {
       parser.parseObjectKey("end")
       val end = parser.parseF64()
       parser.parseObjectNext()
+      parser.parseObjectKey("useVideoDuration")
+      val useVideoDuration = parser.parseB()
+      parser.parseObjectNext()
       parser.parseObjectKey("textOpt")
       val textOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Presentation.Video(path, delay, volume, rate, start, end, textOpt)
+      return Presentation.VideoEntry(path, delay, volume, rate, start, end, useVideoDuration, textOpt)
     }
 
     def parsePresentation(): Presentation = {
@@ -162,6 +167,9 @@ object JSON {
       }
       parser.parseObjectKey("name")
       val name = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("args")
+      val args = parser.parseISZ(parser.parseString _)
       parser.parseObjectNext()
       parser.parseObjectKey("delay")
       val delay = parser.parseZ()
@@ -181,7 +189,7 @@ object JSON {
       parser.parseObjectKey("entries")
       val entries = parser.parseISZ(parsePresentationEntry _)
       parser.parseObjectNext()
-      return Presentation(name, delay, vseekDelay, textVolume, trailing, granularity, entries)
+      return Presentation(name, args, delay, vseekDelay, textVolume, trailing, granularity, entries)
     }
 
     def eof(): B = {
@@ -219,8 +227,8 @@ object JSON {
     return r
   }
 
-  def fromPresentationSlide(o: Presentation.Slide, isCompact: B): String = {
-    val st = Printer.printPresentationSlide(o)
+  def fromPresentationSlideEntry(o: Presentation.SlideEntry, isCompact: B): String = {
+    val st = Printer.printPresentationSlideEntry(o)
     if (isCompact) {
       return st.renderCompact
     } else {
@@ -228,17 +236,17 @@ object JSON {
     }
   }
 
-  def toPresentationSlide(s: String): Either[Presentation.Slide, Json.ErrorMsg] = {
-    def fPresentationSlide(parser: Parser): Presentation.Slide = {
-      val r = parser.parsePresentationSlide()
+  def toPresentationSlideEntry(s: String): Either[Presentation.SlideEntry, Json.ErrorMsg] = {
+    def fPresentationSlideEntry(parser: Parser): Presentation.SlideEntry = {
+      val r = parser.parsePresentationSlideEntry()
       return r
     }
-    val r = to(s, fPresentationSlide _)
+    val r = to(s, fPresentationSlideEntry _)
     return r
   }
 
-  def fromPresentationVideo(o: Presentation.Video, isCompact: B): String = {
-    val st = Printer.printPresentationVideo(o)
+  def fromPresentationVideoEntry(o: Presentation.VideoEntry, isCompact: B): String = {
+    val st = Printer.printPresentationVideoEntry(o)
     if (isCompact) {
       return st.renderCompact
     } else {
@@ -246,12 +254,12 @@ object JSON {
     }
   }
 
-  def toPresentationVideo(s: String): Either[Presentation.Video, Json.ErrorMsg] = {
-    def fPresentationVideo(parser: Parser): Presentation.Video = {
-      val r = parser.parsePresentationVideo()
+  def toPresentationVideoEntry(s: String): Either[Presentation.VideoEntry, Json.ErrorMsg] = {
+    def fPresentationVideoEntry(parser: Parser): Presentation.VideoEntry = {
+      val r = parser.parsePresentationVideoEntry()
       return r
     }
-    val r = to(s, fPresentationVideo _)
+    val r = to(s, fPresentationVideoEntry _)
     return r
   }
 

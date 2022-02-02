@@ -34,23 +34,32 @@ object Presentation {
     @pure def delay: Z
   }
 
-  @datatype class Slide(val path: String,
-                        val delay: Z,
-                        val text: String) extends Entry
+  @datatype class SlideEntry(val path: String,
+                             val delay: Z,
+                             val text: String) extends Entry
 
-  @datatype class Video(val path: String,
-                        val delay: Z,
-                        val volume: F64,
-                        val rate: F64,
-                        val start: F64,
-                        val end: F64,
-                        val textOpt: Option[String]) extends Entry
+  @datatype class VideoEntry(val path: String,
+                             val delay: Z,
+                             val volume: F64,
+                             val rate: F64,
+                             val start: F64,
+                             val end: F64,
+                             val useVideoDuration: B,
+                             val textOpt: Option[String]) extends Entry
 
-  @strictpure def empty: Presentation = Presentation("Presentasi", 2000, 250, 1.0, 2000, 1, ISZ())
+  type Slide = SlideEntry
+  type Video = VideoEntry
+
+  val empty: Presentation = Presentation("Presentasi", ISZ(), 2000, 250, 1.0, 2000, 1, ISZ())
+
+  val Slide: Slide = SlideEntry("", 0, "")
+
+  val Video: Video = VideoEntry("", 0, 1.0, 1.0, 0.0, 0.0, F, None())
 
 }
 
 @datatype class Presentation(val name: String,
+                             val args: ISZ[String],
                              val delay: Z,
                              val vseekDelay: Z,
                              val textVolume: F64,
@@ -59,13 +68,14 @@ object Presentation {
                              val entries: ISZ[Presentation.Entry]) {
 
   @strictpure def +(entry: Presentation.Entry): Presentation =
-    Presentation(name, delay, vseekDelay, textVolume, trailing, granularity, entries :+ entry)
+    Presentation(name, args, delay, vseekDelay, textVolume, trailing, granularity, entries :+ entry)
 
   @strictpure def ++(es: ISZ[Presentation.Entry]): Presentation =
-    Presentation(name, delay, vseekDelay, textVolume, trailing, granularity, entries ++ es)
+    Presentation(name, args, delay, vseekDelay, textVolume, trailing, granularity, entries ++ es)
 
   def cli(args: ISZ[String]): Unit = {
-    println(JSON.fromPresentation(this, T))
+    val thisL = this
+    println(JSON.fromPresentation(thisL(args = args), T))
   }
 
 }
