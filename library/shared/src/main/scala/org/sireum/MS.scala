@@ -323,6 +323,10 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     new IS[I, V](companion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
   }
 
+  def toISZ: ISZ[V] = ISZ(elements: _*)
+
+  def toMSZ: MSZ[V] = MSZ(elements: _*)
+
   def apply(index: I): V = atZ(index.asInstanceOf[ZLike[_]].toIndex)
 
   def apply(args: (I, V)*): MS[I, V] = {

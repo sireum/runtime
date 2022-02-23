@@ -349,6 +349,21 @@ package org.sireum
       )
     )
 
+  @pure def toISZ: ISZ[E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
+      )
+    )
+
+  @pure def toMSZ: MSZ[E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
+      )
+    )
 }
 
 @ext object ISZ {
@@ -425,6 +440,21 @@ package org.sireum
       )
     )
 
+  @pure def toISZ: ISZ[E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
+      )
+    )
+
+  @pure def toMSZ: MSZ[E] =
+    Contract.Only(
+      Ensures(
+        Res.size == size,
+        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
+      )
+    )
 }
 
 @ext object MSZ {
