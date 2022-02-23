@@ -344,7 +344,7 @@ package org.sireum
   @pure def toMS: MS[I, E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(Res.indices)(i => Res(i) == this(i))
       )
     )
@@ -352,7 +352,7 @@ package org.sireum
   @pure def toISZ: ISZ[E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
       )
     )
@@ -360,7 +360,7 @@ package org.sireum
   @pure def toMSZ: MSZ[E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
       )
     )
@@ -435,7 +435,7 @@ package org.sireum
   @pure def toIS: IS[I, E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(Res.indices)(i => Res(i) == this(i))
       )
     )
@@ -443,7 +443,7 @@ package org.sireum
   @pure def toISZ: ISZ[E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
       )
     )
@@ -451,7 +451,7 @@ package org.sireum
   @pure def toMSZ: MSZ[E] =
     Contract.Only(
       Ensures(
-        Res.size == size,
+        Res.size == this.size,
         ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
       )
     )
