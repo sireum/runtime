@@ -339,6 +339,8 @@ package org.sireum
 
   @pure def indices: ISZ[I]
 
+  @pure def atZ(index: Z): E
+
   @pure def toMS: MS[I, E] =
     Contract.Only(
       Ensures(
@@ -412,6 +414,8 @@ package org.sireum
   @pure def lastIndex: I
 
   @pure def indices: ISZ[I]
+
+  @pure def atZ(index: Z): E
 
   @pure def toIS: IS[I, E] =
     Contract.Only(

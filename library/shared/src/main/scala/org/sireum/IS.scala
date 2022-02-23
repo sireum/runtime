@@ -193,6 +193,11 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) this else filter(_ != e)
   }
 
+  def atZ(i: Z): V = {
+    assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
+    boxer.lookup[V](data, i)
+  }
+
   def indices: ZRange[I] = {
     var j = companion.Index.asInstanceOf[ZLike[_]]
     var i = Z.MP.zero
@@ -304,11 +309,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     new MS[I, V](companion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
   }
 
-  def apply(index: I): V = {
-    val i = index.asInstanceOf[ZLike[_]].toIndex
-    assert(Z.MP.zero <= i && i < length, s"Array indexing out of bounds: $index")
-    boxer.lookup[V](data, i)
-  }
+  def apply(index: I): V = atZ(index.asInstanceOf[ZLike[_]].toIndex)
 
   def apply(args: (I, V)*): IS[I, V] =
     if (args.isEmpty) this
@@ -316,7 +317,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       val a = boxer.clone(data, length, length, Z.MP.zero)
       for ((index, v) <- args) {
         val i = index.asInstanceOf[ZLike[_]].toIndex
-        assert(Z.MP.zero <= i && i < length, s"Array indexing out of bounds: $index")
+        assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $index")
         boxer.store(a, i, v)
       }
       IS[I, V](companion, a, length, boxer)
