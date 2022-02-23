@@ -36,15 +36,15 @@ object Map {
 
   @strictpure def ++[K, T, I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
 
-  @strictpure def uniqueKeys[K, T](m: Map[K, T]): B =
-    All(m.entries.indices)(i => All(m.entries.indices)(j => (i != j) ->: (m.entries(i)._1 != m.entries(j)._1)))
+  @strictpure def uniqueKeys[K, T](entries: ISZ[(K, T)]): B =
+    All(entries.indices)(i => All(entries.indices)(j => (i != j) ->: (entries(i)._1 != entries(j)._1)))
 
-  @strictpure def containsKey[K, T](m: Map[K, T], key: K): B = Exists(m.entries.indices)(j => key == m.entries(j)._1)
+  @strictpure def containsKey[K, T](entries: ISZ[(K, T)], key: K): B = Exists(entries.indices)(j => key == entries(j)._1)
 }
 
 @datatype class Map[K, T](val entries: ISZ[(K, T)]) {
 
-  //@spec def uniqueKey = Invariant(Map.uniqueKeys(this))
+  // @spec def uniqueKey = Invariant(Map.uniqueKeys(entries))
 
   @pure def keys: ISZ[K] = {
     Contract(
@@ -104,24 +104,24 @@ object Map {
     Contract(
       Case(
         Requires(
-          Map.containsKey(this, p._1),
-          Map.uniqueKeys(this), // TODO: inv
+          Map.containsKey(entries, p._1),
+          Map.uniqueKeys(entries), // TODO: inv
         ),
         Ensures(
-          Map.uniqueKeys(Res),
-          Map.containsKey(Res, p._1),
+          Map.uniqueKeys(Res[Map[K, T]].entries),
+          Map.containsKey(Res[Map[K, T]].entries, p._1),
           Res[Map[K, T]].entries.size == this.size,
           Exists(Res[Map[K, T]].entries.indices)(j => Res[Map[K, T]].entries(j) == p)
         )
       ),
       Case(
         Requires(
-          !Map.containsKey(this, p._1),
-          Map.uniqueKeys(this), // TODO: inv
+          !Map.containsKey(entries, p._1),
+          Map.uniqueKeys(entries), // TODO: inv
         ),
         Ensures(
-          Map.uniqueKeys(Res),
-          Map.containsKey(Res, p._1),
+          Map.uniqueKeys(Res[Map[K, T]].entries),
+          Map.containsKey(Res[Map[K, T]].entries, p._1),
           Res[Map[K, T]].entries.size == this.size + 1,
           Res[Map[K, T]].entries(Res[Map[K, T]].entries.size - 1) == p
         )
@@ -138,7 +138,7 @@ object Map {
   @pure def ++[I](kvs: IS[I, (K, T)]): Map[K, T] = {
     var r = this
     for (kv <- kvs) {
-      r = r + kv._1 ~> kv._2
+      r = r + kv
     }
     return r
   }
@@ -146,11 +146,11 @@ object Map {
   @pure def get(key: K): Option[T] = {
     Contract(
       Case(
-        Requires(Map.containsKey(this, key)),
+        Requires(Map.containsKey(entries, key)),
         Ensures(Exists(entries.indices)(j => Res == Some(entries(j)._2)))
       ),
       Case(
-        Requires(!Map.containsKey(this, key)),
+        Requires(!Map.containsKey(entries, key)),
         Ensures(Res == None[T]())
       )
     )
@@ -176,11 +176,11 @@ object Map {
   @pure def getOrElseEager(key: K, default: T): T = {
     Contract(
       Case(
-        Requires(Map.containsKey(this, key)),
+        Requires(Map.containsKey(entries, key)),
         Ensures(Exists(entries.indices)(j => Res == entries(j)._2))
       ),
       Case(
-        Requires(!Map.containsKey(this, key)),
+        Requires(!Map.containsKey(entries, key)),
         Ensures(Res == default)
       )
     )
@@ -191,11 +191,11 @@ object Map {
   @pure def entry(key: K): Option[(K, T)] = {
     Contract(
       Case(
-        Requires(Map.containsKey(this, key)),
+        Requires(Map.containsKey(entries, key)),
         Ensures(Exists(entries.indices)(j => Res == Some(entries(j))))
       ),
       Case(
-        Requires(!Map.containsKey(this, key)),
+        Requires(!Map.containsKey(entries, key)),
         Ensures(Res == None[(K, T)]())
       )
     )
@@ -216,7 +216,7 @@ object Map {
   @pure def indexOf(key: K): Z = {
     Contract(
       Case(
-        Requires(Map.containsKey(this, key)),
+        Requires(Map.containsKey(entries, key)),
         Ensures(
           0 <= Res[Z],
           Res[Z] < entries.size,
@@ -224,7 +224,7 @@ object Map {
         )
       ),
       Case(
-        Requires(!Map.containsKey(this, key)),
+        Requires(!Map.containsKey(entries, key)),
         Ensures(Res[Z] == -1)
       )
     )
