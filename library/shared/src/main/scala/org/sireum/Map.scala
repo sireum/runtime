@@ -1,4 +1,4 @@
-// #Sireum
+// #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
  All rights reserved.
@@ -26,7 +26,7 @@
 
 package org.sireum
 import org.sireum.justification._
-import org.sireum.justification.natded.pred.existsI
+import org.sireum.justification.natded.pred._
 
 object Map {
 
@@ -147,7 +147,7 @@ object Map {
     Contract(
       Case(
         Requires(Map.containsKey(entries, key)),
-        Ensures(Exists(entries.indices)(j => Res == Some(entries(j)._2)))
+        Ensures(Exists(entries.indices)(j => (key == entries(j)._1) & (Res == Some[T](entries(j)._2))))
       ),
       Case(
         Requires(!Map.containsKey(entries, key)),
@@ -236,7 +236,7 @@ object Map {
         0 <= i,
         i <= entries.size,
         (index != -1) ->: (0 <= index & index < entries.size & entries(index)._1 == key),
-        (index == -1) ->: (All(0 until i)(j => key != entries(j)._1))
+        (index == -1) ->: All(0 until i)(j => key != entries(j)._1)
       )
       if (entries(i)._1 == key) {
         index = i
@@ -298,29 +298,65 @@ object Map {
   }
 
   @pure def isEqual(other: Map[K, T]): B = {
+    Contract(
+      Case(
+        Requires(
+          size == other.size,
+          All(entries.indices)(j => Exists(0 until size)(k => entries(j) == other.entries(k))),
+          Map.uniqueKeys(entries), // TODO: inv
+          Map.uniqueKeys(other.entries), // TODO: inv
+        ),
+        Ensures(Res[B])
+      ),
+      Case(
+        Requires(
+          size != other.size,
+          Exists(entries.indices)(j => !Map.containsKey(other.entries, entries(j)._1)),
+          Map.uniqueKeys(entries), // TODO: inv
+          Map.uniqueKeys(other.entries), // TODO: inv
+        ),
+        Ensures(!Res[B])
+      ),
+      Case(
+        Requires(
+          size != other.size,
+          Exists(entries.indices)(j => All(other.entries.indices)(k => entries(j) != other.entries(k))),
+          Map.uniqueKeys(entries), // TODO: inv
+          Map.uniqueKeys(other.entries), // TODO: inv
+        ),
+        Ensures(!Res[B])
+      )
+    )
     val sz = size
     if (sz != other.size) {
       return F
-    }
-    var i = 0
-    while (i < sz) {
-      Invariant(
-        Modifies(i),
-        0 <= i,
-        i <= sz
-      )
-      val kv = entries(i)
-      val k = kv._1
-      other.get(k) match {
-        case Some(v) =>
-          if (v != kv._2) {
-            return F
-          }
-        case _ => return F
+    } else {
+      var i = 0
+      var r = T
+      while (r & i < sz) {
+        Invariant(
+          Modifies(i),
+          0 <= i,
+          i <= sz,
+          r ->: All(0 until i)(j => Exists(0 until sz)(k => entries(j) == other.entries(k))),
+          !r ->: Exists(entries.indices)(j =>
+            !Map.containsKey(other.entries, entries(j)._1) |
+              All(other.entries.indices)(k => entries(j) != other.entries(k)))
+        )
+        val (key, v) = entries(i)
+        val v2Opt = other.get(key)
+        v2Opt match {
+          case Some(v2) =>
+            if (v2 != v) {
+              r = F
+            }
+          case _ =>
+            r = F
+        }
+        i = i + 1
       }
-      i = i + 1
-    }
 
-    return T
+      return r
+    }
   }
 }
