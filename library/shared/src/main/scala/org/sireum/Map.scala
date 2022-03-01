@@ -156,15 +156,6 @@ object Map {
     )
     val index = indexOf(key)
     val r: Option[T] = if (index < 0) None[T]() else Some(entries(index)._2)
-    Deduce(contains(key) |- Exists(entries.indices)(j => r == Some(entries(j)._2)) Proof(
-      //@formatter:off
-      1 #> contains(key)                                                                          by Premise,
-      2 #> (r == Some(entries(index)._2))                                                         by Premise,
-      3 #> (((0 <= index) & (index < entries.size)) -->: (r == Some(entries(index)._2)))          by Auto(ISZ(2)),
-      4 #> Exists{ j: Z => ((0 <= j) & (j < entries.size)) -->: (r == Some(entries(j)._2)) }      by existsI((j: Z) => ((0 <= j) & (j < entries.size)) -->: (r == Some(entries(j)._2)), index) and 3,
-      5 #> Exists(entries.indices)(j => r == Some(entries(j)._2))                                 by Premise
-      //@formatter:on
-    ))
     return r
   }
 
@@ -201,15 +192,6 @@ object Map {
     )
     val index = indexOf(key)
     val r: Option[(K, T)] = if (index < 0) None[(K, T)]() else Some(entries(index))
-    Deduce(contains(key) |- Exists(entries.indices)(j => r == Some(entries(j))) Proof(
-      //@formatter:off
-      1 #> contains(key)                                                                          by Premise,
-      2 #> (r == Some(entries(index)))                                                            by Premise,
-      3 #> (((0 <= index) & (index < entries.size)) -->: (r == Some(entries(index))))             by Auto(ISZ(2)),
-      4 #> Exists{ j: Z => ((0 <= j) & (j < entries.size)) -->: (r == Some(entries(j))) }         by existsI((j: Z) => ((0 <= j) & (j < entries.size)) -->: (r == Some(entries(j))), index) and 3,
-      5 #> Exists(entries.indices)(j => r == Some(entries(j)))                                    by Premise
-      //@formatter:on
-    ))
     return r
   }
 
