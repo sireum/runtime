@@ -26,6 +26,8 @@
 
 package org.sireum
 
+import org.sireum.justification.Premise
+
 object Set {
 
   @strictpure def empty[T]: Set[T] = Set[T](ISZ())
@@ -124,33 +126,133 @@ object Set {
   }
 
   @pure def union(other: Set[T]): Set[T] = {
-    return this ∪ other
+    Contract(
+      Ensures(
+        Res[Set[T]].elements.size >= elements.size,
+        ∀(Res[Set[T]].elements.indices)(j =>
+          Set.Elements.contain(elements, Res[Set[T]].elements(j)) |
+            Set.Elements.contain(other.elements, Res[Set[T]].elements(j))),
+        ∀(elements.indices)(j => elements(j) == Res[Set[T]].elements(j)),
+      )
+    )
+    var newElements = elements
+    var i: Z = 0
+    while (i < other.elements.size) {
+      Invariant(
+        Modifies(i, newElements),
+        0 <= i,
+        i <= other.elements.size,
+        newElements.size >= elements.size,
+        ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j)) |
+          Set.Elements.contain(other.elements, newElements(j))),
+        ∀(elements.indices)(j => elements(j) == newElements(j)),
+        ∀(elements.size until newElements.size)(j =>
+          ∀(i until other.elements.size)(k => newElements(j) != other.elements(k))),
+        Set.Elements.unique(newElements),
+      )
+      val e = other.elements(i)
+      if (!contains(e)) {
+        Deduce(
+          //@formatter:off
+          1 #> !Set.Elements.contain(newElements, e)                            by Premise,
+          2 #> ∀(i + 1 until other.elements.size)(j => e != other.elements(j))  by Premise
+          //@formatter:on
+        )
+        newElements = newElements :+ e
+      }
+
+      i = i + 1
+    }
+    return Set(newElements)
   }
 
   @pure def ∪(other: Set[T]): Set[T] = {
-    return this ++ other.elements
+    Contract(
+      Ensures(
+        Res[Set[T]].elements.size >= elements.size,
+        ∀(Res[Set[T]].elements.indices)(j =>
+          Set.Elements.contain(elements, Res[Set[T]].elements(j)) |
+            Set.Elements.contain(other.elements, Res[Set[T]].elements(j))),
+        ∀(elements.indices)(j => elements(j) == Res[Set[T]].elements(j)),
+      )
+    )
+    return union(other)
   }
 
   @pure def intersect(other: Set[T]): Set[T] = {
-    return this ∩ other
+    Contract(
+      Ensures(
+        Res[Set[T]].elements.size <= elements.size,
+        ∀(Res[Set[T]].elements.indices)(j =>
+          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
+            Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+      )
+    )
+    var newElements = ISZ[T]()
+    var i: Z = 0
+    while (i < elements.size) {
+      Invariant(
+        Modifies(i, newElements),
+        0 <= i,
+        i <= elements.size,
+        newElements.size <= i,
+        ∀(newElements.indices)(j => Set.Elements.contain(other.elements, newElements(j))),
+        ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j))),
+        ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
+        Set.Elements.unique(newElements),
+      )
+      val e = elements(i)
+      if (other.contains(e)) {
+        newElements = newElements :+ e
+      }
+
+      i = i + 1
+    }
+    return Set(newElements)
   }
 
   @pure def ∩(other: Set[T]): Set[T] = {
-    var r = Set.empty[T]
-    for (e <- other.elements) {
-      if (contains(e)) {
-        r = r + e
-      }
-    }
-    return r
+    Contract(
+      Ensures(
+        Res[Set[T]].elements.size <= size,
+        ∀(Res[Set[T]].elements.indices)(j =>
+          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
+            Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+      )
+    )
+    return intersect(other)
   }
 
   @pure def \(other: Set[T]): Set[T] = {
-    var r = this
-    for (e <- other.elements) {
-      r = r - e
+    Contract(
+      Ensures(
+        Res[Set[T]].elements.size <= size,
+        ∀(Res[Set[T]].elements.indices)(j =>
+          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
+            !Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+      )
+    )
+    var newElements = ISZ[T]()
+    var i: Z = 0
+    while (i < elements.size) {
+      Invariant(
+        Modifies(i, newElements),
+        0 <= i,
+        i <= elements.size,
+        newElements.size <= i,
+        ∀(newElements.indices)(j => !Set.Elements.contain(other.elements, newElements(j))),
+        ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j))),
+        ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
+        Set.Elements.unique(newElements),
+      )
+      val e = elements(i)
+      if (!other.contains(e)) {
+        newElements = newElements :+ e
+      }
+
+      i = i + 1
     }
-    return r
+    return Set(newElements)
   }
 
   @pure def isEqual(other: Set[T]): B = {
