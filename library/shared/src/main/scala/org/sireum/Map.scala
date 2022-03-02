@@ -283,7 +283,6 @@ object Map {
       )
       val kv = entries(i)
       if (kv != p) {
-        assert(∀(newEntries.indices)(j => newEntries(j) != kv))
         newEntries = newEntries :+ kv
       }
       i = i + 1
