@@ -1,7 +1,7 @@
 // #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
- All rights reserved.
+ ∀ rights reserved.
 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -25,8 +25,6 @@
  */
 
 package org.sireum
-import org.sireum.justification._
-import org.sireum.justification.natded.pred._
 
 object Map {
 
@@ -35,33 +33,54 @@ object Map {
   @strictpure def of[K, T]: Map[K, T] = Map.empty
 
   @strictpure def ++[K, T, I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
+  
+  object Entries {
 
-  @strictpure def uniqueKeys[K, T](entries: ISZ[(K, T)]): B =
-    All(entries.indices)(i => All(entries.indices)(j => (i != j) ->: (entries(i)._1 != entries(j)._1)))
+    @strictpure def uniqueKeys[K, T](entries: ISZ[(K, T)]): B =
+      ∀(entries.indices)(i => ∀(entries.indices)(j => (i != j) ->: (entries(i)._1 != entries(j)._1)))
 
-  @strictpure def containsKey[K, T](entries: ISZ[(K, T)], key: K): B = Exists(entries.indices)(j => key == entries(j)._1)
+    @strictpure def containKey[K, T](entries: ISZ[(K, T)], key: K): B = ∃(entries.indices)(j => key == entries(j)._1)
+
+    @strictpure def keyIndexOfFrom[K, T](entries: ISZ[(K, T)], key: K, from: Z): Z =
+      if (from < 0 | from >= entries.size) -1
+      else if (entries(from)._1 == key) from
+      else keyIndexOfFrom(entries, key, from + 1)
+
+    @strictpure def valueIndexOfFrom[K, T](entries: ISZ[(K, T)], value: T, from: Z): Z =
+      if (from < 0 | from >= entries.size) -1
+      else if (entries(from)._2 == value) from
+      else valueIndexOfFrom(entries, value, from + 1)
+
+    @strictpure def indexOfFrom[K, T](entries: ISZ[(K, T)], kv: (K, T), from: Z): Z =
+      if (from < 0 | from >= entries.size) -1
+      else if (entries(from)== kv) from
+      else indexOfFrom(entries, kv, from + 1)
+      
+  }
+
 }
 
 @datatype class Map[K, T](val entries: ISZ[(K, T)]) {
 
-  // @spec def uniqueKey = Invariant(Map.uniqueKeys(entries))
+  @spec def uniqueKeys = Invariant(Map.Entries.uniqueKeys(entries))
 
   @pure def keys: ISZ[K] = {
     Contract(
       Ensures(
         Res[ISZ[K]].size == entries.size,
-        All(Res[ISZ[K]].indices)(j => Res[ISZ[K]](j) == entries(j)._1)
+        ∀(Res[ISZ[K]].indices)(j => ∀(Res[ISZ[K]].indices)(k => (j != k) ->: (Res[ISZ[K]](j) != Res[ISZ[K]](k)))),
+        ∀(Res[ISZ[K]].indices)(j => Res[ISZ[K]](j) == entries(j)._1),
       )
     )
     var r = ISZ[K]()
-    var i = 0
+    var i: Z = 0
     while (i < entries.size) {
       Invariant(
         Modifies(r, i),
         0 <= i,
         i <= entries.size,
         i == r.size,
-        All(0 until i)(j => r(j) == entries(j)._1)
+        ∀(0 until i)(j => r(j) == entries(j)._1)
       )
       r = r :+ entries(i)._1
       i = i + 1
@@ -73,18 +92,18 @@ object Map {
     Contract(
       Ensures(
         Res[ISZ[T]].size == entries.size,
-        All(Res[ISZ[T]].indices)(j => Res[ISZ[T]](j) == entries(j)._2)
+        ∀(Res[ISZ[T]].indices)(j => Res[ISZ[T]](j) == entries(j)._2)
       )
     )
     var r = ISZ[T]()
-    var i = 0
+    var i: Z = 0
     while (i < entries.size) {
       Invariant(
         Modifies(r, i),
         0 <= i,
         i <= entries.size,
         i == r.size,
-        All(0 until i)(j => r(j) == entries(j)._2)
+        ∀(0 until i)(j => r(j) == entries(j)._2)
       )
       r = r :+ entries(i)._2
       i = i + 1
@@ -103,26 +122,20 @@ object Map {
   @pure def +(p: (K, T)): Map[K, T] = {
     Contract(
       Case(
-        Requires(
-          Map.containsKey(entries, p._1),
-          Map.uniqueKeys(entries), // TODO: inv
-        ),
+        "Mapped",
+        Requires(Map.Entries.containKey(entries, p._1)),
         Ensures(
-          Map.uniqueKeys(Res[Map[K, T]].entries),
-          Map.containsKey(Res[Map[K, T]].entries, p._1),
-          Res[Map[K, T]].entries.size == this.size,
-          Exists(Res[Map[K, T]].entries.indices)(j => Res[Map[K, T]].entries(j) == p)
+          Res[Map[K, T]].entries.size == size,
+          Map.Entries.containKey(Res[Map[K, T]].entries, p._1),
+          ∃(Res[Map[K, T]].entries.indices)(j => Res[Map[K, T]].entries(j) == p)
         )
       ),
       Case(
-        Requires(
-          !Map.containsKey(entries, p._1),
-          Map.uniqueKeys(entries), // TODO: inv
-        ),
+        "Unmapped",
+        Requires(!Map.Entries.containKey(entries, p._1)),
         Ensures(
-          Map.uniqueKeys(Res[Map[K, T]].entries),
-          Map.containsKey(Res[Map[K, T]].entries, p._1),
-          Res[Map[K, T]].entries.size == this.size + 1,
+          Res[Map[K, T]].entries.size == size + 1,
+          Map.Entries.containKey(Res[Map[K, T]].entries, p._1),
           Res[Map[K, T]].entries(Res[Map[K, T]].entries.size - 1) == p
         )
       )
@@ -146,11 +159,13 @@ object Map {
   @pure def get(key: K): Option[T] = {
     Contract(
       Case(
-        Requires(Map.containsKey(entries, key)),
-        Ensures(Exists(entries.indices)(j => (key == entries(j)._1) & (Res == Some[T](entries(j)._2))))
+        "Mapped",
+        Requires(Map.Entries.containKey(entries, key)),
+        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Res == Some[T](entries(j)._2))))
       ),
       Case(
-        Requires(!Map.containsKey(entries, key)),
+        "Unmapped",
+        Requires(!Map.Entries.containKey(entries, key)),
         Ensures(Res == None[T]())
       )
     )
@@ -167,11 +182,13 @@ object Map {
   @pure def getOrElseEager(key: K, default: T): T = {
     Contract(
       Case(
-        Requires(Map.containsKey(entries, key)),
-        Ensures(Exists(entries.indices)(j => Res == entries(j)._2))
+        "Mapped",
+        Requires(Map.Entries.containKey(entries, key)),
+        Ensures(∃(entries.indices)(j => Res == entries(j)._2))
       ),
       Case(
-        Requires(!Map.containsKey(entries, key)),
+        "Unmapped",
+        Requires(!Map.Entries.containKey(entries, key)),
         Ensures(Res == default)
       )
     )
@@ -182,11 +199,13 @@ object Map {
   @pure def entry(key: K): Option[(K, T)] = {
     Contract(
       Case(
-        Requires(Map.containsKey(entries, key)),
-        Ensures(Exists(entries.indices)(j => Res == Some(entries(j))))
+        "Mapped",
+        Requires(Map.Entries.containKey(entries, key)),
+        Ensures(∃(entries.indices)(j => Res == Some(entries(j))))
       ),
       Case(
-        Requires(!Map.containsKey(entries, key)),
+        "Unmapped",
+        Requires(!Map.Entries.containKey(entries, key)),
         Ensures(Res == None[(K, T)]())
       )
     )
@@ -198,7 +217,8 @@ object Map {
   @pure def indexOf(key: K): Z = {
     Contract(
       Case(
-        Requires(Map.containsKey(entries, key)),
+        "Mapped",
+        Requires(Map.Entries.containKey(entries, key)),
         Ensures(
           0 <= Res[Z],
           Res[Z] < entries.size,
@@ -206,7 +226,8 @@ object Map {
         )
       ),
       Case(
-        Requires(!Map.containsKey(entries, key)),
+        "Unmapped",
+        Requires(!Map.Entries.containKey(entries, key)),
         Ensures(Res[Z] == -1)
       )
     )
@@ -218,7 +239,7 @@ object Map {
         0 <= i,
         i <= entries.size,
         (index != -1) ->: (0 <= index & index < entries.size & entries(index)._1 == key),
-        (index == -1) ->: All(0 until i)(j => key != entries(j)._1)
+        (index == -1) ->: ∀(0 until i)(j => key != entries(j)._1)
       )
       if (entries(i)._1 == key) {
         index = i
@@ -245,11 +266,33 @@ object Map {
   }
 
   @pure def -(p: (K, T)): Map[K, T] = {
-    return Map(entries - p)
+    Contract(
+      Ensures(∀(Res[Map[K, T]].entries.indices)(j => (Res[Map[K, T]].entries(j) != p) ->:
+        ∃(entries.indices)(k => entries(k) == Res[Map[K, T]].entries(j))))
+    )
+    var newEntries = ISZ[(K, T)]()
+    var i = 0
+    while (i < entries.size) {
+      Invariant(
+        Modifies(i, newEntries),
+        0 <= i,
+        i <= entries.size,
+        ∀(newEntries.indices)(j => ∀(i until entries.size)(k => newEntries(j)._1 != entries(k)._1)),
+        ∀(newEntries.indices)(j => (newEntries(j) != p) ->: ∃(entries.indices)(k => entries(k) == newEntries(j))),
+        Map.Entries.uniqueKeys(newEntries),
+      )
+      val kv = entries(i)
+      if (kv != p) {
+        assert(∀(newEntries.indices)(j => newEntries(j) != kv))
+        newEntries = newEntries :+ kv
+      }
+      i = i + 1
+    }
+    return Map(newEntries)
   }
 
   @pure def contains(key: K): B = {
-    Contract(Ensures(Res == Exists(0 until entries.size)(j => key == entries(j)._1)))
+    Contract(Ensures(Res == ∃(0 until entries.size)(j => key == entries(j)._1)))
     return indexOf(key) >= 0
   }
 
@@ -282,30 +325,32 @@ object Map {
   @pure def isEqual(other: Map[K, T]): B = {
     Contract(
       Case(
+        "Equal",
         Requires(
           size == other.size,
-          All(entries.indices)(j => Exists(0 until size)(k => entries(j) == other.entries(k))),
-          Map.uniqueKeys(entries), // TODO: inv
-          Map.uniqueKeys(other.entries), // TODO: inv
+          ∀(entries.indices)(j => ∃(0 until size)(k => entries(j) == other.entries(k))),
         ),
         Ensures(Res[B])
       ),
       Case(
+        "Inequal-diff-key",
         Requires(
-          size != other.size,
-          Exists(entries.indices)(j => !Map.containsKey(other.entries, entries(j)._1)),
-          Map.uniqueKeys(entries), // TODO: inv
-          Map.uniqueKeys(other.entries), // TODO: inv
+          size == other.size,
+          ∃(entries.indices)(j => !Map.Entries.containKey(other.entries, entries(j)._1)),
         ),
         Ensures(!Res[B])
       ),
       Case(
+        "Inequal-diff-value",
         Requires(
-          size != other.size,
-          Exists(entries.indices)(j => All(other.entries.indices)(k => entries(j) != other.entries(k))),
-          Map.uniqueKeys(entries), // TODO: inv
-          Map.uniqueKeys(other.entries), // TODO: inv
+          size == other.size,
+          ∃(entries.indices)(j => ∀(other.entries.indices)(k => entries(j) != other.entries(k))),
         ),
+        Ensures(!Res[B])
+      ),
+      Case(
+        "Inequal-size",
+        Requires(size != other.size),
         Ensures(!Res[B])
       )
     )
@@ -313,17 +358,17 @@ object Map {
     if (sz != other.size) {
       return F
     } else {
-      var i = 0
+      var i: Z = 0
       var r = T
       while (r & i < sz) {
         Invariant(
           Modifies(i),
           0 <= i,
           i <= sz,
-          r ->: All(0 until i)(j => Exists(0 until sz)(k => entries(j) == other.entries(k))),
-          !r ->: Exists(entries.indices)(j =>
-            !Map.containsKey(other.entries, entries(j)._1) |
-              All(other.entries.indices)(k => entries(j) != other.entries(k)))
+          r ->: ∀(0 until i)(j => ∃(0 until sz)(k => entries(j) == other.entries(k))),
+          !r ->: ∃(entries.indices)(j =>
+            !Map.Entries.containKey(other.entries, entries(j)._1) |
+              ∀(other.entries.indices)(k => entries(j) != other.entries(k)))
         )
         val (key, v) = entries(i)
         val v2Opt = other.get(key)
