@@ -530,7 +530,7 @@ object Jen {
   }
 
   @pure def Set[T](s: Set[T]): Jen[T] = {
-    return Internal.MapImpl(s.map).map(p => p._1)
+    return Internal.ISImpl(s.elements)
   }
 
   @pure def HashMap[K, T](m: HashMap[K, T]): Jen[(K, T)] = {

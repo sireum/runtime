@@ -1,4 +1,4 @@
-// #Sireum
+// #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
  All rights reserved.
@@ -28,20 +28,53 @@ package org.sireum
 
 object Set {
 
-  @pure def empty[T]: Set[T] = {
-    return Set(Map.empty[T, B])
-  }
+  @strictpure def empty[T]: Set[T] = Set[T](ISZ())
 
-  @pure def ++[I, T](s: IS[I, T]): Set[T] = {
-    return Set.empty[T] ++ s
-  }
+  @strictpure def ++[I, T](s: IS[I, T]): Set[T] = empty[T] ++ s
 
+  object Elements {
+
+    @strictpure def unique[T](elements: ISZ[T]): B =
+      ∀(elements.indices)(i => ∀(elements.indices)(j => (i != j) ->: (elements(i) != elements(j))))
+
+    @strictpure def contain[T](elements: ISZ[T], e: T): B = ∃(elements.indices)(j => e == elements(j))
+
+    @strictpure def indexOfFrom[T](elements: ISZ[T], e: T, from: Z): Z =
+      if (from < 0 | from >= elements.size) -1
+      else if (elements(from)== e) from
+      else indexOfFrom(elements, e, from + 1)
+
+  }
 }
 
-@datatype class Set[T](val map: Map[T, B]) {
+@datatype class Set[T](val elements: ISZ[T]) {
+
+  @spec def uniqueElements = Invariant(Set.Elements.unique(elements))
 
   @pure def +(e: T): Set[T] = {
-    return Set(map + e ~> T)
+    Contract(
+      Case(
+        "In",
+        Requires(Set.Elements.contain(elements, e)),
+        Ensures(
+          Res[Set[T]].elements.size == size,
+          Set.Elements.contain(Res[Set[T]].elements, e),
+          ∃(Res[Set[T]].elements.indices)(j => Res[Set[T]].elements(j) == e)
+        )
+      ),
+      Case(
+        "Not-in",
+        Requires(!Set.Elements.contain(elements, e)),
+        Ensures(
+          Res[Set[T]].elements.size == size + 1,
+          Set.Elements.contain(Res[Set[T]].elements, e),
+          Res[Set[T]].elements(Res[Set[T]].elements.size - 1) == e
+        )
+      )
+    )
+    val index = indexOf(e)
+    val newElements: ISZ[T] = if (index < 0) elements :+ e else elements((index, e))
+    return Set(newElements)
   }
 
   @pure def ++[I](is: IS[I, T]): Set[T] = {
@@ -53,7 +86,28 @@ object Set {
   }
 
   @pure def -(e: T): Set[T] = {
-    return Set(map - e ~> T)
+    Contract(
+      Ensures(∀(Res[Set[T]].elements.indices)(j => (Res[Set[T]].elements(j) != e) ->:
+        ∃(elements.indices)(k => elements(k) == Res[Set[T]].elements(j))))
+    )
+    var newElements = ISZ[T]()
+    var i = 0
+    while (i < elements.size) {
+      Invariant(
+        Modifies(i, newElements),
+        0 <= i,
+        i <= elements.size,
+        ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
+        ∀(newElements.indices)(j => (newElements(j) != e) ->: ∃(elements.indices)(k => elements(k) == newElements(j))),
+        Set.Elements.unique(newElements),
+      )
+      val kv = elements(i)
+      if (kv != e) {
+        newElements = newElements :+ kv
+      }
+      i = i + 1
+    }
+    return Set(newElements)
   }
 
   @pure def --[I](is: IS[I, T]): Set[T] = {
@@ -65,7 +119,8 @@ object Set {
   }
 
   @pure def contains(e: T): B = {
-    return map.contains(e)
+    Contract(Ensures(Res == ∃(0 until elements.size)(j => e == elements(j))))
+    return indexOf(e) >= 0
   }
 
   @pure def union(other: Set[T]): Set[T] = {
@@ -82,8 +137,7 @@ object Set {
 
   @pure def ∩(other: Set[T]): Set[T] = {
     var r = Set.empty[T]
-    for (p <- other.map.entries) {
-      val e = p._1
+    for (e <- other.elements) {
       if (contains(e)) {
         r = r + e
       }
@@ -92,31 +146,116 @@ object Set {
   }
 
   @pure def \(other: Set[T]): Set[T] = {
-    return this -- other.map.keys
+    var r = this
+    for (e <- other.elements) {
+      r = r - e
+    }
+    return r
   }
 
   @pure def isEqual(other: Set[T]): B = {
-    return map.isEqual(other.map)
+    Contract(
+      Case(
+        "Equal",
+        Requires(
+          size == other.size,
+          ∀(elements.indices)(j => ∃(0 until size)(k => elements(j) == other.elements(k))),
+        ),
+        Ensures(Res[B])
+      ),
+      Case(
+        "Inequal-diff",
+        Requires(
+          size == other.size,
+          ∃(elements.indices)(j => !Set.Elements.contain(other.elements, elements(j))),
+        ),
+        Ensures(!Res[B])
+      ),
+      Case(
+        "Inequal-size",
+        Requires(size != other.size),
+        Ensures(!Res[B])
+      )
+    )
+    val sz = size
+    if (sz != other.size) {
+      return F
+    } else {
+      var i: Z = 0
+      var r = T
+      while (r & i < sz) {
+        Invariant(
+          Modifies(i),
+          0 <= i,
+          i <= sz,
+          r ->: ∀(0 until i)(j => ∃(0 until sz)(k => elements(j) == other.elements(k))),
+          !r ->: ∃(elements.indices)(j =>
+            !Set.Elements.contain(other.elements, elements(j)) |
+              ∀(other.elements.indices)(k => elements(j) != other.elements(k)))
+        )
+        if (!other.contains(elements(i))) {
+          r = F
+        }
+        i = i + 1
+      }
+
+      return r
+    }
   }
 
   @pure override def hash: Z = {
-    return map.hash
+    return elements.hash
   }
 
   @pure def isEmpty: B = {
+    Contract(Ensures(Res == (elements.size == 0)))
     return size == z"0"
   }
 
   @pure def nonEmpty: B = {
+    Contract(Ensures(Res == (elements.size != 0)))
     return size != z"0"
   }
 
   @pure def size: Z = {
-    return map.size
+    Contract(Ensures(Res == elements.size))
+    return elements.size
   }
 
-  @pure def elements: ISZ[T] = {
-    return map.keys
+  @pure def indexOf(e: T): Z = {
+    Contract(
+      Case(
+        "In",
+        Requires(Set.Elements.contain(elements, e)),
+        Ensures(
+          0 <= Res[Z],
+          Res[Z] < elements.size,
+          elements(Res[Z]) == e
+        )
+      ),
+      Case(
+        "Not-in",
+        Requires(!Set.Elements.contain(elements, e)),
+        Ensures(Res[Z] == -1)
+      )
+    )
+    var index: Z = -1
+    var i: Z = 0
+    while (i < elements.size) {
+      Invariant(
+        Modifies(index, i),
+        0 <= i,
+        i <= elements.size,
+        (index != -1) ->: (0 <= index & index < elements.size & elements(index) == e),
+        (index == -1) ->: ∀(0 until i)(j => e != elements(j))
+      )
+      if (elements(i) == e) {
+        index = i
+        i = elements.size - 1
+      }
+      i = i + 1
+    }
+    return index
   }
 
   @pure override def string: String = {
