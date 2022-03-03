@@ -361,7 +361,7 @@ object Map {
       var r = T
       while (r & i < sz) {
         Invariant(
-          Modifies(i),
+          Modifies(i, r),
           0 <= i,
           i <= sz,
           r ->: ∀(0 until i)(j => ∃(0 until sz)(k => entries(j) == other.entries(k))),
