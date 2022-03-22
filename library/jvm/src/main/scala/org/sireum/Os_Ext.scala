@@ -971,7 +971,7 @@ object Os_Ext {
         try {
           nuProcess()
         } catch {
-          case _: UnsatisfiedLinkError | _: NumberFormatException | _: ExceptionInInitializerError | _: NoSuchMethodError =>
+          case _: UnsatisfiedLinkError | _: NumberFormatException | _: ExceptionInInitializerError | _: NoSuchMethodError | _: java.lang.NoClassDefFoundError =>
             isNative = T
             standardLib()
         }
