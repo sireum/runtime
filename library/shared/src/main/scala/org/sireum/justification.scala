@@ -31,6 +31,8 @@ object justification {
 
   @just def Auto(stepNumbers: ISZ[StepId]): Unit = $
 
+  @just def Lift(app: Unit): Unit = $
+
   object natded {
 
     object prop {
