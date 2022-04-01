@@ -30,7 +30,7 @@ package org.sireum.parser
 
 import org.sireum._
 import org.sireum.U32._
-import org.sireum.message.{DocInfo, Position}
+import org.sireum.message.Position
 
 @datatype trait ParseTree {
   @pure def ruleName: String
@@ -100,39 +100,39 @@ object ParseTree {
     @strictpure def empty: Node = Node(ISZ(), "Tree", u32"-1")
   }
 
-  @sig trait BinaryPrecedenceOps[Builder, T] {
+  @sig trait BinaryPrecedenceOps[Builder, T1, T2] {
     @pure def messageKind: String
 
-    @pure def isBinary(t: T): B
+    @pure def isBinary(t: T2): B
 
-    @pure def isRightAssoc(t: T): B
+    @pure def isRightAssoc(t: T2): B
 
     @pure def isHigherPrecedence(n1: Z, n2: Z): B
 
     @pure def lowestPrecedence: Z
 
-    @pure def shouldParenthesizeOperands(t: T): B
+    @pure def shouldParenthesizeOperands(t: T2): B
 
-    @pure def precedence(t: T): Option[Z]
+    @pure def precedence(t: T2): Option[Z]
 
-    @pure def posOpt(t: T): Option[message.Position]
+    @pure def posOpt(t: T2): Option[message.Position]
 
-    @pure def parenthesize(builder: Builder, t: T): T
+    @pure def parenthesize(builder: Builder, t: T2): T2
 
-    @pure def binary(builder: Builder, left: T, op: T, right: T): T
+    @pure def binary(builder: Builder, left: T2, op: T2, right: T2): T2
 
-    @pure def transform(builder: Builder, tree: ParseTree): T
+    @pure def transform(builder: Builder, tree: T1): T2
 
-    @pure def toString(t: T): String
+    @pure def toString(t: T2): String
   }
 
 
-  // T[exp] ( T[op] T[exp] )* => T[exp]
-  def rewriteBinary[Builder, T](builder: Builder,
-                                bp: BinaryPrecedenceOps[Builder, T],
-                                trees: ISZ[ParseTree],
-                                reporter: message.Reporter): T = {
-    def construct(ts: ISZ[T], rightAssoc: B, start: Z, stop: Z): T = {
+  // T1[exp] ( T1[op] T1[exp] )* => T2[exp]
+  def rewriteBinary[Builder, T1, T2](builder: Builder,
+                                     bp: BinaryPrecedenceOps[Builder, T1, T2],
+                                     trees: ISZ[T1],
+                                     reporter: message.Reporter): T2 = {
+    def construct(ts: ISZ[T2], rightAssoc: B, start: Z, stop: Z): T2 = {
       if (rightAssoc) {
         var r = ts(stop)
         for (i <- stop - 2 to start by -2) {
@@ -168,7 +168,7 @@ object ParseTree {
       }
     }
 
-    def maxPrecedence(ts: ISZ[T]): Z = {
+    def maxPrecedence(ts: ISZ[T2]): Z = {
       var max = bp.lowestPrecedence
       for (e <- ts) {
         bp.precedence(e) match {
@@ -179,7 +179,7 @@ object ParseTree {
       return max
     }
 
-    def reduceHighestPrecedence(acs: ISZ[T]): ISZ[T] = {
+    def reduceHighestPrecedence(acs: ISZ[T2]): ISZ[T2] = {
       val max = maxPrecedence(acs)
       val maxOpt: Option[Z] = Some(max)
 
@@ -190,7 +190,7 @@ object ParseTree {
         return acs.size
       }
 
-      var newAcs = ISZ[T]()
+      var newAcs = ISZ[T2]()
       var start = findMaxPrecedenceIndex(1)
       for (j <- 0 to start - 2) {
         newAcs = newAcs :+ acs(j)
@@ -233,7 +233,7 @@ object ParseTree {
       return newAcs
     }
 
-    var acs: ISZ[T] = for (t <- trees) yield bp.transform(builder, t)
+    var acs: ISZ[T2] = for (t <- trees) yield bp.transform(builder, t)
     while (acs.size != 1) {
       acs = reduceHighestPrecedence(acs)
     }
