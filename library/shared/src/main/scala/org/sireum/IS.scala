@@ -33,7 +33,7 @@ object IS {
     def map[V2](f: V => V2): IS[I, V2] =
       if (is.isEmpty) IS[I, V2]()(is.companion)
       else {
-        var a: AnyRef = null
+        var a: AnyRef = Array()
         var boxer2: Boxer = null
         var i = Z.MP.zero
         var j = Z.MP.zero
@@ -221,7 +221,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
   def map[V2](f: V => V2): IS[I, V2] =
     if (isEmpty) this.asInstanceOf[IS[I, V2]]
     else {
-      var a: AnyRef = null
+      var a: AnyRef = Array()
       var boxer2: Boxer = null
       var i = Z.MP.zero
       while (i < length) {
