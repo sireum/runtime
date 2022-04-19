@@ -33,7 +33,9 @@ object Map {
   @strictpure def of[K, T]: Map[K, T] = Map.empty
 
   @strictpure def ++[K, T, I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
-  
+
+  @strictpure def entriesOf[K, T](m: Map[K, T]): ISZ[(K, T)] = m.entries
+
   object Entries {
 
     @strictpure def uniqueKeys[K, T](entries: ISZ[(K, T)]): B =
@@ -55,10 +57,12 @@ object Map {
       if (from < 0 | from >= entries.size) -1
       else if (entries(from)== kv) from
       else indexOfFrom(entries, kv, from + 1)
-      
+
   }
 
 }
+
+import SeqUtil.IS
 
 @datatype class Map[K, T](val entries: ISZ[(K, T)]) {
 
@@ -67,9 +71,8 @@ object Map {
   @pure def keys: ISZ[K] = {
     Contract(
       Ensures(
-        Res[ISZ[K]].size == entries.size,
-        ∀(Res[ISZ[K]].indices)(j => ∀(Res[ISZ[K]].indices)(k => (j != k) ->: (Res[ISZ[K]](j) != Res[ISZ[K]](k)))),
-        ∀(Res[ISZ[K]].indices)(j => Res[ISZ[K]](j) == entries(j)._1),
+        IS.pair1Eq(entries, Res),
+        IS.unique(Res),
       )
     )
     var r = ISZ[K]()
@@ -89,12 +92,7 @@ object Map {
   }
 
   @pure def values: ISZ[T] = {
-    Contract(
-      Ensures(
-        Res[ISZ[T]].size == entries.size,
-        ∀(Res[ISZ[T]].indices)(j => Res[ISZ[T]](j) == entries(j)._2)
-      )
-    )
+    Contract(Ensures(IS.pair2Eq(entries, Res)))
     var r = ISZ[T]()
     var i: Z = 0
     while (i < entries.size) {
@@ -111,13 +109,9 @@ object Map {
     return r
   }
 
-  @pure def keySet: Set[K] = {
-    return Set.empty[K] ++ keys
-  }
+  @strictpure def keySet: Set[K] = Set.empty[K] ++ keys
 
-  @pure def valueSet: Set[T] = {
-    return Set.empty[T] ++ values
-  }
+  @strictpure def valueSet: Set[T] =  Set.empty[T] ++ values
 
   @pure def +(p: (K, T)): Map[K, T] = {
     Contract(
@@ -125,18 +119,18 @@ object Map {
         "Mapped",
         Requires(Map.Entries.containKey(entries, p._1)),
         Ensures(
-          Res[Map[K, T]].entries.size == size,
-          Map.Entries.containKey(Res[Map[K, T]].entries, p._1),
-          ∃(Res[Map[K, T]].entries.indices)(j => Res[Map[K, T]].entries(j) == p)
+          Map.entriesOf(Res).size == size,
+          Map.Entries.containKey(Map.entriesOf(Res), p._1),
+          ∃(Map.entriesOf(Res).indices)(j => Map.entriesOf(Res)(j) == p)
         )
       ),
       Case(
         "Unmapped",
         Requires(!Map.Entries.containKey(entries, p._1)),
         Ensures(
-          Res[Map[K, T]].entries.size == size + 1,
-          Map.Entries.containKey(Res[Map[K, T]].entries, p._1),
-          Res[Map[K, T]].entries(Res[Map[K, T]].entries.size - 1) == p
+          Map.entriesOf(Res).size == size + 1,
+          Map.Entries.containKey(Map.entriesOf(Res), p._1),
+          Map.entriesOf(Res)(Map.entriesOf(Res).size - 1) == p
         )
       )
     )
@@ -267,8 +261,10 @@ object Map {
 
   @pure def -(p: (K, T)): Map[K, T] = {
     Contract(
-      Ensures(∀(Res[Map[K, T]].entries.indices)(j => (Res[Map[K, T]].entries(j) != p) ->:
-        ∃(entries.indices)(k => entries(k) == Res[Map[K, T]].entries(j))))
+      Ensures(
+        ∀(Res[Map[K, T]].entries.indices)(j => (Res[Map[K, T]].entries(j) != p) ->:
+          ∃(entries.indices)(k => entries(k) == Res[Map[K, T]].entries(j)))
+      )
     )
     var newEntries = ISZ[(K, T)]()
     var i = 0

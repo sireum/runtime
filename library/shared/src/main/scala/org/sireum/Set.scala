@@ -34,6 +34,8 @@ object Set {
 
   @strictpure def ++[I, T](s: IS[I, T]): Set[T] = empty[T] ++ s
 
+  @strictpure def elementsOf[T](s: Set[T]): ISZ[T] = s.elements
+
   object Elements {
 
     @strictpure def unique[T](elements: ISZ[T]): B =
@@ -59,18 +61,18 @@ object Set {
         "In",
         Requires(Set.Elements.contain(elements, e)),
         Ensures(
-          Res[Set[T]].elements.size == size,
-          Set.Elements.contain(Res[Set[T]].elements, e),
-          ∃(Res[Set[T]].elements.indices)(j => Res[Set[T]].elements(j) == e)
+          Set.elementsOf(Res).size == size,
+          Set.Elements.contain(Set.elementsOf(Res), e),
+          ∃(Set.elementsOf(Res).indices)(j => Set.elementsOf(Res)(j) == e)
         )
       ),
       Case(
         "Not-in",
         Requires(!Set.Elements.contain(elements, e)),
         Ensures(
-          Res[Set[T]].elements.size == size + 1,
-          Set.Elements.contain(Res[Set[T]].elements, e),
-          Res[Set[T]].elements(Res[Set[T]].elements.size - 1) == e
+          Set.elementsOf(Res).size == size + 1,
+          Set.Elements.contain(Set.elementsOf(Res), e),
+          Set.elementsOf(Res)(Set.elementsOf(Res).size - 1) == e
         )
       )
     )
@@ -89,8 +91,10 @@ object Set {
 
   @pure def -(e: T): Set[T] = {
     Contract(
-      Ensures(∀(Res[Set[T]].elements.indices)(j => (Res[Set[T]].elements(j) != e) ->:
-        ∃(elements.indices)(k => elements(k) == Res[Set[T]].elements(j))))
+      Ensures(
+        ∀(Set.elementsOf(Res).indices)(j => (Set.elementsOf(Res)(j) != e) ->:
+          ∃(elements.indices)(k => elements(k) == Set.elementsOf(Res)(j)))
+      )
     )
     var newElements = ISZ[T]()
     var i = 0
@@ -128,11 +132,11 @@ object Set {
   @pure def union(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Res[Set[T]].elements.size >= elements.size,
-        ∀(Res[Set[T]].elements.indices)(j =>
-          Set.Elements.contain(elements, Res[Set[T]].elements(j)) |
-            Set.Elements.contain(other.elements, Res[Set[T]].elements(j))),
-        ∀(elements.indices)(j => elements(j) == Res[Set[T]].elements(j)),
+        Set.elementsOf(Res).size >= elements.size,
+        ∀(Set.elementsOf(Res).indices)(j =>
+          Set.Elements.contain(elements, Set.elementsOf(Res)(j)) |
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j => elements(j) == Set.elementsOf(Res)(j)),
       )
     )
     var newElements = elements
@@ -169,11 +173,11 @@ object Set {
   @pure def ∪(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Res[Set[T]].elements.size >= elements.size,
-        ∀(Res[Set[T]].elements.indices)(j =>
-          Set.Elements.contain(elements, Res[Set[T]].elements(j)) |
-            Set.Elements.contain(other.elements, Res[Set[T]].elements(j))),
-        ∀(elements.indices)(j => elements(j) == Res[Set[T]].elements(j)),
+        Set.elementsOf(Res).size >= elements.size,
+        ∀(Set.elementsOf(Res).indices)(j =>
+          Set.Elements.contain(elements, Set.elementsOf(Res)(j)) |
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j => elements(j) == Set.elementsOf(Res)(j)),
       )
     )
     return union(other)
@@ -182,10 +186,10 @@ object Set {
   @pure def intersect(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Res[Set[T]].elements.size <= elements.size,
-        ∀(Res[Set[T]].elements.indices)(j =>
-          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
-            Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+        Set.elementsOf(Res).size <= elements.size,
+        ∀(Set.elementsOf(Res).indices)(j =>
+          Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
       )
     )
     var newElements = ISZ[T]()
@@ -203,6 +207,7 @@ object Set {
       )
       val e = elements(i)
       if (other.contains(e)) {
+        Deduce(|- (Set.Elements.unique(newElements)))
         newElements = newElements :+ e
       }
 
@@ -214,10 +219,10 @@ object Set {
   @pure def ∩(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Res[Set[T]].elements.size <= size,
-        ∀(Res[Set[T]].elements.indices)(j =>
-          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
-            Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+        Set.elementsOf(Res).size <= size,
+        ∀(Set.elementsOf(Res).indices)(j =>
+          Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
       )
     )
     return intersect(other)
@@ -226,10 +231,10 @@ object Set {
   @pure def \(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Res[Set[T]].elements.size <= size,
-        ∀(Res[Set[T]].elements.indices)(j =>
-          Set.Elements.contain(elements, Res[Set[T]].elements(j)) &
-            !Set.Elements.contain(other.elements, Res[Set[T]].elements(j)))
+        Set.elementsOf(Res).size <= size,
+        ∀(Set.elementsOf(Res).indices)(j =>
+          Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
+            !Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
       )
     )
     var newElements = ISZ[T]()
