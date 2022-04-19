@@ -1,4 +1,4 @@
-// #Sireum
+// #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
  All rights reserved.
@@ -28,90 +28,170 @@ package org.sireum
 
 object MOption {
 
-  @pure def some[T](value: T): MOption[T] = {
-    return MSome(value)
-  }
+  @strictpure def some[T](value: T): MOption[T] = MSome(value)
 
-  @pure def none[T](): MOption[T] = {
-    return MNone()
-  }
+  @strictpure def none[T](): MOption[T] = MNone()
+
 }
 
 @record trait MOption[T] {
 
-  @pure def isEmpty: B
+  @pure def isEmpty: B = Contract.Only(
+    Ensures(Res == (this == MNone[T]()))
+  )
 
-  @pure def nonEmpty: B
+  @pure def nonEmpty: B = Contract.Only(
+    Ensures(Res == !isEmpty)
+  )
 
-  @pure def map[T2](f: T => T2 @pure): MOption[T2]
+  @pure def map[T2](f: T => T2 @pure): MOption[T2] = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == MNone[T2]())
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(Res == MSome(f(get)))
+    )
+  )
 
-  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2]
+  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == MNone[T2]())
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def forall(f: T => B @pure): B
+  @pure def forall(f: T => B @pure): B = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == T)
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def exists(f: T => B @pure): B
+  @pure def exists(f: T => B @pure): B = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == F)
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(Res == f(get))
+    )
+  )
 
-  @pure def getOrElse(default: => T): T
+  @pure def get: T = Contract.Only(
+    Requires(nonEmpty),
+    Ensures(MSome(Res) == this)
+  )
 
-  @pure def getOrElseEager(default: T): T
+  @pure def getOrElse(default: => T): T = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == default)
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(MSome(Res) == this)
+    )
+  )
 
-  @pure def get: T
+  @pure def getOrElseEager(default: T): T = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == default)
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(MSome(Res) == this)
+    )
+  )
 
-  @pure def toMS: MS[Z, T]
+  @pure def toMS: MSZ[T] = Contract.Only(
+    Case(
+      "Empty",
+      Requires(isEmpty),
+      Ensures(Res == MSZ[T]())
+    ),
+    Case(
+      "Non-empty",
+      Requires(nonEmpty),
+      Ensures(Res == MSZ[T](get))
+    )
+  )
 
   def foreach[V](f: T => V): Unit
 }
 
 @record class MNone[T] extends MOption[T] {
 
-  @pure def isEmpty: B = {
-//    l""" ensures  result ≡ T """
-
+  @pure override def isEmpty: B = {
+    Contract(Ensures(Res))
     return T
   }
 
-  @pure def nonEmpty: B = {
-//    l""" ensures  result ≡ F """
+  @pure override def nonEmpty: B = {
+    Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
-//    l""" ensures  result ≡ MNone[T2]() """
+  @pure override def map[T2](f: T => T2 @pure): MOption[T2] = {
+    Contract(Ensures(Res == MNone[T2]()))
     return MNone[T2]()
   }
 
-  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-//    l""" ensures  result ≡ MNone[T2]() """
+  @pure override def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
+    Contract(Ensures(Res == MNone[T2]()))
     return MNone[T2]()
   }
 
-  @pure def forall(f: T => B @pure): B = {
-//    l""" ensures  result ≡ T """ // or simply: result
+  @pure override def forall(f: T => B @pure): B = {
+    Contract(Ensures(Res))
     return T
   }
 
-  @pure def exists(f: T => B @pure): B = {
-//    l""" ensures  result ≡ F """ // or simply: ¬result
+  @pure override def exists(f: T => B @pure): B = {
+    Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def getOrElse(default: => T): T = {
-//    l""" ensures  result ≡ default """
+  @pure override def getOrElse(default: => T): T = {
+    Contract(Ensures(Res == default))
     return default
   }
 
-  @pure def getOrElseEager(default: T): T = {
-//    l""" ensures  result ≡ default """
+  @pure override def getOrElseEager(default: T): T = {
+    Contract(Ensures(Res == default))
     return default
   }
 
-  @pure def get: T = {
-//    l""" requires  F """
+  @pure override def get: T = {
+    Contract(Requires(F))
     halt("Invalid 'MNone' operation 'get'.")
   }
 
-  @pure def toMS: MS[Z, T] = {
-//    l""" ensures  result.size ≡ 0 """
+  @pure override def toMS: MS[Z, T] = {
+    Contract(Ensures(Res[MSZ[T]].size == 0))
     return MS[Z, T]()
   }
 
@@ -120,59 +200,57 @@ object MOption {
 
 @record class MSome[T](val value: T) extends MOption[T] {
 
-  @pure def isEmpty: B = {
-//    l""" ensures  result ≡ F """
+  @pure override def isEmpty: B = {
+    Contract(Ensures(!Res[B]))
     return F
   }
 
-  @pure def nonEmpty: B = {
-//    l""" ensures  result ≡ T """
+  @pure override def nonEmpty: B = {
+    Contract(Ensures(Res))
     return T
   }
 
-  @pure def map[T2](f: T => T2 @pure): MOption[T2] = {
-//    l""" ensures  result ≡ f(value) """
+  @pure override def map[T2](f: T => T2 @pure): MOption[T2] = {
+    Contract(Ensures(Res == MSome(f(value))))
     return MSome(f(value))
   }
 
-  @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-//    l""" ensures  result ≡ f(value) """
+  @pure override def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def forall(f: T => B @pure): B = {
-//    l""" ensures  result ≡ f(value) """
+  @pure override def forall(f: T => B @pure): B = {
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def exists(f: T => B @pure): B = {
-//    l""" ensures  result ≡ f(value) """
+  @pure override def exists(f: T => B @pure): B = {
+    Contract(Ensures(Res == f(value)))
     return f(value)
   }
 
-  @pure def getOrElse(default: => T): T = {
-//    l""" ensures  result ≡ value """
+  @pure override def getOrElse(default: => T): T = {
+    Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def getOrElseEager(default: T): T = {
-//    l""" ensures  result ≡ value """
+  @pure override def getOrElseEager(default: T): T = {
+    Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def get: T = {
-//    l""" ensures  result ≡ value """
+  @pure override def get: T = {
+    Contract(Ensures(Res == value))
     return value
   }
 
-  @pure def toMS: MS[Z, T] = {
-//    l""" ensures  result.size ≡ 1
-//                  result(0) ≡ value """
-
+  @pure override def toMS: MS[Z, T] = {
+    Contract(Ensures(Res == MSZ(value)))
     return MSZ(value)
   }
 
-  def foreach[V](f: T => V): Unit = {
+  override def foreach[V](f: T => V): Unit = {
     f(value)
   }
 }

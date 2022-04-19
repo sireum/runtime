@@ -1,4 +1,4 @@
-// #Sireum
+// #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
  All rights reserved.
@@ -27,12 +27,46 @@
 package org.sireum
 
 @datatype trait Either[L, R] {
-  @pure def isLeft: B
-  @pure def isRight: B
-  @pure def leftOpt: Option[L]
-  @pure def left: L
-  @pure def rightOpt: Option[R]
-  @pure def right: R
+
+  @pure def isLeft: B = Contract.Only(Ensures(Res == ∃{e: L => Either.Left[L, R](e) == this}))
+
+  @pure def isRight: B = Contract.Only(Ensures(!isLeft))
+
+  @pure def leftOpt: Option[L] = Contract.Only(
+    Case(
+      "Left",
+      Requires(isLeft),
+      Ensures(Either.Left[L, R](Res[Option[L]].get) == this)
+    ),
+    Case(
+      "Right",
+      Requires(isRight),
+      Ensures(Res == None[L]())
+    ),
+  )
+
+  @pure def left: L = Contract.Only(
+    Requires(isLeft),
+    Ensures(Either.Left[L, R](Res) == this)
+  )
+
+  @pure def rightOpt: Option[R] = Contract.Only(
+    Case(
+      "Left",
+      Requires(isLeft),
+      Ensures(Res == None[R]())
+    ),
+    Case(
+      "Right",
+      Requires(isRight),
+      Ensures(Either.Right[L, R](Res[Option[R]].get) == this)
+    )
+  )
+
+  @pure def right: R = Contract.Only(
+    Requires(isRight),
+    Ensures(Either.Right[L, R](Res) == this)
+  )
 }
 
 object Either {
@@ -105,11 +139,8 @@ object Either {
 
   }
 
-  @pure def left[L, R](value: L): Either[L, R] = {
-    return Left(value)
-  }
+  @strictpure def left[L, R](value: L): Either[L, R] = Left[L, R](value)
 
-  @pure def right[L, R](value: R): Either[L, R] = {
-    return Right(value)
-  }
+  @strictpure def right[L, R](value: R): Either[L, R] = Right[L, R](value)
+
 }

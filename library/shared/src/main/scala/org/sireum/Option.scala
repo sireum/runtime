@@ -45,10 +45,12 @@ object Option {
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == None[T2]())
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Res == Some(f(get)))
     )
@@ -56,10 +58,12 @@ object Option {
 
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == None[T2]())
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Res == f(get))
     )
@@ -67,10 +71,12 @@ object Option {
 
   @pure def forall(f: T => B @pure): B = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == T)
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Res == f(get))
     )
@@ -78,10 +84,12 @@ object Option {
 
   @pure def exists(f: T => B @pure): B = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == F)
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Res == f(get))
     )
@@ -94,10 +102,12 @@ object Option {
 
   @pure def getOrElse(default: => T): T = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == default)
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Some(Res) == this)
     )
@@ -105,21 +115,25 @@ object Option {
 
   @pure def getOrElseEager(default: T): T = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == default)
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Some(Res) == this)
     )
   )
 
-  @pure def toIS: IS[Z, T] = Contract.Only(
+  @pure def toIS: ISZ[T] = Contract.Only(
     Case(
+      "Empty",
       Requires(isEmpty),
       Ensures(Res == ISZ[T]())
     ),
     Case(
+      "Non-empty",
       Requires(nonEmpty),
       Ensures(Res == ISZ[T](get))
     )
@@ -132,7 +146,6 @@ object Option {
 
   @pure override def isEmpty: B = {
     Contract(Ensures(Res))
-
     return T
   }
 
@@ -233,7 +246,6 @@ object Option {
 
   @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(Res == ISZ(value)))
-
     return ISZ(value)
   }
 

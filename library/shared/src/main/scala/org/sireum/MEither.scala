@@ -1,4 +1,4 @@
-// #Sireum
+// #Sireum #Logika
 /*
  Copyright (c) 2017-2022, Robby, Kansas State University
  All rights reserved.
@@ -27,11 +27,42 @@
 package org.sireum
 
 @record trait MEither[L, R] {
-  @pure def isLeft: B
-  @pure def isRight: B
-  @pure def leftOpt: Option[L]
-  @pure def left: L
-  @pure def rightOpt: Option[R]
+
+  @pure def isLeft: B = Contract.Only(Ensures(Res == ∃{e: L => MEither.Left[L, R](e) == this}))
+
+  @pure def isRight: B = Contract.Only(Ensures(!isLeft))
+
+  @pure def leftOpt: MOption[L] = Contract.Only(
+    Case(
+      "Left",
+      Requires(isLeft),
+      Ensures(MEither.Left[L, R](Res[MOption[L]].get) == this)
+    ),
+    Case(
+      "Right",
+      Requires(isRight),
+      Ensures(Res == MNone[L]())
+    ),
+  )
+
+  @pure def left: L = Contract.Only(
+    Requires(isLeft),
+    Ensures(MEither.Left[L, R](Res) == this)
+  )
+
+  @pure def rightOpt: MOption[R] = Contract.Only(
+    Case(
+      "Left",
+      Requires(isLeft),
+      Ensures(Res == MNone[R]())
+    ),
+    Case(
+      "Right",
+      Requires(isRight),
+      Ensures(MEither.Right[L, R](Res[MOption[R]].get) == this)
+    )
+  )
+
   @pure def right: R
 }
 
@@ -40,32 +71,32 @@ object MEither {
   @record class Left[L, R](val value: L) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
-//      l""" ensures result ≡ T """
+      Contract(Ensures(Res))
       return T
     }
 
     @pure override def isRight: B = {
-//      l""" ensures result ≡ F """
+      Contract(Ensures(!Res[B]))
       return F
     }
 
-    @pure override def leftOpt: Option[L] = {
-//      l""" ensures result ≡ Some(value) """
-      return Some(value)
+    @pure override def leftOpt: MOption[L] = {
+      Contract(Ensures(Res == MSome(value)))
+      return MSome(value)
     }
 
     @pure override def left: L = {
-//      l""" ensures result ≡ value """
+      Contract(Ensures(Res == value))
       return value
     }
 
-    @pure override def rightOpt: Option[R] = {
-//      l""" ensures result ≡ None[R]() """
-      return None()
+    @pure override def rightOpt: MOption[R] = {
+      Contract(Ensures(Res == MNone[R]()))
+      return MNone()
     }
 
     @pure override def right: R = {
-//      l""" requires F """
+      Contract(Requires(F))
       halt("Invalid 'MEither.Left' operation 'right'.")
     }
 
@@ -74,43 +105,39 @@ object MEither {
   @record class Right[L, R](val value: R) extends MEither[L, R] {
 
     @pure override def isLeft: B = {
-//      l""" ensures result ≡ F """
+      Contract(Ensures(!Res[B]))
       return F
     }
 
     @pure override def isRight: B = {
-//      l""" ensures result ≡ T """
+      Contract(Ensures(Res))
       return T
     }
 
-    @pure override def leftOpt: Option[L] = {
-//      l""" ensures result ≡ None[L]() """
-      return None()
+    @pure override def leftOpt: MOption[L] = {
+      Contract(Ensures(Res == MNone[L]()))
+      return MNone()
     }
 
     @pure override def left: L = {
-//      l""" requires F """
+      Contract(Requires(F))
       halt("Invalid 'MEither.Right' operation 'left'.")
     }
 
-    @pure override def rightOpt: Option[R] = {
-//      l""" ensures result ≡ Some(value) """
-      return Some(value)
+    @pure override def rightOpt: MOption[R] = {
+      Contract(Ensures(Res == MSome(value)))
+      return MSome(value)
     }
 
     @pure override def right: R = {
-//      l""" ensures result ≡ value """
+      Contract(Ensures(Res == value))
       return value
     }
 
   }
 
-  @pure def left[L, R](value: L): MEither[L, R] = {
-    return Left(value)
-  }
+  @strictpure def left[L, R](value: L): MEither[L, R] = Left(value)
 
-  @pure def right[L, R](value: R): MEither[L, R] = {
-    return Right(value)
-  }
+  @strictpure def right[L, R](value: R): MEither[L, R] = Right(value)
 
 }
