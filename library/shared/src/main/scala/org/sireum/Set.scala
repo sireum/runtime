@@ -207,7 +207,6 @@ object Set {
       )
       val e = elements(i)
       if (other.contains(e)) {
-        Deduce(|- (Set.Elements.unique(newElements)))
         newElements = newElements :+ e
       }
 
