@@ -41,7 +41,11 @@ object Map {
     @strictpure def uniqueKeys[K, T](entries: ISZ[(K, T)]): B =
       ∀(entries.indices)(i => ∀(entries.indices)(j => (i != j) ->: (entries(i)._1 != entries(j)._1)))
 
+    @strictpure def contain[K, T](entries: ISZ[(K, T)], kv: (K, T)): B = ∃(entries.indices)(j => kv == entries(j))
+
     @strictpure def containKey[K, T](entries: ISZ[(K, T)], key: K): B = ∃(entries.indices)(j => key == entries(j)._1)
+
+    @strictpure def containValue[K, T](entries: ISZ[(K, T)], value: T): B = ∃(entries.indices)(j => value == entries(j)._2)
 
     @strictpure def keyIndexOfFrom[K, T](entries: ISZ[(K, T)], key: K, from: Z): Z =
       if (from < 0 | from >= entries.size) -1
@@ -120,8 +124,9 @@ import SeqUtil.IS
         Requires(Map.Entries.containKey(entries, p._1)),
         Ensures(
           Map.entriesOf(Res).size == size,
-          Map.Entries.containKey(Map.entriesOf(Res), p._1),
-          ∃(Map.entriesOf(Res).indices)(j => Map.entriesOf(Res)(j) == p)
+          Map.Entries.contain(Map.entriesOf(Res), p),
+          ∀(Map.entriesOf(Res).indices)(j =>
+            (Map.entriesOf(Res)(j) != p) ->: Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
         )
       ),
       Case(
@@ -129,8 +134,9 @@ import SeqUtil.IS
         Requires(!Map.Entries.containKey(entries, p._1)),
         Ensures(
           Map.entriesOf(Res).size == size + 1,
-          Map.Entries.containKey(Map.entriesOf(Res), p._1),
-          Map.entriesOf(Res)(Map.entriesOf(Res).size - 1) == p
+          Map.entriesOf(Res)(Map.entriesOf(Res).size - 1) == p,
+          Map.Entries.contain(Map.entriesOf(Res), p),
+          ∀(entries.indices)(i => entries(i) == Map.entriesOf(Res)(i))
         )
       )
     )
@@ -155,7 +161,7 @@ import SeqUtil.IS
       Case(
         "Mapped",
         Requires(Map.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Res == Some[T](entries(j)._2))))
+        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Res == Some(entries(j)._2))))
       ),
       Case(
         "Unmapped",
@@ -178,7 +184,7 @@ import SeqUtil.IS
       Case(
         "Mapped",
         Requires(Map.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => Res == entries(j)._2))
+        Ensures(Map.Entries.containValue(entries, Res))
       ),
       Case(
         "Unmapped",
@@ -261,20 +267,35 @@ import SeqUtil.IS
 
   @pure def -(p: (K, T)): Map[K, T] = {
     Contract(
-      Ensures(
-        ∀(Res[Map[K, T]].entries.indices)(j => (Res[Map[K, T]].entries(j) != p) ->:
-          ∃(entries.indices)(k => entries(k) == Res[Map[K, T]].entries(j)))
+      Case(
+        "Mapped",
+        Requires(Map.Entries.contain(entries, p)),
+        Ensures(
+         Map.entriesOf(Res).size == size - 1,
+          ∀(Map.entriesOf(Res).indices)(j =>
+            Map.entriesOf(Res)(j) != p & Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
+        )
+      ),
+      Case(
+        "Unmapped",
+        Requires(!Map.Entries.contain(entries, p)),
+        Ensures(
+          Map.entriesOf(Res).size == size,
+          ∀(Map.entriesOf(Res).indices)(j => Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
+        )
       )
     )
     var newEntries = ISZ[(K, T)]()
-    var i = 0
+    var i: Z = 0
     while (i < entries.size) {
       Invariant(
         Modifies(i, newEntries),
         0 <= i,
         i <= entries.size,
         ∀(newEntries.indices)(j => ∀(i until entries.size)(k => newEntries(j)._1 != entries(k)._1)),
-        ∀(newEntries.indices)(j => (newEntries(j) != p) ->: ∃(entries.indices)(k => entries(k) == newEntries(j))),
+        ∀(newEntries.indices)(j => newEntries(j) != p & Map.Entries.contain(entries, newEntries(j))),
+        ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1),
+        ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i),
         Map.Entries.uniqueKeys(newEntries),
       )
       val kv = entries(i)
@@ -283,11 +304,12 @@ import SeqUtil.IS
       }
       i = i + 1
     }
-    return Map(newEntries)
+    val r = Map(newEntries)
+    return r
   }
 
   @pure def contains(key: K): B = {
-    Contract(Ensures(Res == ∃(0 until entries.size)(j => key == entries(j)._1)))
+    Contract(Ensures(Res == Map.Entries.containKey(entries, key)))
     return indexOf(key) >= 0
   }
 
@@ -323,7 +345,7 @@ import SeqUtil.IS
         "Equal",
         Requires(
           size == other.size,
-          ∀(entries.indices)(j => ∃(0 until size)(k => entries(j) == other.entries(k))),
+          ∀(entries.indices)(j => Map.Entries.contain(other.entries, entries(j))),
         ),
         Ensures(Res[B])
       ),
@@ -350,20 +372,20 @@ import SeqUtil.IS
       )
     )
     val sz = size
+    var r = T
     if (sz != other.size) {
-      return F
+      r = F
     } else {
       var i: Z = 0
-      var r = T
       while (r & i < sz) {
         Invariant(
           Modifies(i, r),
           0 <= i,
           i <= sz,
-          r ->: ∀(0 until i)(j => ∃(0 until sz)(k => entries(j) == other.entries(k))),
+          r ->: ∀(0 until i)(j => Map.Entries.contain(other.entries, entries(j))),
           !r ->: ∃(entries.indices)(j =>
             !Map.Entries.containKey(other.entries, entries(j)._1) |
-              ∀(other.entries.indices)(k => entries(j) != other.entries(k)))
+              !Map.Entries.contain(other.entries, entries(j)))
         )
         val (key, v) = entries(i)
         val v2Opt = other.get(key)
@@ -377,8 +399,7 @@ import SeqUtil.IS
         }
         i = i + 1
       }
-
-      return r
     }
+    return r
   }
 }
