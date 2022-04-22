@@ -57,29 +57,41 @@ object Set {
 
   @pure def +(e: T): Set[T] = {
     Contract(
-      Case(
-        "In",
-        Requires(Set.Elements.contain(elements, e)),
-        Ensures(
-          Set.elementsOf(Res).size == size,
-          Set.Elements.contain(Set.elementsOf(Res), e),
-          ∀(Set.elementsOf(Res).indices)(j =>
-            (Set.elementsOf(Res)(j) != e) ->: Set.Elements.contain(elements, Set.elementsOf(Res)(j)))
-        )
-      ),
-      Case(
-        "Not-in",
-        Requires(!Set.Elements.contain(elements, e)),
-        Ensures(
-          Set.elementsOf(Res).size == size + 1,
-          Set.Elements.contain(Set.elementsOf(Res), e),
-          Set.elementsOf(Res)(Set.elementsOf(Res).size - 1) == e,
-          ∀(elements.indices)(j => elements(j) == Set.elementsOf(Res)(j))
-        )
+      Ensures(
+        Set.elementsOf(Res).size == elements.size | Set.elementsOf(Res).size == elements.size + 1,
+        Set.Elements.contain(Set.elementsOf(Res), e),
+        ∀(Set.elementsOf(Res).indices)(j =>
+          (Set.elementsOf(Res)(j) != e) ->: Set.Elements.contain(elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j =>
+          (elements(j) != e) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j)))
       )
     )
     val index = indexOf(e)
-    val newElements: ISZ[T] = if (index < 0) elements :+ e else elements((index, e))
+    val newElements: ISZ[T] = if (index < 0) {
+      val r = elements :+ e
+      Deduce(
+        //@formatter:off
+        1 #> (r(r.size - 1) == e)                                                           by Premise,
+        2 #> Set.Elements.contain(r, e)                                                     by Premise,
+        3 #> SeqUtil.IS.unique(r)                                                           by Premise,
+        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Premise,
+        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Premise,
+        //@formatter:on
+      )
+      r
+    } else {
+      val r = elements(index ~> e)
+      Deduce(
+        //@formatter:off
+        1 #> (r(index) == e)                                                                by Premise,
+        2 #> Set.Elements.contain(r, e)                                                     by Premise,
+        3 #> SeqUtil.IS.unique(r)                                                           by Premise,
+        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Premise,
+        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Premise,
+        //@formatter:on
+      )
+      r
+    }
     return Set(newElements)
   }
 
@@ -93,22 +105,10 @@ object Set {
 
   @pure def -(e: T): Set[T] = {
     Contract(
-      Case(
-        "In",
-        Requires(Set.Elements.contain(elements, e)),
-        Ensures(
-          Set.elementsOf(Res).size == size - 1,
-          ∀(Set.elementsOf(Res).indices)(j => Set.elementsOf(Res)(j) != e &
-            Set.Elements.contain(elements, Set.elementsOf(Res)(j)))
-        )
-      ),
-      Case(
-        "Not-in",
-        Requires(!Set.Elements.contain(elements, e)),
-        Ensures(
-          Set.elementsOf(Res).size == size,
-          ∀(Set.elementsOf(Res).indices)(j => Set.Elements.contain(elements, Set.elementsOf(Res)(j)))
-        )
+      Ensures(
+        Set.elementsOf(Res).size == elements.size | Set.elementsOf(Res).size == elements.size - 1,
+        ∀(Set.elementsOf(Res).indices)(j => Set.elementsOf(Res)(j) != e & Set.Elements.contain(elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j => (elements(j) != e) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j))),
       )
     )
     var newElements = ISZ[T]()
@@ -122,6 +122,7 @@ object Set {
         ∀(newElements.indices)(j => newElements(j) != e & Set.Elements.contain(elements, newElements(j))),
         ∃(0 until i)(j => e == elements(j)) ->: (newElements.size == i - 1),
         ∀(0 until i)(j => e != elements(j)) ->: (newElements.size == i),
+        ∀(0 until i)(j => (e != elements(j)) ->: Set.Elements.contain(newElements, elements(j))),
         Set.Elements.unique(newElements),
       )
       val kv = elements(i)
@@ -150,10 +151,12 @@ object Set {
     Contract(
       Ensures(
         Set.elementsOf(Res).size >= elements.size,
+        Set.elementsOf(Res).size <= elements.size + other.elements.size,
         ∀(Set.elementsOf(Res).indices)(j =>
           Set.Elements.contain(elements, Set.elementsOf(Res)(j)) |
             Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
         ∀(elements.indices)(j => elements(j) == Set.elementsOf(Res)(j)),
+        ∀(other.elements.indices)(j => Set.Elements.contain(Set.elementsOf(Res), other.elements(j)))
       )
     )
     var newElements = elements
@@ -164,24 +167,26 @@ object Set {
         0 <= i,
         i <= other.elements.size,
         newElements.size >= elements.size,
+        newElements.size <= elements.size + i,
         ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j)) |
           Set.Elements.contain(other.elements, newElements(j))),
         ∀(elements.indices)(j => elements(j) == newElements(j)),
         ∀(elements.size until newElements.size)(j =>
           ∀(i until other.elements.size)(k => newElements(j) != other.elements(k))),
+        ∀(0 until i)(j => Set.Elements.contain(newElements, other.elements(j))),
         Set.Elements.unique(newElements),
       )
       val e = other.elements(i)
       if (!contains(e)) {
-        Deduce(
-          //@formatter:off
-          1 #> !Set.Elements.contain(newElements, e)                            by Premise,
-          2 #> ∀(i + 1 until other.elements.size)(j => e != other.elements(j))  by Premise
-          //@formatter:on
-        )
         newElements = newElements :+ e
+        Deduce(
+          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
+        )
+      } else {
+        Deduce(
+          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
+        )
       }
-
       i = i + 1
     }
     return Set(newElements)
@@ -191,10 +196,12 @@ object Set {
     Contract(
       Ensures(
         Set.elementsOf(Res).size >= elements.size,
+        Set.elementsOf(Res).size <= elements.size + other.elements.size,
         ∀(Set.elementsOf(Res).indices)(j =>
           Set.Elements.contain(elements, Set.elementsOf(Res)(j)) |
             Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
         ∀(elements.indices)(j => elements(j) == Set.elementsOf(Res)(j)),
+        ∀(other.elements.indices)(j => Set.Elements.contain(Set.elementsOf(Res), other.elements(j)))
       )
     )
     return union(other)
@@ -206,7 +213,11 @@ object Set {
         Set.elementsOf(Res).size <= elements.size,
         ∀(Set.elementsOf(Res).indices)(j =>
           Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
-            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j =>
+          Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j))),
+        ∀(other.elements.indices)(j =>
+          Set.Elements.contain(elements, other.elements(j)) ->: Set.Elements.contain(Set.elementsOf(Res), other.elements(j)))
       )
     )
     var newElements = ISZ[T]()
@@ -220,11 +231,19 @@ object Set {
         ∀(newElements.indices)(j => Set.Elements.contain(other.elements, newElements(j))),
         ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j))),
         ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
+        ∀(0 until i)(j => Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(newElements, elements(j))),
         Set.Elements.unique(newElements)
       )
       val e = elements(i)
       if (other.contains(e)) {
         newElements = newElements :+ e
+        Deduce(
+          //@formatter:off
+          1 #> ∀(0 to i)(j => Set.Elements.contain(other.elements, elements(j)) ->:
+            Set.Elements.contain(newElements, elements(j)))                                 by Premise,
+          2 #> Set.Elements.unique(newElements)                                             by Premise
+          //@formatter:on
+        )
       }
 
       i = i + 1
@@ -235,10 +254,14 @@ object Set {
   @pure def ∩(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Set.elementsOf(Res).size <= size,
+        Set.elementsOf(Res).size <= elements.size,
         ∀(Set.elementsOf(Res).indices)(j =>
           Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
-            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
+            Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j =>
+          Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j))),
+        ∀(other.elements.indices)(j =>
+          Set.Elements.contain(elements, other.elements(j)) ->: Set.Elements.contain(Set.elementsOf(Res), other.elements(j)))
       )
     )
     return intersect(other)
@@ -247,10 +270,13 @@ object Set {
   @pure def \(other: Set[T]): Set[T] = {
     Contract(
       Ensures(
-        Set.elementsOf(Res).size <= size,
+        Set.elementsOf(Res).size <= elements.size,
         ∀(Set.elementsOf(Res).indices)(j =>
           Set.Elements.contain(elements, Set.elementsOf(Res)(j)) &
-            !Set.Elements.contain(other.elements, Set.elementsOf(Res)(j)))
+            !Set.Elements.contain(other.elements, Set.elementsOf(Res)(j))),
+        ∀(elements.indices)(j =>
+          !Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j))),
+        ∀(other.elements.indices)(j => !Set.Elements.contain(Set.elementsOf(Res), other.elements(j)))
       )
     )
     var newElements = ISZ[T]()
@@ -264,11 +290,19 @@ object Set {
         ∀(newElements.indices)(j => !Set.Elements.contain(other.elements, newElements(j))),
         ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j))),
         ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
+        ∀(0 until i)(j => !Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(newElements, elements(j))),
         Set.Elements.unique(newElements),
       )
       val e = elements(i)
       if (!other.contains(e)) {
         newElements = newElements :+ e
+        Deduce(
+          //@formatter:off
+          1 #> ∀(0 to i)(j => !Set.Elements.contain(other.elements, elements(j)) ->:
+            Set.Elements.contain(newElements, elements(j)))                                 by Premise,
+          2 #> Set.Elements.unique(newElements)                                             by Premise
+          //@formatter:on
+        )
       }
 
       i = i + 1
@@ -281,7 +315,7 @@ object Set {
       Case(
         "Equal",
         Requires(
-          size == other.size,
+          elements. size == other.elements.size,
           ∀(elements.indices)(j => Set.Elements.contain(other.elements, elements(j))),
         ),
         Ensures(Res[B])
@@ -289,14 +323,14 @@ object Set {
       Case(
         "Inequal-diff",
         Requires(
-          size == other.size,
+          elements.size == other.elements.size,
           ∃(elements.indices)(j => !Set.Elements.contain(other.elements, elements(j))),
         ),
         Ensures(!Res[B])
       ),
       Case(
         "Inequal-size",
-        Requires(size != other.size),
+        Requires(elements.size != other.elements.size),
         Ensures(!Res[B])
       )
     )

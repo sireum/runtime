@@ -26,6 +26,8 @@
 
 package org.sireum
 
+import org.sireum.justification.Premise
+
 object Map {
 
   @strictpure def empty[K, T]: Map[K, T] = Map[K, T](ISZ())
@@ -66,8 +68,6 @@ object Map {
 
 }
 
-import SeqUtil.IS
-
 @datatype class Map[K, T](val entries: ISZ[(K, T)]) {
 
   @spec def uniqueKeys = Invariant(Map.Entries.uniqueKeys(entries))
@@ -75,8 +75,8 @@ import SeqUtil.IS
   @pure def keys: ISZ[K] = {
     Contract(
       Ensures(
-        IS.pair1Eq(entries, Res),
-        IS.unique(Res),
+        SeqUtil.IS.pair1Eq(entries, Res),
+        SeqUtil.IS.unique(Res),
       )
     )
     var r = ISZ[K]()
@@ -96,7 +96,7 @@ import SeqUtil.IS
   }
 
   @pure def values: ISZ[T] = {
-    Contract(Ensures(IS.pair2Eq(entries, Res)))
+    Contract(Ensures(SeqUtil.IS.pair2Eq(entries, Res)))
     var r = ISZ[T]()
     var i: Z = 0
     while (i < entries.size) {
@@ -119,32 +119,42 @@ import SeqUtil.IS
 
   @pure def +(p: (K, T)): Map[K, T] = {
     Contract(
-      Case(
-        "Mapped",
-        Requires(Map.Entries.containKey(entries, p._1)),
-        Ensures(
-          Map.entriesOf(Res).size == size,
-          Map.Entries.contain(Map.entriesOf(Res), p),
-          ∀(Map.entriesOf(Res).indices)(j =>
-            (Map.entriesOf(Res)(j) != p) ->: Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
-        )
-      ),
-      Case(
-        "Unmapped",
-        Requires(!Map.Entries.containKey(entries, p._1)),
-        Ensures(
-          Map.entriesOf(Res).size == size + 1,
-          Map.entriesOf(Res)(Map.entriesOf(Res).size - 1) == p,
-          Map.Entries.contain(Map.entriesOf(Res), p),
-          ∀(entries.indices)(i => entries(i) == Map.entriesOf(Res)(i))
-        )
+      Ensures(
+        Map.entriesOf(Res).size == entries.size | Map.entriesOf(Res).size == entries.size + 1,
+        Map.Entries.contain(Map.entriesOf(Res), p),
+        ∀(Map.entriesOf(Res).indices)(j =>
+          (Map.entriesOf(Res)(j) != p) ->: Map.Entries.contain(entries, Map.entriesOf(Res)(j))),
+        ∀(entries.indices)(j =>
+          (entries(j)._1 != p._1) ->: Map.Entries.contain(Map.entriesOf(Res), entries(j))),
       )
     )
     val (key, value) = p
     val index = indexOf(key)
-    val newEntries: ISZ[(K, T)] =
-      if (index < 0) entries :+ ((key, value))
-      else entries((index, (key, value)))
+    val newEntries: ISZ[(K, T)] = if (index < 0) {
+      val r = entries :+ ((key, value))
+      Deduce(
+        //@formatter:off
+        1 #> (r(r.size - 1) == p)                                                           by Premise,
+        2 #> Map.Entries.contain(r, p)                                                      by Premise,
+        3 #> Map.Entries.uniqueKeys(r)                                                      by Premise,
+        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Premise,
+        5 #> ∀(entries.indices)(j => Map.Entries.contain(r, entries(j)))                    by Premise,
+        //@formatter:on
+      )
+      r
+    } else {
+      val r = entries(index ~> p)
+      Deduce(
+        //@formatter:off
+        1 #> (r(index) == p)                                                                by Premise,
+        2 #> Map.Entries.contain(r, p)                                                      by Premise,
+        3 #> Map.Entries.uniqueKeys(r)                                                      by Premise,
+        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Premise,
+        5 #> ∀(entries.indices)(j => (index != j) ->: Map.Entries.contain(r, entries(j)))   by Premise,
+        //@formatter:on
+      )
+      r
+    }
     return Map(newEntries)
   }
 
@@ -267,22 +277,12 @@ import SeqUtil.IS
 
   @pure def -(p: (K, T)): Map[K, T] = {
     Contract(
-      Case(
-        "Mapped",
-        Requires(Map.Entries.contain(entries, p)),
-        Ensures(
-         Map.entriesOf(Res).size == size - 1,
-          ∀(Map.entriesOf(Res).indices)(j =>
-            Map.entriesOf(Res)(j) != p & Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
-        )
-      ),
-      Case(
-        "Unmapped",
-        Requires(!Map.Entries.contain(entries, p)),
-        Ensures(
-          Map.entriesOf(Res).size == size,
-          ∀(Map.entriesOf(Res).indices)(j => Map.Entries.contain(entries, Map.entriesOf(Res)(j)))
-        )
+      Ensures(
+        Map.entriesOf(Res).size == entries.size | Map.entriesOf(Res).size == entries.size - 1,
+        ∀(Map.entriesOf(Res).indices)(j =>
+          Map.entriesOf(Res)(j) != p & Map.Entries.contain(entries, Map.entriesOf(Res)(j))),
+        ∀(entries.indices)(j =>
+          (entries(j) != p) ->: Map.Entries.contain(Map.entriesOf(Res), entries(j))),
       )
     )
     var newEntries = ISZ[(K, T)]()
@@ -296,11 +296,15 @@ import SeqUtil.IS
         ∀(newEntries.indices)(j => newEntries(j) != p & Map.Entries.contain(entries, newEntries(j))),
         ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1),
         ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i),
+        ∀(0 until i)(j => (p != entries(j)) ->: Map.Entries.contain(newEntries, entries(j))),
         Map.Entries.uniqueKeys(newEntries),
       )
       val kv = entries(i)
       if (kv != p) {
         newEntries = newEntries :+ kv
+        Deduce(
+          1 #> ∀(0 to i)(j => (p != entries(j)) ->: Map.Entries.contain(newEntries, entries(j)))  by Premise
+        )
       }
       i = i + 1
     }
@@ -344,7 +348,7 @@ import SeqUtil.IS
       Case(
         "Equal",
         Requires(
-          size == other.size,
+          entries.size == other.entries.size,
           ∀(entries.indices)(j => Map.Entries.contain(other.entries, entries(j))),
         ),
         Ensures(Res[B])
@@ -352,7 +356,7 @@ import SeqUtil.IS
       Case(
         "Inequal-diff-key",
         Requires(
-          size == other.size,
+          entries.size == other.entries.size,
           ∃(entries.indices)(j => !Map.Entries.containKey(other.entries, entries(j)._1)),
         ),
         Ensures(!Res[B])
@@ -360,14 +364,14 @@ import SeqUtil.IS
       Case(
         "Inequal-diff-value",
         Requires(
-          size == other.size,
+          entries.size == other.entries.size,
           ∃(entries.indices)(j => ∀(other.entries.indices)(k => entries(j) != other.entries(k))),
         ),
         Ensures(!Res[B])
       ),
       Case(
         "Inequal-size",
-        Requires(size != other.size),
+        Requires(entries.size != other.entries.size),
         Ensures(!Res[B])
       )
     )
