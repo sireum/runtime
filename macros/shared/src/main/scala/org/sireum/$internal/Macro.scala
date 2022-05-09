@@ -33,6 +33,8 @@ object Macro {
   def parMap[T, U](poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef],
                    cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
 
+  def any[R](fs: _root_.scala.Seq[() => _root_.scala.Option[R]], default: () => R, isSequential: Boolean): R = macro Macro.anyImpl
+
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
   def isJs: Boolean = macro Macro.isJsImpl
@@ -208,6 +210,70 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     //println(showCode(r))
     r
   }
+
+  def anyImpl(fs: c.Tree, default: c.Tree, isSequential: c.Tree): c.Tree =
+    if (isJsCheck)
+      q"""{
+  def anySeq(): R = {
+    for (f <- $fs) {
+      f() match {
+        case _root_.scala.Some(r) => return r
+        case _ =>
+      }
+    }
+    return $default()
+  }
+  anySeq()
+}"""
+    else
+      q"""{
+  def anySeq(): R = {
+    for (f <- $fs) {
+      f() match {
+        case _root_.scala.Some(r) => return r
+        case _ =>
+      }
+    }
+    return $default()
+  }
+
+  def anyPar(): R = {
+    val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
+    var r: R = null.asInstanceOf[R]
+    try {
+      val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
+      val count = new _root_.java.util.concurrent.atomic.AtomicInteger(0)
+      for (f <- $fs) {
+        a.add(new _root_.java.util.concurrent.Callable[R] {
+          override def call(): R = {
+            val frOpt = f()
+            count.incrementAndGet()
+            frOpt match {
+              case _root_.scala.Some(fr) => return fr
+              case _ =>
+                while (count.get() < a.size) {
+                  try {
+                    Thread.sleep(100)
+                  } catch {
+                    case _: Exception =>
+                  }
+                }
+                throw new RuntimeException()
+            }
+          }
+        })
+      }
+      r = pool.invokeAny(a)
+      pool.shutdown()
+    } catch {
+      case _: Exception =>
+    }
+    return if (r == null) $default() else r
+  }
+
+  if ($isSequential) anySeq() else anyPar()
+}"""
+
 
   def parMapImpl(poolRef: c.Tree, cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).toIndexedSeq"

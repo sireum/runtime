@@ -33,52 +33,17 @@ object ISOps_Ext {
 
   def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = {
     val sz = fs.size.toInt
-
-    def anySeq(): R = {
-      for (f <- fs) {
-        f() match {
-          case Some(r) => return r
-          case _ =>
-        }
+    if (sz == 1) {
+      fs(0)() match {
+        case Some(r) => return r
+        case _ => default()
       }
-      return default()
     }
-
-    def anyPar(): R = {
-      val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
-      var r: R = null.asInstanceOf[R]
-      try {
-        val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
-        val count = new _root_.java.util.concurrent.atomic.AtomicInteger(0)
-        for (f <- fs) {
-          a.add(new _root_.java.util.concurrent.Callable[R] {
-            override def call(): R = {
-              val frOpt = f()
-              count.incrementAndGet()
-              frOpt match {
-                case _root_.org.sireum.Some(fr) => return fr
-                case _ =>
-                  while (count.get() < a.size) {
-                    try {
-                      Thread.sleep(100)
-                    } catch {
-                      case _: Exception =>
-                    }
-                  }
-                  throw new RuntimeException()
-              }
-            }
-          })
-        }
-        r = pool.invokeAny(a)
-        pool.shutdown()
-      } catch {
-        case _: Exception =>
-      }
-      return if (r == null) default() else r
+    val sfs = for (f <- fs.elements) yield () => f() match {
+      case Some(x) => scala.Some(x)
+      case _ => scala.None
     }
-
-    if (isSequential) anySeq() else anyPar()
+    $internal.Macro.any(sfs, default, isSequential)
   }
 
   def mParMap[I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
