@@ -26,11 +26,60 @@
 package org.sireum.ops
 
 import org.sireum._
-import org.sireum.$internal.CollectionCompat.ParConverters._
 
 object ISOps_Ext {
   val MinimumParallelThreshold: Int = 2
   val poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef] = new _root_.java.util.concurrent.atomic.AtomicReference(null)
+
+  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = {
+    val sz = fs.size.toInt
+
+    def anySeq(): R = {
+      for (f <- fs) {
+        f() match {
+          case Some(r) => return r
+          case _ =>
+        }
+      }
+      return default()
+    }
+
+    def anyPar(): R = {
+      val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
+      var r: R = null.asInstanceOf[R]
+      try {
+        val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
+        val count = new _root_.java.util.concurrent.atomic.AtomicInteger(0)
+        for (f <- fs) {
+          a.add(new _root_.java.util.concurrent.Callable[R] {
+            override def call(): R = {
+              val frOpt = f()
+              count.incrementAndGet()
+              frOpt match {
+                case _root_.org.sireum.Some(fr) => return fr
+                case _ =>
+                  while (count.get() < a.size) {
+                    try {
+                      Thread.sleep(100)
+                    } catch {
+                      case _: Exception =>
+                    }
+                  }
+                  throw new RuntimeException()
+              }
+            }
+          })
+        }
+        r = pool.invokeAny(a)
+        pool.shutdown()
+      } catch {
+        case _: Exception =>
+      }
+      return if (r == null) default() else r
+    }
+
+    if (isSequential) anySeq() else anyPar()
+  }
 
   def mParMap[I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
     val elements = s.elements
@@ -40,7 +89,7 @@ object ISOps_Ext {
     val irs =
       if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(poolRef, cores, ies, { p: (Int, V) =>
         if (t.isInterrupted) (p._1, null) else (p._1, f(p._2))
-      }) else ies.map { p => (p._1, f(p._2))}
+      }) else ies.map { p => (p._1, f(p._2)) }
     if (Thread.interrupted()) throw new InterruptedException
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
@@ -60,6 +109,8 @@ object ISOps_Ext {
 }
 
 object ISZOpsUtil_Ext {
+  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = ISOps_Ext.invokeAny(fs, default, isSequential)
+
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
 
   def parMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
@@ -80,7 +131,7 @@ object MSOps_Ext {
     val irs =
       if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ISOps_Ext.poolRef, cores, ies,
         { p: (Int, V) => (p._1, f(p._2)) })
-      else ies.map { p => (p._1, f(p._2))}
+      else ies.map { p => (p._1, f(p._2)) }
     val a = new Array[scala.Any](elements.length)
     irs.foreach { p => a(p._1) = p._2 }
     MS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)

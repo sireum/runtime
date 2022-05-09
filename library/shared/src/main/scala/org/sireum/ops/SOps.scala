@@ -162,6 +162,8 @@ import org.sireum._
 
 @ext object ISZOpsUtil {
 
+  @pure def invokeAny[R](fs: ISZ[() => Option[R] @pure], default: () => R @pure, isSequential: B): R = $
+
   @pure def parMap[V, U](s: IS[Z, V], f: V => U @pure): IS[Z, U] = $
 
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = $
