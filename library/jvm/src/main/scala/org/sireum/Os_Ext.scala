@@ -83,6 +83,14 @@ object Os_Ext {
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
 
+  lazy val numOfProcessors: Z = Runtime.getRuntime.availableProcessors
+
+  lazy val maxMemory: Z = Runtime.getRuntime.maxMemory
+
+  def totalMemory: Z = Runtime.getRuntime.totalMemory
+
+  def freeMemory: Z = Runtime.getRuntime.freeMemory
+
   def abs(path: String): String = toIO(path).getAbsolutePath
 
   def canon(path: String): String = toIO(path).getCanonicalPath

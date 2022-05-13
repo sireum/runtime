@@ -51,8 +51,8 @@ object Os {
     return Ext.fileSep
   }
 
-  @pure def uriToPath(uri: String): Os.Path = {
-    return Path.Impl(Ext.fromUri(uri))
+  def freeMemory: Z = {
+    return Ext.freeMemory
   }
 
   @memoize def home: Path = {
@@ -71,24 +71,28 @@ object Os {
     return kind == Kind.Win
   }
 
-  @pure def pathSep: String = {
-    return Ext.pathSep
+  @pure def kind: Kind.Type = {
+    return Ext.os
   }
 
   @pure def lineSep: String = {
     return Ext.lineSep
   }
 
+  @pure def maxMemory: Z = {
+    return Ext.maxMemory
+  }
+
+  @pure def numOfProcessors: Z = {
+    return Ext.numOfProcessors
+  }
+
+  @pure def pathSep: String = {
+    return Ext.pathSep
+  }
+
   @pure def pathSepChar: C = {
     return Ext.pathSepChar
-  }
-
-  @pure def kind: Kind.Type = {
-    return Ext.os
-  }
-
-  @pure def readIndexableCFrom(url: String): Indexable.Pos[C] = {
-    return Ext.readIndexableCUrl(url)
   }
 
   @pure def path(value: String): Path = {
@@ -117,7 +121,11 @@ object Os {
     return proc(cmds)
   }
 
-  @memoize def roots: ISZ[Path] = {
+  @pure def readIndexableCFrom(url: String): Indexable.Pos[C] = {
+    return Ext.readIndexableCUrl(url)
+  }
+
+  @pure def roots: ISZ[Path] = {
     return for (root <- Ext.roots) yield Path.Impl(root)
   }
 
@@ -143,6 +151,14 @@ object Os {
   def tempDirFix(prefix: String): Path = {
     val r = Ext.tempDir(prefix)
     return Path.Impl(r)
+  }
+
+  def totalMemory: Z = {
+    return Ext.totalMemory
+  }
+
+  @pure def uriToPath(uri: String): Os.Path = {
+    return Path.Impl(Ext.fromUri(uri))
   }
 
 
@@ -784,11 +800,11 @@ object Os {
 
     @pure def os: Kind.Type = $
 
-    def roots: ISZ[String] = $
+    @pure def roots: ISZ[String] = $
 
-    def abs(path: String): String = $
+    @pure def abs(path: String): String = $
 
-    def canon(path: String): String = $
+    @pure def canon(path: String): String = $
 
     def chmod(path: String, mask: String, all: B): Unit = $
 
@@ -804,7 +820,9 @@ object Os {
 
     def exit(code: Z): Unit = $
 
-    def fromUri(uri: String): String = $
+    def freeMemory: Z = $
+
+    @pure def fromUri(uri: String): String = $
 
     @pure def isAbs(path: String): B = $
 
@@ -821,6 +839,10 @@ object Os {
     def length(path: String): Z = $
 
     def list(path: String): ISZ[String] = $
+
+    @pure def maxMemory: Z = $
+
+    @pure def numOfProcessors: Z = $
 
     def mergeFrom(path: String, sources: ISZ[String]): Unit = $
 
@@ -872,7 +894,7 @@ object Os {
 
     def sha1(path: String): String = $
 
-    def slashDir: String = $
+    @pure def slashDir: String = $
 
     def size(path: String): Z = $
 
@@ -880,7 +902,9 @@ object Os {
 
     def tempDir(prefix: String): String = $
 
-    def toUri(path: String): String = $
+    def totalMemory: Z = $
+
+    @pure def toUri(path: String): String = $
 
     def write(path: String, content: String, mode: Path.WriteMode.Type): Unit = $
 
