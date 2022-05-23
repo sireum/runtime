@@ -65,7 +65,7 @@ object IS {
     }
 
     def flatMap[V2](f: V => IS[I, V2]): IS[I, V2] =
-      if (is.isEmpty) this.asInstanceOf[IS[I, V2]]
+      if (is.isEmpty) IS[I, V2]()(is.companion)
       else {
         val es = is.elements
         var r = f(es.head)
