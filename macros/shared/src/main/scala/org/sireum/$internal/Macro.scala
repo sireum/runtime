@@ -35,6 +35,8 @@ object Macro {
 
   def any[R](fs: _root_.scala.Seq[() => _root_.scala.Option[R]], default: () => R, isSequential: Boolean): R = macro Macro.anyImpl
 
+  def anyEither[R, S](fs: _root_.scala.Seq[() => _root_.scala.Either[R, S]], isSequential: Boolean): _root_.scala.Either[R, _root_.scala.Seq[S]] = macro Macro.anyEitherImpl
+
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
   def isJs: Boolean = macro Macro.isJsImpl
@@ -274,6 +276,71 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   if ($isSequential) anySeq() else anyPar()
 }"""
 
+
+  def anyEitherImpl(fs: c.Tree, isSequential: c.Tree): c.Tree =
+    if (isJsCheck)
+      q"""{
+  def anySeq(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+    var ss = _root_.scala.Vector[S]()
+    for (f <- $fs) {
+      f() match {
+        case _root_.scala.Left(r) => return _root_.scala.Left(r)
+        case _root_.scala.Right(r) => ss = ss :+ r
+      }
+    }
+    return _root_.scala.Right(ss)
+  }
+  anySeq()
+}"""
+    else
+      q"""{
+  def anySeq(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+    var ss = _root_.scala.Vector[S]()
+    for (f <- $fs) {
+      f() match {
+        case _root_.scala.Left(r) => return _root_.scala.Left(r)
+        case _root_.scala.Right(r) => ss = ss :+ r
+      }
+    }
+    return _root_.scala.Right(ss)
+  }
+  def anyPar(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+    val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
+    var r = null.asInstanceOf[R]
+    try {
+      val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
+      val count = new _root_.java.util.concurrent.atomic.AtomicInteger(0)
+      for (f <- $fs) {
+        a.add(new _root_.java.util.concurrent.Callable[R] {
+          override def call(): R = {
+            val frEither = f()
+            count.incrementAndGet()
+            frEither match {
+              case _root_.scala.Left(fr) => return fr
+              case _root_.scala.Right(fr) =>
+                addS(fr)
+                while (count.get() < a.size) {
+                  try {
+                    Thread.sleep(100)
+                  } catch {
+                    case _: Exception =>
+                  }
+                }
+                throw new RuntimeException()
+            }
+          }
+        })
+      }
+      r = pool.invokeAny(a)
+      pool.shutdown()
+    } catch {
+      case _: Exception =>
+    }
+    return if (r == null) _root_.scala.Right(ss) else _root_.scala.Left(r)
+  }
+
+  if ($isSequential) anySeq() else anyPar()
+}"""
 
   def parMapImpl(poolRef: c.Tree, cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).toIndexedSeq"

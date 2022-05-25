@@ -46,6 +46,26 @@ object ISOps_Ext {
     $internal.Macro.any(sfs, default, isSequential)
   }
 
+  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): Either[R, ISZ[S]] = {
+    val sz = fs.size.toInt
+    if (sz == 1) {
+      fs(0)() match {
+        case Either.Left(r) => return Either.Left(r)
+        case Either.Right(r) => return Either.Right(ISZ(r))
+      }
+    }
+    val sfs = for (f <- fs.elements) yield () => f() match {
+      case Either.Left(x) => scala.Left(x)
+      case Either.Right(x) => scala.Right(x)
+    }
+    var ss = _root_.scala.Vector[S]()
+    def addS(s: S): Unit = this.synchronized { ss = ss :+ s }
+    $internal.Macro.anyEither(sfs, isSequential) match {
+      case scala.Left(x) => Either.Left(x)
+      case scala.Right(x) => Either.Right(ISZ(x: _*))
+    }
+  }
+
   def mParMap[I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
@@ -75,6 +95,8 @@ object ISOps_Ext {
 
 object ISZOpsUtil_Ext {
   def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = ISOps_Ext.invokeAny(fs, default, isSequential)
+
+  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): Either[R, ISZ[S]] = ISOps_Ext.invokeAnyEither(fs, isSequential)
 
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
 
