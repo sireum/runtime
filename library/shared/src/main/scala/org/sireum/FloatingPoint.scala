@@ -61,6 +61,12 @@ object F32 {
     }
   }
 
+  val PInf: F32 = Float.PositiveInfinity
+
+  val NInf: F32 = Float.NegativeInfinity
+
+  val NaN: F32 = Float.NaN
+
   def apply(s: String): Option[F32] = try Some($String(s.value)) catch {
     case _: Throwable => None[F32]()
   }
@@ -115,6 +121,10 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $
 
   @inline def %(other: F32): F32 = value % other.value
 
+  @inline def isNaN: B = value.isNaN
+
+  @inline def isInfinite: B = value.isInfinite
+
   def string: String = toString
 
   def boxer: $internal.Boxer = F32.Boxer
@@ -146,6 +156,12 @@ object F64 {
       case a: Array[scala.Double] => a(i) = unbox(v)
     }
   }
+
+  val PInf: F64 = Double.PositiveInfinity
+
+  val NInf: F64 = Double.NegativeInfinity
+
+  val NaN: F64 = Double.NaN
 
   def apply(s: String): Option[F64] = try Some($String(s.value)) catch {
     case _: Throwable => None[F64]()
@@ -200,6 +216,10 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with 
   @inline def /(other: F64): F64 = value / other.value
 
   @inline def %(other: F64): F64 = value % other.value
+
+  @inline def isNaN: B = value.isNaN
+
+  @inline def isInfinite: B = value.isInfinite
 
   def string: String = toString
 
