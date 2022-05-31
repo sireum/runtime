@@ -150,6 +150,12 @@ package org.sireum
 
 @ext object F32 {
 
+  val PInf: F32 = $
+
+  val NInf: F32 = $
+
+  val NaN: F32 = $
+
   def random: F32 = $
 
 }
@@ -180,10 +186,20 @@ package org.sireum
 
   @pure def unary_- : F32
 
+  @pure def isNaN: B
+
+  @pure def isInfinite: B
+
 }
 
 
 @ext object F64 {
+
+  val PInf: F64 = $
+
+  val NInf: F64 = $
+
+  val NaN: F64 = $
 
   def random: F64 = $
 
@@ -214,6 +230,10 @@ package org.sireum
   @pure def %(other: F64): F64
 
   @pure def unary_- : F64
+
+  @pure def isNaN: B
+
+  @pure def isInfinite: B
 
 }
 
@@ -265,6 +285,14 @@ package org.sireum
   @pure def ===(other: String): B
 
   @pure def =!=(other: String): B
+
+  @pure def <(other: String): B
+
+  @pure def <=(other: String): B
+
+  @pure def >(other: String): B
+
+  @pure def >=(other: String): B
 
   @pure def hash: Z
 
