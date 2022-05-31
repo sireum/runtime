@@ -514,8 +514,12 @@ package org.sireum
 
 @ext object Sireum {
 
+  def initRuntimeLibrary(): Unit = $
+
   def run(args: ISZ[String]): Z = $
 
-  def initRuntimeLibrary(): Unit = $
+  def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String) = $
+
+  def runWithInputAndReporter(args: ISZ[String], input: String, reporter: message.Reporter): (Z, String, String) = $
 
 }
