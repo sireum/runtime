@@ -62,15 +62,23 @@ trait PackageTrait {
 
   final def promptInt(msg: String): Z = {
     while (true) {
-      Console.out.print(msg.value)
-      Console.out.flush()
-      val s = Console.in.readLine()
+      System.out.print(msg.value)
+      System.out.flush()
+      val bs = new java.io.ByteArrayOutputStream
+      var n = System.in.read().toByte
+      while (n != -1 && n != '\n') {
+        bs.write(n)
+        n = System.in.read().toByte
+      }
+      val ba = bs.toByteArray
+      val s = new java.lang.String(ba, 0,
+        if (scala.util.Properties.isWin && ba.nonEmpty && ba.last == '\r') ba.length - 1 else ba.length, "UTF-8")
       try {
         return Z.$String(s)
       } catch {
         case _: Throwable =>
-          Console.err.println(s"Invalid integer format: $s.")
-          Console.err.flush()
+          System.err.println(s"Invalid integer format: $s.")
+          System.err.flush()
       }
     }
     Z.MP.zero
@@ -93,44 +101,44 @@ trait PackageTrait {
   final def println(as: Any*): Unit = {
     as.size match {
       case 0 =>
-        Console.out.println()
-        Console.out.flush()
+        System.out.println()
+        System.out.flush()
       case 1 =>
-        Console.out.println(as(0))
-        Console.out.flush()
+        System.out.println(as(0))
+        System.out.flush()
       case _ =>
-        for (a <- as) Console.out.print(a)
-        Console.out.println()
-        Console.out.flush()
+        for (a <- as) System.out.print(a)
+        System.out.println()
+        System.out.flush()
     }
   }
 
   final def print(as: Any*): Unit = {
     for (a <- as) {
-      Console.out.print(a)
-      Console.out.flush()
+      System.out.print(a)
+      System.out.flush()
     }
   }
 
   final def eprintln(as: Any*): Unit = {
     as.size match {
       case 0 =>
-        Console.err.println()
-        Console.err.flush()
+        System.err.println()
+        System.err.flush()
       case 1 =>
-        Console.err.println(as(0))
-        Console.err.flush()
+        System.err.println(as(0))
+        System.err.flush()
       case _ =>
-        for (a <- as) Console.err.print(a)
-        Console.err.println()
-        Console.err.flush()
+        for (a <- as) System.err.print(a)
+        System.err.println()
+        System.err.flush()
     }
   }
 
   final def eprint(as: Any*): Unit = {
     for (a <- as) {
-      Console.err.print(a)
-      Console.err.flush()
+      System.err.print(a)
+      System.err.flush()
     }
   }
 
