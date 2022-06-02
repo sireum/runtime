@@ -72,6 +72,16 @@ object OsProto {
 
     @pure def errLineAction(f: String => B): Proc
 
+    @pure def shouldPrintCommands: B
+
+    @pure def shouldOutputConsole: B
+
+    @pure def isErrAsOut: B
+
+    @pure def in: Option[String]
+
+    @pure def cmds: ISZ[String]
+
     def run(): Proc.Result
 
     def runCheck(): Proc.Result
