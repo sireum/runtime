@@ -516,10 +516,14 @@ package org.sireum
 
   def initRuntimeLibrary(): Unit = $
 
+  def proc(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result = $
+
+  def procCheck(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result = $
+
   def run(args: ISZ[String]): Z = $
 
-  def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String) = $
-
   def runWithInputAndReporter(args: ISZ[String], input: String, reporter: message.Reporter): (Z, String, String) = $
+
+  def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String) = $
 
 }
