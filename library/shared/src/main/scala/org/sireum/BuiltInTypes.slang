@@ -426,9 +426,9 @@ package org.sireum
 
   @pure def string: String
 
-  @pure def isEmpty: B = Contract.Only(Ensures(Res == (size == 0)))
+  @pure def isEmpty: B = Contract.Only(Ensures(Res == (this.size == 0)))
 
-  @pure def nonEmpty: B = Contract.Only(Ensures(Res == (size != 0)))
+  @pure def nonEmpty: B = Contract.Only(Ensures(Res == (this.size != 0)))
 
   @pure def isInBound(i: I): B
 
