@@ -169,9 +169,9 @@ final class B(val value: Boolean) extends AnyVal with Immutable with $internal.H
 
   @inline def ||(other: => B): B = value || other.value
 
-  @inline def ->:(other: B): B = !other.value | value
+  @inline def ->:(other: B): B = !value | other.value
 
-  @inline def -->:(other: => B): B = !other.value || value
+  @inline def -->:(other: => B): B = !value || other.value
 
   @inline def imply_:(other: B): B = this ->: other
 
