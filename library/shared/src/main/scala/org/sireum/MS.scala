@@ -211,16 +211,11 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
   }
 
   def indices: ZRange[I] = {
-    var j = companion.Index.asInstanceOf[ZLike[_]]
-    var i = Z.MP.zero
-    while (i < length) {
-      i = i.increase
-      j = j.increase.asInstanceOf[ZLike[_]]
-    }
+    val j = companion.Index.asInstanceOf[ZLike[_]].add(length - 1, "indices", companion).asInstanceOf[I]
     ZRange[I](
       T,
       companion.Index,
-      j.decrease.asInstanceOf[I],
+      j,
       1,
       new ZRange.CondIncDec[I] {
         @pure def cond(i: I): B = T
@@ -305,18 +300,13 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def firstIndex: I = {
     assert(nonEmpty, "firstIndex can only be used on non-empty MS")
-    if (companion.isZeroIndex) companion(0) else companion.Min
+    companion.Index
   }
 
   def lastIndex: I = {
     assert(nonEmpty, "lastIndex can only be used on non-empty MS")
-    if (companion.isZeroIndex) companion(length) else {
-      var r = companion.Min
-      for (_ <- 0 until length) {
-        r = r.asInstanceOf[ZLike[_]].increase.asInstanceOf[I]
-      }
-      return r
-    }
+    if (companion.isZeroIndex) companion.Index
+    else companion.Min.asInstanceOf[ZLike[_]].add(length - 1, "lastIndex", companion).asInstanceOf[I]
   }
 
   def toIS: IS[I, V] = {
