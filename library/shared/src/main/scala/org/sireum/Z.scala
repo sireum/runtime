@@ -1335,6 +1335,14 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def toIndex: Z.Index
 
+  def add(n: Z, opName: String, companion: $ZCompanion[_]): T = {
+    val r = toMP + n
+    if (hasMax) {
+      assert(r <= Max.toMP, s"Insufficient Max for $opName")
+    }
+    companion(r).asInstanceOf[T]
+  }
+
   final override def string: String = toString
 
   def toBigInt: scala.BigInt
