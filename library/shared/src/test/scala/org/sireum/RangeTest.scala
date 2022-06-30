@@ -69,6 +69,16 @@ class RangeTest extends TestSuite {
 
       * - assert(One10i.Name =~= "One10i")
 
+      * - {
+        val s = IS[One10i, Z](1, 2)
+        assert(s.firstIndex == one10i"1" & s.lastIndex == one10i"2")
+      }
+
+      * - {
+        val s = MS[One10i, Z](1, 2)
+        assert(s.firstIndex == one10i"1" & s.lastIndex == one10i"2")
+      }
+
       val x = one10i"10"
 
       * - assert(x.toIndex =~= z"9")
@@ -168,6 +178,16 @@ class RangeTest extends TestSuite {
       * - assert(M1_16.Max =~= m1_16"16")
 
       * - assert(M1_16.Name =~= "M1_16")
+
+      * - {
+        val s = IS[M1_16, Z](1)
+        assert(s.firstIndex == m1_16"0" & s.lastIndex == m1_16"0")
+      }
+
+      * - {
+        val s = MS[M1_16, Z](1)
+        assert(s.firstIndex == m1_16"0" & s.lastIndex == m1_16"0")
+      }
 
       val x = m1_16"10"
 

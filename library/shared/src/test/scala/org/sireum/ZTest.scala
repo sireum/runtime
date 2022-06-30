@@ -51,6 +51,16 @@ class ZTest extends TestSuite {
 
     * - assert(x.decrease.increase =~= x)
 
+    * - {
+      val s = IS[Z, Z](1, 2)
+      assert(s.firstIndex == 0 & s.lastIndex == 1)
+    }
+
+    * - {
+      val s = MS[Z, Z](1)
+      assert(s.firstIndex == 0 & s.lastIndex == 0)
+    }
+
     def rand(): scala.BigInt = Z.random.toBigInt
 
     * - {

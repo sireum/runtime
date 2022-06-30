@@ -50,6 +50,7 @@ class BitsTest extends TestSuite {
         val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
         assert(data !~= Array[Byte](0xF, 0, 0))
         assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+        assert(s.firstIndex == 0 & s.lastIndex == s.size - 1)
       }
     }
 
@@ -69,6 +70,7 @@ class BitsTest extends TestSuite {
         val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
         assert(data !~= Array[Byte](0xF, 0, 0))
         assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+        assert(s.firstIndex == 0 & s.lastIndex == s.size - 1)
       }
     }
 
@@ -340,6 +342,16 @@ class BitsTest extends TestSuite {
       * - assert(S16_m2.Max =~= s16_m2"32767")
 
       * - assert(S16_m2.Name =~= "S16_m2")
+
+      * - {
+        val s = IS[S16_m2, Z](1, 2)
+        assert(s.firstIndex == s16_m2"-2" & s.lastIndex == s16_m2"-1" & s.size == 2)
+      }
+
+      * - {
+        val s = MS[S16_m2, Z](1, 2)
+        assert(s.firstIndex == s16_m2"-2" & s.lastIndex == s16_m2"-1" & s.size == 2)
+      }
 
       val x = s16_m2"14"
 
