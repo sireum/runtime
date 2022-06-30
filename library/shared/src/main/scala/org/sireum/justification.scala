@@ -33,6 +33,8 @@ object justification {
 
   @just def Lift(app: Unit): Unit = $
 
+  @just def FactClaim[T](name: T): Unit = $
+
   object natded {
 
     object prop {
