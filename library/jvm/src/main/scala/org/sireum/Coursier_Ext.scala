@@ -91,7 +91,7 @@ object Coursier_Ext {
     val libKey = project.DependencyManager.libraryKey
     try {
       var fetch = Fetch().addDependencies(toDeps(ISZ(s"$libKey$version")): _*).
-        withRepositories(Seq(localMavenRepo,sonatypeReleaseRepo)).
+        withRepositories(repositories.elements).
         withMainArtifacts()
       cacheOpt match {
         case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
