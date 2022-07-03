@@ -1368,6 +1368,8 @@ trait contract {
 
   implicit def $toStepBuilder(stepNo: Z): Contract.StepBuilder = ???
 
+  implicit def $toStepBuilder2(claim: B): Contract.StepBuilder2 = ???
+
   implicit def $toJustification(name: String): Contract.Justification = ???
 
   implicit def $toB(state: Contract.StateCont): B = ???
