@@ -183,6 +183,9 @@ trait contract {
 
     trait StepBuilder2 {
       def by(just: Justification): ProofStep
+      def by(fact: Fact): ProofStep
+      def by(theorem: Theorem): ProofStep
+      def by(lemma: Lemma): ProofStep
       def by(just: Predef.String): ProofStep
       def by(o: Unit): StepBuilder3
       def by[T1](f: T1 => Unit): StepBuilder3
