@@ -38,6 +38,8 @@ trait MutableMarker extends Any with Clonable {
 
 trait DatatypeMarker extends AnyRef
 
+trait RecordMarker extends AnyRef
+
 trait ISMarker extends AnyRef
 
 trait MSMarker extends AnyRef
