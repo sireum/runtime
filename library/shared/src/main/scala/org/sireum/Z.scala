@@ -1313,10 +1313,6 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def >=(other: T): B
 
-  @inline def ===(other: Z): B = this == other
-
-  @inline def =!=(other: Z): B = this != other
-
   def +(other: T): T
 
   def -(other: T): T
@@ -1408,6 +1404,10 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
   final def <(other: Z): B = Z.MP.<(this, other)
 
   final def <=(other: Z): B = Z.MP.<=(this, other)
+
+  @inline def ===(other: Z): B = this == other
+
+  @inline def =!=(other: Z): B = this != other
 
   final def increase: Z = this + Z.MP.one
 

@@ -122,6 +122,8 @@ package object sireum extends $internal.PackageTrait with contract {
   final implicit class Any2HashString(val _o: Any) extends AnyVal {
     def hash: Z = _o.hashCode
     def string: String = _o.toString
+    def ===(other: Any): B = _o == other
+    def =!=(other: Any): B = _o != other
   }
 
   final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {

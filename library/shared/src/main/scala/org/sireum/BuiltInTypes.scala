@@ -52,16 +52,18 @@ trait EnumSig extends Immutable {
   def string: String = halt("Unsupported Enum operation 'string'.")
 }
 
-trait DatatypeSig extends Immutable with DatatypeMarker {
+trait SigTrait extends Immutable {
+  @inline def ===(other: SigTrait): B = this == other
+  @inline def =!=(other: SigTrait): B = this != other
+}
+
+trait DatatypeSig extends SigTrait with DatatypeMarker {
   def $content: scala.Seq[(_root_.java.lang.String, scala.Any)]
 
   def hash: Z = hashCode
 
   override def string: String = halt("Infeasible")
 }
-
-
-trait RichSig extends Immutable
 
 
 trait Mutable extends Any with MutableMarker {
@@ -76,8 +78,12 @@ trait Mutable extends Any with MutableMarker {
 
 }
 
+trait MSigTrait extends Mutable {
+  @inline def ===(other: MSigTrait): B = this == other
+  @inline def =!=(other: MSigTrait): B = this != other
+}
 
-trait RecordSig extends Mutable {
+trait RecordSig extends MSigTrait with RecordMarker {
 
   private var $isOwned: Boolean = false
 

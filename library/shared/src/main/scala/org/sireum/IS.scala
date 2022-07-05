@@ -193,6 +193,10 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) this else filter(_ != e)
   }
 
+  @inline def ===(other: IS[I, V]): B = this == other
+
+  @inline def =!=(other: IS[I, V]): B = this != other
+
   def atZ(i: Z): V = {
     assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
     boxer.lookup[V](data, i)
