@@ -181,10 +181,12 @@ object Set {
         newElements = newElements :+ e
         Deduce(
           1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
+          2 #> Set.Elements.unique(newElements)                                             by Premise
         )
       } else {
         Deduce(
           1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
+          2 #> Set.Elements.unique(newElements)                                             by Premise
         )
       }
       i = i + 1
