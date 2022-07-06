@@ -397,6 +397,11 @@ object Map {
           case Some(v2) =>
             if (v2 != v) {
               r = F
+              Deduce(|- (
+                !r ->: ∃(entries.indices)(j =>
+                  !Map.Entries.containKey(other.entries, entries(j)._1) |
+                    !Map.Entries.contain(other.entries, entries(j))))
+              )
             }
           case _ =>
             r = F
