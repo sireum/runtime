@@ -26,7 +26,7 @@
 
 package org.sireum
 
-import org.sireum.justification.Premise
+import org.sireum.justification.Auto
 
 object Map {
 
@@ -134,11 +134,11 @@ object Map {
       val r = entries :+ ((key, value))
       Deduce(
         //@formatter:off
-        1 #> (r(r.size - 1) == p)                                                           by Premise,
-        2 #> Map.Entries.contain(r, p)                                                      by Premise,
-        3 #> Map.Entries.uniqueKeys(r)                                                      by Premise,
-        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Premise,
-        5 #> ∀(entries.indices)(j => Map.Entries.contain(r, entries(j)))                    by Premise,
+        1 #> (r(r.size - 1) == p)                                                           by Auto,
+        2 #> Map.Entries.contain(r, p)                                                      by Auto,
+        3 #> Map.Entries.uniqueKeys(r)                                                      by Auto,
+        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Auto,
+        5 #> ∀(entries.indices)(j => Map.Entries.contain(r, entries(j)))                    by Auto,
         //@formatter:on
       )
       r
@@ -146,11 +146,11 @@ object Map {
       val r = entries(index ~> p)
       Deduce(
         //@formatter:off
-        1 #> (r(index) == p)                                                                by Premise,
-        2 #> Map.Entries.contain(r, p)                                                      by Premise,
-        3 #> Map.Entries.uniqueKeys(r)                                                      by Premise,
-        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Premise,
-        5 #> ∀(entries.indices)(j => (index != j) ->: Map.Entries.contain(r, entries(j)))   by Premise,
+        1 #> (r(index) == p)                                                                by Auto,
+        2 #> Map.Entries.contain(r, p)                                                      by Auto,
+        3 #> Map.Entries.uniqueKeys(r)                                                      by Auto,
+        4 #> ∀(r.indices)(j => (r(j) != p) ->: Map.Entries.contain(entries, r(j)))          by Auto,
+        5 #> ∀(entries.indices)(j => (index != j) ->: Map.Entries.contain(r, entries(j)))   by Auto,
         //@formatter:on
       )
       r
@@ -303,7 +303,7 @@ object Map {
       if (kv != p) {
         newEntries = newEntries :+ kv
         Deduce(
-          1 #> ∀(0 to i)(j => (p != entries(j)) ->: Map.Entries.contain(newEntries, entries(j)))  by Premise
+          1 #> ∀(0 to i)(j => (p != entries(j)) ->: Map.Entries.contain(newEntries, entries(j)))  by Auto
         )
       }
       i = i + 1

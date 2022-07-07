@@ -26,7 +26,7 @@
 
 package org.sireum
 
-import org.sireum.justification.Premise
+import org.sireum.justification.Auto
 
 object Set {
 
@@ -71,11 +71,11 @@ object Set {
       val r = elements :+ e
       Deduce(
         //@formatter:off
-        1 #> (r(r.size - 1) == e)                                                           by Premise,
-        2 #> Set.Elements.contain(r, e)                                                     by Premise,
-        3 #> SeqUtil.IS.unique(r)                                                           by Premise,
-        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Premise,
-        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Premise,
+        1 #> (r(r.size - 1) == e)                                                           by Auto,
+        2 #> Set.Elements.contain(r, e)                                                     by Auto,
+        3 #> SeqUtil.IS.unique(r)                                                           by Auto,
+        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Auto,
+        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Auto,
         //@formatter:on
       )
       r
@@ -83,11 +83,11 @@ object Set {
       val r = elements(index ~> e)
       Deduce(
         //@formatter:off
-        1 #> (r(index) == e)                                                                by Premise,
-        2 #> Set.Elements.contain(r, e)                                                     by Premise,
-        3 #> SeqUtil.IS.unique(r)                                                           by Premise,
-        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Premise,
-        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Premise,
+        1 #> (r(index) == e)                                                                by Auto,
+        2 #> Set.Elements.contain(r, e)                                                     by Auto,
+        3 #> SeqUtil.IS.unique(r)                                                           by Auto,
+        4 #> ∀(r.indices)(j => (r(j) != e) ->: Set.Elements.contain(elements, r(j)))        by Auto,
+        5 #> ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))                 by Auto,
         //@formatter:on
       )
       r
@@ -180,13 +180,13 @@ object Set {
       if (!contains(e)) {
         newElements = newElements :+ e
         Deduce(
-          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
-          2 #> Set.Elements.unique(newElements)                                             by Premise
+          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Auto,
+          2 #> Set.Elements.unique(newElements)                                             by Auto
         )
       } else {
         Deduce(
-          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Premise,
-          2 #> Set.Elements.unique(newElements)                                             by Premise
+          1 #> ∀(0 to i)(j => Set.Elements.contain(newElements, other.elements(j)))         by Auto,
+          2 #> Set.Elements.unique(newElements)                                             by Auto
         )
       }
       i = i + 1
@@ -242,8 +242,8 @@ object Set {
         Deduce(
           //@formatter:off
           1 #> ∀(0 to i)(j => Set.Elements.contain(other.elements, elements(j)) ->:
-            Set.Elements.contain(newElements, elements(j)))                                 by Premise,
-          2 #> Set.Elements.unique(newElements)                                             by Premise
+            Set.Elements.contain(newElements, elements(j)))                                 by Auto,
+          2 #> Set.Elements.unique(newElements)                                             by Auto
           //@formatter:on
         )
       }
@@ -301,8 +301,8 @@ object Set {
         Deduce(
           //@formatter:off
           1 #> ∀(0 to i)(j => !Set.Elements.contain(other.elements, elements(j)) ->:
-            Set.Elements.contain(newElements, elements(j)))                                 by Premise,
-          2 #> Set.Elements.unique(newElements)                                             by Premise
+            Set.Elements.contain(newElements, elements(j)))                                 by Auto,
+          2 #> Set.Elements.unique(newElements)                                             by Auto
           //@formatter:on
         )
       }
