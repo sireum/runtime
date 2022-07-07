@@ -31,6 +31,8 @@ object justification {
 
   @just def Auto(stepNumbers: ISZ[StepId]): Unit = $
 
+  @just def Smt2(options: String, timeoutInMs: Z, rlimit: Z): Unit = $
+
   @just def Lift(app: Unit): Unit = $
 
   @just def ClaimOf[T](name: T): Unit = $
