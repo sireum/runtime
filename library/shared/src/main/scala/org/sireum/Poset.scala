@@ -294,6 +294,15 @@ import Poset._
 
   val emptySet: HashSSet[T] = HashSSet.empty
 
+  @pure def ++(that: Poset[T]): Poset[T] = {
+    var r = this
+    for (p <- that.children.entries) {
+      val n = that.nodesInverse(p._1)
+      r = r.addChildren(n, for (j <- p._2.elements) yield that.nodesInverse(j))
+    }
+    return r
+  }
+
   @pure def size: Z = {
     return nodes.size
   }
