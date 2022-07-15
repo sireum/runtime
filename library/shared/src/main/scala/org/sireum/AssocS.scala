@@ -230,16 +230,10 @@ object AssocS {
           uniqueKeys(newEntries),
         )
         val kv = entries(i)
+        i = i + 1
         if (kv != p) {
           newEntries = newEntries :+ kv
-          Deduce(
-            //@formatter:off
-            ∀(0 to i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))  by Auto,
-            uniqueKeys(newEntries)                                                                by Auto
-            //@formatter:on
-          )
         }
-        i = i + 1
       }
       return newEntries
     }
