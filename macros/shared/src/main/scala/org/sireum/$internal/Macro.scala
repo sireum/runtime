@@ -90,6 +90,10 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def lUnit3S(arg0: c.Tree, arg1: c.Tree, arg2: c.Tree, arg3: c.Tree*): c.Expr[Unit] = c.Expr[Unit](q"{}")
 
+  def lUnit4S(arg0: c.Tree, arg1: c.Tree, arg2: c.Tree, arg3: c.Tree, arg4: c.Tree*): c.Expr[Unit] = c.Expr[Unit](q"{}")
+
+  def lUnit5S(arg0: c.Tree, arg1: c.Tree, arg2: c.Tree, arg3: c.Tree, arg4: c.Tree, arg5: c.Tree*): c.Expr[Unit] = c.Expr[Unit](q"{}")
+
   def lDef[T](args: c.Expr[Any]*): c.Expr[T] =
     c.Expr[T]( q"""halt("Slang l\"\"\"...\"\"\" should have been erased by the Sireum Scala plugin.")""")
 

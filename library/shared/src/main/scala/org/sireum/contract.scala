@@ -71,9 +71,35 @@ trait contract {
 
     def apply(arg0: Reads, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
 
+    def apply(arg0: Requires, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
+
     def apply(arg0: Modifies, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
 
+    def apply(arg0: Ensures, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
     def apply(arg0: Reads, arg1: Modifies, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Reads, arg1: Ensures, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Requires, arg1: Ensures, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Modifies, arg1: Ensures, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: Ensures, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Ensures, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: Ensures, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: Ensures, arg4: Case, arg5: Case*): Unit = macro Macro.lUnit5S
+
+    def apply(arg0: Contract.Cases): Unit = macro Macro.lUnit1
 
     def apply(arg0: String): Unit = macro Macro.lUnit1
 
@@ -118,6 +144,8 @@ trait contract {
       def apply[T](modifies: Modifies, case0: Case, cases: Case*): T = ???
 
       def apply[T](reads: Reads, modifies: Modifies, case0: Case, cases: Case*): T = ???
+
+      def apply[T](cases: Cases): T = ???
     }
 
     trait State {
@@ -132,6 +160,8 @@ trait contract {
     trait StatePost {
       def ~(post: State): StateCont
     }
+
+    trait Cases
 
     trait Case
 
@@ -254,6 +284,38 @@ trait contract {
   def Case(name: String, ensures: Contract.Ensures): Contract.Case = ???
 
   def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures): Contract.Case = ???
+
+  def Cases(arg0: Contract.Case, arg1: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Case, arg2: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Requires, arg1: Contract.Case, arg2: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Modifies, arg1: Contract.Case, arg2: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Ensures, arg1: Contract.Case, arg2: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Requires, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Modifies, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Ensures, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Requires, arg1: Contract.Modifies, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Requires, arg1: Contract.Ensures, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Modifies, arg1: Contract.Ensures, arg2: Contract.Case, arg3: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Requires, arg2: Contract.Modifies, arg3: Contract.Case, arg4: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Modifies, arg2: Contract.Ensures, arg3: Contract.Case, arg4: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Requires, arg2: Contract.Ensures, arg3: Contract.Case, arg4: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Requires, arg1: Contract.Modifies, arg2: Contract.Ensures, arg3: Contract.Case, arg4: Contract.Case*): Contract.Cases = ???
+
+  def Cases(arg0: Contract.Reads, arg1: Contract.Requires, arg2: Contract.Modifies, arg3: Contract.Ensures, arg4: Contract.Case, arg5: Contract.Case*): Contract.Cases = ???
 
   def Invariant(arg0: Contract.Modifies, arg1: B*): Unit = macro Macro.lUnit1S
 
