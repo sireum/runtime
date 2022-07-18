@@ -285,6 +285,34 @@ trait contract {
 
   def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures): Contract.Case = ???
 
+  def Case(name: String, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(requires: Contract.Requires, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(ensures: Contract.Ensures, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(requires: Contract.Requires, ensures: Contract.Ensures, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(name: String, requires: Contract.Requires, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(name: String, ensures: Contract.Ensures, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures, case0: Contract.Case, cases: Contract.Case*): Contract.Case = ???
+
+  def Case(name: String, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(requires: Contract.Requires, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(ensures: Contract.Ensures, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(requires: Contract.Requires, ensures: Contract.Ensures, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(name: String, requires: Contract.Requires, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(name: String, ensures: Contract.Ensures, cases: Contract.Cases): Contract.Case = ???
+
+  def Case(name: String, requires: Contract.Requires, ensures: Contract.Ensures, cases: Contract.Cases): Contract.Case = ???
+
   def Cases(arg0: Contract.Case, arg1: Contract.Case*): Contract.Cases = ???
 
   def Cases(arg0: Contract.Reads, arg1: Contract.Case, arg2: Contract.Case*): Contract.Cases = ???
