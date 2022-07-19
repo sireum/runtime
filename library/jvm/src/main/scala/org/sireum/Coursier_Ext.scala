@@ -88,19 +88,9 @@ object Coursier_Ext {
   }
 
   def isRuntimePublishedLocally(version: String): B = {
-    val libKey = project.DependencyManager.libraryKey
-    try {
-      var fetch = Fetch().addDependencies(toDeps(ISZ(s"$libKey$version")): _*).
-        withRepositories(repositories.elements).
-        withMainArtifacts()
-      cacheOpt match {
-        case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
-        case _ =>
-      }
-      fetch.run()
-      return T
-    } catch {
-      case _: Throwable => return F
-    }
+    val scalaVer = ops.StringOps(scalaVersion).substring(0, ops.StringOps(scalaVersion).lastIndexOf('.'))
+    val path = Os.home / ".m2" / "repository" / "org" / "sireum" / "kekinian" / s"library_$scalaVer" / version /
+      s"library_$scalaVer-$version.jar"
+    path.exists
   }
 }
