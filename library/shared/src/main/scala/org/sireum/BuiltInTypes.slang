@@ -190,6 +190,10 @@ package org.sireum
 
   @pure def isInfinite: B
 
+  @pure def ~~(other: F32): B
+
+  @pure def !~(other: F32): B
+
 }
 
 
@@ -235,6 +239,9 @@ package org.sireum
 
   @pure def isInfinite: B
 
+  @pure def ~~(other: F64): B
+
+  @pure def !~(other: F64): B
 }
 
 

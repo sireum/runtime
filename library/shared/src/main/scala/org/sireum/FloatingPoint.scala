@@ -87,7 +87,7 @@ object F32 {
 
 }
 
-final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $internal.HasBoxer {
+final class F32(val value: scala.Float) extends FloatingPoint with $internal.HasBoxer {
 
   def BitWidth: Z = 32
 
@@ -124,6 +124,17 @@ final class F32(val value: scala.Float) extends AnyVal with FloatingPoint with $
   @inline def isNaN: B = value.isNaN
 
   @inline def isInfinite: B = value.isInfinite
+
+  @inline def ~~(other: F32): B = value == other.value
+
+  @inline def !~(other: F32): B = value != other.value
+
+  override def equals(other: Any): scala.Boolean = other match {
+    case other: F32 => _root_.java.lang.Float.floatToRawIntBits(value) == _root_.java.lang.Float.floatToRawIntBits(other.value)
+    case _ => return false
+  }
+
+  override def hashCode: scala.Int = _root_.java.lang.Float.floatToRawIntBits(value)
 
   def string: String = toString
 
@@ -183,7 +194,7 @@ object F64 {
 
 }
 
-final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with $internal.HasBoxer {
+final class F64(val value: scala.Double) extends FloatingPoint with $internal.HasBoxer {
 
   def BitWidth: Z = 64
 
@@ -220,6 +231,17 @@ final class F64(val value: scala.Double) extends AnyVal with FloatingPoint with 
   @inline def isNaN: B = value.isNaN
 
   @inline def isInfinite: B = value.isInfinite
+
+  @inline def ~~(other: F64): B = value == other.value
+
+  @inline def !~(other: F64): B = value != other.value
+
+  override def equals(other: Any): _root_.scala.Boolean = other match {
+    case other: F64 => _root_.java.lang.Double.doubleToRawLongBits(value) == _root_.java.lang.Double.doubleToRawLongBits(other.value)
+    case _ => return false
+  }
+
+  override def hashCode: scala.Int = _root_.java.lang.Double.doubleToRawLongBits(value).hashCode
 
   def string: String = toString
 
