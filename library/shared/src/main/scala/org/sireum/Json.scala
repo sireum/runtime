@@ -175,11 +175,11 @@ object Json {
     }
 
     @pure def printF32(n: F32): ST = {
-      return printNumber(n.string)
+      return printNumber(if (n.isNaN) F32.NaN.string else n.string)
     }
 
     @pure def printF64(n: F64): ST = {
-      return printNumber(n.string)
+      return printNumber(if (n.isNaN) F64.NaN.string else n.string)
     }
 
     @pure def printR(n: R): ST = {

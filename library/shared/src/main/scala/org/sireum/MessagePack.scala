@@ -946,12 +946,12 @@ object MessagePack {
 
       def writeF32(n: F32): Unit = {
         addU8(Code.FLOAT32)
-        addU32(conversions.F32.toRawU32(n))
+        addU32(if (n.isNaN) conversions.F32.toRawU32(F32.NaN) else conversions.F32.toRawU32(n))
       }
 
       def writeF64(n: F64): Unit = {
         addU8(Code.FLOAT64)
-        addU64(conversions.F64.toRawU64(n))
+        addU64(if (n.isNaN) conversions.F64.toRawU64(F64.NaN) else conversions.F64.toRawU64(n))
       }
 
       def writeArrayHeader(n: Z): Unit = {
