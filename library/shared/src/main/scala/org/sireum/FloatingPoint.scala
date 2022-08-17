@@ -130,11 +130,11 @@ final class F32(val value: scala.Float) extends FloatingPoint with $internal.Has
   @inline def !~(other: F32): B = value != other.value
 
   override def equals(other: Any): scala.Boolean = other match {
-    case other: F32 => _root_.java.lang.Float.floatToRawIntBits(value) == _root_.java.lang.Float.floatToRawIntBits(other.value)
+    case other: F32 => $internal.Macro.f32Bit(value) == $internal.Macro.f32Bit(other.value)
     case _ => return false
   }
 
-  override def hashCode: scala.Int = _root_.java.lang.Float.floatToRawIntBits(value)
+  override def hashCode: scala.Int = $internal.Macro.f32Bit(value)
 
   def string: String = toString
 
@@ -237,11 +237,11 @@ final class F64(val value: scala.Double) extends FloatingPoint with $internal.Ha
   @inline def !~(other: F64): B = value != other.value
 
   override def equals(other: Any): _root_.scala.Boolean = other match {
-    case other: F64 => _root_.java.lang.Double.doubleToRawLongBits(value) == _root_.java.lang.Double.doubleToRawLongBits(other.value)
+    case other: F64 => $internal.Macro.f64Bit(value) == $internal.Macro.f64Bit(other.value)
     case _ => return false
   }
 
-  override def hashCode: scala.Int = _root_.java.lang.Double.doubleToRawLongBits(value).hashCode
+  override def hashCode: scala.Int = $internal.Macro.f64Bit(value).hashCode
 
   def string: String = toString
 

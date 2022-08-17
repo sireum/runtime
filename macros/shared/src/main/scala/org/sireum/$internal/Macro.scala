@@ -45,6 +45,10 @@ object Macro {
 
   def commitHash: String = macro Macro.commitHashImpl
 
+  def f32Bit(n: Float): Int = macro Macro.f32BitImpl
+
+  def f64Bit(n: Double): Long = macro Macro.f64BitImpl
+
   def eval[T](c: scala.reflect.macros.blackbox.Context)(
     t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
     val tree = t.asInstanceOf[c.Tree]
@@ -124,6 +128,16 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     val parts = extractParts
     if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang f32\"...\" should not contain $$ arguments.")
     q"_root_.org.sireum.F32.$$String(${parts.head})"
+  }
+
+  def f32BitImpl(n: c.Tree): c.Tree = {
+    if (isJsCheck) q"_root_.java.lang.Float.floatToIntBits($n)"
+    else q"_root_.java.lang.Float.floatToRawIntBits($n)"
+  }
+
+  def f64BitImpl(n: c.Tree): c.Tree = {
+    if (isJsCheck) q"_root_.java.lang.Double.doubleToLongBits($n)"
+    else q"_root_.java.lang.Double.doubleToRawLongBits($n)"
   }
 
   def f64Apply(args: c.Tree*): c.Tree = {
