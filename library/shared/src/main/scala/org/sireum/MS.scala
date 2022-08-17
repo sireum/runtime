@@ -313,11 +313,12 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     else companion.Min.asInstanceOf[ZLike[_]].add(length - 1, "lastIndex", companion).asInstanceOf[I]
   }
 
-  def toIS: IS[I, V] = {
-    new IS[I, V](companion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
+  def toIS[V2](implicit ev: V =:= V2): IS[I, V2] = {
+    new IS[I, V2](companion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
   }
 
-  def toISZ: ISZ[V] = ISZ(elements: _*)
+  def toISZ[V2](implicit ev: V =:= V2): ISZ[V2] =
+    new IS[Z, V2]($ZCompanion, boxer.clone(data, length, length, Z.MP.zero), length, boxer)
 
   def toMSZ: MSZ[V] = MSZ(elements: _*)
 

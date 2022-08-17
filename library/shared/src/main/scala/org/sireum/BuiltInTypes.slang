@@ -336,7 +336,7 @@ package org.sireum
 
 }
 
-@ext trait IS[I, E] {
+@ext trait IS[@imm I, @imm E] {
 
   @pure def hash: Z
 
@@ -416,7 +416,7 @@ package org.sireum
 
 @ext object MS {
 
-  @pure def create[I, E](size: Z, default: E): MS[I, E] =
+  @pure def create[I, @mut E](size: Z, default: E): MS[I, E] =
     Contract.Only(
       Requires(seqIndexValidSize[I](size)),
       Ensures(
@@ -427,7 +427,7 @@ package org.sireum
 
 }
 
-@ext trait MS[I, E] {
+@ext trait MS[@imm I, @mut E] {
 
   @pure def hash: Z
 
@@ -449,13 +449,13 @@ package org.sireum
 
   @pure def -(e: E): MS[I, E]
 
-  @pure def map[E2](f: E => E2 @pure): MS[I, E2]
+  @pure def map[@mut E2](f: E => E2 @pure): MS[I, E2]
 
-  @pure def flatMap[E2](f: E => MS[I, E2] @pure): MS[I, E2]
+  @pure def flatMap[@mut E2](f: E => MS[I, E2] @pure): MS[I, E2]
 
   @pure def filter(p: E => B @pure): MS[I, E]
 
-  def foreach[V](p: E => V): Unit
+  def foreach[@mut V](p: E => V): Unit
 
   @pure def size: Z
 
@@ -467,21 +467,9 @@ package org.sireum
 
   @pure def atZ(index: Z): E
 
-  @pure def toIS: IS[I, E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(Res.indices)(i => Res(i) == this(i))
-      )
-    )
+  @pure def toIS[@imm E2]: IS[I, E2]
 
-  @pure def toISZ: ISZ[E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
-      )
-    )
+  @pure def toISZ[@imm E2]: ISZ[E2]
 
   @pure def toMSZ: MSZ[E] =
     Contract.Only(
@@ -494,7 +482,7 @@ package org.sireum
 
 @ext object MSZ {
 
-  @pure def create[E](size: Z, default: E): MSZ[E] =
+  @pure def create[@mut E](size: Z, default: E): MSZ[E] =
     Contract.Only(
       Requires(0 <= size),
       Ensures(

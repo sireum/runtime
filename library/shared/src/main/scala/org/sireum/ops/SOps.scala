@@ -94,7 +94,7 @@ import org.sireum._
 
 }
 
-@msig trait MSOps[I, T] {
+@msig trait MSOps[@imm I, T] {
 
   @pure def contains(e: T): B
 
@@ -102,17 +102,17 @@ import org.sireum._
 
   @pure def first: T
 
-  @pure def foldLeft[R](f: (R, T) => R @pure, init: R): R
+  @pure def foldLeft[@mut R](f: (R, T) => R @pure, init: R): R
 
-  @pure def foldRight[R](f: (R, T) => R @pure, init: R): R
+  @pure def foldRight[@mut R](f: (R, T) => R @pure, init: R): R
 
-  @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
+  @pure def parMapFoldLeft[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldLeft[U, R](f: T => U, g: (R, U) => R, init: R): R
+  def mParMapFoldLeft[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R): R
 
-  @pure def parMapFoldRight[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
+  @pure def parMapFoldRight[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R): R
 
-  def mParMapFoldRight[U, R](f: T => U, g: (R, U) => R, init: R): R
+  def mParMapFoldRight[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R): R
 
   @pure def forall(p: T => B @pure): B
 
@@ -140,7 +140,7 @@ import org.sireum._
 
   @pure def laxSlice(from: I, til: I): MS[I, T]
 
-  @pure def map[U](f: T => U @pure): MS[I, U]
+  @pure def map[@mut U](f: T => U @pure): MS[I, U]
 
   @pure def remove(i: I): MS[I, T]
 
@@ -156,7 +156,7 @@ import org.sireum._
 
   @pure def takeRight(size: Z): MS[Z, T]
 
-  @pure def zip[T2](other: MS[Z, T2]): MS[Z, (T, T2)]
+  @pure def zip[@mut T2](other: MS[Z, T2]): MS[Z, (T, T2)]
 
 }
 
@@ -531,19 +531,19 @@ import org.sireum._
 
 @ext object MSZOpsUtil {
 
-  @pure def parMap[V, U](s: MS[Z, V], f: V => U @pure): MS[Z, U] = $
+  @pure def parMap[@mut V, @mut U](s: MS[Z, V], f: V => U @pure): MS[Z, U] = $
 
-  def mParMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = $
+  def mParMap[@mut V, @mut U](s: MS[Z, V], f: V => U): MS[Z, U] = $
 
-  @pure def parMapCores[V, U](s: MS[Z, V], f: V => U @pure, numOfCores: Z): MS[Z, U] = $
+  @pure def parMapCores[@mut V, @mut U](s: MS[Z, V], f: V => U @pure, numOfCores: Z): MS[Z, U] = $
 
-  def mParMapCores[V, U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = $
+  def mParMapCores[@mut V, @mut U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = $
 
-  @pure def sortWith[T](s: MS[Z, T], lt: (T, T) => B @pure): MS[Z, T] = $
+  @pure def sortWith[@mut T](s: MS[Z, T], lt: (T, T) => B @pure): MS[Z, T] = $
 
 }
 
-@record class MSZOps[T](val s: MS[Z, T]) extends MSOps[Z, T] {
+@record class MSZOps[@mut T](val s: MS[Z, T]) extends MSOps[Z, T] {
 
   @pure def :+(e: T): MS[Z, T] = {
 //    l""" ensures result.size ≡ s.size + 1
@@ -676,7 +676,7 @@ import org.sireum._
     return T
   }
 
-  @pure def foldLeft[R](f: (R, T) => R @pure, init: R): R = {
+  @pure def foldLeft[@mut R](f: (R, T) => R @pure, init: R): R = {
 //    l""" ensures result ≡ ISOps.foldLeftSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -686,7 +686,7 @@ import org.sireum._
     return r
   }
 
-  @pure def foldRight[R](f: (R, T) => R @pure, init: R): R = {
+  @pure def foldRight[@mut R](f: (R, T) => R @pure, init: R): R = {
 //    l""" ensures result ≡ ISOps.foldRightSpec(s, f, init, s.size - 1) """
 
     var r = init
@@ -696,7 +696,7 @@ import org.sireum._
     return r
   }
 
-  def mFoldLeft[R](f: (R, T) => R, init: R): R = {
+  def mFoldLeft[@mut R](f: (R, T) => R, init: R): R = {
     var r = init
     for (e <- s) {
       r = f(r, e)
@@ -704,7 +704,7 @@ import org.sireum._
     return r
   }
 
-  def mFoldRight[R](f: (R, T) => R, init: R): R = {
+  def mFoldRight[@mut R](f: (R, T) => R, init: R): R = {
     var r = init
     for (i <- s.size - 1 to 0 by -1) {
       r = f(r, s(i))
@@ -753,40 +753,40 @@ import org.sireum._
     return r
   }
 
-  @pure def map[U](f: T => U @pure): MS[Z, U] = {
+  @pure def map[@mut U](f: T => U @pure): MS[Z, U] = {
 //    l""" ensures result.size ≡ s.size
 //                 ∀i: [0, result.size)  result(i) ≡ f(s(i)) """
 
     return s.map(f)
   }
 
-  @pure def parMap[U](f: T => U @pure): MS[Z, U] = {
+  @pure def parMap[@mut U](f: T => U @pure): MS[Z, U] = {
     val r = MSZOpsUtil.parMap(s, f)
     return r
   }
 
-  def mParMap[U](f: T => U): MS[Z, U] = {
+  def mParMap[@mut U](f: T => U): MS[Z, U] = {
     val r = MSZOpsUtil.mParMap(s, f)
     return r
   }
 
-  @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
+  @pure def parMapFoldLeft[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
     return ops.MSZOps(parMap(f)).foldLeft(g, init)
   }
 
-  def mParMapFoldLeft[U, R](f: T => U, g: (R, U) => R, init: R): R = {
+  def mParMapFoldLeft[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R): R = {
     return ops.MSZOps(mParMap(f)).mFoldLeft(g, init)
   }
 
-  @pure def parMapFoldRight[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
+  @pure def parMapFoldRight[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
     return ops.MSZOps(parMap(f)).foldRight(g, init)
   }
 
-  def mParMapFoldRight[U, R](f: T => U, g: (R, U) => R, init: R): R = {
+  def mParMapFoldRight[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R): R = {
     return ops.MSZOps(mParMap(f)).mFoldRight(g, init)
   }
 
-  @pure def parMapCores[U](f: T => U @pure, numOfCores: Z): MS[Z, U] = {
+  @pure def parMapCores[@mut U](f: T => U @pure, numOfCores: Z): MS[Z, U] = {
     if (numOfCores > 1 || numOfCores <= 0) {
       return MSZOpsUtil.parMapCores(s, f, numOfCores)
     } else {
@@ -794,7 +794,7 @@ import org.sireum._
     }
   }
 
-  def mParMapCores[U](f: T => U, numOfCores: Z): MS[Z, U] = {
+  def mParMapCores[@mut U](f: T => U, numOfCores: Z): MS[Z, U] = {
     if (numOfCores > 1 || numOfCores <= 0) {
       return MSZOpsUtil.mParMapCores(s, f, numOfCores)
     } else {
@@ -802,19 +802,19 @@ import org.sireum._
     }
   }
 
-  @pure def parMapFoldLeftCores[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = {
+  @pure def parMapFoldLeftCores[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = {
     return ops.MSZOps(parMapCores(f, numOfCores)).foldLeft(g, init)
   }
 
-  def mParMapFoldLeftCores[U, R](f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = {
+  def mParMapFoldLeftCores[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = {
     return ops.MSZOps(mParMapCores(f, numOfCores)).mFoldLeft(g, init)
   }
 
-  @pure def parMapFoldRightCores[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = {
+  @pure def parMapFoldRightCores[@mut U, @mut R](f: T => U @pure, g: (R, U) => R @pure, init: R, numOfCores: Z): R = {
     return ops.MSZOps(parMapCores(f, numOfCores)).foldRight(g, init)
   }
 
-  def mParMapFoldRightCores[U, R](f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = {
+  def mParMapFoldRightCores[@mut U, @mut R](f: T => U, g: (R, U) => R, init: R, numOfCores: Z): R = {
     return ops.MSZOps(mParMapCores(f, numOfCores)).mFoldRight(g, init)
   }
 
@@ -889,7 +889,7 @@ import org.sireum._
     return laxSlice(s.size - size, s.size)
   }
 
-  @pure def zip[T2](other: MS[Z, T2]): MS[Z, (T, T2)] = {
+  @pure def zip[@mut T2](other: MS[Z, T2]): MS[Z, (T, T2)] = {
 //    l""" requires s.size ≡ other.size
 //         ensures  result ≡ s.size
 //                  ∀i: [0, result.size)  result(i) ≡ ((s(i), other(i))) """

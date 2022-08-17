@@ -141,7 +141,7 @@ import ObjPrinter._
 
   def write(content: ST): Unit
 
-  def cache[T](o: T, f: () => ST): ST
+  def cache[@mut T](o: T, f: () => ST): ST
 
   def addMethod(tipe: ST, isStrictPure: B, body: ST): ST = {
     val num = freshNum()
@@ -186,7 +186,7 @@ import ObjPrinter._
     return cache(s, f)
   }
 
-  def printMS[I, E](indexType: ST, elementType: ST, s: MS[I, E], i: I => ST, e: E => ST): ST = {
+  def printMS[I, @mut E](indexType: ST, elementType: ST, s: MS[I, E], i: I => ST, e: E => ST): ST = {
     val f: () => ST = { () =>
       val t = st"MS[$indexType, $elementType]"
       val elements = s.map(e)

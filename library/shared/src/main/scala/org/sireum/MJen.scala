@@ -228,7 +228,7 @@ object MJen {
 
   object Internal {
 
-    @record class ISImpl[I, T](val s: IS[I, T]) extends MJen[T] {
+    @record class ISImpl[@imm I, @imm T](val s: IS[I, T]) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- s) {
@@ -262,7 +262,7 @@ object MJen {
       }
     }
 
-    @record class MapImpl[K, T](val m: Map[K, T]) extends MJen[(K, T)] {
+    @record class MapImpl[@imm K, @imm T](val m: Map[K, T]) extends MJen[(K, T)] {
       override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- m.entries) {
@@ -279,7 +279,7 @@ object MJen {
       }
     }
 
-    @record class HashMapImpl[K, T](val m: HashMap[K, T]) extends MJen[(K, T)] {
+    @record class HashMapImpl[@imm K, @imm T](val m: HashMap[K, T]) extends MJen[(K, T)] {
       override def generate(f: ((K, T)) => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (ms <- m.mapEntries) {

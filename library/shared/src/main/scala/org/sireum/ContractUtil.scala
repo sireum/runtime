@@ -37,13 +37,13 @@ object ContractUtil {
   @strictpure def isEqualExcept2[I, T](s1: IS[I, T], s2: IS[I, T], i1: I, i2: I): B =
     s1.size == s2.size & All(s1.indices)(j => ((j != i1) & (j != i2)) ->: (s1(j) == s2(j)))
 
-  @strictpure def msEqualExcept[I, T](s1: MS[I, T], s2: MS[I, T], i: I): B =
+  @strictpure def msEqualExcept[I, @mut T](s1: MS[I, T], s2: MS[I, T], i: I): B =
     s1.size == s2.size & All(s1.indices)(j => (j != i) ->: (s1(j) == s2(j)))
 
-  @strictpure def msEqualExcept2[I, T](s1: MS[I, T], s2: MS[I, T], i1: I, i2: I): B =
+  @strictpure def msEqualExcept2[I, @mut T](s1: MS[I, T], s2: MS[I, T], i1: I, i2: I): B =
     s1.size == s2.size & All(s1.indices)(j => ((j != i1) & (j != i2)) ->: (s1(j) == s2(j)))
 
   @strictpure def isAllIS[I, T](s: IS[I, T], e: T): B = All(s.indices)(i => s(i) == e)
 
-  @strictpure def isAllMS[I, T](s: MS[I, T], e: T): B = All(s.indices)(i => s(i) == e)
+  @strictpure def isAllMS[I, @mut T](s: MS[I, T], e: T): B = All(s.indices)(i => s(i) == e)
 }

@@ -28,6 +28,6 @@ package org.sireum.extension
 import org.sireum._
 
 @ext object Cancel {
-  def handleCancellable[T](p: () => T): Unit = $
-  def cancellable[T](p: () => T): T = $
+  def handleCancellable[@mut T](p: () => T): Unit = $
+  def cancellable[@mut T](p: () => T): T = $
 }

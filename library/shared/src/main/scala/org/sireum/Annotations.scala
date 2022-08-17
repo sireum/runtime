@@ -54,3 +54,7 @@ class spec extends StaticAnnotation
 class range(min: Z = 0, max: Z = 0, index: B = F)
 
 class bits(signed: B = T, width: Z = 0, min: Z = 0, max: Z = 0, index: B = F)
+
+class imm extends StaticAnnotation
+
+class mut extends StaticAnnotation

@@ -104,7 +104,7 @@ object CircularQueue {
     "DropRear"
   }
 
-  @strictpure def inv[E](max: Z, default: E, scrub: B, queue: MSZ[E], front: Z, rear: Z, numOfElements: Z): B =
+  @strictpure def inv[@mut E](max: Z, default: E, scrub: B, queue: MSZ[E], front: Z, rear: Z, numOfElements: Z): B =
     max > 0 &
       max + 1 == queue.size &
       queue.isInBound(front) &
@@ -115,11 +115,11 @@ object CircularQueue {
       (rear < front) === (numOfElements == rear + queue.size - front) &
       (scrub ->: All(0 until queue.size - numOfElements)(i => queue(modPos(rear + i, queue.size)) == default))
 
-  @strictpure def refinement[E](rep: MSZ[E], queue: MSZ[E], numOfElements: Z, front: Z): B =
+  @strictpure def refinement[@mut E](rep: MSZ[E], queue: MSZ[E], numOfElements: Z, front: Z): B =
     rep.size == numOfElements &
       All(rep.indices)(i => rep(i) == queue(modPos(front + i, queue.size)))
 
-  @strictpure def createEnsures[E](res: CircularQueue[E], max: Z, default: E, scrub: B, policy: Policy.Type): B =
+  @strictpure def createEnsures[@mut E](res: CircularQueue[E], max: Z, default: E, scrub: B, policy: Policy.Type): B =
     res.max == max &
       res.default == default &
       res.scrub == scrub &
@@ -127,7 +127,7 @@ object CircularQueue {
 
   object NoDrop {
 
-    @pure def create[E](max: Z, default: E, scrub: B): NoDrop[E] = {
+    @pure def create[@mut E](max: Z, default: E, scrub: B): NoDrop[E] = {
       Contract(
         Ensures(
           createEnsures(Res, max, default, scrub, Policy.NoDrop) &
@@ -139,7 +139,7 @@ object CircularQueue {
       return NoDrop(max, default, scrub, MS.create(max + 1, default), 0, 0, 0)
     }
 
-    @strictpure def additionalCreateEnsures[E](res: NoDrop[E]): B =
+    @strictpure def additionalCreateEnsures[@mut E](res: NoDrop[E]): B =
       res.front == 0 &
         res.rear == 0 &
         res.numOfElements == 0 &
