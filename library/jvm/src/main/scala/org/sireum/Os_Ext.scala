@@ -210,7 +210,7 @@ object Os_Ext {
 
   def length(path: String): Z = toIO(path).length
 
-  def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).toIndexedSeq.map(String(_)): _*)
+  def list(path: String): ISZ[String] = ISZ(scala.Option(toIO(path).list).getOrElse(Array()).sorted.toIndexedSeq.map(String(_)): _*)
 
   def mergeFrom(path: String, sources: ISZ[String]): Unit = {
     copy(sources(0), path, T)
