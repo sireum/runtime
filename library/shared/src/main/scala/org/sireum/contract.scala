@@ -408,12 +408,6 @@ trait contract {
 
   def In[T](v: T): T = ???
 
-  def Old[T](v: T): T = ???
-
-  def At[T](label: String, v: T): T = ???
-
-  def At[T](n: Z, v: T): T = ???
-
   def Res[T]: T = ???
 
   def Idx[T <: ZLike[T]](v: Any): T = ???
