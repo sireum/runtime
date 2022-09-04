@@ -468,6 +468,6 @@ package object sireum extends $internal.PackageTrait with contract {
   def ?[S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, T1 <: S1, T2 <: S2, T3 <: S3, T4 <: S4, T5 <: S5, T6 <: S6, T7 <: S7, T8 <: S8, T9 <: S9, T10 <: S10, T11 <: S11, T12 <: S12, T13 <: S13, T14 <: S14, T15 <: S15, T16 <: S16, T17 <: S17, T18 <: S18, T19 <: S19, T20 <: S20, T21 <: S21](o1: S1, o2: S2, o3: S3, o4: S4, o5: S5, o6: S6, o7: S7, o8: S8, o9: S9, o10: S10, o11: S11, o12: S12, o13: S13, o14: S14, o15: S15, o16: S16, o17: S17, o18: S18, o19: S19, o20: S20, o21: S21)(f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => B): B = $
   def ?[S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15, S16, S17, S18, S19, S20, S21, S22, T1 <: S1, T2 <: S2, T3 <: S3, T4 <: S4, T5 <: S5, T6 <: S6, T7 <: S7, T8 <: S8, T9 <: S9, T10 <: S10, T11 <: S11, T12 <: S12, T13 <: S13, T14 <: S14, T15 <: S15, T16 <: S16, T17 <: S17, T18 <: S18, T19 <: S19, T20 <: S20, T21 <: S21, T22 <: S22](o1: S1, o2: S2, o3: S3, o4: S4, o5: S5, o6: S6, o7: S7, o8: S8, o9: S9, o10: S10, o11: S11, o12: S12, o13: S13, o14: S14, o15: S15, o16: S16, o17: S17, o18: S18, o19: S19, o20: S20, o21: S21, o22: S22)(f: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => B): B = $
 
-  def At[T](name: String, line0: Z, lines: Z*): T = $
-  def At[T](o: T, line0: Z, lines: Z*): T = $
+  def At[T](name: String, n: Z, linesFresh: Z*): T = $
+  def At[T](o: T, n: Z, linesFresh: Z*): T = $
 }
