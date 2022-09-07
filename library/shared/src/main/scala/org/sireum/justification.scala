@@ -59,6 +59,8 @@ object justification {
 
       @just def ImplyI(assumePToQSub: StepId): Unit = $
 
+      @just def SImplyI(assumePToQSub: StepId): Unit = $
+
       @just("implyE") def ImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
       @just def NegI(assumePToBottomSub: StepId): Unit = $
@@ -73,24 +75,48 @@ object justification {
         Deduce((p, q) |- (p & q))
       }
 
+      @pure def sandI(p: B, q: B): Unit = {
+        Deduce((p, q) |- (p && q))
+      }
+
       @pure def andE1(p: B, q: B): Unit = {
         Deduce((p & q) |- p)
+      }
+
+      @pure def sandE1(p: B, q: B): Unit = {
+        Deduce((p && q) |- p)
       }
 
       @pure def andE2(p: B, q: B): Unit = {
         Deduce((p & q) |- q)
       }
 
+      @pure def sandE2(p: B, q: B): Unit = {
+        Deduce((p && q) |- q)
+      }
+
       @pure def orI1(p: B, q: B): Unit = {
         Deduce(p |- (p | q))
+      }
+
+      @pure def sorI1(p: B, q: B): Unit = {
+        Deduce(p |- (p || q))
       }
 
       @pure def orI2(p: B, q: B): Unit = {
         Deduce(q |- (p | q))
       }
 
+      @pure def sorI2(p: B, q: B): Unit = {
+        Deduce(q |- (p || q))
+      }
+
       @pure def implyE(p: B, q: B): Unit = {
         Deduce((p ->: q, p) |- q)
+      }
+
+      @pure def simplyE(p: B, q: B): Unit = {
+        Deduce((p -->: q, p) |- q)
       }
 
       @pure def negE(p: B): Unit = {
