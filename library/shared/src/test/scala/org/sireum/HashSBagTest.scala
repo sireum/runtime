@@ -31,7 +31,7 @@ class HashSBagTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(HashSBag.empty[String].size =~= z"0")
+    * - assert(HashSBag.empty[String].size =~ z"0")
 
     * - assert(!HashSBag.empty[String].contains("a"))
 
@@ -53,13 +53,13 @@ class HashSBagTest extends TestSuite {
 
     * - assert(HashSBag.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-    * - assert(HashSBag.empty[String].++(ISZ("a", "b")) =~= HashSBag.empty[String].+("b").+("a"))
+    * - assert(HashSBag.empty[String].++(ISZ("a", "b")) =~ HashSBag.empty[String].+("b").+("a"))
 
-    * - assert(HashSBag.empty[String].∪(HashSBag.empty[String].+("A")) =~= HashSBag.empty[String].+("A"))
+    * - assert(HashSBag.empty[String].∪(HashSBag.empty[String].+("A")) =~ HashSBag.empty[String].+("A"))
 
-    * - assert(HashSBag.empty[String].∩(HashSBag.empty[String].+("A")) =~= HashSBag.empty[String])
+    * - assert(HashSBag.empty[String].∩(HashSBag.empty[String].+("A")) =~ HashSBag.empty[String])
 
-    * - assert(HashSBag.empty[String].+("a").∩(HashSBag.empty[String].+("A")) =~= HashSBag.empty[String])
+    * - assert(HashSBag.empty[String].+("a").∩(HashSBag.empty[String].+("A")) =~ HashSBag.empty[String])
 
   }
 

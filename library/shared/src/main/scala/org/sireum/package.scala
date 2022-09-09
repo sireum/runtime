@@ -119,11 +119,12 @@ package object sireum extends $internal.PackageTrait with contract {
     final def sn(args: Any*): StepId = macro Macro.sn
   }
 
-  final implicit class Any2HashString(val _o: Any) extends AnyVal {
+  final implicit class Any2HashStringEq(val _o: Any) extends AnyVal {
     def hash: Z = _o.hashCode
     def string: String = _o.toString
     def ===(other: Any): B = _o == other
     def =!=(other: Any): B = _o != other
+    def =~=(other: Any): B = halt("Only available in spec")
   }
 
   final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {

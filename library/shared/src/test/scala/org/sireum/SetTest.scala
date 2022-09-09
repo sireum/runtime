@@ -31,7 +31,7 @@ class SetTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(Set.empty[String].size =~= z"0")
+    * - assert(Set.empty[String].size =~ z"0")
 
     * - assert(!Set.empty[String].contains("a"))
 
@@ -46,18 +46,18 @@ class SetTest extends TestSuite {
     * - assert(Set.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
     * - assert(
-      Set.empty[String].++(ISZ("a", "b")) =~= Set.empty[String].+("b").+("a"))
+      Set.empty[String].++(ISZ("a", "b")) =~ Set.empty[String].+("b").+("a"))
 
     * - assert(
-      Set.empty[String].∪(Set.empty[String].+("A")) =~= Set
+      Set.empty[String].∪(Set.empty[String].+("A")) =~ Set
         .empty[String]
         .+("A"))
 
     * - assert(
-      Set.empty[String].∩(Set.empty[String].+("A")) =~= Set.empty[String])
+      Set.empty[String].∩(Set.empty[String].+("A")) =~ Set.empty[String])
 
     * - assert(
-      Set.empty[String].+("a").∩(Set.empty[String].+("A")) =~= Set
+      Set.empty[String].+("a").∩(Set.empty[String].+("A")) =~ Set
         .empty[String])
 
   }

@@ -37,7 +37,7 @@ class STest extends TestSuite {
   val tests = Tests {
     "IS" - {
 
-      * - assert(ISZ[Z](z"1", z"2", z"3") =~= IS[Z, Z](z"1", z"2", z"3"))
+      * - assert(ISZ[Z](z"1", z"2", z"3") =~ IS[Z, Z](z"1", z"2", z"3"))
 
       * - assert(
         ISZ[Z](z"1", z"2", z"3") !~= ISZ[U16](u16"-1", u16"-2", u16"-3"))
@@ -48,39 +48,39 @@ class STest extends TestSuite {
 
         * - assert(empty.data.isInstanceOf[scala.Array[scala.Any]])
 
-        * - assert(empty.data.asInstanceOf[scala.Array[scala.Any]].length =~= 0)
+        * - assert(empty.data.asInstanceOf[scala.Array[scala.Any]].length =~ 0)
 
         * - assert((empty :+ T).data.isInstanceOf[Array[Byte]])
 
         * - assert(
-            (ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~= "[6D02]")
+            (ISZ[B](T, F, T, T, F) ++ ISZ[B](T, T, F, F, T)).toString =~ "[6D02]")
 
       }
 
       "ISZ[String]" - {
 
         * - assert(
-          ISZ[String]("A", "B", "C\nD").toString =~= "[\"A\", \"B\", \"C\\nD\"]")
+          ISZ[String]("A", "B", "C\nD").toString =~ "[\"A\", \"B\", \"C\\nD\"]")
 
       }
 
       "ISZ[C]" - {
 
         * - assert(
-          ISZ[C]('A', 'B', '\u0010').toString =~= "['A', 'B', '\\020']")
+          ISZ[C]('A', 'B', '\u0010').toString =~ "['A', 'B', '\\020']")
 
       }
 
       "ISZ[Z]" - {
 
         * - assert(
-          ISZ[Z](1, 2, 3).data =~= scala
+          ISZ[Z](1, 2, 3).data =~ scala
             .Array[scala.Any](Z.MP.Long(1), Z.MP.Long(2), Z.MP.Long(3)))
 
         * - assert(
           ISZ[Z](z"10000000000000000000",
                  z"20000000000000000000",
-                 z"30000000000000000000").data =~=
+                 z"30000000000000000000").data =~
             scala.Array[scala.Any](scala.BigInt("10000000000000000000"),
                                    scala.BigInt("20000000000000000000"),
                                    scala.BigInt("30000000000000000000")))
@@ -88,37 +88,37 @@ class STest extends TestSuite {
         * - assert(
           ISZ[Z](z"10000000000000000000",
                  z"20000000000000000000",
-                 z"30000000000000000000")(1) =~=
+                 z"30000000000000000000")(1) =~
             z"20000000000000000000")
       }
 
       "ISZ[U16]" - {
 
         * - assert(
-          ISZ[U16](u16"1", u16"2", u16"3").data =~= scala
+          ISZ[U16](u16"1", u16"2", u16"3").data =~ scala
             .Array[scala.Short](1, 2, 3))
 
-        * - assert(ISZ[U16](u16"1", u16"2", u16"3")(1) =~= U16(2))
+        * - assert(ISZ[U16](u16"1", u16"2", u16"3")(1) =~ U16(2))
 
       }
 
       "ISZ[N16]" - {
 
         * - assert(
-          ISZ[N16](n16"1", n16"2", n16"3").data =~= scala
+          ISZ[N16](n16"1", n16"2", n16"3").data =~ scala
             .Array[scala.Int](1, 2, 3))
 
-        * - assert(ISZ[N16](n16"1", n16"2", n16"3")(1) =~= N16(2))
+        * - assert(ISZ[N16](n16"1", n16"2", n16"3")(1) =~ N16(2))
 
       }
 
       "ISZ[R]" - {
 
         * - assert(
-          ISZ[R](r"1", r"2", r"3").data =~= scala
+          ISZ[R](r"1", r"2", r"3").data =~ scala
             .Array[BigDecimal](BigDecimal(1), BigDecimal(2), BigDecimal(3)))
 
-        * - assert(ISZ[R](r"1", r"2", r"3")(1) =~= R(2))
+        * - assert(ISZ[R](r"1", r"2", r"3")(1) =~ R(2))
 
       }
 
@@ -131,15 +131,15 @@ class STest extends TestSuite {
         * - {
           val s1 = MS[Z8, B](T, T)
           val s2 = MS.create[Z8, B](2, T)
-          assert(s1(z8"0") =~= s2(z8"0"))
-          assert(s1(z8"1") =~= s2(z8"1"))
+          assert(s1(z8"0") =~ s2(z8"0"))
+          assert(s1(z8"1") =~ s2(z8"1"))
         }
 
         * - {
           val s1 = MS[Z8, B](F, T)
           val s2 = MS.create[Z8, B](2, T)
           s2(z8"0") = false
-          assert(s1 =~= s2)
+          assert(s1 =~ s2)
         }
       }
 
@@ -148,15 +148,15 @@ class STest extends TestSuite {
         * - {
           val s1 = MS[U8, B](T, T)
           val s2 = MS.create[U8, B](2, T)
-          assert(s1(u8"0") =~= s2(u8"0"))
-          assert(s1(u8"1") =~= s2(u8"1"))
+          assert(s1(u8"0") =~ s2(u8"0"))
+          assert(s1(u8"1") =~ s2(u8"1"))
         }
 
         * - {
           val s1 = MS[U8, B](F, T)
           val s2 = MS.create[U8, B](2, T)
           s2(u8"0") = F
-          assert(s1 =~= s2)
+          assert(s1 =~ s2)
         }
 
       }
@@ -172,17 +172,17 @@ class STest extends TestSuite {
 
       * - assert(ISZOps(s :+ 2).exists(_ == z"2"))
 
-      * - assert(ISZOps(s) :+ 3 =~= s :+ 3)
+      * - assert(ISZOps(s) :+ 3 =~ s :+ 3)
 
-      * - assert(1 +: ISZOps(s) =~= 1 +: s)
+      * - assert(1 +: ISZOps(s) =~ 1 +: s)
 
-      * - assert(ISZOps(s) ++ s =~= s ++ s)
+      * - assert(ISZOps(s) ++ s =~ s ++ s)
 
-      * - assert(s.toMS =~= MSZ(s.elements: _*))
+      * - assert(s.toMS =~ MSZ(s.elements: _*))
 
       * - {
         assert(
-          s =~= ISZOps(ISZOps(s).chunk(2))
+          s =~ ISZOps(ISZOps(s).chunk(2))
             .foldLeft((r: ISZ[Z], t: ISZ[Z]) => r ++ t, ISZ[Z]()))
       }
 

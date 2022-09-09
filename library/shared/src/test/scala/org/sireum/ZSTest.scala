@@ -36,16 +36,16 @@ class ZSTest extends TestSuite {
 
     "append" - {
 
-      * - assert(zs123 =~= zs12 :+ 3)
+      * - assert(zs123 =~ zs12 :+ 3)
 
-      * - assert(zs123.hashCode =~= (zs12 :+ 3).hashCode)
+      * - assert(zs123.hashCode =~ (zs12 :+ 3).hashCode)
     }
 
     "prepend" - {
 
-      * - assert(zs123 =~= 1 +: zs23)
+      * - assert(zs123 =~ 1 +: zs23)
 
-      * - assert(zs123.hashCode =~= (1 +: zs23).hashCode)
+      * - assert(zs123.hashCode =~ (1 +: zs23).hashCode)
 
     }
 
@@ -60,7 +60,7 @@ class ZSTest extends TestSuite {
           prepend +:= size - i - 1
           i += 1
         }
-        assert(append =~= prepend)
+        assert(append =~ prepend)
       }
     }
   }

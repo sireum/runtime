@@ -32,11 +32,11 @@ class DatatypeRecordTest extends TestSuite {
 
   val tests = Tests {
     * - {
-      assert(foo.x =~= 1)
+      assert(foo.x =~ 1)
     }
 
     * - {
-      assert(foo.x =~= 1)
+      assert(foo.x =~ 1)
       val fooClone: Foo = foo.$clone
       foo.bar.y = 4
       assert(fooClone.bar.y != foo.bar.y)
@@ -50,13 +50,13 @@ class DatatypeRecordTest extends TestSuite {
       a = a(y = a.y(z = 7))
       a = a(y = a.y(zz = a.y.zz(z"0" ~> z"8")))
 
-      assert(a =~= _Foo(6, _Bar(7, ISZ(8, 2, 3))))
+      assert(a =~ _Foo(6, _Bar(7, ISZ(8, 2, 3))))
     }
 
     * - {
       val bazzz = Bazzz[Z](5)
       bazzz.updateX(4)
-      assert(bazzz.x =~= z"4")
+      assert(bazzz.x =~ z"4")
     }
 
     * - {

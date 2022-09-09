@@ -40,8 +40,8 @@ object NFoo_Ext {
 class ExtTest extends TestSuite {
 
   val tests = Tests {
-    * - assert(NFoo.x =~= Z(5))
+    * - assert(NFoo.x =~ Z(5))
 
-    * - assert(NFoo.foo[Z](4) =~= Z(2))
+    * - assert(NFoo.foo[Z](4) =~ Z(2))
   }
 }

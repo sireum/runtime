@@ -70,44 +70,44 @@ class PosetTest extends TestSuite {
     * - assert(poset.isChildOf("A", "C"))
 
     * - assert(poset
-      .parentsOf("F") =~= HashSSet.empty[String].++(ISZ[String]("C", "G", "H")))
+      .parentsOf("F") =~ HashSSet.empty[String].++(ISZ[String]("C", "G", "H")))
 
     * - assert(
-      poset.ancestorsOf("J") =~= HashSSet
+      poset.ancestorsOf("J") =~ HashSSet
         .empty[String]
         .++(ISZ[String]("G", "H", "I")))
 
     * - assert(
-      poset.ancestorsOf("F") =~= HashSSet
+      poset.ancestorsOf("F") =~ HashSSet
         .empty[String]
         .++(ISZ[String]("A", "C", "G", "H", "I")))
 
     * - assert(
-      poset.ancestorsOf("L") =~= HashSSet
+      poset.ancestorsOf("L") =~ HashSSet
         .empty[String]
         .++(ISZ[String]("A", "B", "C", "E", "G", "H", "I", "J", "K")))
 
-    * - assert(poset.lub(ISZ[String]("A", "A")) =~= Some[String]("A"))
+    * - assert(poset.lub(ISZ[String]("A", "A")) =~ Some[String]("A"))
 
-    * - assert(poset.lub(ISZ[String]("A", "H")) =~= None[String]())
+    * - assert(poset.lub(ISZ[String]("A", "H")) =~ None[String]())
 
-    * - assert(poset.lub(ISZ[String]("D", "E", "F")) =~= Some[String]("A"))
+    * - assert(poset.lub(ISZ[String]("D", "E", "F")) =~ Some[String]("A"))
 
-    * - assert(poset.lub(ISZ[String]("F", "J", "K")) =~= Some[String]("G"))
+    * - assert(poset.lub(ISZ[String]("F", "J", "K")) =~ Some[String]("G"))
 
-    * - assert(poset.glb(ISZ[String]("A", "A")) =~= Some[String]("A"))
+    * - assert(poset.glb(ISZ[String]("A", "A")) =~ Some[String]("A"))
 
-    * - assert(poset.glb(ISZ[String]("D", "E")) =~= None[String]())
+    * - assert(poset.glb(ISZ[String]("D", "E")) =~ None[String]())
 
-    * - assert(poset.glb(ISZ[String]("A", "I")) =~= None[String]())
+    * - assert(poset.glb(ISZ[String]("A", "I")) =~ None[String]())
 
-    * - assert(poset.glb(ISZ[String]("B", "C")) =~= Some[String]("E"))
+    * - assert(poset.glb(ISZ[String]("B", "C")) =~ Some[String]("E"))
 
-    * - assert(poset.glb(ISZ[String]("A", "B", "C")) =~= Some[String]("E"))
+    * - assert(poset.glb(ISZ[String]("A", "B", "C")) =~ Some[String]("E"))
 
-    * - assert(poset.glb(ISZ[String]("B", "C", "G")) =~= Some[String]("L"))
+    * - assert(poset.glb(ISZ[String]("B", "C", "G")) =~ Some[String]("L"))
 
-    * - assert(poset.glb(ISZ[String]("H", "I", "N")) =~= Some[String]("M"))
+    * - assert(poset.glb(ISZ[String]("H", "I", "N")) =~ Some[String]("M"))
 
   }
 }

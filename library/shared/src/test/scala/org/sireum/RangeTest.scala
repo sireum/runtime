@@ -61,13 +61,13 @@ class RangeTest extends TestSuite {
 
       * - assert(One10i.hasMax)
 
-      * - assert(One10i.Index =~= one10i"1")
+      * - assert(One10i.Index =~ one10i"1")
 
-      * - assert(One10i.Min =~= one10i"1")
+      * - assert(One10i.Min =~ one10i"1")
 
-      * - assert(One10i.Max =~= one10i"10")
+      * - assert(One10i.Max =~ one10i"10")
 
-      * - assert(One10i.Name =~= "One10i")
+      * - assert(One10i.Name =~ "One10i")
 
       * - {
         val s = IS[One10i, Z](1, 2)
@@ -81,7 +81,7 @@ class RangeTest extends TestSuite {
 
       val x = one10i"10"
 
-      * - assert(x.toIndex =~= z"9")
+      * - assert(x.toIndex =~ z"9")
 
       * - assert(!x.isSigned)
 
@@ -91,19 +91,19 @@ class RangeTest extends TestSuite {
 
       * - assert(x.hasMax)
 
-      * - assert(x.Index =~= one10i"1")
+      * - assert(x.Index =~ one10i"1")
 
-      * - assert(x.Min =~= one10i"1")
+      * - assert(x.Min =~ one10i"1")
 
-      * - assert(x.Max =~= one10i"10")
+      * - assert(x.Max =~ one10i"10")
 
-      * - assert(x.Name =~= "One10i")
+      * - assert(x.Name =~ "One10i")
 
-      * - assert(x.value =~= z"10")
+      * - assert(x.value =~ z"10")
 
-      * - assert(x - one10i"9" =~= One10i.Min)
+      * - assert(x - one10i"9" =~ One10i.Min)
 
-      * - assert(x.decrease.increase =~= x)
+      * - assert(x.decrease.increase =~ x)
 
       * - {
         for (_ <- 0 until numOfRandomTests) {
@@ -130,7 +130,7 @@ class RangeTest extends TestSuite {
             var m = rand()
             while (m == 0 && (op == "/" || op == "%")) m = rand()
             Try(op1(One10i(n))(One10i(m)).toBigInt.toInt) match {
-              case Success(r) => assert(r =~= op2(n)(m))
+              case Success(r) => assert(r =~ op2(n)(m))
               case Failure(_) =>
                 val ir = op2(n)(m)
                 assert(
@@ -153,7 +153,7 @@ class RangeTest extends TestSuite {
           for (_ <- 0 until numOfRandomTests) {
             val n = rand()
             val m = rand()
-            assert(op1(One10i(n))(One10i(m)).value =~= op2(n)(m))
+            assert(op1(One10i(n))(One10i(m)).value =~ op2(n)(m))
           }
         }
       }
@@ -171,13 +171,13 @@ class RangeTest extends TestSuite {
 
       * - assert(M1_16.hasMax)
 
-      * - assert(M1_16.Index =~= m1_16"0")
+      * - assert(M1_16.Index =~ m1_16"0")
 
-      * - assert(M1_16.Min =~= m1_16"-1")
+      * - assert(M1_16.Min =~ m1_16"-1")
 
-      * - assert(M1_16.Max =~= m1_16"16")
+      * - assert(M1_16.Max =~ m1_16"16")
 
-      * - assert(M1_16.Name =~= "M1_16")
+      * - assert(M1_16.Name =~ "M1_16")
 
       * - {
         val s = IS[M1_16, Z](1)
@@ -191,23 +191,23 @@ class RangeTest extends TestSuite {
 
       val x = m1_16"10"
 
-      * - assert(x.toIndex =~= z"10")
+      * - assert(x.toIndex =~ z"10")
 
       * - assert(x.isSigned)
 
-      * - assert(x.Index =~= m1_16"0")
+      * - assert(x.Index =~ m1_16"0")
 
-      * - assert(x.Min =~= m1_16"-1")
+      * - assert(x.Min =~ m1_16"-1")
 
-      * - assert(x.Max =~= m1_16"16")
+      * - assert(x.Max =~ m1_16"16")
 
-      * - assert(x.Name =~= "M1_16")
+      * - assert(x.Name =~ "M1_16")
 
-      * - assert(x.value =~= z"10")
+      * - assert(x.value =~ z"10")
 
-      * - assert(x - m1_16"11" =~= M1_16.Min)
+      * - assert(x - m1_16"11" =~ M1_16.Min)
 
-      * - assert(x.decrease.increase =~= x)
+      * - assert(x.decrease.increase =~ x)
 
       * - {
         for (_ <- 0 until numOfRandomTests) {
@@ -234,7 +234,7 @@ class RangeTest extends TestSuite {
             var m = rand()
             while (m == 0 && (op == "/" || op == "%")) m = rand()
             Try(op1(M1_16(n))(M1_16(m)).toBigInt.toInt) match {
-              case Success(r) => assert(r =~= op2(n)(m))
+              case Success(r) => assert(r =~ op2(n)(m))
               case Failure(_) =>
                 val ir = op2(n)(m)
                 assert(!(M1_16.Min.toBigInt <= ir && ir <= M1_16.Max.toBigInt))
@@ -256,7 +256,7 @@ class RangeTest extends TestSuite {
           for (_ <- 0 until numOfRandomTests) {
             val n = rand()
             val m = rand()
-            assert(op1(M1_16(n))(M1_16(m)).value =~= op2(n)(m))
+            assert(op1(M1_16(n))(M1_16(m)).value =~ op2(n)(m))
           }
         }
       }

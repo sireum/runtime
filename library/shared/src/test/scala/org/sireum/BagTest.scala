@@ -31,7 +31,7 @@ class BagTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(Bag.empty[String].size =~= z"0")
+    * - assert(Bag.empty[String].size =~ z"0")
 
     * - assert(!Bag.empty[String].contains("a"))
 
@@ -56,16 +56,16 @@ class BagTest extends TestSuite {
     * - assert((Bag.empty[String] ++ ISZ("a", "b") - "a" - "b").isEmpty)
 
     * - assert(
-      Bag.empty[String] ++ ISZ("a", "b") =~= Bag.empty[String] + "b" + "a")
+      Bag.empty[String] ++ ISZ("a", "b") =~ Bag.empty[String] + "b" + "a")
 
     * - assert(
-      (Bag.empty[String] ∪ Bag.empty[String] + "A") =~= Bag.empty[String] + "A")
+      (Bag.empty[String] ∪ Bag.empty[String] + "A") =~ Bag.empty[String] + "A")
 
     * - assert(
-      (Bag.empty[String] ∩ (Bag.empty[String] + "A")) =~= Bag.empty[String])
+      (Bag.empty[String] ∩ (Bag.empty[String] + "A")) =~ Bag.empty[String])
 
     * - assert(
-      ((Bag.empty[String] + "a") ∩ (Bag.empty[String] + "A")) =~= Bag
+      ((Bag.empty[String] + "a") ∩ (Bag.empty[String] + "A")) =~ Bag
         .empty[String])
   }
 

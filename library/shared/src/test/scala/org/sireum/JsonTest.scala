@@ -31,15 +31,15 @@ class JsonTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(parseString("\"a\\rbc\"") =~= "a\rbc")
+    * - assert(parseString("\"a\\rbc\"") =~ "a\rbc")
 
-    * - assert(parseString("\"a\\\"\\rbc\"") =~= "a\"\rbc")
+    * - assert(parseString("\"a\\\"\\rbc\"") =~ "a\"\rbc")
 
-    * - assert(parseNumber("-0") =~= "-0")
+    * - assert(parseNumber("-0") =~ "-0")
 
-    * - assert(parseNumber("12.33") =~= "12.33")
+    * - assert(parseNumber("12.33") =~ "12.33")
 
-    * - assert(parseNumber("12e23") =~= "12e23")
+    * - assert(parseNumber("12e23") =~ "12e23")
 
     * - {
       val o = Either.Left[Z, String](Z.random)

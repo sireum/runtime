@@ -55,7 +55,7 @@ package object test {
   }
 
   implicit class Equiv(val result: scala.Any) extends AnyVal {
-    def =~=(expected: scala.Any): scala.Boolean = (result, expected) match {
+    def =~(expected: scala.Any): scala.Boolean = (result, expected) match {
       case (result: scala.Array[_], expected: scala.Array[_]) =>
         var r = true
         if (result.length != expected.length) r = false

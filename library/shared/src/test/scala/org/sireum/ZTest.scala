@@ -35,7 +35,7 @@ class ZTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(x.toIndex =~= x)
+    * - assert(x.toIndex =~ x)
 
     * - assert(!x.isBitVector)
 
@@ -45,11 +45,11 @@ class ZTest extends TestSuite {
 
     * - assert(x.isSigned)
 
-    * - assert(x.Index =~= z"0")
+    * - assert(x.Index =~ z"0")
 
-    * - assert(x.Name =~= "Z")
+    * - assert(x.Name =~ "Z")
 
-    * - assert(x.decrease.increase =~= x)
+    * - assert(x.decrease.increase =~ x)
 
     * - {
       val s = IS[Z, Z](1, 2)

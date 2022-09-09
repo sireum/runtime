@@ -31,7 +31,7 @@ class HashSSetTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(HashSSet.empty[String].size =~= z"0")
+    * - assert(HashSSet.empty[String].size =~ z"0")
 
     * - assert(!HashSSet.empty[String].contains("a"))
 
@@ -48,22 +48,22 @@ class HashSSetTest extends TestSuite {
     * - assert(
       HashSSet
         .empty[String]
-        .++(ISZ("a", "b")) =~= HashSSet.empty[String].+("b").+("a"))
+        .++(ISZ("a", "b")) =~ HashSSet.empty[String].+("b").+("a"))
 
     * - assert(
-      HashSSet.empty[String].∪(HashSSet.empty[String].+("A")) =~= HashSSet
+      HashSSet.empty[String].∪(HashSSet.empty[String].+("A")) =~ HashSSet
         .empty[String]
         .+("A"))
 
     * - assert(
-      HashSSet.empty[String].∩(HashSSet.empty[String].+("A")) =~= HashSSet
+      HashSSet.empty[String].∩(HashSSet.empty[String].+("A")) =~ HashSSet
         .empty[String])
 
     * - assert(
       HashSSet
         .empty[String]
         .+("a")
-        .∩(HashSSet.empty[String].+("A")) =~= HashSSet.empty[String])
+        .∩(HashSSet.empty[String].+("A")) =~ HashSSet.empty[String])
 
   }
 

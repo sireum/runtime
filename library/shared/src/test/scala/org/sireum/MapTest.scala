@@ -31,30 +31,30 @@ class MapTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(Map.empty[String, Z].size =~= z"0")
+    * - assert(Map.empty[String, Z].size =~ z"0")
 
-    * - assert(Map.empty[String, Z].get("a") =~= None())
+    * - assert(Map.empty[String, Z].get("a") =~ None())
 
-    * - assert(Map.empty[String, Z].+("a", 1).get("a") =~= Some(1))
+    * - assert(Map.empty[String, Z].+("a", 1).get("a") =~ Some(1))
 
-    * - assert(Map.empty[String, Z].+("a", 1).get("A") =~= None())
+    * - assert(Map.empty[String, Z].+("a", 1).get("A") =~ None())
 
-    * - assert(Map.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
+    * - assert(Map.empty[String, Z].+("a", 1).+("a", 2).get("a") =~ Some(2))
 
-    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
+    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("a") =~ Some(1))
 
-    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
+    * - assert(Map.empty[String, Z].+("a", 1).+("b", 2).get("b") =~ Some(2))
 
     * - assert(
-      Map.empty[String, Z].+("a", 1).+("b", 2) =~= Map[String, Z](
+      Map.empty[String, Z].+("a", 1).+("b", 2) =~ Map[String, Z](
         ISZ(("b", 2), ("a", 1))))
 
     * - assert(
-      Map.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= Map[String, Z](
+      Map.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~ Map[String, Z](
         ISZ(("b", 2))))
 
     * - assert(
-      Map.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= Map[String, Z](
+      Map.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~ Map[String, Z](
         ISZ(("a", 1))))
 
     * - assert(
@@ -62,7 +62,7 @@ class MapTest extends TestSuite {
         .empty[String, Z]
         .+("a", 1)
         .+("b", 2)
-        .--(ISZ("a", "b")) =~= Map[String, Z](ISZ()))
+        .--(ISZ("a", "b")) =~ Map[String, Z](ISZ()))
 
   }
 }

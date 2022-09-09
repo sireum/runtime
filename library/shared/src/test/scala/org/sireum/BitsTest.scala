@@ -49,7 +49,7 @@ class BitsTest extends TestSuite {
         val data = s.data.asInstanceOf[Array[Byte]]
         val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
         assert(data !~= Array[Byte](0xF, 0, 0))
-        assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+        assert(data.slice(0, size.toInt) =~ Array[Byte](0xF, 0, 0))
         assert(s.firstIndex == 0 & s.lastIndex == s.size - 1)
       }
     }
@@ -69,7 +69,7 @@ class BitsTest extends TestSuite {
         val data = s.data.asInstanceOf[Array[Byte]]
         val size = s.size / 8 + (if (s.size % 8 == 0) 0 else 1) // data might have more capacity then the actual size
         assert(data !~= Array[Byte](0xF, 0, 0))
-        assert(data.slice(0, size.toInt) =~= Array[Byte](0xF, 0, 0))
+        assert(data.slice(0, size.toInt) =~ Array[Byte](0xF, 0, 0))
         assert(s.firstIndex == 0 & s.lastIndex == s.size - 1)
       }
     }
@@ -88,19 +88,19 @@ class BitsTest extends TestSuite {
 
       * - assert(S8.isWrapped)
 
-      * - assert(S8.BitWidth =~= 8)
+      * - assert(S8.BitWidth =~ 8)
 
-      * - assert(S8.Index =~= s8"0")
+      * - assert(S8.Index =~ s8"0")
 
-      * - assert(S8.Min =~= s8"-128")
+      * - assert(S8.Min =~ s8"-128")
 
-      * - assert(S8.Max =~= s8"127")
+      * - assert(S8.Max =~ s8"127")
 
-      * - assert(S8.Name =~= "S8")
+      * - assert(S8.Name =~ "S8")
 
       val x = s8"-114"
 
-      * - assert(x.toIndex =~= z"-114")
+      * - assert(x.toIndex =~ z"-114")
 
       * - assert(x.isSigned)
 
@@ -112,21 +112,21 @@ class BitsTest extends TestSuite {
 
       * - assert(x.isWrapped)
 
-      * - assert(x.BitWidth =~= 8)
+      * - assert(x.BitWidth =~ 8)
 
-      * - assert(x.Index =~= s8"0")
+      * - assert(x.Index =~ s8"0")
 
-      * - assert(x.Min =~= s8"-128")
+      * - assert(x.Min =~ s8"-128")
 
-      * - assert(x.Max =~= s8"127")
+      * - assert(x.Max =~ s8"127")
 
-      * - assert(x.Name =~= "S8")
+      * - assert(x.Name =~ "S8")
 
-      * - assert(x.value =~= -114)
+      * - assert(x.value =~ -114)
 
-      * - assert(x - s8"15" =~= S8.Max)
+      * - assert(x - s8"15" =~ S8.Max)
 
-      * - assert(x + S8.Min * s8"-2" =~= x)
+      * - assert(x + S8.Min * s8"-2" =~ x)
 
       * - {
         for (_ <- 0 until numOfRandomTests) {
@@ -153,7 +153,7 @@ class BitsTest extends TestSuite {
             var m = rand()
             while (m == 0 && (op == "/" || op == "%")) m = rand()
             assert(
-              op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(op2(n)(m).toByte))
+              op1(S8(n))(S8(m)).toBigInt =~ scala.BigInt(op2(n)(m).toByte))
           }
         }
       }
@@ -168,7 +168,7 @@ class BitsTest extends TestSuite {
             val n = rand()
             val m = rand()
             assert(
-              op1(S8(n))(S8(m)).toBigInt =~= scala.BigInt(
+              op1(S8(n))(S8(m)).toBigInt =~ scala.BigInt(
                 op2(n)(m.toInt).toByte))
           }
         }
@@ -187,7 +187,7 @@ class BitsTest extends TestSuite {
           for (_ <- 0 until numOfRandomTests) {
             val n = rand()
             val m = rand()
-            assert(op1(S8(n))(S8(m)).value =~= op2(n)(m))
+            assert(op1(S8(n))(S8(m)).value =~ op2(n)(m))
           }
         }
       }
@@ -208,19 +208,19 @@ class BitsTest extends TestSuite {
 
       * - assert(U16.isWrapped)
 
-      * - assert(U16.BitWidth =~= 16)
+      * - assert(U16.BitWidth =~ 16)
 
-      * - assert(U16.Index =~= u16"0")
+      * - assert(U16.Index =~ u16"0")
 
-      * - assert(U16.Min =~= u16"0")
+      * - assert(U16.Min =~ u16"0")
 
-      * - assert(U16.Max =~= u16"65535")
+      * - assert(U16.Max =~ u16"65535")
 
-      * - assert(U16.Name =~= "U16")
+      * - assert(U16.Name =~ "U16")
 
       val x = u16"14"
 
-      * - assert(x.toIndex =~= z"14")
+      * - assert(x.toIndex =~ z"14")
 
       * - assert(!x.isSigned)
 
@@ -232,21 +232,21 @@ class BitsTest extends TestSuite {
 
       * - assert(x.isWrapped)
 
-      * - assert(x.BitWidth =~= 16)
+      * - assert(x.BitWidth =~ 16)
 
-      * - assert(x.Index =~= u16"0")
+      * - assert(x.Index =~ u16"0")
 
-      * - assert(x.Min =~= u16"0")
+      * - assert(x.Min =~ u16"0")
 
-      * - assert(x.Max =~= u16"65535")
+      * - assert(x.Max =~ u16"65535")
 
-      * - assert(x.Name =~= "U16")
+      * - assert(x.Name =~ "U16")
 
-      * - assert(x.value =~= 14L)
+      * - assert(x.value =~ 14L)
 
-      * - assert(x - u16"15" =~= U16.Max)
+      * - assert(x - u16"15" =~ U16.Max)
 
-      * - assert(x + U16.Max =~= x.decrease)
+      * - assert(x + U16.Max =~ x.decrease)
 
       * - {
         for (_ <- 0 until numOfRandomTests) {
@@ -276,7 +276,7 @@ class BitsTest extends TestSuite {
             while (m == 0 && (op == "/" || op == "%")) m = rand()
             val un = UShort(n)
             val um = UShort(m)
-            assert(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
+            assert(op1(U16(n))(U16(m)).toBigInt =~ op2(un)(um).toBigInt)
           }
         }
       }
@@ -292,7 +292,7 @@ class BitsTest extends TestSuite {
             val m = rand()
             val un = UShort(n)
             val um = m.toInt
-            assert(op1(U16(n))(U16(m)).toBigInt =~= op2(un)(um).toBigInt)
+            assert(op1(U16(n))(U16(m)).toBigInt =~ op2(un)(um).toBigInt)
           }
         }
       }
@@ -312,7 +312,7 @@ class BitsTest extends TestSuite {
             val m = rand()
             val un = UShort(n)
             val um = UShort(m)
-            assert(op1(U16(n))(U16(m)).value =~= op2(un)(um))
+            assert(op1(U16(n))(U16(m)).value =~ op2(un)(um))
           }
         }
       }
@@ -333,15 +333,15 @@ class BitsTest extends TestSuite {
 
       * - assert(!S16_m2.isWrapped)
 
-      * - assert(S16_m2.BitWidth =~= 16)
+      * - assert(S16_m2.BitWidth =~ 16)
 
-      * - assert(S16_m2.Index =~= s16_m2"-2")
+      * - assert(S16_m2.Index =~ s16_m2"-2")
 
-      * - assert(S16_m2.Min =~= s16_m2"-2")
+      * - assert(S16_m2.Min =~ s16_m2"-2")
 
-      * - assert(S16_m2.Max =~= s16_m2"32767")
+      * - assert(S16_m2.Max =~ s16_m2"32767")
 
-      * - assert(S16_m2.Name =~= "S16_m2")
+      * - assert(S16_m2.Name =~ "S16_m2")
 
       * - {
         val s = IS[S16_m2, Z](1, 2)
@@ -355,7 +355,7 @@ class BitsTest extends TestSuite {
 
       val x = s16_m2"14"
 
-      * - assert(x.toIndex =~= z"16")
+      * - assert(x.toIndex =~ z"16")
 
       * - assert(x.isSigned)
 
@@ -367,19 +367,19 @@ class BitsTest extends TestSuite {
 
       * - assert(!x.isWrapped)
 
-      * - assert(x.BitWidth =~= 16)
+      * - assert(x.BitWidth =~ 16)
 
-      * - assert(x.Index =~= s16_m2"-2")
+      * - assert(x.Index =~ s16_m2"-2")
 
-      * - assert(x.Min =~= s16_m2"-2")
+      * - assert(x.Min =~ s16_m2"-2")
 
-      * - assert(x.Max =~= s16_m2"32767")
+      * - assert(x.Max =~ s16_m2"32767")
 
-      * - assert(x.Name =~= "S16_m2")
+      * - assert(x.Name =~ "S16_m2")
 
-      * - assert(x.value =~= 14L)
+      * - assert(x.value =~ 14L)
 
-      * - assert(x - s16_m2"15" =~= s16_m2"-1")
+      * - assert(x - s16_m2"15" =~ s16_m2"-1")
 
       * - assert(Try(x + S16_m2.Max).isFailure)
 
@@ -409,7 +409,7 @@ class BitsTest extends TestSuite {
             while (m == 0 && (op == "/" || op == "%")) m = rand()
             val br = op2(n)(m).toShort.toInt
             Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
-              case Success(r) => assert(r =~= br)
+              case Success(r) => assert(r =~ br)
               case Failure(_) =>
                 assert(
                   !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt))
@@ -429,7 +429,7 @@ class BitsTest extends TestSuite {
             val m = rand()
             val br = op2(n)(m).toShort.toInt
             Try(op1(S16_m2(n))(S16_m2(m)).toBigInt.toShort) match {
-              case Success(r) => assert(r =~= br)
+              case Success(r) => assert(r =~ br)
               case Failure(_) =>
                 assert(
                   !(S16_m2.Min.toBigInt <= br && br <= S16_m2.Max.toBigInt))
@@ -451,7 +451,7 @@ class BitsTest extends TestSuite {
           for (_ <- 0 until numOfRandomTests) {
             val n = rand()
             val m = rand()
-            assert(op1(S16_m2(n))(S16_m2(m)).value =~= op2(n)(m))
+            assert(op1(S16_m2(n))(S16_m2(m)).value =~ op2(n)(m))
           }
         }
       }

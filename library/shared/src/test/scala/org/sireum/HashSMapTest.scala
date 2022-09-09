@@ -31,36 +31,36 @@ class HashSMapTest extends TestSuite {
 
   val tests = Tests {
 
-    * - assert(HashSMap.empty[String, Z].size =~= z"0")
+    * - assert(HashSMap.empty[String, Z].size =~ z"0")
 
-    * - assert(HashSMap.empty[String, Z].get("a") =~= None())
+    * - assert(HashSMap.empty[String, Z].get("a") =~ None())
 
-    * - assert(HashSMap.empty[String, Z].+("a", 1).get("a") =~= Some(1))
+    * - assert(HashSMap.empty[String, Z].+("a", 1).get("a") =~ Some(1))
 
-    * - assert(HashSMap.empty[String, Z].+("a", 1).get("A") =~= None())
-
-    * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~= Some(2))
+    * - assert(HashSMap.empty[String, Z].+("a", 1).get("A") =~ None())
 
     * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~= Some(1))
+      HashSMap.empty[String, Z].+("a", 1).+("a", 2).get("a") =~ Some(2))
 
     * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~= Some(2))
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("a") =~ Some(1))
 
     * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("b", 2) =~= HashSMap
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).get("b") =~ Some(2))
+
+    * - assert(
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2) =~ HashSMap
         .empty[String, Z]
         .+("b", 2)
         .+("a", 1))
 
     * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~= HashSMap
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("a", 1) =~ HashSMap
         .empty[String, Z]
         .+("b", 2))
 
     * - assert(
-      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~= HashSMap
+      HashSMap.empty[String, Z].+("a", 1).+("b", 2).-("b", 2) =~ HashSMap
         .empty[String, Z]
         .+("a", 1))
 
@@ -69,7 +69,7 @@ class HashSMapTest extends TestSuite {
         .empty[String, Z]
         .+("a", 1)
         .+("b", 2)
-        .--(ISZ("a", "b")) =~= HashSMap.empty[String, Z])
+        .--(ISZ("a", "b")) =~ HashSMap.empty[String, Z])
 
   }
 
