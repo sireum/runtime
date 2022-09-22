@@ -122,6 +122,7 @@ object Module {
       ivy"org.ow2.asm:asm:$asmVersion",
       ivy"org.antlr:antlr-runtime:$antlr3Version",
       ivy"org.sireum:automaton:$automatonVersion",
+      ivy"org.sireum:presentasi-jfx:$presentasiJfxVersion",
     )
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps

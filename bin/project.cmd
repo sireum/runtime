@@ -69,7 +69,8 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "io.get-coursier::coursier:",
     "org.ow2.asm:asm:",
     "org.antlr:antlr-runtime:",
-    "org.sireum:automaton:"
+    "org.sireum:automaton:",
+    "org.sireum:presentasi-jfx:",
   ),
   pubOpt = pub(
     desc = "Slang Runtime Library",
