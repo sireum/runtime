@@ -36,23 +36,23 @@ object Option {
 @datatype trait Option[T] {
 
   @pure def isEmpty: B = Contract.Only(
-    Ensures(Res == (this == None[T]()))
+    Ensures((this =~= None[T]()) === Res)
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(Res == !isEmpty)
+    Ensures(!isEmpty === Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == None[T2]())
+      Ensures(None[T2]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == Some(f(get)))
+      Ensures(Some(f(get)) =~= Res)
     )
   )
 
@@ -60,12 +60,12 @@ object Option {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == None[T2]())
+      Ensures(None[T2]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) =~= Res)
     )
   )
 
@@ -73,12 +73,12 @@ object Option {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == T)
+      Ensures(Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) === Res)
     )
   )
 
@@ -86,30 +86,30 @@ object Option {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == F)
+      Ensures(!Res[B])
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) === Res)
     )
   )
 
   @pure def get: T = Contract.Only(
     Requires(nonEmpty),
-    Ensures(Some(Res) == this)
+    Ensures(this =~= Some(Res))
   )
 
   @pure def getOrElse(default: => T): T = Contract.Only(
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == default)
+      Ensures(default =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Some(Res) == this)
+      Ensures(this =~= Some(Res))
     )
   )
 
@@ -117,12 +117,12 @@ object Option {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == default)
+      Ensures(default =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Some(Res) == this)
+      Ensures(this =~= Some(Res))
     )
   )
 
@@ -130,12 +130,12 @@ object Option {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == ISZ[T]())
+      Ensures(ISZ[T]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == ISZ[T](get))
+      Ensures(ISZ[T](get) =~= Res)
     )
   )
 
@@ -155,12 +155,12 @@ object Option {
   }
 
   @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
-    Contract(Ensures(Res == None[T2]()))
+    Contract(Ensures(None[T2]() =~= Res))
     return None[T2]()
   }
 
   @pure override def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    Contract(Ensures(Res == None[T2]()))
+    Contract(Ensures(None[T2]() =~= Res))
     return None[T2]()
   }
 
@@ -175,12 +175,12 @@ object Option {
   }
 
   @pure override def getOrElse(default: => T): T = {
-    Contract(Ensures(Res == default))
+    Contract(Ensures(default =~= Res))
     return default
   }
 
   @pure override def getOrElseEager(default: T): T = {
-    Contract(Ensures(Res == default))
+    Contract(Ensures(default =~= Res))
     return default
   }
 
@@ -190,7 +190,7 @@ object Option {
   }
 
   @pure override def toIS: IS[Z, T] = {
-    Contract(Ensures(Res[ISZ[T]].size == 0))
+    Contract(Ensures(ISZ[T]() == Res))
     return IS[Z, T]()
   }
 
@@ -210,42 +210,42 @@ object Option {
   }
 
   @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
-    Contract(Ensures(Res == Some(f(value))))
+    Contract(Ensures(Some(f(value)) =~= Res))
     return Some(f(value))
   }
 
   @pure override def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) =~= Res))
     return f(value)
   }
 
   @pure override def forall(f: T => B @pure): B = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) === Res))
     return f(value)
   }
 
   @pure override def exists(f: T => B @pure): B = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) === Res))
     return f(value)
   }
 
   @pure override def getOrElse(default: => T): T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def getOrElseEager(default: T): T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def get: T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def toIS: IS[Z, T] = {
-    Contract(Ensures(Res == ISZ(value)))
+    Contract(Ensures(ISZ(value) =~= Res))
     return ISZ(value)
   }
 

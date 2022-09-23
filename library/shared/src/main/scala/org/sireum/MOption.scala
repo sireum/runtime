@@ -37,23 +37,23 @@ object MOption {
 @record trait MOption[T] {
 
   @pure def isEmpty: B = Contract.Only(
-    Ensures(Res == (this == MNone[T]()))
+    Ensures((this =~= MNone[T]()) === Res)
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(Res == !isEmpty)
+    Ensures(!isEmpty === Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): MOption[T2] = Contract.Only(
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == MNone[T2]())
+      Ensures(MNone[T2]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == MSome(f(get)))
+      Ensures(MSome(f(get)) =~= Res)
     )
   )
 
@@ -61,12 +61,12 @@ object MOption {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == MNone[T2]())
+      Ensures(MNone[T2]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) =~= Res)
     )
   )
 
@@ -74,12 +74,12 @@ object MOption {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == T)
+      Ensures(Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) === Res)
     )
   )
 
@@ -87,30 +87,30 @@ object MOption {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == F)
+      Ensures(!Res[B])
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == f(get))
+      Ensures(f(get) === Res)
     )
   )
 
   @pure def get: T = Contract.Only(
     Requires(nonEmpty),
-    Ensures(MSome(Res) == this)
+    Ensures(this =~= MSome(Res))
   )
 
   @pure def getOrElse(default: => T): T = Contract.Only(
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == default)
+      Ensures(default =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(MSome(Res) == this)
+      Ensures(this =~= MSome(Res))
     )
   )
 
@@ -118,12 +118,12 @@ object MOption {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == default)
+      Ensures(default =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(MSome(Res) == this)
+      Ensures(this =~= MSome(Res))
     )
   )
 
@@ -131,12 +131,12 @@ object MOption {
     Case(
       "Empty",
       Requires(isEmpty),
-      Ensures(Res == MSZ[T]())
+      Ensures(MSZ[T]() =~= Res)
     ),
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(Res == MSZ[T](get))
+      Ensures(MSZ[T](get) =~= Res)
     )
   )
 
@@ -156,12 +156,12 @@ object MOption {
   }
 
   @pure override def map[T2](f: T => T2 @pure): MOption[T2] = {
-    Contract(Ensures(Res == MNone[T2]()))
+    Contract(Ensures(MNone[T2]() =~= Res))
     return MNone[T2]()
   }
 
   @pure override def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-    Contract(Ensures(Res == MNone[T2]()))
+    Contract(Ensures(MNone[T2]() =~= Res))
     return MNone[T2]()
   }
 
@@ -176,12 +176,12 @@ object MOption {
   }
 
   @pure override def getOrElse(default: => T): T = {
-    Contract(Ensures(Res == default))
+    Contract(Ensures(default =~= Res))
     return default
   }
 
   @pure override def getOrElseEager(default: T): T = {
-    Contract(Ensures(Res == default))
+    Contract(Ensures(default =~= Res))
     return default
   }
 
@@ -191,7 +191,7 @@ object MOption {
   }
 
   @pure override def toMS: MS[Z, T] = {
-    Contract(Ensures(Res[MSZ[T]].size == 0))
+    Contract(Ensures(MSZ[T]() === Res))
     return MS[Z, T]()
   }
 
@@ -211,42 +211,42 @@ object MOption {
   }
 
   @pure override def map[T2](f: T => T2 @pure): MOption[T2] = {
-    Contract(Ensures(Res == MSome(f(value))))
+    Contract(Ensures(MSome(f(value)) =~= Res))
     return MSome(f(value))
   }
 
   @pure override def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) =~= Res))
     return f(value)
   }
 
   @pure override def forall(f: T => B @pure): B = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) === Res))
     return f(value)
   }
 
   @pure override def exists(f: T => B @pure): B = {
-    Contract(Ensures(Res == f(value)))
+    Contract(Ensures(f(value) === Res))
     return f(value)
   }
 
   @pure override def getOrElse(default: => T): T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def getOrElseEager(default: T): T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def get: T = {
-    Contract(Ensures(Res == value))
+    Contract(Ensures(value =~= Res))
     return value
   }
 
   @pure override def toMS: MS[Z, T] = {
-    Contract(Ensures(Res == MSZ(value)))
+    Contract(Ensures(MSZ(value) =~= Res))
     return MSZ(value)
   }
 

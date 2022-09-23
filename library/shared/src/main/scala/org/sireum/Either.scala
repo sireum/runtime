@@ -28,7 +28,7 @@ package org.sireum
 
 @datatype trait Either[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(Res == ∃{e: L => Either.Left[L, R](e) == this}))
+  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => Either.Left[L, R](e) =~= this} === Res))
 
   @pure def isRight: B = Contract.Only(Ensures(!isLeft))
 
@@ -36,36 +36,36 @@ package org.sireum
     Case(
       "Left",
       Requires(isLeft),
-      Ensures(Either.Left[L, R](Res[Option[L]].get) == this)
+      Ensures(this =~= Either.Left[L, R](Res[Option[L]].get))
     ),
     Case(
       "Right",
       Requires(isRight),
-      Ensures(Res == None[L]())
+      Ensures(None[L]() =~= Res)
     ),
   )
 
   @pure def left: L = Contract.Only(
     Requires(isLeft),
-    Ensures(Either.Left[L, R](Res) == this)
+    Ensures(this =~= Either.Left[L, R](Res))
   )
 
   @pure def rightOpt: Option[R] = Contract.Only(
     Case(
       "Left",
       Requires(isLeft),
-      Ensures(Res == None[R]())
+      Ensures(None[R]() =~= Res)
     ),
     Case(
       "Right",
       Requires(isRight),
-      Ensures(Either.Right[L, R](Res[Option[R]].get) == this)
+      Ensures(this =~= Either.Right[L, R](Res[Option[R]].get))
     )
   )
 
   @pure def right: R = Contract.Only(
     Requires(isRight),
-    Ensures(Either.Right[L, R](Res) == this)
+    Ensures(this =~= Either.Right[L, R](Res))
   )
 }
 
@@ -84,17 +84,17 @@ object Either {
     }
 
     @pure override def leftOpt: Option[L] = {
-      Contract(Ensures(Res == Some(value)))
+      Contract(Ensures(Some(value) =~= Res))
       return Some(value)
     }
 
     @pure override def left: L = {
-      Contract(Ensures(Res == value))
+      Contract(Ensures(value =~= Res))
       return value
     }
 
     @pure override def rightOpt: Option[R] = {
-      Contract(Ensures(Res == None[R]()))
+      Contract(Ensures(None[R]() =~= Res))
       return None()
     }
 
@@ -118,7 +118,7 @@ object Either {
     }
 
     @pure override def leftOpt: Option[L] = {
-      Contract(Ensures(Res == None[L]()))
+      Contract(Ensures(None[L]() =~= Res))
       return None()
     }
 
@@ -128,12 +128,12 @@ object Either {
     }
 
     @pure override def rightOpt: Option[R] = {
-      Contract(Ensures(Res == Some(value)))
+      Contract(Ensures(Some(value) =~= Res))
       return Some(value)
     }
 
     @pure override def right: R = {
-      Contract(Ensures(Res == value))
+      Contract(Ensures(value =~= Res))
       return value
     }
 

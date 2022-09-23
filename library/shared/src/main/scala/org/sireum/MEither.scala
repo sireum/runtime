@@ -28,7 +28,7 @@ package org.sireum
 
 @record trait MEither[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(Res == ∃{e: L => MEither.Left[L, R](e) == this}))
+  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => this =~= MEither.Left[L, R](e) } === Res))
 
   @pure def isRight: B = Contract.Only(Ensures(!isLeft))
 
@@ -36,30 +36,30 @@ package org.sireum
     Case(
       "Left",
       Requires(isLeft),
-      Ensures(MEither.Left[L, R](Res[MOption[L]].get) == this)
+      Ensures(this =~= MEither.Left[L, R](Res[MOption[L]].get))
     ),
     Case(
       "Right",
       Requires(isRight),
-      Ensures(Res == MNone[L]())
+      Ensures(MNone[L]() =~= Res)
     ),
   )
 
   @pure def left: L = Contract.Only(
     Requires(isLeft),
-    Ensures(MEither.Left[L, R](Res) == this)
+    Ensures(this =~= MEither.Left[L, R](Res))
   )
 
   @pure def rightOpt: MOption[R] = Contract.Only(
     Case(
       "Left",
       Requires(isLeft),
-      Ensures(Res == MNone[R]())
+      Ensures(MNone[R]() =~= Res)
     ),
     Case(
       "Right",
       Requires(isRight),
-      Ensures(MEither.Right[L, R](Res[MOption[R]].get) == this)
+      Ensures(this =~= MEither.Right[L, R](Res[MOption[R]].get))
     )
   )
 
@@ -81,17 +81,17 @@ object MEither {
     }
 
     @pure override def leftOpt: MOption[L] = {
-      Contract(Ensures(Res == MSome(value)))
+      Contract(Ensures(MSome(value) =~= Res))
       return MSome(value)
     }
 
     @pure override def left: L = {
-      Contract(Ensures(Res == value))
+      Contract(Ensures(value =~= Res))
       return value
     }
 
     @pure override def rightOpt: MOption[R] = {
-      Contract(Ensures(Res == MNone[R]()))
+      Contract(Ensures(MNone[R]() =~= Res))
       return MNone()
     }
 
@@ -115,7 +115,7 @@ object MEither {
     }
 
     @pure override def leftOpt: MOption[L] = {
-      Contract(Ensures(Res == MNone[L]()))
+      Contract(Ensures(MNone[L]() =~= Res))
       return MNone()
     }
 
@@ -125,12 +125,12 @@ object MEither {
     }
 
     @pure override def rightOpt: MOption[R] = {
-      Contract(Ensures(Res == MSome(value)))
+      Contract(Ensures(MSome(value) =~= Res))
       return MSome(value)
     }
 
     @pure override def right: R = {
-      Contract(Ensures(Res == value))
+      Contract(Ensures(value =~= Res))
       return value
     }
 
