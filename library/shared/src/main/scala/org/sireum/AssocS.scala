@@ -46,27 +46,27 @@ object AssocS {
     type Type[K, V] = ISZ[(K, V)]
 
     @strictpure def uniqueKeys[K, V](entries: Entries.Type[K, V]): B =
-      ∀(entries.indices)(i => ∀(entries.indices)(j => (i != j) ->: (entries(i)._1 != entries(j)._1)))
+      ∀(entries.indices)(i => ∀(entries.indices)(j => (i != j) ->: (entries(i)._1 =!= entries(j)._1)))
 
-    @strictpure def contain[K, V](entries: Entries.Type[K, V], kv: (K, V)): B = ∃(entries.indices)(j => kv == entries(j))
+    @strictpure def contain[K, V](entries: Entries.Type[K, V], kv: (K, V)): B = ∃(entries.indices)(j => kv === entries(j))
 
-    @strictpure def containKey[K, V](entries: Entries.Type[K, V], key: K): B = ∃(entries.indices)(j => key == entries(j)._1)
+    @strictpure def containKey[K, V](entries: Entries.Type[K, V], key: K): B = ∃(entries.indices)(j => key === entries(j)._1)
 
-    @strictpure def containValue[K, V](entries: Entries.Type[K, V], value: V): B = ∃(entries.indices)(j => value == entries(j)._2)
+    @strictpure def containValue[K, V](entries: Entries.Type[K, V], value: V): B = ∃(entries.indices)(j => value === entries(j)._2)
 
     @strictpure def keyIndexOfFrom[K, V](entries: Entries.Type[K, V], key: K, from: Z): Z =
       if (from < 0 | from >= entries.size) -1
-      else if (entries(from)._1 == key) from
+      else if (entries(from)._1 === key) from
       else keyIndexOfFrom(entries, key, from + 1)
 
     @strictpure def valueIndexOfFrom[K, V](entries: Entries.Type[K, V], value: V, from: Z): Z =
       if (from < 0 | from >= entries.size) -1
-      else if (entries(from)._2 == value) from
+      else if (entries(from)._2 === value) from
       else valueIndexOfFrom(entries, value, from + 1)
 
     @strictpure def indexOfFrom[K, V](entries: Entries.Type[K, V], kv: (K, V), from: Z): Z =
       if (from < 0 | from >= entries.size) -1
-      else if (entries(from)== kv) from
+      else if (entries(from) === kv) from
       else indexOfFrom(entries, kv, from + 1)
 
     @pure def keys[K, V](entries: Entries.Type[K, V]): Keys[K] = {
@@ -75,7 +75,8 @@ object AssocS {
           uniqueKeys(entries)
         ),
         Ensures(
-          SeqUtil.IS.pair1Eq(entries, Res),
+          entries.size === Res[Keys[K]].size,
+          ∀(entries.indices)(i => entries(i)._1 =~= Res[Keys[K]](i)),
           SeqUtil.IS.unique(Res),
         )
       )
@@ -86,8 +87,8 @@ object AssocS {
           Modifies(r, i),
           0 <= i,
           i <= entries.size,
-          i == r.size,
-          ∀(0 until i)(j => r(j) == entries(j)._1)
+          i === r.size,
+          ∀(0 until i)(j => r(j) =~= entries(j)._1)
         )
         r = r :+ entries(i)._1
         i = i + 1
@@ -100,7 +101,10 @@ object AssocS {
         Requires(
           uniqueKeys(entries)
         ),
-        Ensures(SeqUtil.IS.pair2Eq(entries, Res))
+        Ensures(
+          entries.size === Res[Values[V]].size,
+          ∀(entries.indices)(i => entries(i)._2 =~= Res[Values[V]](i))
+        )
       )
       var r = ISZ[V]()
       var i: Z = 0
@@ -109,8 +113,8 @@ object AssocS {
           Modifies(r, i),
           0 <= i,
           i <= entries.size,
-          i == r.size,
-          ∀(0 until i)(j => r(j) == entries(j)._2)
+          i === r.size,
+          ∀(0 until i)(j => r(j) =~= entries(j)._2)
         )
         r = r :+ entries(i)._2
         i = i + 1
@@ -125,7 +129,7 @@ object AssocS {
         ),
         Ensures(
           uniqueKeys(Res),
-          Res[Entries.Type[K, V]].size == entries.size | Res[Entries.Type[K, V]].size == entries.size + 1,
+          Res[Entries.Type[K, V]].size === entries.size | Res[Entries.Type[K, V]].size === entries.size + 1,
           contain(Res, p),
           ∀(Res[Entries.Type[K, V]].indices)(j => (Res[Entries.Type[K, V]](j) != p) ->: contain(entries, Res[Entries.Type[K, V]](j))),
           ∀(entries.indices)(j => (entries(j)._1 != p._1) ->: contain(Res[Entries.Type[K, V]], entries(j))),
@@ -137,11 +141,11 @@ object AssocS {
         val r = entries :+ ((key, value))
         Deduce(
           //@formatter:off
-          (r(r.size - 1) === p)                                              by Auto,
-          contain(r, p)                                                      by Auto,
-          uniqueKeys(r)                                                      by Auto,
-          ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))          by Auto,
-          ∀(entries.indices)(j => contain(r, entries(j)))                    by Auto,
+          (r(r.size - 1) === p)                                               by Auto,
+          contain(r, p)                                                       by Auto,
+          uniqueKeys(r)                                                       by Auto,
+          ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
+          ∀(entries.indices)(j => contain(r, entries(j)))                     by Auto,
           //@formatter:on
         )
         r
@@ -149,11 +153,11 @@ object AssocS {
         val r = entries(index ~> p)
         Deduce(
           //@formatter:off
-          (r(index) === p)                                                   by Auto,
-          contain(r, p)                                                      by Auto,
-          uniqueKeys(r)                                                      by Auto,
-          ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))          by Auto,
-          ∀(entries.indices)(j => (index != j) ->: contain(r, entries(j)))   by Auto,
+          (r(index) === p)                                                    by Auto,
+          contain(r, p)                                                       by Auto,
+          uniqueKeys(r)                                                       by Auto,
+          ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
+          ∀(entries.indices)(j => (index =!= j) ->: contain(r, entries(j)))   by Auto,
           //@formatter:on
         )
         r
@@ -172,7 +176,7 @@ object AssocS {
           Ensures(
             0 <= Res[Z],
             Res[Z] < entries.size,
-            entries(Res[Z])._1 == key
+            entries(Res[Z])._1 === key
           )
         ),
         Case(
@@ -181,7 +185,7 @@ object AssocS {
             uniqueKeys(entries),
             !containKey(entries, key)
           ),
-          Ensures(Res[Z] == -1)
+          Ensures(Res[Z] === -1)
         )
       )
       var index: Z = -1
@@ -191,10 +195,10 @@ object AssocS {
           Modifies(index, i),
           0 <= i,
           i <= entries.size,
-          (index != -1) ->: (0 <= index & index < entries.size & entries(index)._1 == key),
+          (index != -1) ->: (0 <= index & index < entries.size & entries(index)._1 === key),
           (index == -1) ->: ∀(0 until i)(j => key != entries(j)._1)
         )
-        if (entries(i)._1 == key) {
+        if (entries(i)._1 === key) {
           index = i
           i = entries.size - 1
         }
@@ -210,8 +214,8 @@ object AssocS {
         ),
         Ensures(
           uniqueKeys(Res),
-          Res[Entries.Type[K, V]].size == entries.size | Res[Entries.Type[K, V]].size == entries.size - 1,
-          ∀(Res[Entries.Type[K, V]].indices)(j => Res[Entries.Type[K, V]](j) != p & contain(entries, Res[Entries.Type[K, V]](j))),
+          Res[Entries.Type[K, V]].size === entries.size | Res[Entries.Type[K, V]].size === entries.size - 1,
+          ∀(Res[Entries.Type[K, V]].indices)(j => Res[Entries.Type[K, V]](j) =!= p & contain(entries, Res[Entries.Type[K, V]](j))),
           ∀(entries.indices)(j => (entries(j) != p) ->: contain(Res[Entries.Type[K, V]], entries(j))),
         )
       )
@@ -222,11 +226,11 @@ object AssocS {
           Modifies(i, newEntries),
           0 <= i,
           i <= entries.size,
-          ∀(newEntries.indices)(j => ∀(i until entries.size)(k => newEntries(j)._1 != entries(k)._1)),
+          ∀(newEntries.indices)(j => ∀(i until entries.size)(k => newEntries(j)._1 =!= entries(k)._1)),
           ∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j))),
-          ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1),
-          ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i),
-          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))),
+          ∃(0 until i)(j => p === entries(j)) ->: (newEntries.size === i - 1),
+          ∀(0 until i)(j => p =!= entries(j)) ->: (newEntries.size === i),
+          ∀(0 until i)(j => (p =!= entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))),
           uniqueKeys(newEntries),
         )
         val kv = entries(i)
@@ -248,7 +252,8 @@ object AssocS {
   @pure def keys: ISZ[K] = {
     Contract(
       Ensures(
-        SeqUtil.IS.pair1Eq(entries, Res),
+        entries.size === Res[ISZ[K]].size,
+        ∀(entries.indices)(i => entries(i)._1 =~= Res[ISZ[K]](i)),
         SeqUtil.IS.unique(Res),
       )
     )
@@ -256,7 +261,12 @@ object AssocS {
   }
 
   @pure def values: ISZ[V] = {
-    Contract(Ensures(SeqUtil.IS.pair2Eq(entries, Res)))
+    Contract(
+      Ensures(
+        entries.size === Res[ISZ[V]].size,
+        ∀(entries.indices)(i => entries(i)._2 =~= Res[ISZ[V]](i))
+      )
+    )
     return AssocS.Entries.values(entries)
   }
 
@@ -267,12 +277,12 @@ object AssocS {
   @pure def +(p: (K, V)): AssocS[K, V] = {
     Contract(
       Ensures(
-        AssocS.entriesOf(Res).size == entries.size | AssocS.entriesOf(Res).size == entries.size + 1,
+        AssocS.entriesOf(Res).size === entries.size | AssocS.entriesOf(Res).size === entries.size + 1,
         AssocS.Entries.contain(AssocS.entriesOf(Res), p),
         ∀(AssocS.entriesOf(Res).indices)(j =>
-          (AssocS.entriesOf(Res)(j) != p) ->: AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
+          (AssocS.entriesOf(Res)(j) =!= p) ->: AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
+          (entries(j)._1 =!= p._1) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
       )
     )
     return AssocS(AssocS.Entries.add(entries, p))
@@ -291,12 +301,12 @@ object AssocS {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Res == Some(entries(j)._2))))
+        Ensures(∃(entries.indices)(j => (key === entries(j)._1) & (Some(entries(j)._2) =~= Res)))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(Res == None[V]())
+        Ensures(None[V]() =~= Res)
       )
     )
     val index = indexOf(key)
@@ -314,12 +324,12 @@ object AssocS {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(AssocS.Entries.containValue(entries, Res))
+        Ensures(AssocS.Entries.contain(entries, (key, Res)))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(Res == default)
+        Ensures(default =~= Res)
       )
     )
     val index = indexOf(key)
@@ -331,12 +341,12 @@ object AssocS {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => Res == Some(entries(j))))
+        Ensures(∃(entries.indices)(j => Some(entries(j)) =~= Res & entries(j)._1 === key))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(Res == None[(K, V)]())
+        Ensures(None[(K, V)]() =~= Res)
       )
     )
     val index = indexOf(key)
@@ -352,13 +362,13 @@ object AssocS {
         Ensures(
           0 <= Res[Z],
           Res[Z] < entries.size,
-          entries(Res[Z])._1 == key
+          entries(Res[Z])._1 === key
         )
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(Res[Z] == -1)
+        Ensures(Res[Z] === -1)
       )
     )
     return AssocS.Entries.indexOf(entries, key)
@@ -382,33 +392,33 @@ object AssocS {
   @pure def -(p: (K, V)): AssocS[K, V] = {
     Contract(
       Ensures(
-        AssocS.entriesOf(Res).size == entries.size | AssocS.entriesOf(Res).size == entries.size - 1,
+        AssocS.entriesOf(Res).size === entries.size | AssocS.entriesOf(Res).size === entries.size - 1,
         ∀(AssocS.entriesOf(Res).indices)(j =>
-          AssocS.entriesOf(Res)(j) != p & AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
+          AssocS.entriesOf(Res)(j) =!= p & AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j) != p) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
+          (entries(j) =!= p) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
       )
     )
     return AssocS(AssocS.Entries.remove(entries, p))
   }
 
   @pure def contains(key: K): B = {
-    Contract(Ensures(Res == AssocS.Entries.containKey(entries, key)))
+    Contract(Ensures(AssocS.Entries.containKey(entries, key) === Res))
     return indexOf(key) >= 0
   }
 
   @pure def isEmpty: B = {
-    Contract(Ensures(Res == (entries.size == 0)))
+    Contract(Ensures((entries.size === 0) === Res))
     return size == z"0"
   }
 
   @pure def nonEmpty: B = {
-    Contract(Ensures(Res != (entries.size == 0)))
+    Contract(Ensures((entries.size === 0) =!= Res))
     return size != z"0"
   }
 
   @pure def size: Z = {
-    Contract(Ensures(Res == entries.size))
+    Contract(Ensures(entries.size === Res))
     return entries.size
   }
 

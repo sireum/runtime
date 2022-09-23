@@ -29,15 +29,8 @@ object SeqUtil {
 
   object IS {
 
-    @strictpure def sizeEq[I, T](s: IS[I, T], size: Z): B = s.size == size
-
     @strictpure def unique[I, T](s: IS[I, T]): B = ∀(s.indices)(i => ∀(s.indices)(j => (i != j) ->: (s(i) != s(j))))
 
-    @strictpure def pair1Eq[I, T1, T2](s1: IS[I, (T1, T2)], s2: IS[I, T1]): B =
-      sizeEq(s1, s2.size) && ∀(s1.indices)(i => s1(i)._1 == s2(i))
-
-    @strictpure def pair2Eq[I, T1, T2](s1: IS[I, (T1, T2)], s2: IS[I, T2]): B =
-      sizeEq(s1, s2.size) && ∀(s1.indices)(i => s1(i)._2 == s2(i))
   }
 
 
