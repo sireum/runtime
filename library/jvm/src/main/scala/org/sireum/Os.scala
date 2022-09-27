@@ -72,7 +72,7 @@ object Os {
   }
 
   @pure def kind: Kind.Type = {
-    return Ext.os
+    return Ext.osKind
   }
 
   @pure def lineSep: String = {
@@ -798,7 +798,7 @@ object Os {
 
     @pure def pathSepChar: C = $
 
-    @pure def os: Kind.Type = $
+    @pure def osKind: Kind.Type = $
 
     @pure def roots: ISZ[String] = $
 

@@ -75,10 +75,10 @@ object Os_Ext {
 
   lazy val hasWget: B = proc"wget --version".run().ok
 
-  lazy val os: Os.Kind.Type =
+  lazy val osKind: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
-      if (proc"uname -m".run().out.value.trim == "aarch64") Os.Kind.LinuxArm
+      if (new Predef.String(os.proc("uname", "-m").call().out.bytes, "UTF-8").trim == "aarch64") Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
@@ -98,7 +98,7 @@ object Os_Ext {
   def cliArgs: ISZ[String] = App.args
 
   def chmod(path: String, mask: String, all: B): Unit = {
-    if (os == Os.Kind.Win) return
+    if (osKind == Os.Kind.Win) return
     val p = path.value.replace(' ', '␣')
     if (all) proc"""sh -c chmod␣-fR␣$mask␣"$p"""".run()
     else proc"""sh -c chmod␣$mask␣"$p"""".run()
@@ -563,7 +563,7 @@ object Os_Ext {
   def removeAll(path: String): Unit = if (exists(path)) {
     val p = path.value.replace(' ', '␣')
     if (isDir(path)) {
-      os match {
+      osKind match {
         case Os.Kind.Win => proc"""cmd /c RD /S /Q $p""".run()
         case _ => proc"""sh -c rm␣-fR␣"$p"""".run()
       }
@@ -849,7 +849,7 @@ object Os_Ext {
   def proc(pr: Os.Proc): Os.Proc.Result = {
     val p: Os.Proc =
       if (pr.isScript)
-        if (os == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
+        if (osKind == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
         else pr(cmds = "sh" +: pr.cmds)
       else pr
     def standardLib(): Os.Proc.Result = {
