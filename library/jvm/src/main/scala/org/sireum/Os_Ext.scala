@@ -973,11 +973,11 @@ object Os_Ext {
       } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
-      val useStandardLib = isNative || p.shouldUseStandardLib || osKind match {
+      val useStandardLib = isNative || p.shouldUseStandardLib || (osKind match {
         case Os.Kind.LinuxArm => T
         case Os.Kind.Unsupported => T
         case _ => F
-      }
+      })
       if (useStandardLib) {
         standardLib()
       } else {
