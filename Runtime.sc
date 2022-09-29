@@ -123,6 +123,7 @@ object Module {
       ivy"org.antlr:antlr-runtime:$antlr3Version",
       ivy"org.sireum:automaton:$automatonVersion",
       ivy"org.sireum:presentasi-jfx:$presentasiJfxVersion",
+      ivy"org.scalameta::scalafmt-cli:$scalafmtVersion"
     )
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
