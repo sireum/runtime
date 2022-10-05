@@ -57,7 +57,7 @@ trait SireumSpec extends AnyFreeSpec {
   }
 
   implicit class StringEq(s: String) {
-    def =~=(other: String): Boolean =
+    def =~(other: String): Boolean =
       s.trim().replaceAll("\\s+", " ").equalsIgnoreCase(other.trim().replaceAll("\\s+", " "))
   }
 }
