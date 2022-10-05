@@ -111,8 +111,8 @@ object CircularQueue {
       queue.isInBound(rear) &
       0 <= numOfElements &
       numOfElements <= max &
-      (rear >= front) === (numOfElements == rear - front) &
-      (rear < front) === (numOfElements == rear + queue.size - front) &
+      (rear >= front) == (numOfElements == rear - front) &
+      (rear < front) == (numOfElements == rear + queue.size - front) &
       (scrub ->: All(0 until queue.size - numOfElements)(i => queue(modPos(rear + i, queue.size)) == default))
 
   @strictpure def refinement[@mut E](rep: MSZ[E], queue: MSZ[E], numOfElements: Z, front: Z): B =
@@ -309,8 +309,8 @@ object CircularQueue {
         Ensures(
           queue(In(rear)) == element,
           rear == modPos(In(rear) + 1, queue.size),
-          (In(numOfElements) < max) === (numOfElements == In(numOfElements) + 1),
-          (In(numOfElements) == max) === (numOfElements == In(numOfElements)),
+          (In(numOfElements) < max) == (numOfElements == In(numOfElements) + 1),
+          (In(numOfElements) == max) == (numOfElements == In(numOfElements)),
           msEqualExcept(queue, In(queue), In(rear))
         )
       )

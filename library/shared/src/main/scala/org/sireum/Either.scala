@@ -28,7 +28,7 @@ package org.sireum
 
 @datatype trait Either[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => Either.Left[L, R](e) =~= this} === Res))
+  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => Either.Left[L, R](e) =~= this} == Res))
 
   @pure def isRight: B = Contract.Only(Ensures(!isLeft))
 

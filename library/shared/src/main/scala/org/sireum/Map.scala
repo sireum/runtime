@@ -51,7 +51,7 @@ object Map {
   @pure def keys: ISZ[K] = {
     Contract(
       Ensures(
-        entries.size === Res[ISZ[K]].size,
+        entries.size == Res[ISZ[K]].size,
         ∀(entries.indices)(i => entries(i)._1 =~= Res[ISZ[K]](i)),
         SeqUtil.IS.unique(Res),
       )
@@ -62,7 +62,7 @@ object Map {
   @pure def values: ISZ[T] = {
     Contract(
       Ensures(
-        entries.size === Res[ISZ[T]].size,
+        entries.size == Res[ISZ[T]].size,
         ∀(entries.indices)(i => entries(i)._2 =~= Res[ISZ[T]](i))
       )
     )
@@ -76,12 +76,12 @@ object Map {
   @pure def +(p: (K, T)): Map[K, T] = {
     Contract(
       Ensures(
-        Map.entriesOf(Res).size === entries.size | Map.entriesOf(Res).size === entries.size + 1,
+        Map.entriesOf(Res).size == entries.size | Map.entriesOf(Res).size == entries.size + 1,
         AssocS.Entries.contain(Map.entriesOf(Res), p),
         ∀(Map.entriesOf(Res).indices)(j =>
-          (Map.entriesOf(Res)(j) =!= p) ->: AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
+          (Map.entriesOf(Res)(j) != p) ->: AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j)._1 =!= p._1) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
+          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
       )
     )
     return Map(AssocS.Entries.add(entries, p))
@@ -100,7 +100,7 @@ object Map {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => (key === entries(j)._1) & (Some(entries(j)._2) =~= Res)))
+        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Some(entries(j)._2) =~= Res)))
       ),
       Case(
         "Unmapped",
@@ -140,7 +140,7 @@ object Map {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => Some(entries(j)) =~= Res & entries(j)._1 === key))
+        Ensures(∃(entries.indices)(j => Some(entries(j)) =~= Res & entries(j)._1 == key))
       ),
       Case(
         "Unmapped",
@@ -161,13 +161,13 @@ object Map {
         Ensures(
           0 <= Res[Z],
           Res[Z] < entries.size,
-          entries(Res[Z])._1 === key
+          entries(Res[Z])._1 == key
         )
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(Res[Z] === -1)
+        Ensures(Res[Z] == -1)
       )
     )
     return AssocS.Entries.indexOf(entries, key)
@@ -191,33 +191,33 @@ object Map {
   @pure def -(p: (K, T)): Map[K, T] = {
     Contract(
       Ensures(
-        Map.entriesOf(Res).size === entries.size | Map.entriesOf(Res).size === entries.size - 1,
+        Map.entriesOf(Res).size == entries.size | Map.entriesOf(Res).size == entries.size - 1,
         ∀(Map.entriesOf(Res).indices)(j =>
-          Map.entriesOf(Res)(j) =!= p & AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
+          Map.entriesOf(Res)(j) != p & AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j) =!= p) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
+          (entries(j) != p) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
       )
     )
     return Map(AssocS.Entries.remove(entries, p))
   }
 
   @pure def contains(key: K): B = {
-    Contract(Ensures(AssocS.Entries.containKey(entries, key) === Res))
+    Contract(Ensures(AssocS.Entries.containKey(entries, key) == Res))
     return indexOf(key) >= 0
   }
 
   @pure def isEmpty: B = {
-    Contract(Ensures((entries.size === 0) === Res))
+    Contract(Ensures((entries.size == 0) == Res))
     return size == z"0"
   }
 
   @pure def nonEmpty: B = {
-    Contract(Ensures((entries.size === 0) =!= Res))
+    Contract(Ensures((entries.size == 0) != Res))
     return size != z"0"
   }
 
   @pure def size: Z = {
-    Contract(Ensures(entries.size === Res))
+    Contract(Ensures(entries.size == Res))
     return entries.size
   }
 
@@ -237,7 +237,7 @@ object Map {
       Case(
         "Equal",
         Requires(
-          entries.size === other.entries.size,
+          entries.size == other.entries.size,
           ∀(entries.indices)(j => AssocS.Entries.contain(other.entries, entries(j))),
         ),
         Ensures(Res[B])
@@ -245,7 +245,7 @@ object Map {
       Case(
         "Inequal-diff-key",
         Requires(
-          entries.size === other.entries.size,
+          entries.size == other.entries.size,
           ∃(entries.indices)(j => !AssocS.Entries.containKey(other.entries, entries(j)._1)),
         ),
         Ensures(!Res[B])
@@ -253,14 +253,14 @@ object Map {
       Case(
         "Inequal-diff-value",
         Requires(
-          entries.size === other.entries.size,
+          entries.size == other.entries.size,
           ∃(entries.indices)(j => ∀(other.entries.indices)(k => entries(j) != other.entries(k))),
         ),
         Ensures(!Res[B])
       ),
       Case(
         "Inequal-size",
-        Requires(entries.size =!= other.entries.size),
+        Requires(entries.size != other.entries.size),
         Ensures(!Res[B])
       )
     )

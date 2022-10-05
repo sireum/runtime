@@ -86,7 +86,7 @@ package object sireum extends $internal.PackageTrait with contract {
       }
     }
 
-    final  object f32 {
+    final object f32 {
       def apply(args: Any*): F32 = macro Macro.f32Apply
       def unapply(n: F32): scala.Boolean = {
         assume($sc.parts.size == 1)
@@ -122,8 +122,46 @@ package object sireum extends $internal.PackageTrait with contract {
   final implicit class Any2HashStringEq(val _o: Any) extends AnyVal {
     def hash: Z = _o.hashCode
     def string: String = _o.toString
-    def ===(other: Any): B = _o == other
-    def =!=(other: Any): B = _o != other
+    def ===(other: Any): B = {
+      (_o, other) match {
+        case (o1: SigTrait, o2: SigTrait) => o1 === o2
+        case (o1: Immutable, o2: Immutable) => o1 == o2
+        case (o1: MSigTrait, o2: MSigTrait) => o1 === o2
+        case (o1: Mutable, o2: Mutable) => o1 == o2
+        case (o1: Product, o2: Product) =>
+          o1 match {
+            case _: Tuple1[_] =>
+            case _: Tuple2[_, _] =>
+            case _: Tuple3[_, _, _] =>
+            case _: Tuple4[_, _, _, _] =>
+            case _: Tuple5[_, _, _, _, _] =>
+            case _: Tuple6[_, _, _, _, _, _] =>
+            case _: Tuple7[_, _, _, _, _, _, _] =>
+            case _: Tuple8[_, _, _, _, _, _, _, _] =>
+            case _: Tuple9[_, _, _, _, _, _, _, _, _] =>
+            case _: Tuple10[_, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple11[_, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple12[_, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple13[_, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple14[_, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _: Tuple22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _] =>
+            case _ => return false
+          }
+          if (o1.asInstanceOf[AnyRef] eq o2.asInstanceOf[AnyRef]) return true
+          if (o1.productArity != o2.productArity) return false
+          for (i <- 0 until o1.productArity if o1.productElement(i) =!= o2.productElement(i)) return false
+          return true
+        case (_, _) => _o == other
+      }
+    }
+    def =!=(other: Any): B = !(this === other)
     def =~=(other: Any): B = halt("Only available in spec")
   }
 

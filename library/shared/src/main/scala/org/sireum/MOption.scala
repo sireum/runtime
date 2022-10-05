@@ -37,11 +37,11 @@ object MOption {
 @record trait MOption[T] {
 
   @pure def isEmpty: B = Contract.Only(
-    Ensures((this =~= MNone[T]()) === Res)
+    Ensures((this =~= MNone[T]()) == Res)
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(!isEmpty === Res)
+    Ensures(!isEmpty == Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): MOption[T2] = Contract.Only(
@@ -79,7 +79,7 @@ object MOption {
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(f(get) === Res)
+      Ensures(f(get) == Res)
     )
   )
 
@@ -92,7 +92,7 @@ object MOption {
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(f(get) === Res)
+      Ensures(f(get) == Res)
     )
   )
 
@@ -191,7 +191,7 @@ object MOption {
   }
 
   @pure override def toMS: MS[Z, T] = {
-    Contract(Ensures(MSZ[T]() === Res))
+    Contract(Ensures(MSZ[T]() == Res))
     return MS[Z, T]()
   }
 
@@ -221,12 +221,12 @@ object MOption {
   }
 
   @pure override def forall(f: T => B @pure): B = {
-    Contract(Ensures(f(value) === Res))
+    Contract(Ensures(f(value) == Res))
     return f(value)
   }
 
   @pure override def exists(f: T => B @pure): B = {
-    Contract(Ensures(f(value) === Res))
+    Contract(Ensures(f(value) == Res))
     return f(value)
   }
 

@@ -53,8 +53,8 @@ trait EnumSig extends Immutable {
 }
 
 trait SigTrait extends Immutable {
-  @inline def ===(other: SigTrait): B = this == other
-  @inline def =!=(other: SigTrait): B = this != other
+  def ===(other: SigTrait): B = halt(s"Undefined === on $this")
+  @inline def =!=(other: SigTrait): B = !(this === other)
 }
 
 trait DatatypeSig extends SigTrait with DatatypeMarker {
@@ -79,8 +79,8 @@ trait Mutable extends Any with MutableMarker {
 }
 
 trait MSigTrait extends Mutable {
-  @inline def ===(other: MSigTrait): B = this == other
-  @inline def =!=(other: MSigTrait): B = this != other
+  def ===(other: MSigTrait): B = halt(s"Undefined === on $this")
+  @inline def =!=(other: MSigTrait): B = !(this === other)
 }
 
 trait RecordSig extends MSigTrait with RecordMarker {

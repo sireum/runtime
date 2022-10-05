@@ -403,7 +403,7 @@ object StringOps {
       var i = 0
       while (i < cis.size) {
         val c = cis(i)
-        if (c === '_' || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c === '$') {
+        if (c == '_' || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '$') {
           i = i + 1
         } else {
           return ops.StringOps(str).substring(i, str.size)
@@ -413,7 +413,7 @@ object StringOps {
     }
     val v1Ops = ops.StringOps(removePrefix(s))
     val v2Ops = ops.StringOps(removePrefix(other))
-    val p = (c: C) => c === '.'
+    val p: C => B @pure = (c: C) => c == '.'
     val v1s = v1Ops.split(p)
     val v2s = v2Ops.split(p)
     val size: Z = if (v1s.size <= v2s.size) v1s.size else v2s.size

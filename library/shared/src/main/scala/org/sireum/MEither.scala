@@ -28,7 +28,7 @@ package org.sireum
 
 @record trait MEither[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => this =~= MEither.Left[L, R](e) } === Res))
+  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => this =~= MEither.Left[L, R](e) } == Res))
 
   @pure def isRight: B = Contract.Only(Ensures(!isLeft))
 

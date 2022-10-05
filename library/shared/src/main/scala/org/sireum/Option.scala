@@ -36,11 +36,11 @@ object Option {
 @datatype trait Option[T] {
 
   @pure def isEmpty: B = Contract.Only(
-    Ensures((this =~= None[T]()) === Res)
+    Ensures((this =~= None[T]()) == Res)
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(!isEmpty === Res)
+    Ensures(!isEmpty == Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
@@ -78,7 +78,7 @@ object Option {
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(f(get) === Res)
+      Ensures(f(get) == Res)
     )
   )
 
@@ -91,7 +91,7 @@ object Option {
     Case(
       "Non-empty",
       Requires(nonEmpty),
-      Ensures(f(get) === Res)
+      Ensures(f(get) == Res)
     )
   )
 
@@ -220,12 +220,12 @@ object Option {
   }
 
   @pure override def forall(f: T => B @pure): B = {
-    Contract(Ensures(f(value) === Res))
+    Contract(Ensures(f(value) == Res))
     return f(value)
   }
 
   @pure override def exists(f: T => B @pure): B = {
-    Contract(Ensures(f(value) === Res))
+    Contract(Ensures(f(value) == Res))
     return f(value)
   }
 

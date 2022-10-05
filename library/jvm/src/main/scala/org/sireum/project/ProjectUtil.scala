@@ -335,7 +335,7 @@ object ProjectUtil {
 
   @pure def projectJsonLine(text: String): Option[String] = {
     val prefix = "{  \"type\" : \"Project\""
-    for (line <- ops.StringOps(text).split((c: C) => c === '\n')) {
+    for (line <- ops.StringOps(text).split((c: C) => c == '\n')) {
       var first = 0
       var last = line.size - 1
       val lineCis = conversions.String.toCis(line)

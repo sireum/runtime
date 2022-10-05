@@ -178,7 +178,7 @@ import ObjPrinter._
       }
       addMethod(t, T,
         if (ll.isEmpty) st"$t()"
-        else if (ll.size === 1) st"$t(${(ll(0), ", ")})"
+        else if (ll.size == 1) st"$t(${(ll(0), ", ")})"
         else
           st"""$t(
               |  ${(ll, ",\n")})""")
@@ -207,7 +207,7 @@ import ObjPrinter._
       }
       addMethod(t, T,
         if (ll.isEmpty) st"$t()"
-        else if (ll.size === 1) st"$t(${(ll(0), ", ")})"
+        else if (ll.size == 1) st"$t(${(ll(0), ", ")})"
         else
           st"""$t(
               |  ${(ll, ",\n")}""")
@@ -327,7 +327,7 @@ import ObjPrinter._
   }
 
   def printUnionFind[E](eType: ST, o: UnionFind[E], e: E => ST): ST = {
-    if (o.size === 0) {
+    if (o.size == 0) {
       return st"UnionFind.create[$eType](ISZ())"
     }
     val f = () => addMethod(st"UnionFind[$eType]", F,
