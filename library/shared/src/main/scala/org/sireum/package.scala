@@ -162,7 +162,6 @@ package object sireum extends $internal.PackageTrait with contract {
       }
     }
     def =!=(other: Any): B = !(this === other)
-    def =~=(other: Any): B = halt("Only available in spec")
   }
 
   final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {
