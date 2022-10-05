@@ -122,6 +122,8 @@ package object sireum extends $internal.PackageTrait with contract {
   final implicit class Any2HashStringEq(val _o: Any) extends AnyVal {
     def hash: Z = _o.hashCode
     def string: String = _o.toString
+    @inline def ≡(other: Any): B = this === other
+    @inline def ≢(other: Any): B = !(this === other)
     def ===(other: Any): B = {
       (_o, other) match {
         case (o1: SigTrait, o2: SigTrait) => o1 === o2
