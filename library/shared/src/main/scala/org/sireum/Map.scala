@@ -52,7 +52,7 @@ object Map {
     Contract(
       Ensures(
         entries.size == Res[ISZ[K]].size,
-        ∀(entries.indices)(i => entries(i)._1 === Res[ISZ[K]](i)),
+        ∀(entries.indices)(i => entries(i)._1 ≡ Res[ISZ[K]](i)),
         SeqUtil.IS.unique(Res),
       )
     )
@@ -63,7 +63,7 @@ object Map {
     Contract(
       Ensures(
         entries.size == Res[ISZ[T]].size,
-        ∀(entries.indices)(i => entries(i)._2 === Res[ISZ[T]](i))
+        ∀(entries.indices)(i => entries(i)._2 ≡ Res[ISZ[T]](i))
       )
     )
     return AssocS.Entries.values(entries)
@@ -100,12 +100,12 @@ object Map {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Some(entries(j)._2) === Res)))
+        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Some(entries(j)._2) ≡ Res)))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(None[T]() === Res)
+        Ensures(None[T]() ≡ Res)
       )
     )
     val index = indexOf(key)
@@ -128,7 +128,7 @@ object Map {
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(default === Res)
+        Ensures(default ≡ Res)
       )
     )
     val index = indexOf(key)
@@ -140,12 +140,12 @@ object Map {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => Some(entries(j)) === Res & entries(j)._1 == key))
+        Ensures(∃(entries.indices)(j => (Some(entries(j)) ≡ Res) & entries(j)._1 == key))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(None[(K, T)]() === Res)
+        Ensures(None[(K, T)]() ≡ Res)
       )
     )
     val index = indexOf(key)

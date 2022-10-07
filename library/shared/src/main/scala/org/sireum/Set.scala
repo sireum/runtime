@@ -45,7 +45,7 @@ object Set {
 
     @strictpure def indexOfFrom[T](elements: ISZ[T], e: T, from: Z): Z =
       if (from < 0 | from >= elements.size) -1
-      else if (elements(from)== e) from
+      else if (elements(from) == e) from
       else indexOfFrom(elements, e, from + 1)
 
   }
@@ -71,7 +71,7 @@ object Set {
       val r = elements :+ e
       Deduce(
         //@formatter:off
-        //(r(r.size - 1) === e)                                                     by Auto,
+        r(r.size - 1) ≡ e                                                         by Auto,
         Set.Elements.contain(r, e)                                                by Auto,
         SeqUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,
@@ -83,7 +83,7 @@ object Set {
       val r = elements(index ~> e)
       Deduce(
         //@formatter:off
-        //(r(index) === e)                                                          by Auto,
+        r(index) ≡ e                                                              by Auto,
         Set.Elements.contain(r, e)                                                by Auto,
         SeqUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,

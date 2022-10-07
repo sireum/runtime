@@ -76,7 +76,7 @@ object AssocS {
         ),
         Ensures(
           entries.size == Res[Keys[K]].size,
-          ∀(entries.indices)(i => entries(i)._1 === Res[Keys[K]](i)),
+          ∀(entries.indices)(i => entries(i)._1 ≡ Res[Keys[K]](i)),
           SeqUtil.IS.unique(Res),
         )
       )
@@ -88,7 +88,7 @@ object AssocS {
           0 <= i,
           i <= entries.size,
           i == r.size,
-          ∀(0 until i)(j => r(j) === entries(j)._1)
+          ∀(0 until i)(j => r(j) ≡ entries(j)._1)
         )
         r = r :+ entries(i)._1
         i = i + 1
@@ -103,7 +103,7 @@ object AssocS {
         ),
         Ensures(
           entries.size == Res[Values[V]].size,
-          ∀(entries.indices)(i => entries(i)._2 === Res[Values[V]](i))
+          ∀(entries.indices)(i => entries(i)._2 ≡ Res[Values[V]](i))
         )
       )
       var r = ISZ[V]()
@@ -114,7 +114,7 @@ object AssocS {
           0 <= i,
           i <= entries.size,
           i == r.size,
-          ∀(0 until i)(j => r(j) === entries(j)._2)
+          ∀(0 until i)(j => r(j) ≡ entries(j)._2)
         )
         r = r :+ entries(i)._2
         i = i + 1
@@ -141,7 +141,7 @@ object AssocS {
         val r = entries :+ ((key, value))
         Deduce(
           //@formatter:off
-          //(r(r.size - 1) === p)                                               by Auto,
+          r(r.size - 1) ≡ p                                                   by Auto,
           contain(r, p)                                                       by Auto,
           uniqueKeys(r)                                                       by Auto,
           ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
@@ -153,7 +153,7 @@ object AssocS {
         val r = entries(index ~> p)
         Deduce(
           //@formatter:off
-          //(r(index) === p)                                                    by Auto,
+          r(index) ≡ p                                                        by Auto,
           contain(r, p)                                                       by Auto,
           uniqueKeys(r)                                                       by Auto,
           ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
@@ -253,7 +253,7 @@ object AssocS {
     Contract(
       Ensures(
         entries.size == Res[ISZ[K]].size,
-        ∀(entries.indices)(i => entries(i)._1 === Res[ISZ[K]](i)),
+        ∀(entries.indices)(i => entries(i)._1 ≡ Res[ISZ[K]](i)),
         SeqUtil.IS.unique(Res),
       )
     )
@@ -264,7 +264,7 @@ object AssocS {
     Contract(
       Ensures(
         entries.size == Res[ISZ[V]].size,
-        ∀(entries.indices)(i => entries(i)._2 === Res[ISZ[V]](i))
+        ∀(entries.indices)(i => entries(i)._2 ≡ Res[ISZ[V]](i))
       )
     )
     return AssocS.Entries.values(entries)
@@ -301,12 +301,12 @@ object AssocS {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Some(entries(j)._2) === Res)))
+        Ensures(∃(entries.indices)(j => (key == entries(j)._1) & (Some(entries(j)._2) ≡ Res)))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(None[V]() === Res)
+        Ensures(None[V]() ≡ Res)
       )
     )
     val index = indexOf(key)
@@ -329,7 +329,7 @@ object AssocS {
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(default === Res)
+        Ensures(default ≡ Res)
       )
     )
     val index = indexOf(key)
@@ -341,12 +341,12 @@ object AssocS {
       Case(
         "Mapped",
         Requires(AssocS.Entries.containKey(entries, key)),
-        Ensures(∃(entries.indices)(j => Some(entries(j)) === Res & entries(j)._1 == key))
+        Ensures(∃(entries.indices)(j => (Some(entries(j)) ≡ Res) & entries(j)._1 == key))
       ),
       Case(
         "Unmapped",
         Requires(!AssocS.Entries.containKey(entries, key)),
-        Ensures(None[(K, V)]() === Res)
+        Ensures(None[(K, V)]() ≡ Res)
       )
     )
     val index = indexOf(key)
