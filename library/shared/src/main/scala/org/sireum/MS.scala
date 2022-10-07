@@ -205,9 +205,27 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
 
   def -(e: V): MS[I, V] = if (isEmpty) this else filter(_ != e)
 
-  @inline def ===(other: MS[I, V]): B = this == other
+  def ===(other: MS[I, V]): B =
+    if (this eq other.asInstanceOf[scala.AnyRef]) true
+    else
+      other match {
+        case other: MS[_, _] =>
+          if (companion ne other.companion) return false
+          if (length != other.length) return false
+          if (data eq other.data) return true
+          val b1 = boxer
+          val b2 = other.boxer
+          val data1 = data
+          val data2 = other.data
+          for (i <- Z.MP.zero until length) {
+            val iMP = i.toMP
+            if (b1.lookup[V](data1, iMP) =!= b2.lookup[V](data2, iMP)) return false
+          }
+          true
+        case _ => false
+      }
 
-  @inline def =!=(other: MS[I, V]): B = this != other
+  @inline def =!=(other: MS[I, V]): B = !(this === other)
 
   def atZ(i: Z): V = {
     assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
