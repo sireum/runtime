@@ -26,7 +26,7 @@
 
 package org.sireum
 
-import org.sireum.justification.Auto
+import org.sireum.justification.{Auto, Premise}
 
 object AssocS {
 
@@ -239,14 +239,32 @@ object AssocS {
           newEntries = newEntries :+ kv
           Deduce(
             |- (∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
-            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))))
+            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            |- (∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
+            |- (∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
+            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            |- (uniqueKeys(newEntries))
           )
         } else {
           Deduce(
             |-(∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
-            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))))
+            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            |-(∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
+            |-(∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
+            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            |-(uniqueKeys(newEntries))
           )
         }
+        Deduce(
+          //@formatter:off
+          ∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))  by Premise,
+          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))          by Premise,
+          ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)                                by Premise,
+          ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)                                    by Premise,
+          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))          by Premise,
+          uniqueKeys(newEntries)                                                                           by Premise
+          //@formatter:on
+        )
       }
       return newEntries
     }
@@ -281,7 +299,7 @@ object AssocS {
 
   @strictpure def keySet: Set[K] = Set.empty[K] ++ keys
 
-  @strictpure def valueSet: Set[V] =  Set.empty[V] ++ values
+  @strictpure def valueSet: Set[V] = Set.empty[V] ++ values
 
   @pure def +(p: (K, V)): AssocS[K, V] = {
     Contract(
@@ -432,9 +450,10 @@ object AssocS {
   }
 
   @pure override def string: String = {
-    val r = st"""[
-                |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
-                |]"""
+    val r =
+      st"""[
+          |  ${(for (e <- entries) yield st"${e._1} -> ${e._2}", ",\n")}
+          |]"""
     return r.render
   }
 
