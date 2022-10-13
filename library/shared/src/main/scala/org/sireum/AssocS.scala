@@ -237,6 +237,15 @@ object AssocS {
         i = i + 1
         if (kv != p) {
           newEntries = newEntries :+ kv
+          Deduce(
+            |- (∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
+            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))))
+          )
+        } else {
+          Deduce(
+            |-(∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
+            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))))
+          )
         }
       }
       return newEntries
