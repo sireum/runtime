@@ -30,6 +30,8 @@ import org.sireum._
 
 @datatype class COps(val c: C) {
 
+  @strictpure def category: COps.Category.Type = COps.Ext.categoryOf(c)
+
   @pure def toUnicodeHex: (C, C, C, C) = {
     return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))
   }
@@ -79,6 +81,44 @@ import org.sireum._
 }
 
 object COps {
+
+  @enum object Category {
+    "Mc"
+    "Pc"
+    "Cc"
+    "Sc"
+    "Pd"
+    "Nd"
+    "Me"
+    "Pe"
+    "Pf"
+    "Cf"
+    "Pi"
+    "Nl"
+    "Zl"
+    "Ll"
+    "Sm"
+    "Lm"
+    "Sk"
+    "Mn"
+    "Lo"
+    "No"
+    "Po"
+    "So"
+    "Zp"
+    "Co"
+    "Zs"
+    "Ps"
+    "Cs"
+    "Lt"
+    "Cn"
+    "Lu"
+  }
+
+  @ext("COps_Ext") object Ext {
+    @pure def categoryOf(c: C): Category.Type = $
+  }
+
   @pure def c2hex(c: C): Option[C] = {
     c.native match {
       case '0' => return Some('\u0000')
