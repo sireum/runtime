@@ -238,31 +238,31 @@ object AssocS {
         if (kv != p) {
           newEntries = newEntries :+ kv
           Deduce(
-            |- (∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
-            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
-            |- (∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
-            |- (∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
-            |- (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
-            |- (uniqueKeys(newEntries))
+            ⊢ (∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
+            ⊢ (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            ⊢ (∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
+            ⊢ (∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
+            ⊢ (uniqueKeys(newEntries))
           )
         } else {
           Deduce(
-            |-(∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
-            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
-            |-(∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
-            |-(∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
-            |-(∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
-            |-(uniqueKeys(newEntries))
+            ⊢ (∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))),
+            ⊢ (∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))),
+            ⊢ (∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)),
+            ⊢ (∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)),
+            ⊢ (uniqueKeys(newEntries))
           )
         }
         Deduce(
           //@formatter:off
-          ∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))  by Premise,
-          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))          by Premise,
-          ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)                                by Premise,
-          ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)                                    by Premise,
-          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))          by Premise,
-          uniqueKeys(newEntries)                                                                           by Premise
+          (kv != p) ->: (newEntries ≡ (At(newEntries, 1) :+ kv))                                                 by Premise,
+          !(kv != p) ->: (newEntries ≡ At(newEntries, 1))                                                        by Premise,
+          ∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))        by Premise,
+          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))                by Premise,
+          ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)                                      by Premise,
+          ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i)                                          by Premise,
+          ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))                by Premise,
+          uniqueKeys(newEntries)                                                                                 by Premise
           //@formatter:on
         )
       }
