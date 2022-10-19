@@ -28,13 +28,13 @@ package org.sireum.$internal
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
-
+import scala.collection.SortedMap
 import scala.language.experimental.macros
 import scala.collection.mutable.{Map => MMap}
 
 object RC {
 
-  def toTrie(m: scala.collection.Map[Vector[String], String]): Trie.Node[String, String] = {
+  def toTrie(m: SortedMap[Vector[String], String]): Trie.Node[String, String] = {
     val root = Trie.InNode[String, String](MMap())
 
     def add(path: Vector[String], content: String, node: Trie.InNode[String, String]): Unit = path match {
@@ -54,9 +54,9 @@ object RC {
     root
   }
 
-  def text(relPaths: Vector[String])(p: (Vector[String], File) => Boolean): Map[Vector[String], String] = macro RC.textImpl
+  def text(relPaths: Vector[String])(p: (Vector[String], File) => Boolean): SortedMap[Vector[String], String] = macro RC.textImpl
 
-  def base64(relPaths: Vector[String])(p: (Vector[String], File) => Boolean): Map[Vector[String], String] = macro RC.base64Impl
+  def base64(relPaths: Vector[String])(p: (Vector[String], File) => Boolean): SortedMap[Vector[String], String] = macro RC.base64Impl
 }
 
 class RC(val c: scala.reflect.macros.blackbox.Context) {
@@ -67,7 +67,7 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
     isText: Boolean,
     relPaths: c.Expr[Vector[String]],
     p: c.Expr[(Vector[String], File) => Boolean]
-  ): c.Expr[Map[Vector[String], String]] = {
+  ): c.Expr[SortedMap[Vector[String], String]] = {
     val pf = Macro.eval[(Vector[String], File) => Boolean](c)(p.tree)
     val rps = Macro.eval[Vector[String]](c)(relPaths.tree)
     var args = Vector[c.Tree]()
@@ -99,18 +99,34 @@ class RC(val c: scala.reflect.macros.blackbox.Context) {
     }
 
     if (rps.nonEmpty) rps.foreach(it) else it(".")
+    scala.collection.immutable.TreeMap[Vector[Predef.String], Predef.String]()((v1: Vector[Predef.String], v2: Vector[Predef.String]) => {
+      var r = v1.length.compare(v2.length)
+      if (r != 0) r
+      else {
+        for (i <- v1.indices if r == 0) r = v1(i).compare(v2(i))
+        r
+      }
+    })
 
-    val r = q"scala.collection.immutable.ListMap[Vector[Predef.String], Predef.String](..$args)"
+    val r =
+      q"""scala.collection.immutable.TreeMap[Vector[Predef.String], Predef.String](..$args)((v1: Vector[Predef.String], v2: Vector[Predef.String]) => {
+            var r = v1.length.compare(v2.length)
+            if (r != 0) r
+            else {
+              for (i <- v1.indices if r == 0) r = v1(i).compare(v2(i))
+              r
+            }
+          })"""
     //println(showCode(r))
     c.Expr(r)
   }
 
-  def textImpl(relPaths: c.Expr[Vector[String]])(p: c.Expr[(Vector[String], File) => Boolean]): c.Expr[Map[Vector[String], String]] =
+  def textImpl(relPaths: c.Expr[Vector[String]])(p: c.Expr[(Vector[String], File) => Boolean]): c.Expr[SortedMap[Vector[String], String]] =
     commonImpl(isText = true, relPaths, p)
 
   def base64Impl(
     relPaths: c.Expr[Vector[String]]
-  )(p: c.Expr[(Vector[String], File) => Boolean]): c.Expr[Map[Vector[String], String]] =
+  )(p: c.Expr[(Vector[String], File) => Boolean]): c.Expr[SortedMap[Vector[String], String]] =
     commonImpl(isText = false, relPaths, p)
 
   def uriOf(f: File): String = f.toURI.toASCIIString

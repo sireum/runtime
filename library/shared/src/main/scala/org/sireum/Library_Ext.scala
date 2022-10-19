@@ -28,7 +28,7 @@ package org.sireum
 import org.sireum.$internal.{RC, Trie}
 
 object Library_Ext {
-  def sharedMap: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../..")) { (p, f) =>
+  def sharedMap: scala.collection.SortedMap[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../..")) { (p, f) =>
     val filename = p.last
     if (filename.endsWith(".slang")) true
     else if (filename.endsWith(".scala")) {
@@ -39,7 +39,7 @@ object Library_Ext {
     } else false
   }
 
-  def jvmMap: scala.collection.Map[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../../../../../../jvm/src/main/scala")) { (p, f) =>
+  def jvmMap: scala.collection.SortedMap[scala.Vector[Predef.String], Predef.String] = RC.text(Vector("../../../../../../jvm/src/main/scala")) { (p, f) =>
     val filename = p.last
     if (filename.endsWith(".slang")) true
     else if (filename.endsWith(".scala")) {
