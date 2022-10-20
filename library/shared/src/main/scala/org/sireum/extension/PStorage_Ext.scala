@@ -28,7 +28,7 @@ import org.sireum._
 
 object PStorage_Ext {
 
-  class PStorageImpl(map: HashMap[String, Any] = HashMap.empty) extends PStorage with DatatypeSig {
+  class PStorageImpl(val map: HashMap[String, Any] = HashMap.empty) extends PStorage with DatatypeSig {
 
     @pure def keys: ISZ[String] = map.keys
 
