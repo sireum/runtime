@@ -38,7 +38,14 @@ object PStorage_Ext {
 
     override def $content: Seq[(Predef.String, Any)] = for (p <- map.$content) yield (p._1.toString, p._2)
 
-    override def string: String = s"PStorage$map"
+    override def string: String = s"PStorage $map"
+
+    override def hashCode: Int = map.hashCode
+
+    override def equals(obj: Any): Boolean = obj match {
+      case obj: PStorageImpl => map == obj.map
+      case _ => false
+    }
 
   }
 
