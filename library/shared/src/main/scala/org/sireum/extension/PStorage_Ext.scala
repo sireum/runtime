@@ -34,7 +34,7 @@ object PStorage_Ext {
 
     @pure def get[T](key: String): Option[T] = map.get(key).asInstanceOf[Option[T]]
 
-    @pure def +[T](key: String, value: T): PStorage = new PStorageImpl(map + key ~> value)
+    @pure def +[T](p: (String, T)): PStorage = new PStorageImpl(map + p._1 ~> p._2)
 
     override def $content: Seq[(Predef.String, Any)] = for (p <- map.$content) yield (p._1.toString, p._2)
 

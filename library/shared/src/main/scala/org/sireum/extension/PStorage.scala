@@ -40,5 +40,5 @@ object PStorage {
 @sig trait PStorage {
   @pure def keys: ISZ[String]
   @pure def get[T](key: String): Option[T]
-  @pure def +[T](key: String, value: T): PStorage
+  @pure def +[T](p: (String, T)): PStorage
 }
