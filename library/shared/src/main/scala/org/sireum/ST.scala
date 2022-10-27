@@ -111,7 +111,7 @@ object ST {
           }
         }
       }
-      if (hasLine) {
+      if (hasLine || indent == 0) {
         indent += n
       }
     }
