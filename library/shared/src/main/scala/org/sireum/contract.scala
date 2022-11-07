@@ -107,6 +107,72 @@ trait contract {
 
     def Havoc(arg0: Any, arg1: Any*): Unit = macro Macro.lUnit1S
 
+    // begin InfoFlow apply
+    def apply(arg0: InfoFlows): Unit = macro Macro.lUnit1
+
+    def apply(arg0: Reads, arg1: InfoFlows): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Requires, arg1: InfoFlows): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Modifies, arg1: InfoFlows): Unit = macro Macro.lUnit2
+
+    def apply(arg0: Ensures, arg1: InfoFlows): Unit = macro Macro.lUnit2
+
+    def apply(arg0: InfoFlows, arg1: Case, arg2: Case*): Unit = macro Macro.lUnit2S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Reads, arg1: Ensures, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Requires, arg1: Ensures, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Modifies, arg1: Ensures, arg2: InfoFlows): Unit = macro Macro.lUnit3
+
+    def apply(arg0: Reads, arg1: InfoFlows, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Requires, arg1: InfoFlows, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Modifies, arg1: InfoFlows, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Ensures, arg1: InfoFlows, arg2: Case, arg3: Case*): Unit = macro Macro.lUnit3S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: InfoFlows): Unit = macro Macro.lUnit4
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Ensures, arg3: InfoFlows): Unit = macro Macro.lUnit4
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: Ensures, arg3: InfoFlows): Unit = macro Macro.lUnit4
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: Ensures, arg3: InfoFlows): Unit = macro Macro.lUnit4
+
+    def apply(arg0: Reads, arg1: Requires, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Ensures, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Requires, arg1: Ensures, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Modifies, arg1: Ensures, arg2: InfoFlows, arg3: Case, arg4: Case*): Unit = macro Macro.lUnit4S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: Ensures, arg4: InfoFlows): Unit = macro Macro.lUnit5
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: InfoFlows, arg4: Case, arg5: Case*): Unit = macro Macro.lUnit5S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Ensures, arg3: InfoFlows, arg4: Case, arg5: Case*): Unit = macro Macro.lUnit5S
+
+    def apply(arg0: Reads, arg1: Modifies, arg2: Ensures, arg3: InfoFlows, arg4: Case, arg5: Case*): Unit = macro Macro.lUnit5S
+
+    def apply(arg0: Requires, arg1: Modifies, arg2: Ensures, arg3: InfoFlows, arg4: Case, arg5: Case*): Unit = macro Macro.lUnit5S
+
+    def apply(arg0: Reads, arg1: Requires, arg2: Modifies, arg3: Ensures, arg4: InfoFlows, arg5: Case, arg6: Case*): Unit = macro Macro.lUnit6S
+    // end InfoFlow apply
+
     object Only {
 
       def apply[T](reads: Reads): T = ???
@@ -146,7 +212,41 @@ trait contract {
       def apply[T](reads: Reads, modifies: Modifies, case0: Case, cases: Case*): T = ???
 
       def apply[T](cases: Cases): T = ???
-    }
+
+      // begin supported InfoFlow apply
+      def apply[T](infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, infoFlows: InfoFlows): T = ???
+
+      def apply[T](requires: Requires, infoFlows: InfoFlows): T = ???
+
+      def apply[T](modifies: Modifies, infoFlows: InfoFlows): T = ???
+
+      def apply[T](ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, requires: Requires, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, modifies: Modifies, infoFlows: InfoFlows): T = ???
+
+      def apply[T](requires: Requires, modifies: Modifies, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](requires: Requires, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](modifies: Modifies, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, requires: Requires, modifies: Modifies, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, requires: Requires, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, modifies: Modifies, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](requires: Requires, modifies: Modifies, ensures: Ensures, infoFlows: InfoFlows): T = ???
+
+      def apply[T](reads: Reads, requires: Requires, modifies: Modifies, ensures: Ensures, infoFlows: InfoFlows): T = ???
+      // end supported InfoFlow apply
+   }
 
     trait State {
       def apply[T](o: T): T
@@ -255,6 +355,20 @@ trait contract {
       def |-(conclusion: B): Sequent = ???
       def ⊢(conclusion: B): Sequent = ???
     }
+
+    // begin InfoFlow traits
+    trait InfoFlows
+
+    trait InfoFlowInvariant
+
+    trait FlowCase
+
+    trait InAgree
+
+    trait OutAgree
+
+    trait InlineAgree
+    // end InfoFlow traits
   }
 
   def MaxIt(num: Z): Contract.MaxIt = ???
@@ -415,6 +529,20 @@ trait contract {
   def |-(conclusion: B): Contract.Sequent = ???
 
   def ⊢(conclusion: B): Contract.Sequent = ???
+
+  // begin InfoFlow nodes
+  def InfoFlows(flowCases: Contract.FlowCase*): Contract.InfoFlows = ???
+
+  def InfoFlowInvariant(flowCases: Contract.FlowCase*): B = ???
+
+  def InlineAgree(channels: String*): B = ???
+
+  def FlowCase(channel: String, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
+
+  def InAgree(inAgree: Any*): Contract.InAgree = ???
+
+  def OutAgree(outAgree: Any*): Contract.OutAgree = ???
+  // end InfoFlow nodes
 
   object All {
 
