@@ -539,6 +539,8 @@ trait contract {
 
   def FlowCase(channel: String, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
 
+  def FlowCase(channel: String, requires: Contract.Requires, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
+
   def InAgree(inAgree: Any*): Contract.InAgree = ???
 
   def OutAgree(outAgree: Any*): Contract.OutAgree = ???
