@@ -535,7 +535,9 @@ trait contract {
 
   def InfoFlowInvariant(flowCases: Contract.FlowCase*): B = ???
 
-  def InlineAgree(channels: String*): B = ???
+  def InlineAgree(channel: String): B = ???
+
+  def InlineAgree(channel: String, outAgree: Contract.OutAgree): B = ???
 
   def FlowCase(channel: String, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
 
