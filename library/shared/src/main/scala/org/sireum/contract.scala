@@ -366,8 +366,6 @@ trait contract {
     trait InAgree
 
     trait OutAgree
-
-    trait InlineAgree
     // end InfoFlow traits
   }
 
@@ -535,9 +533,17 @@ trait contract {
 
   def InfoFlowInvariant(flowCases: Contract.FlowCase*): B = ???
 
-  def InlineAgree(channel: String): B = ???
+  def AssumeAgree(channel: String): B = ???
 
-  def InlineAgree(channel: String, outAgree: Contract.OutAgree): B = ???
+  def AssumeAgree(channel: String, requires: Contract.Requires): B = ???
+
+  def AssumeAgree(channel: String, inAgree: Contract.InAgree): B = ???
+
+  def AssumeAgree(channel: String, requires: Contract.Requires, inAgree: Contract.InAgree): B = ???
+
+  def AssertAgree(channel: String): B = ???
+
+  def AssertAgree(channel: String, outAgree: Contract.OutAgree): B = ???
 
   def FlowCase(channel: String, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
 
