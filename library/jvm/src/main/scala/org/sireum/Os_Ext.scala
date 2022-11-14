@@ -87,6 +87,20 @@ object Os_Ext {
 
   lazy val maxMemory: Z = Runtime.getRuntime.maxMemory
 
+  lazy val exe7zaOpt: Option[Os.Path] = {
+    val suffix7za: String = osKind match {
+      case Os.Kind.Win => "bin/win/7za.exe"
+      case Os.Kind.Mac => "bin/mac/7za"
+      case Os.Kind.Linux => "bin/linux/7za"
+      case Os.Kind.LinuxArm => "bin/linux/arm/7za"
+      case _ => "?"
+    }
+    Os.env("SIREUM_HOME") match {
+      case Some(dir) if toIO((Os.path(dir) / suffix7za).string).canExecute => Some(Os.path(dir) / suffix7za)
+      case _ => None()
+    }
+  }
+
   def totalMemory: Z = Runtime.getRuntime.totalMemory
 
   def freeMemory: Z = Runtime.getRuntime.freeMemory
@@ -612,6 +626,13 @@ object Os_Ext {
   }
 
   def zip(path: String, target: String): Unit = {
+    exe7zaOpt match {
+      case Some(p) =>
+        proc"$p a -r $target .".at(Os.path(path)).runCheck()
+        return
+      case _ =>
+    }
+
     def normPath(p: String): Predef.String = if (Os.isWin) p.value.replace('\\', '/') else p.value
     val f = toNIO(target)
     val zip = new ZOS(
@@ -632,6 +653,14 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
+    exe7zaOpt match {
+      case Some(p) =>
+        val t = Os.path(target)
+        t.mkdirAll()
+        proc"$p x -aoa $path".at(t).runCheck()
+        return
+      case _ =>
+    }
     val zis = new ZIS(new BIS(JFiles.newInputStream(toNIO(path)), buffSize))
     try {
       val t = toNIO(target)
