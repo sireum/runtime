@@ -256,16 +256,7 @@ import DependencyManager._
   }
 
   def fetchClassifiers(ivyDeps: ISZ[String], classifiers: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
-    val oldScalaVersion = Coursier.scalaVersion
-    val oldCacheOpt = Coursier.cacheOpt
-    val oldRepoUrls = Coursier.mavenRepoUrls
-    Coursier.addMavenRepositories(project.mavenRepoUrls)
-    Coursier.setCache(cacheOpt)
-    val r = Coursier.fetchClassifiers(ivyDeps, classifiers)
-    Coursier.setScalaVersion(oldScalaVersion)
-    Coursier.setCache(oldCacheOpt)
-    Coursier.setMavenRepositories(oldRepoUrls)
-    return r
+    return Coursier.fetchClassifiers(cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers).value
   }
 }
 

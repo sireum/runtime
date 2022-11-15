@@ -36,27 +36,16 @@ package org.sireum
 @datatype class CoursierFileInfo(val org: String,
                                  val module: String,
                                  val version: String,
-                                 val path: Os.Path)
+                                 val pathString: String) {
+  @strictpure def path: Os.Path = Os.path(pathString)
+}
+
+@datatype class CoursierFileInfos(val value: ISZ[CoursierFileInfo])
 
 @ext object Coursier {
 
-  def cacheOpt: Option[Os.Path] = $
-
-  def scalaVersion: String = $
-
-  def setScalaVersion(version: String): Unit = $
-
-  def setCache(pathOpt: Option[Os.Path]): Unit = $
-
-  def addMavenRepositories(urls: ISZ[String]): Unit = $
-
-  def setMavenRepositories(urls: ISZ[String]): Unit = $
-
-  def mavenRepoUrls: ISZ[String] = $
-
-  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = $
-
-  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = $
+  def fetchClassifiers(cacheOpts: Option[Os.Path], mavenRepoUrls: ISZ[String],
+                       deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): CoursierFileInfos = $
 
   def isRuntimePublishedLocally(version: String): B = $
 }

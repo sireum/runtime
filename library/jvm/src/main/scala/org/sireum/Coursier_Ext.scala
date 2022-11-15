@@ -32,42 +32,21 @@ object Coursier_Ext {
   val localMavenRepo: Repository = MavenRepository((Os.home / ".m2" / "repository").toUri.value)
   val sonatypeReleaseRepo: Repository = Repositories.sonatype("releases")
 
-  var scalaVersion: String = scala.util.Properties.versionNumberString
-  var cacheOpt: Option[Os.Path] = None()
-  var mavenRepoUrls: ISZ[String] = ISZ()
-
   val repositories: ISZ[Repository] = ISZ(
     localMavenRepo,
     sonatypeReleaseRepo,
     Repositories.jitpack
   )
 
-  def toDeps(deps: ISZ[String]): Seq[Dependency] =
+  def toDeps(scalaVersion: String, deps: ISZ[String]): Seq[Dependency] =
     parse.DependencyParser.dependencies(deps.elements.map(_.value), scalaVersion.value).
       either.getOrElse(halt(s"Invalid dependencies: $deps"))
 
-  def setScalaVersion(version: String): Unit = {
-    scalaVersion = version
-  }
-
-  def setCache(pathOpt: Option[Os.Path]): Unit = {
-    cacheOpt = pathOpt
-  }
-
-  def addMavenRepositories(urls: ISZ[String]): Unit = {
-    mavenRepoUrls = (HashSSet ++ mavenRepoUrls ++ urls).elements
-  }
-
-  def setMavenRepositories(urls: ISZ[String]): Unit = {
-    mavenRepoUrls = (HashSSet ++ urls).elements
-  }
-
-  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] =
-    fetchClassifiers(deps, ISZ(CoursierClassifier.Default))
-
-  def fetchClassifiers(deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
+  def fetchClassifiers(cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
+                       cls: ISZ[CoursierClassifier.Type]): CoursierFileInfos = {
+    val scalaVersion: String = scala.util.Properties.versionNumberString
     var fetch = Fetch().
-      addDependencies(toDeps(deps): _*).
+      addDependencies(toDeps(scalaVersion, deps): _*).
       withRepositories(repositories.elements ++ (for (url <- mavenRepoUrls.elements) yield MavenRepository(url.value)))
     for (cl <- cls.elements) cl match {
       case CoursierClassifier.Default => fetch = fetch.withMainArtifacts()
@@ -79,15 +58,16 @@ object Coursier_Ext {
       case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
       case _ =>
     }
-    ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
+    CoursierFileInfos(ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
       CoursierFileInfo(
         q._1.module.organization.value,
         q._1.module.name.value,
         q._1.version,
-        Os.path(q._4.getCanonicalPath))): _*)
+        q._4.getCanonicalPath)): _*))
   }
 
   def isRuntimePublishedLocally(version: String): B = {
+    val scalaVersion: String = scala.util.Properties.versionNumberString
     val scalaVer = ops.StringOps(scalaVersion).substring(0, ops.StringOps(scalaVersion).lastIndexOf('.'))
     val path = Os.home / ".m2" / "repository" / "org" / "sireum" / "kekinian" / s"library_$scalaVer" / version /
       s"library_$scalaVer-$version.jar"
