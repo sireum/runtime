@@ -42,8 +42,10 @@ object Coursier_Ext {
     parse.DependencyParser.dependencies(deps.elements.map(_.value), scalaVersion.value).
       either.getOrElse(halt(s"Invalid dependencies: $deps"))
 
+  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = fetchClassifiers(None(), ISZ(), deps, ISZ(CoursierClassifier.Default))
+
   def fetchClassifiers(cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
-                       cls: ISZ[CoursierClassifier.Type]): CoursierFileInfos = {
+                       cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
     val scalaVersion: String = scala.util.Properties.versionNumberString
     var fetch = Fetch().
       addDependencies(toDeps(scalaVersion, deps): _*).
@@ -58,12 +60,12 @@ object Coursier_Ext {
       case Some(cache) => fetch = fetch.withCache(coursier.cache.FileCache().withLocation(cache.string.value))
       case _ =>
     }
-    CoursierFileInfos(ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
+    ISZ((for (q <- fetch.runResult().detailedArtifacts) yield
       CoursierFileInfo(
         q._1.module.organization.value,
         q._1.module.name.value,
         q._1.version,
-        q._4.getCanonicalPath)): _*))
+        q._4.getCanonicalPath)): _*)
   }
 
   def isRuntimePublishedLocally(version: String): B = {

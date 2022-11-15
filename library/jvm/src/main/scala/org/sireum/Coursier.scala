@@ -44,8 +44,10 @@ package org.sireum
 
 @ext object Coursier {
 
+  def fetch(deps: ISZ[String]): ISZ[CoursierFileInfo] = $
+
   def fetchClassifiers(cacheOpts: Option[Os.Path], mavenRepoUrls: ISZ[String],
-                       deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): CoursierFileInfos = $
+                       deps: ISZ[String], cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = $
 
   def isRuntimePublishedLocally(version: String): B = $
 }

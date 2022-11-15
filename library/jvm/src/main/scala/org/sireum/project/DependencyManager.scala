@@ -256,7 +256,7 @@ import DependencyManager._
   }
 
   def fetchClassifiers(ivyDeps: ISZ[String], classifiers: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
-    return Coursier.fetchClassifiers(cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers).value
+    return Coursier.fetchClassifiers(cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers)
   }
 }
 
