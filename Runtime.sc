@@ -81,11 +81,11 @@ object Module {
 
     final override def artifactName = "test"
 
-    final override def testIvyDeps = Agg.empty
-
-    final override def ivyDeps = Agg(
+    final override def testIvyDeps = Agg(
       ivy"org.scalatest::scalatest::$scalaTestVersion"
     )
+
+    final override def ivyDeps = Agg.empty
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
@@ -128,17 +128,13 @@ object Module {
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
-    final override def deps = Seq(macrosObject)
-
-    final override def testDeps = Seq(testObject.shared)
-
-    final override def jsTestDeps = Seq(testObject.js)
+    final override def deps = Seq(testObject)
 
     final override val jvmTestFrameworks = Seq("org.scalatest.tools.Framework")
 
     final override def jsTestFrameworks = jvmTestFrameworks
 
-    def macrosObject: Macros
+    def testObject: Test
 
   }
 
