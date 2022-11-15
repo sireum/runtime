@@ -41,7 +41,8 @@ object DependencyManager {
   val jbrKey: String = "org.sireum.version.jbr"
   val scalacPluginKey: String = "org.sireum::scalac-plugin:"
   val scalaKey: String = "org.scala-lang:scala-library:"
-  val scalaJsKey: String = "org.scala-js:::scalajs-compiler:"
+  val scalaJsKey: String = "org.scala-js::scalajs-library:"
+  val scalaJsCompilerKey: String = "org.scala-js:::scalajs-compiler:"
   val scalaTestKey: String = "org.scalatest::scalatest::"
   val macrosKey: String = "org.sireum.kekinian::macros:"
   val testKey: String = "org.sireum.kekinian::test:"
@@ -125,9 +126,9 @@ import DependencyManager._
     verOps.substring(0, j)
   }
 
-  val scalaJsVersion: String = versions.get(DependencyManager.scalaJsKey) match {
+  val scalaJsVersion: String = versions.get(DependencyManager.scalaJsCompilerKey) match {
     case Some(v) => v
-    case _ => halt(s"Could not find Scala.js version (key: ${DependencyManager.scalaJsKey})")
+    case _ => halt(s"Could not find Scala.js version (key: ${DependencyManager.scalaJsCompilerKey})")
   }
 
   val sjsSuffix: String = {
@@ -143,18 +144,22 @@ import DependencyManager._
 
   val ivyDeps: HashSMap[String, String] = {
     var r = HashSMap.empty[String, String]
-    for (m <- project.modules.values) {
-      for (ivyDep <- m.ivyDeps) {
-        val v = getVersion(ivyDep)
-        val ivyDepOps = ops.StringOps(ivyDep)
-        if (isJs && ivyDepOps.endsWith("::")) {
-          val dep = s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
-          r = r + ivyDep ~> s"$dep$v"
-        } else {
-          r = r + ivyDep ~> s"$ivyDep$v"
-        }
+    def addIvyDep(ivyDep: String): Unit = {
+      val v = getVersion(ivyDep)
+      val ivyDepOps = ops.StringOps(ivyDep)
+      if (isJs && ivyDepOps.endsWith("::")) {
+        val dep = s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
+        r = r + ivyDep ~> s"$dep$v"
+      } else {
+        r = r + ivyDep ~> s"$ivyDep$v"
       }
     }
+    for (m <- project.modules.values) {
+      for (ivyDep <- m.ivyDeps) {
+        addIvyDep(ivyDep)
+      }
+    }
+    addIvyDep(scalaTestKey)
     r
   }
 
