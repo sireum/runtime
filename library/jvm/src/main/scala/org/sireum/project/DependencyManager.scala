@@ -146,27 +146,42 @@ import DependencyManager._
     var r = HashSMap.empty[String, String]
     def addIvyDep(ivyDep: String): Unit = {
       val v = getVersion(ivyDep)
-      val ivyDepOps = ops.StringOps(ivyDep)
-      if (isJs && ivyDepOps.endsWith("::")) {
-        val dep = s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
-        r = r + ivyDep ~> s"$dep$v"
-      } else {
-        r = r + ivyDep ~> s"$ivyDep$v"
-      }
+      r = r + ivyDep ~> s"${toJsDep(ivyDep)}$v"
     }
     for (m <- project.modules.values) {
       for (ivyDep <- m.ivyDeps) {
         addIvyDep(ivyDep)
       }
     }
-    addIvyDep(scalaTestKey)
+    var hasTest = F
+    for (m <- project.modules.values if ProjectUtil.moduleTestSources(m).nonEmpty) {
+      hasTest = T
+    }
+    if (hasTest) {
+      addIvyDep(scalaTestKey)
+    }
     r
   }
 
+  var _libMapInit: B = F
   var _libMap: HashSMap[String, Lib] = HashSMap.empty
+  var fetchedDeps: HashMap[(ISZ[String], ISZ[CoursierClassifier.Type]), ISZ[CoursierFileInfo]] = HashMap.empty
+
+  def toJsDep(ivyDep: String): String = {
+    val ivyDepOps = ops.StringOps(ivyDep)
+    if (ivyDepOps.endsWith("::")) {
+      if (isJs) {
+        return s"${ivyDepOps.substring(0, ivyDep.size - 2)}$sjsSuffix:"
+      } else {
+        return s"${ivyDepOps.substring(0, ivyDep.size - 1)}"
+      }
+    } else {
+      return ivyDep
+    }
+  }
 
   def libMap: HashSMap[String, Lib] = {
-    if (_libMap.isEmpty) {
+    if (!_libMapInit) {
       var r = HashSMap.empty[String, Lib]
       for (cif <- fetchClassifiers(ivyDeps.values, buildClassifiers(withSource, withDoc))) {
         val name = libName(cif)
@@ -190,6 +205,7 @@ import DependencyManager._
         }
       }
       _libMap = r
+      _libMapInit = T
     }
     return _libMap
   }
@@ -261,7 +277,14 @@ import DependencyManager._
   }
 
   def fetchClassifiers(ivyDeps: ISZ[String], classifiers: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
-    return Coursier.fetchClassifiers(cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers)
+    val key = (ivyDeps, classifiers)
+    fetchedDeps.get(key) match {
+      case Some(r) => return r
+      case _ =>
+        val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers)
+        fetchedDeps = fetchedDeps + key ~> r
+        return r
+    }
   }
 }
 

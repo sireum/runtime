@@ -66,7 +66,6 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "com.zaxxer:nuprocess:",
     "com.lihaoyi::os-lib:",
     "org.kohsuke:github-api:",
-    "io.get-coursier::coursier:",
     "org.ow2.asm:asm:",
     "org.antlr:antlr-runtime:",
     "org.sireum:automaton:",

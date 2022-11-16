@@ -118,7 +118,6 @@ object Module {
       ivy"com.zaxxer:nuprocess:$nuProcessVersion",
       ivy"com.lihaoyi::os-lib:$osLibVersion",
       ivy"org.kohsuke:github-api:$githubVersion",
-      ivy"io.get-coursier::coursier:$coursierVersion",
       ivy"org.ow2.asm:asm:$asmVersion",
       ivy"org.antlr:antlr-runtime:$antlr3Version",
       ivy"org.sireum:automaton:$automatonVersion",
