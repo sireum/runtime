@@ -67,16 +67,6 @@ object Coursier {
         if (ops.StringOps(c.string).startsWith(Os.home.string)) ISZ("--cache", c.string) else ISZ()
     }
 
-    var classifiers = ISZ[String]()
-    for (cl <- cls) {
-      cl match {
-        case CoursierClassifier.Default => classifiers = classifiers :+ "--default"
-        case CoursierClassifier.Sources => classifiers = classifiers :+ "--sources"
-        case CoursierClassifier.Javadoc => classifiers = classifiers :+ "--javadoc"
-        case _ =>
-      }
-    }
-
     val resolveCommands = ISZ[String](
       javaExe.string, "-jar", coursierJar.string,
       "resolve", "--quiet",
@@ -92,10 +82,20 @@ object Coursier {
       moduleVersionOrgMap = moduleVersionOrgMap + moduleVersion ~> (orgMap + org ~> version)
     }
 
+    var classifiers = ISZ[String]()
+    for (cl <- cls) {
+      cl match {
+        case CoursierClassifier.Default => classifiers = classifiers :+ "--default"
+        case CoursierClassifier.Sources => classifiers = classifiers :+ "--sources"
+        case CoursierClassifier.Javadoc => classifiers = classifiers :+ "--javadoc"
+        case _ =>
+      }
+    }
+
     val fetchCommands = ISZ[String](
       javaExe.string, "-jar", coursierJar.string,
       "fetch", "--quiet",
-      "--scala", scalaVersion) ++ cache ++ repos ++ deps
+      "--scala", scalaVersion) ++ cache ++ classifiers ++ repos ++ deps
 
     var cifs = ISZ[CoursierFileInfo]()
 
