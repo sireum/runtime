@@ -521,4 +521,16 @@ package org.sireum
 
   def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String) = $
 
+  def versions: Map[String, String] = $
+
+  def javaVer: String = $
+
+  def scalaVer: String = $
+
+  def version: String = $
+
+  def javaHomeOpt: Option[Os.Path] = $
+
+  def scalaHomeOpt: Option[Os.Path] = $
+
 }
