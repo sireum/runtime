@@ -529,8 +529,4 @@ package org.sireum
 
   def version: String = $
 
-  def javaHomeOpt: Option[Os.Path] = $
-
-  def scalaHomeOpt: Option[Os.Path] = $
-
 }
