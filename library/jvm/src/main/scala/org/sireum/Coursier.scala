@@ -134,14 +134,7 @@ object Coursier {
       }
     }
 
-    @strictpure def ltCif(cif1: CoursierFileInfo, cif2: CoursierFileInfo): B =
-      if (cif1.org < cif2.org) T
-      else if (cif1.org > cif2.org) F
-      else if (cif1.module < cif2.module) T
-      else if (cif1.module > cif2.module) F
-      else cif1.pathString <= cif2.pathString
-
-    return ops.ISZOps(cifs).sortWith(ltCif _)
+    return cifs
   }
 
   def isRuntimePublishedLocally(scalaVersion: String, version: String): B = {
