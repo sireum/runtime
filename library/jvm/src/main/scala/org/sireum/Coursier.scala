@@ -41,12 +41,7 @@ package org.sireum
 
 object Coursier {
 
-  def fetch(scalaVersion: String, deps: ISZ[String]): ISZ[CoursierFileInfo] = {
-    return fetchClassifiers(scalaVersion, None(), ISZ(), deps, ISZ(CoursierClassifier.Default))
-  }
-
-  def fetchClassifiers(scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
-                       cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
+  def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
     val sireumHome = Os.path(Os.env("SIREUM_HOME").get)
     val javaExe: Os.Path = Os.kind match {
       case Os.Kind.Win => sireumHome / "bin" / "win" / "java" / "bin" / "java.exe"
@@ -56,31 +51,49 @@ object Coursier {
       case Os.Kind.Unsupported => Os.path("java")
     }
     val coursierJar = sireumHome / "lib" / "coursier.jar"
-    var repos = ISZ[String]("-r", "sonatype:release", "-r", "jitpack", "-r", (Os.home / ".m2" / "repository").toUri)
-    for (url <- mavenRepoUrls) {
-      repos = repos ++ ISZ("-r", url)
-    }
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)
       case _ =>
         val c = sireumHome / "lib" / "cache"
         if (ops.StringOps(c.string).startsWith(Os.home.string)) ISZ("--cache", c.string) else ISZ()
     }
+    var repos = ISZ[String]("-r", "sonatype:release", "-r", "jitpack", "-r", (Os.home / ".m2" / "repository").toUri)
+    for (url <- mavenRepoUrls) {
+      repos = repos ++ ISZ("-r", url)
+    }
+    return ISZ[String](javaExe.string, "-jar", coursierJar.string, if (isResolve) "resolve" else "fetch", "--quiet",
+      "--scala", scalaVersion) ++ cache ++ repos
+  }
 
-    val resolveCommands = ISZ[String](
-      javaExe.string, "-jar", coursierJar.string,
-      "resolve", "--quiet",
-      "--scala", scalaVersion) ++ cache ++ repos ++ deps
-
-    val resolveLines = ops.StringOps(Os.proc(resolveCommands).runCheck().out).split((c: C) => c == '\n' || c == '\r')
+  def resolve(scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
+              printTree: B): HashMap[String, HashMap[String, String]] = {
+    val resolveCommands = commandPrefix(T, scalaVersion, cacheOpt, mavenRepoUrls) ++
+      (if (printTree) ISZ[String]("--tree") else ISZ[String]()) ++ deps
 
     var moduleVersionOrgMap = HashMap.empty[String, HashMap[String, String]]
-    for (line <- resolveLines) {
-      val ISZ(org, module, version, _*) = ops.StringOps(line).split((c: C) => c == ':').map((s: String) => ops.StringOps(s).trim)
-      val moduleVersion = s"$module-$version"
-      val orgMap = moduleVersionOrgMap.get(moduleVersion).getOrElse(HashMap.empty)
-      moduleVersionOrgMap = moduleVersionOrgMap + moduleVersion ~> (orgMap + org ~> version)
+
+    if (printTree) {
+      Os.proc(resolveCommands).console.runCheck()
+    } else {
+      val resolveLines = ops.StringOps(Os.proc(resolveCommands).runCheck().out).split((c: C) => c == '\n' || c == '\r')
+      for (line <- resolveLines) {
+        val ISZ(org, module, version, _*) = ops.StringOps(line).split((c: C) => c == ':').map((s: String) => ops.StringOps(s).trim)
+        val moduleVersion = s"$module-$version"
+        val orgMap = moduleVersionOrgMap.get(moduleVersion).getOrElse(HashMap.empty)
+        moduleVersionOrgMap = moduleVersionOrgMap + moduleVersion ~> (orgMap + org ~> version)
+      }
     }
+    return moduleVersionOrgMap
+  }
+
+  def fetch(scalaVersion: String, deps: ISZ[String]): ISZ[CoursierFileInfo] = {
+    return fetchClassifiers(scalaVersion, None(), ISZ(), deps, ISZ(CoursierClassifier.Default))
+  }
+
+  def fetchClassifiers(scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
+                       cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
+
+    val moduleVersionOrgMap = resolve(scalaVersion, cacheOpt, mavenRepoUrls, deps, F)
 
     var classifiers = ISZ[String]()
     for (cl <- cls) {
@@ -92,10 +105,7 @@ object Coursier {
       }
     }
 
-    val fetchCommands = ISZ[String](
-      javaExe.string, "-jar", coursierJar.string,
-      "fetch", "--quiet",
-      "--scala", scalaVersion) ++ cache ++ classifiers ++ repos ++ deps
+    val fetchCommands = commandPrefix(F, scalaVersion, cacheOpt, mavenRepoUrls) ++ classifiers ++ deps
 
     var cifs = ISZ[CoursierFileInfo]()
 
