@@ -42,7 +42,10 @@ package org.sireum
 object Coursier {
 
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
-    val sireumHome = Os.path(Os.env("SIREUM_HOME").get)
+    val sireumHome: Os.Path = Os.env("SIREUM_HOME") match {
+      case Some(d) => Os.path(d)
+      case _ => Os.path(Os.prop("org.sireum.home").get)
+    }
     val javaExe: Os.Path = Os.kind match {
       case Os.Kind.Win => sireumHome / "bin" / "win" / "java" / "bin" / "java.exe"
       case Os.Kind.Mac => sireumHome / "bin" / "mac" / "java" / "bin" / "java"
