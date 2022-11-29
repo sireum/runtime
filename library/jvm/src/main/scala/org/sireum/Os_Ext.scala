@@ -306,6 +306,19 @@ object Os_Ext {
 
   @pure def norm(path: String): String = toIO(path).getPath
 
+  def prop(name: String): Option[String] = {
+    val r = System.getProperty(name.value)
+    return if (r == null) None() else Some(r)
+  }
+
+  def props: Map[String, String] = {
+    var r = Map.empty[String, String]
+    for ((k, v) <- System.getProperties.asScala) {
+      r = r + k ~> v
+    }
+    return r
+  }
+
   def properties(path: String): Map[String, String] = {
     val p = new java.util.Properties()
     val reader = new FR(toIO(path))

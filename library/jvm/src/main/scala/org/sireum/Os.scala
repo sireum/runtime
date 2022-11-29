@@ -121,6 +121,14 @@ object Os {
     return proc(cmds)
   }
 
+  def prop(name: String): Option[String] = {
+    return Ext.prop(name)
+  }
+
+  def props: Map[String, String] = {
+    return Ext.props
+  }
+
   @pure def readIndexableCFrom(url: String): Indexable.Pos[C] = {
     return Ext.readIndexableCUrl(url)
   }
@@ -857,6 +865,10 @@ object Os {
     @pure def name(path: String): String = $
 
     @pure def norm(path: String): String = $
+
+    def prop(name: String): Option[String] = $
+
+    def props: Map[String, String] = $
 
     def properties(path: String): Map[String, String] = $
 
