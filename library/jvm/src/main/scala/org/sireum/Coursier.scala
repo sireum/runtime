@@ -42,17 +42,8 @@ package org.sireum
 object Coursier {
 
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
-    val sireumHome: Os.Path = Os.env("SIREUM_HOME") match {
-      case Some(d) => Os.path(d)
-      case _ => Os.path(Os.prop("org.sireum.home").get)
-    }
-    val javaExe: Os.Path = Os.kind match {
-      case Os.Kind.Win => sireumHome / "bin" / "win" / "java" / "bin" / "java.exe"
-      case Os.Kind.Mac => sireumHome / "bin" / "mac" / "java" / "bin" / "java"
-      case Os.Kind.Linux => sireumHome / "bin" / "linux" / "java" / "bin" / "java"
-      case Os.Kind.LinuxArm => sireumHome / "bin" / "linux" / "arm" / "java" / "bin" / "java"
-      case Os.Kind.Unsupported => Os.path("java")
-    }
+    val sireumHome = Os.sireumHomeOpt.get
+    val javaExe = Os.javaExe
     val coursierJar = sireumHome / "lib" / "coursier.jar"
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)

@@ -71,6 +71,26 @@ object Os {
     return kind == Kind.Win
   }
 
+  def javaHomeOpt: Option[Path] = {
+    sireumHomeOpt match {
+      case Some(sireumHome) => Os.kind match {
+        case Os.Kind.Win => return Some(sireumHome / "bin" / "win" / "java")
+        case Os.Kind.Mac => return Some(sireumHome / "bin" / "mac" / "java")
+        case Os.Kind.Linux => return Some(sireumHome / "bin" / "linux" / "java")
+        case Os.Kind.LinuxArm => return Some(sireumHome / "bin" / "linux" / "arm" / "java")
+        case Os.Kind.Unsupported => return None()
+      }
+      case _ => return None()
+    }
+  }
+
+  def javaExe: Path = {
+    javaHomeOpt match {
+      case Some(d) => return d / "bin" / (if (Os.isWin) "java.exe" else "java")
+      case _ => return Os.path("java")
+    }
+  }
+
   @pure def kind: Kind.Type = {
     return Ext.osKind
   }
@@ -135,6 +155,37 @@ object Os {
 
   @pure def roots: ISZ[Path] = {
     return for (root <- Ext.roots) yield Path.Impl(root)
+  }
+
+  def scalaHomeOpt: Option[Path] = {
+    sireumHomeOpt match {
+      case Some(d) => return Some(d / "scala")
+      case _ => return None()
+    }
+  }
+
+  def scalaScript: Os.Path = {
+    scalaHomeOpt match {
+      case Some(scalaHome) => return scalaHome / "bin" / (if (Os.isWin) "scala.bat" else "scala")
+      case _ => return Os.path("scala")
+    }
+  }
+
+  def scalacScript: Os.Path = {
+    scalaHomeOpt match {
+      case Some(scalaHome) => return scalaHome / "bin" / (if (Os.isWin) "scalac.bat" else "scalac")
+      case _ => return Os.path("scalac")
+    }
+  }
+
+  def sireumHomeOpt: Option[Os.Path] = {
+    Os.env("SIREUM_HOME") match {
+      case Some(d) => return Some(Os.path(d))
+      case _ => Os.prop("org.sireum.home") match {
+        case Some(d) => return Some(Os.path(d))
+        case _ => return None()
+      }
+    }
   }
 
   def slashDir: Os.Path = {
