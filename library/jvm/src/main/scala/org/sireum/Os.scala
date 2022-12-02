@@ -67,7 +67,7 @@ object Os {
     return kind == Kind.Mac
   }
 
-  @pure def isMacArm: B = {
+  @memoize def isMacArm: B = {
     return isMac && ops.StringOps(proc"uname -m".run().out).trim == "arm64"
   }
 
