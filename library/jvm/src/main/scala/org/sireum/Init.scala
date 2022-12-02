@@ -154,7 +154,7 @@ package org.sireum
       val dropName = s"scalac-plugin-$scalacPluginVersion.jar"
       val scalacPluginUrl = s"https://github.com/sireum/scalac-plugin/releases/download/$scalacPluginVersion/$dropName"
       val drop = cache / dropName
-      if (drop.exists) {
+      if (!drop.exists) {
         println(s"Please wait while downloading Slang scalac plugin $scalacPluginVersion ...")
         drop.downloadFrom(scalacPluginUrl)
         println()
