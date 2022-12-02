@@ -43,7 +43,7 @@ object Coursier {
 
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
     val sireumHome = Os.sireumHomeOpt.get
-    val javaExe = Os.javaExe
+    val javaExe = Os.javaExe(Some(sireumHome))
     val coursierJar = sireumHome / "lib" / "coursier.jar"
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)

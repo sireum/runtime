@@ -67,13 +67,17 @@ object Os {
     return kind == Kind.Mac
   }
 
+  @pure def isMacArm: B = {
+    return isMac && ops.StringOps(proc"uname -m".run().out).trim == "arm64"
+  }
+
   @pure def isWin: B = {
     return kind == Kind.Win
   }
 
-  def javaHomeOpt: Option[Path] = {
-    sireumHomeOpt match {
-      case Some(sireumHome) => Os.kind match {
+  def javaHomeOpt(kind: Os.Kind.Type, homeOpt: Option[Os.Path]): Option[Path] = {
+    homeOpt match {
+      case Some(sireumHome) => kind match {
         case Os.Kind.Win => return Some(sireumHome / "bin" / "win" / "java")
         case Os.Kind.Mac => return Some(sireumHome / "bin" / "mac" / "java")
         case Os.Kind.Linux => return Some(sireumHome / "bin" / "linux" / "java")
@@ -84,8 +88,8 @@ object Os {
     }
   }
 
-  def javaExe: Path = {
-    javaHomeOpt match {
+  def javaExe(homeOpt: Option[Os.Path]): Path = {
+    javaHomeOpt(Os.kind, homeOpt) match {
       case Some(d) => return d / "bin" / (if (Os.isWin) "java.exe" else "java")
       case _ => return Os.path("java")
     }
@@ -157,22 +161,22 @@ object Os {
     return for (root <- Ext.roots) yield Path.Impl(root)
   }
 
-  def scalaHomeOpt: Option[Path] = {
-    sireumHomeOpt match {
-      case Some(d) => return Some(d / "scala")
+  def scalaHomeOpt(homeOpt: Option[Os.Path]): Option[Path] = {
+    homeOpt match {
+      case Some(d) => return Some(d / "bin" / "scala")
       case _ => return None()
     }
   }
 
-  def scalaScript: Os.Path = {
-    scalaHomeOpt match {
+  def scalaScript(homeOpt: Option[Os.Path]): Os.Path = {
+    scalaHomeOpt(homeOpt) match {
       case Some(scalaHome) => return scalaHome / "bin" / (if (Os.isWin) "scala.bat" else "scala")
       case _ => return Os.path("scala")
     }
   }
 
-  def scalacScript: Os.Path = {
-    scalaHomeOpt match {
+  def scalacScript(homeOpt: Option[Os.Path]): Os.Path = {
+    scalaHomeOpt(homeOpt) match {
       case Some(scalaHome) => return scalaHome / "bin" / (if (Os.isWin) "scalac.bat" else "scalac")
       case _ => return Os.path("scalac")
     }
@@ -183,7 +187,7 @@ object Os {
       case Some(d) => return Some(Os.path(d))
       case _ => Os.prop("org.sireum.home") match {
         case Some(d) => return Some(Os.path(d))
-        case _ => return None()
+        case _ => return Ext.detectSireumHome
       }
     }
   }
@@ -868,6 +872,8 @@ object Os {
     def chmod(path: String, mask: String, all: B): Unit = $
 
     def copy(path: String, target: String, over: B): Unit = $
+
+    def detectSireumHome: Option[Os.Path] = $
 
     def download(path: String, url: String): B = $
 

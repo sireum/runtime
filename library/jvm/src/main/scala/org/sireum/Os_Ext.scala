@@ -134,6 +134,17 @@ object Os_Ext {
     } else JFiles.copy(toNIO(path), toNIO(target), SCO.COPY_ATTRIBUTES)
   }
 
+  def detectSireumHome: Option[Os.Path] = try {
+    val cs = getClass.getProtectionDomain.getCodeSource
+    var path =
+      if (cs != null) Os.uriToPath(cs.getLocation.toURI.toASCIIString).up
+      else Os.slashDir.up
+    if (path.name.value == "bin") path = path.up
+    if ((path / "bin" / "sireum.jar").exists) Some(path) else None()
+  } catch {
+    case _: Throwable => None()
+  }
+
   def download(path: String, url: String): B = {
     def nativ(): Unit = {
       if (Os.isWin) {
