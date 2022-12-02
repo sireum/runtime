@@ -26,6 +26,20 @@
 
 package org.sireum
 
+
+object Init {
+  @datatype class Plugin(val id: String,
+                         val isDev: B,
+                         val isJar: B,
+                         val devVer: String,
+                         val ver: String) {
+    @strictpure def version(isDev: B): String =
+      if (isDev) devVer else ver
+  }
+}
+
+import Init._
+
 @datatype class Init(val home: Os.Path,
                      val kind: Os.Kind.Type,
                      val versions: Map[String, String]) {
@@ -199,22 +213,53 @@ package org.sireum
       return
     }
 
-    val filename: String = kind match {
+    val releaseName = s"z3-$version"
+    var filename: String = kind match {
       case Os.Kind.Win => s"z3-$version-x64-win.zip"
       case Os.Kind.Linux => s"z3-$version-x64-glibc-2.31.zip"
-      case Os.Kind.Mac =>
-        if (ops.StringOps(proc"uname -m".run().out).trim == "arm64") s"z3-$version-arm64-osx-11.0.zip"
-        else s"z3-$version-x64-osx-10.16.zip"
+      case Os.Kind.Mac => if (Os.isMacArm) s"z3-$version-arm64-osx-11.0.zip" else s"z3-$version-x64-osx-10.16.zip"
       case _ => return
     }
+    var url: String = s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
 
-    val bundle = cache / filename
+    def updateFilenameUrl(): Unit = {
+      GitHub.repo("Z3Prover", "z3").releases.
+        find((r: GitHub.Release) => r.name == releaseName) match {
+        case Some(r) =>
+          val desc: String = kind match {
+            case Os.Kind.Win => "x64-win"
+            case Os.Kind.Linux => "x64-glibc"
+            case Os.Kind.Mac => if (Os.isMacArm) "arm64-osx" else "x64-osx"
+            case _ => halt("Infeasible")
+          }
+          r.assets.find((asset: GitHub.Asset) => ops.StringOps(asset.name).endsWith(".zip") &&
+            ops.StringOps(asset.name).contains(desc)) match {
+            case Some(asset) =>
+              url = asset.url
+              filename = asset.name
+            case _ => halt(s"Could not find Z3 v$version for $kind")
+          }
+        case _ => halt(s"Could not find Z3 v$version")
+      }
+    }
 
-    if (!bundle.exists) {
-      println(s"Please wait while downloading Z3 $version ...")
-      bundle.up.mkdirAll()
-      bundle.downloadFrom(s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename")
-      println()
+    var bundle = cache / filename
+
+    def tryDownload(): B = {
+      if (!bundle.exists) {
+        println(s"Please wait while downloading Z3 $version ...")
+        bundle.up.mkdirAll()
+        val r = bundle.downloadFrom(url)
+        println()
+        return r
+      }
+      return T
+    }
+
+    if (!tryDownload()) {
+      updateFilenameUrl()
+      bundle = cache / filename
+      tryDownload()
     }
 
     println("Extracting Z3 ...")
@@ -230,6 +275,7 @@ package org.sireum
       case Os.Kind.Mac => (dir / "bin" / "z3").chmod("+x")
       case _ =>
     }
+    println()
 
     ver.writeOver(version)
   }
@@ -252,8 +298,7 @@ package org.sireum
         case (string"5", Os.Kind.Win) => (s"cvc$gen-$version", s"cvc$gen-Win64.exe", s"cvc$gen-$version-Win64.exe")
         case (string"5", Os.Kind.Linux) => (s"cvc$gen-$version", s"cvc$gen-Linux", s"cvc$gen-$version-Linux")
         case (string"5", Os.Kind.Mac) =>
-          if (ops.StringOps(proc"uname -m".run().out).trim == "arm64")
-            (s"cvc$gen-$version", s"cvc$gen-macOS-arm64", s"cvc$gen-$version-macOS-arm64")
+          if (Os.isMacArm) (s"cvc$gen-$version", s"cvc$gen-macOS-arm64", s"cvc$gen-$version-macOS-arm64")
           else (s"cvc$gen-$version", s"cvc$gen-macOS", s"cvc$gen-$version-macOS")
         case (string"4", Os.Kind.Win) => (version, s"cvc$gen-$version-win64-opt.exe", s"cvc$gen-$version-win64-opt.exe")
         case (string"4", Os.Kind.Linux) => (version, s"cvc$gen-$version-x86_64-linux-opt", s"cvc$gen-$version-x86_64-linux-opt")
@@ -326,6 +371,588 @@ package org.sireum
     exe.chmod("+x")
 
     ver.writeOver(version)
+  }
+
+  def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
+    deps()
+    val devSuffix: String = if (isDev) "-dev" else ""
+    if (isServer && Os.kind != Os.Kind.Linux) {
+      eprintln(s"Server setup is only available in Linux")
+      Os.exit(-1)
+    }
+    val ideaDir: Os.Path = homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
+    val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
+    val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools")
+    val pluginPrefix: String = "org.sireum.version.plugin."
+    val versions = HashMap ++ (home / "versions.properties").properties.entries
+    val isLocal: B = ops.StringOps(home.string).startsWith(Os.home.canon.string)
+    val settingsDir: String = if (isLocal) if (Os.isWin) ops.StringOps((home / ".settings").string).replaceAllChars('\\', '/') else (home / ".settings").string else "${user.home}"
+    val ignoredIcons = HashSet ++ ISZ[String](
+      "idea.icns",
+      "idea-dev.icns",
+      "idea.png",
+      "idea-dev.png",
+      "idea.svg",
+      "idea-dev.svg",
+      "idea-dev.ico",
+      "idea-ce.svg",
+      "idea-ce-eap.svg",
+      "idea-ce_16.svg",
+      "idea-ce-eap_16.svg",
+      "idea-ce_16@2x.svg",
+      "idea-ce-eap_16@2x.svg",
+      "icon_CE_256.png",
+      "icon_CE_256@2x.png",
+      "icon_CE_512.png",
+      "icon_CE_512@2x.png",
+      "idea_logo_background.png"
+    )
+    val ideaExtMap =
+      HashMap.empty[String, String] +
+        "mac" ~> ".dmg" +
+        "mac/arm" ~> "-aarch64.dmg" +
+        "win" ~> ".win.zip" +
+        "linux" ~> ".tar.gz" +
+        "linux/arm" ~> "-aarch64.tar.gz"
+    val ideaCacheDir = cache / "idea"
+    val pluginsCacheDir = ideaCacheDir / "plugins"
+    val platform: String = kind match {
+      case Os.Kind.Mac => "mac"
+      case Os.Kind.LinuxArm => "linux/arm"
+      case Os.Kind.Linux => "linux"
+      case Os.Kind.Win => "win"
+      case _ => halt("Unsupported platform")
+    }
+
+    val plugins: HashMap[String, Plugin] = {
+      var r = HashMap.empty[String, Plugin]
+      for (key <- versions.keys if ops.StringOps(key).startsWith(pluginPrefix)) {
+        val id = ops.StringOps(key).substring(pluginPrefix.size, key.size)
+        ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
+          case ISZ(isDev, isJar, devVer) =>
+            r = r + id ~> Plugin(id, isDev == "true", isJar == "true", devVer, devVer)
+          case ISZ(isDev, isJar, devVer, ver) =>
+            r = r + id ~> Plugin(id, isDev == "true", isJar == "true", devVer, ver)
+        }
+      }
+      r
+    }
+
+    val distroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
+      Os.Kind.Win ~> ISZ(
+        ISZ("bin", "scala"),
+        ISZ("bin", "win", "idea"),
+        ISZ("bin", "win", "java"),
+        ISZ("bin", "win", "z3"),
+        ISZ("bin", "win", "7za.exe"),
+        ISZ("bin", "win", "cvc.exe"),
+        ISZ("bin", "install", "antlrworks.cmd"),
+        ISZ("bin", "install", "clion.cmd"),
+        ISZ("bin", "install", "fmide.cmd"),
+        ISZ("bin", "install", "graal.cmd"),
+        ISZ("bin", "sireum.bat"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.bat"),
+        ISZ("bin", "VER"),
+        ISZ("lib"),
+        ISZ("license.txt"),
+        ISZ("readme.md"),
+        ISZ("versions.properties"),
+        ISZ("..", "setup.bat")
+      ) +
+      Os.Kind.Linux ~> ISZ(
+        ISZ("bin", "scala"),
+        ISZ("bin", "linux", "idea"),
+        ISZ("bin", "linux", "java"),
+        ISZ("bin", "linux", "z3"),
+        ISZ("bin", "linux", "7za"),
+        ISZ("bin", "linux", "cvc"),
+        ISZ("bin", "linux", "alt-ergo-open"),
+        ISZ("bin", "install", "acl2.cmd"),
+        ISZ("bin", "install", "alt-ergo.cmd"),
+        ISZ("bin", "install", "antlrworks.cmd"),
+        ISZ("bin", "install", "clion.cmd"),
+        ISZ("bin", "install", "compcert.cmd"),
+        ISZ("bin", "install", "coq.cmd"),
+        ISZ("bin", "install", "ffmpeg-libs.cmd"),
+        ISZ("bin", "install", "fmide.cmd"),
+        ISZ("bin", "install", "graal.cmd"),
+        ISZ("bin", "install", "menhir.cmd"),
+        ISZ("bin", "install", "opam.cmd"),
+        ISZ("bin", "install", "projector-server.cmd"),
+        ISZ("bin", "sireum"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.sh"),
+        ISZ("bin", "VER"),
+        ISZ("lib"),
+        ISZ("license.txt"),
+        ISZ("readme.md"),
+        ISZ("versions.properties"),
+        ISZ("..", "setup")
+      ) +
+      Os.Kind.LinuxArm ~> ISZ(
+        ISZ("bin", "scala"),
+        ISZ("bin", "linux", "arm", "idea"),
+        ISZ("bin", "linux", "arm", "java"),
+        ISZ("bin", "linux", "arm", "7za"),
+        ISZ("bin", "linux", "arm", "fsnotifier"),
+        ISZ("bin", "install", "clion.cmd"),
+        ISZ("bin", "sireum"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.sh"),
+        ISZ("bin", "VER"),
+        ISZ("lib"),
+        ISZ("license.txt"),
+        ISZ("readme.md"),
+        ISZ("versions.properties"),
+        ISZ("..", "setup")
+      ) +
+      Os.Kind.Mac ~> ISZ(
+        ISZ("bin", "scala"),
+        ISZ("bin", "mac", "idea"),
+        ISZ("bin", "mac", "java"),
+        ISZ("bin", "mac", "z3"),
+        ISZ("bin", "mac", "7za"),
+        ISZ("bin", "mac", "cvc"),
+        ISZ("bin", "mac", "alt-ergo-open"),
+        ISZ("bin", "install", "alt-ergo.cmd"),
+        ISZ("bin", "install", "antlrworks.cmd"),
+        ISZ("bin", "install", "clion.cmd"),
+        ISZ("bin", "install", "compcert.cmd"),
+        ISZ("bin", "install", "coq.cmd"),
+        ISZ("bin", "install", "fmide.cmd"),
+        ISZ("bin", "install", "graal.cmd"),
+        ISZ("bin", "install", "menhir.cmd"),
+        ISZ("bin", "install", "opam.cmd"),
+        ISZ("bin", "sireum"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.sh"),
+        ISZ("bin", "VER"),
+        ISZ("lib"),
+        ISZ("license.txt"),
+        ISZ("readme.md"),
+        ISZ("versions.properties"),
+        ISZ("..", "setup")
+      )
+
+    val pluginsDir: Os.Path =
+      if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "plugins"
+      else ideaDir / "plugins"
+
+    val libDir: Os.Path =
+      if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "lib"
+      else ideaDir / "lib"
+
+    @strictpure def zipName(id: String, version: String): String = s"$id-$version.zip"
+
+    @pure def devRelVer(key: String): (String, String) = {
+      ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
+        case ISZ(devVer, ver) =>
+          return (ops.StringOps(devVer).trim, ops.StringOps(ver).trim)
+        case ISZ(ver) =>
+          val v = ops.StringOps(ver).trim
+          return (v, v)
+      }
+    }
+
+    val ideaVer: String = {
+      val (devVer, ver) = devRelVer("org.sireum.version.idea")
+      if (isDev) devVer else ver
+    }
+
+    val pwd7z = homeBinPlatform / (if (Os.isWin) "7za.exe" else "7za")
+
+    pluginsCacheDir.mkdirAll()
+
+    def downloadPlugins(): Unit = {
+      for (p <- plugins.values) {
+        val ver = p.version(isDev)
+        val zip = zipName(p.id, ver)
+        if (!(pluginsCacheDir / zip).exists) {
+          val pidOps = ops.StringOps(p.id)
+          val sireumPrefix: String = "sireum-"
+          val cis706Prefix: String = "ksu-cis-706-"
+          val url: String =
+            if (pidOps.startsWith(sireumPrefix)) {
+              val repo = pidOps.substring(sireumPrefix.size, p.id.size)
+              s"https://github.com/sireum/$repo/releases/download/$ver/$repo.zip"
+            } else if (pidOps.startsWith(cis706Prefix)) {
+              val repo = pidOps.substring(cis706Prefix.size, p.id.size)
+              s"https://github.com/ksu-cis-706/$repo/releases/download/$ver/$repo.zip"
+            } else {
+              s"https://plugins.jetbrains.com/plugin/download?pr=idea&updateId=$ver"
+            }
+          print(s"Downloading ${p.id} plugin from $url ... ")
+          (pluginsCacheDir / zip).downloadFrom(url)
+          println("done!")
+        }
+      }
+    }
+
+    def extractPlugins(): Unit = {
+      for (p <- plugins.values) {
+        val zip = zipName(p.id, p.version(isDev))
+        val zipPath = ideaCacheDir / "plugins" / zip
+        if (p.isJar) {
+          print(s"Copying ${p.id} plugin ... ")
+          zipPath.copyOverTo(pluginsDir / s"${p.id}.jar")
+          println("done!")
+        } else {
+          print(s"Extracting ${p.id} plugin from $zipPath ... ")
+          proc"$pwd7z x -y $zipPath".at(pluginsDir).runCheck()
+          println("done!")
+        }
+      }
+    }
+
+    def patchIdeaProperties(p: Os.Path): Unit = {
+      if (isServer) {
+        return
+      }
+      print(s"Patching $p ... ")
+      val content = p.read
+      val ult: String = if (isUltimate) "-ult" else ""
+      val newContent: String = kind match {
+        case Os.Kind.Mac =>
+          val contentOps = ops.StringOps(content)
+          val i = contentOps.stringIndexOf("idea.paths.selector")
+          val j = contentOps.stringIndexOfFrom("<string>", i)
+          val k = contentOps.stringIndexOfFrom("</string>", j)
+          if (isLocal) s"${contentOps.substring(0, j)}<string>.SireumIVE$ult$devSuffix</string>\n        <key>idea.config.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/config</string>\n        <key>idea.system.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/system</string>\n        <key>idea.log.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/log</string>\n        <key>idea.plugins.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/plugins${contentOps.substring(k, content.size)}"
+          else s"${contentOps.substring(0, j)}<string>SireumIVE$ult$devSuffix${contentOps.substring(k, content.size)}"
+        case Os.Kind.Win =>
+          s"idea.config.path=$settingsDir/.SireumIVE$ult$devSuffix/config\r\nidea.system.path=$settingsDir/.SireumIVE$ult$devSuffix/system\r\nidea.log.path=$settingsDir/.SireumIVE$ult$devSuffix/log\r\nidea.plugins.path=$settingsDir/.SireumIVE$ult$devSuffix/plugins\r\n$content"
+        case _ =>
+          s"idea.config.path=$settingsDir/.SireumIVE$ult$devSuffix/config\nidea.system.path=$settingsDir/.SireumIVE$ult$devSuffix/system\nidea.log.path=$settingsDir/.SireumIVE$ult$devSuffix/log\nidea.plugins.path=$settingsDir/.SireumIVE$ult$devSuffix/plugins\n$content"
+      }
+      p.writeOver(newContent)
+      println("done!")
+    }
+
+    def patchVMOptions(p: Os.Path): Unit = {
+      print(s"Patching $p ... ")
+      val content = ops.StringOps(p.read).trim
+      val newContent: String =
+        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
+        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n"
+      p.writeOver(newContent)
+      println("done!")
+    }
+
+    def patchExe(): Unit = {
+      if (isUltimate) {
+        return
+      }
+      val rhExe = "ResourceHacker.exe"
+      val rhDir = home / "resources" / "rh"
+      rhDir.mkdirAll()
+      if (!(rhDir / rhExe).exists) {
+        print("Downloading ResourceHacker ... ")
+        (rhDir / "rh.zip").downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
+        proc"$pwd7z x rh.zip $rhExe".at(rhDir).runCheck()
+        println("done!")
+      }
+      val binDir = ideaDir / "bin"
+      val idea64Exe = binDir / "idea64.exe"
+      print(s"Patching $idea64Exe ... ")
+      if (Os.isWin) {
+        proc"${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
+      } else {
+        proc"wine ${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
+      }
+      println("done!")
+    }
+
+    def patchIcon(isWin: B): Unit = {
+      if (isUltimate) {
+        return
+      }
+      val iconsPath = home / "resources" / "distro" / "icons"
+      val (dirPath, srcFilename, filename): (Os.Path, String, String) = kind match {
+        case Os.Kind.Mac =>
+          if (isDev) {
+            (iconsPath / "idea-dev.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
+            (sireumAppDir / "Contents" / "Resources", "idea-dev.icns", "idea.icns")
+          } else {
+            (iconsPath / "idea.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
+            (sireumAppDir / "Contents" / "Resources", "idea.icns", "idea.icns")
+          }
+        case Os.Kind.Win =>
+          if (isDev) {
+            (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            (ideaDir / "bin", "idea-dev.ico", "idea.ico")
+          } else {
+            (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            (ideaDir / "bin", "idea_CE.ico", "idea.ico")
+          }
+        case _ =>
+          if (isDev) {
+            (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            (ideaDir / "bin", "idea-dev.png", "idea.png")
+          } else {
+            (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            (ideaDir / "bin", "idea.png", "idea.png")
+          }
+      }
+      print(s"Replacing icon ${dirPath / filename} ... ")
+      (iconsPath / srcFilename).copyOverTo(dirPath / filename)
+      println("done!")
+      if (isWin) {
+        patchExe()
+      }
+    }
+
+    def patchApp(): Unit = {
+      if (isUltimate) {
+        return
+      }
+      val iconsPath = home / "resources" / "distro" / "icons"
+      val appJar = libDir / "app.jar"
+      val tempDir = libDir / "app-temp"
+      tempDir.removeAll()
+      tempDir.mkdirAll()
+      print(s"Patching $appJar ... ")
+      appJar.unzipTo(tempDir)
+      val entriesToUpdate: ISZ[String] =
+        for (f <- ISZ[String](
+          "Logo_welcomeScreen.png",
+          "Logo_welcomeScreen@2x.png",
+          "Logo_welcomeScreen_CE.png",
+          "Logo_welcomeScreen_CE@2x.png",
+          "icon.png",
+          "icon@2x.png",
+          "icon_128.png",
+          "icon_CE.png",
+          "icon_CE@2x.png",
+          "icon_CE_128.png",
+          "icon_CE_128@2x.png",
+          "icon_CE_64.png",
+          "icon_CE_64@2x.png",
+          "icon_CEsmall.png",
+          "icon_CEsmall@2x.png",
+          "icon_small@2x.png",
+          "icon_small@2x_dark.png",
+          "icon_small_dark.png",
+          "icon_small.png",
+          "idea_CE.ico",
+          "idea_logo_welcome.png"
+        ) if !ignoredIcons.contains(f)) yield f
+      for (e <- entriesToUpdate) {
+        (iconsPath / e).copyOverTo(tempDir / e)
+      }
+
+      val distroDir = home / "resources" / "distro"
+      val iai = tempDir / "idea" / "IdeaApplicationInfo.xml"
+      val content = iai.read
+      iai.writeOver(
+        ops.StringOps(ops.StringOps(content).
+          replaceAllLiterally("svg-small=\"/idea-ce_16.svg\"", "svg-small=\"/idea-ce_16.png\"")).
+          replaceAllLiterally("svg-small=\"/idea-ce-eap_16.svg\"", "svg-small=\"/idea-ce_16.png\""))
+      for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+        (tempDir / e).removeAll()
+      }
+      val d = distroDir / "images" / (if (isDev) "dev" else "release")
+      for (e <- ISZ("idea_community_about.png", "idea_community_about@2x.png", "idea_community_logo.png", "idea_community_logo@2x.png", "idea-ce.svg", "idea-ce-eap.svg", "idea-ce_16.png", "idea-ce_16@2x.png")) {
+        (d / e).copyOverTo(tempDir / e)
+      }
+      val appTempJar = libDir / "app-temp.jar"
+      tempDir.zipTo(appTempJar)
+      appTempJar.moveOverTo(appJar)
+      tempDir.removeAll()
+      println("done!")
+    }
+
+    def deleteSources(): Unit = {
+      for (p <- Os.Path.walk(ideaDir, F, T, (p: Os.Path) => p.ext == "java" || p.ext == "scala")) {
+        p.removeAll()
+      }
+    }
+
+    def deletePlugins(): Unit = {
+      if (isServer) {
+        return
+      }
+      for (p <- delPlugins) {
+        print(s"Removing $p plugin ... ")
+        (pluginsDir / p).removeAll()
+        println("done!")
+      }
+    }
+
+    def setupMac(ideaDrop: Os.Path): Unit = {
+      proc"hdiutil attach $ideaDrop".at(home).runCheck()
+      var dirPath = Os.home
+      for (p <- Os.path("/Volumes").list if ops.StringOps(p.name).startsWith("IntelliJ")) {
+        dirPath = p
+      }
+      var appPath = dirPath
+      for (p <- dirPath.list if ops.StringOps(p.name).endsWith(".app")) {
+        appPath = p
+      }
+      sireumAppDir.up.mkdirAll()
+      appPath.copyOverTo(sireumAppDir)
+      proc"hdiutil eject $dirPath".at(home).runCheck()
+      println("done!")
+      deleteSources()
+      deletePlugins()
+      extractPlugins()
+      patchIcon(F)
+      patchApp()
+      patchIdeaProperties(sireumAppDir / "Contents" / "Info.plist")
+      patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
+      proc"codesign --force --deep --sign - $sireumAppDir".run()
+    }
+
+    def setupLinux(ideaDrop: Os.Path): Unit = {
+      if (isServer) {
+        val ideaVerOps = ops.StringOps(ideaVer)
+        val rel: String = ideaVerOps.split((c: C) => c == '.') match {
+          case ISZ(_, r, _) => r
+          case ISZ(_, r) => r
+        }
+        val namePart = s"_ideaIU-${ideaVerOps.substring(2, 4)}$rel"
+        var dist = Os.home / ".cache" / "JetBrains" / "RemoteDev" / "dist"
+        for (p <- dist.list if p.isDir && ops.StringOps(p.name).contains(namePart)) {
+          if (dist.name == "dist" || p.lastModified >= dist.lastModified) {
+            dist = p
+          }
+        }
+        if (dist.name == "dist") {
+          eprintln(s"Could not find IntelliJ Ultimate for remote development in $dist")
+          Os.exit(-1)
+        }
+        ideaDir.mklink(dist)
+      } else {
+        val ideaDirParent = ideaDir.up.canon
+        proc"tar xfz $ideaDrop".at(ideaDirParent).runCheck()
+
+        for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-${if (isUltimate) "IU" else "IC"}-")) {
+          p.moveOverTo(ideaDir)
+        }
+      }
+      deleteSources()
+      if (!isServer) {
+        println("done!")
+      }
+      deletePlugins()
+      extractPlugins()
+      patchIcon(F)
+      patchApp()
+      patchIdeaProperties(ideaDir / "bin" / "idea.properties")
+      patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
+      (ideaDir / "bin" / "idea.vmoptions").removeAll()
+      if (!isServer) {
+        val ideash = ideaDir / "bin" / "idea.sh"
+        val ivesh = ideaDir / "bin" / "IVE.sh"
+        ideash.moveOverTo(ivesh)
+        ivesh.chmod("+x")
+        ideash.mklink(ivesh)
+      }
+    }
+
+    def setupWin(ideaDrop: Os.Path): Unit = {
+      ideaDir.mkdirAll()
+      proc"$pwd7z x -y $ideaDrop".at(ideaDir).runCheck()
+      (ideaDir / "$PLUGINSDIR").removeAll()
+      deleteSources()
+      println("done!")
+      deletePlugins()
+      extractPlugins()
+      patchIcon(T)
+      patchApp()
+      patchIdeaProperties(ideaDir / "bin" / "idea.properties")
+      patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
+      (ideaDir / "bin" / "idea.exe").removeAll()
+      (ideaDir / "bin" / "idea.exe.vmoptions").removeAll()
+      (ideaDir / "bin" / "idea64.exe").moveOverTo(ideaDir / "bin" / "IVE.exe")
+      (ideaDir / "bin" / "idea64.exe.vmoptions").moveOverTo(ideaDir / "bin" / "IVE.exe.vmoptions")
+      if (buildSfx) {
+        (homeBin / "sireum.jar").copyOverTo(ideaDir / "plugins" / "sireum-intellij-plugin" / "lib" / "sireum.jar")
+      }
+    }
+
+    def pack(): Unit = {
+      val plat = ops.StringOps(platform).replaceAllChars('/', '-')
+      val sfxSuffix: String = if (kind == Os.Kind.Win) ".exe" else ".sfx"
+      val r = home / "distro" / s"$plat$devSuffix$sfxSuffix"
+      r.removeAll()
+      print(s"Packaging $r ... ")
+      val distro7z = s"$plat.7z"
+      val setupDir = home / "distro" / (if (isDev) "dev" else "release")
+      val oldPwd = home
+      val (repoDir, distroDir): (Os.Path, Os.Path) = {
+        val dir = setupDir / s"Sireum$devSuffix"
+        for (rp <- distroMap.get(kind).get if rp(0) != "..") {
+          (dir /+ rp).up.mkdirAll()
+          val orp = oldPwd /+ rp
+          if (orp.exists) {
+            orp.copyOverTo(dir /+ rp)
+          } else {
+            println()
+            println(s"Warning: Could not find $orp")
+          }
+        }
+        (oldPwd, dir)
+      }
+      val sfx = repoDir / "distro" / s"$plat$devSuffix$sfxSuffix"
+      val files: ISZ[String] =
+        for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
+      val cmd = ISZ[String](pwd7z.string, "a", distro7z) ++ files
+
+      Os.proc(cmd).at(distroDir.up).runCheck()
+      kind match {
+        case Os.Kind.Win =>
+          sfx.mergeFrom(ISZ(repoDir / "bin" / "win" / "7z.sfx", distroDir.up / "config.txt", distroDir.up / distro7z))
+        case _ =>
+          sfx.mergeFrom(ISZ(repoDir / "bin" / platform / "7z.sfx", distroDir.up / distro7z))
+      }
+      (distroDir.up / distro7z).removeAll()
+      println("done!")
+      distroDir.removeAll()
+    }
+
+    def build(): Unit = {
+      println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
+      val suffix: String =
+        if (Os.isMacArm) ideaExtMap.get("mac/arm").get
+        else ideaExtMap.get(platform).get
+      val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
+      val urlOps = ops.StringOps(url)
+      val filename = urlOps.substring(urlOps.lastIndexOf('/') + 1, url.size)
+      val buildDir = ideaDir.up.canon
+      buildDir.mkdirAll()
+      val ideaDrop = ideaCacheDir / filename
+      if (!ideaDrop.exists && !isServer) {
+        print(s"Downloading from $url ... ")
+        (ideaCacheDir / filename).downloadFrom(url)
+        println("done!")
+      }
+      downloadPlugins()
+      if (!isServer) {
+        print(s"Extracting $ideaDrop ... ")
+      }
+      ideaDir.removeAll()
+      kind match {
+        case Os.Kind.Mac => setupMac(ideaDrop)
+        case Os.Kind.Win => setupWin(ideaDrop)
+        case _ => setupLinux(ideaDrop)
+      }
+      val sireumJar = pluginsDir / "sireum-intellij-plugin" / "lib" / "sireum.jar"
+      val homeBinSireumJar = homeBin / "sireum.jar"
+      sireumJar.removeAll()
+      if (buildSfx) {
+        homeBinSireumJar.copyTo(sireumJar)
+        pack()
+      } else {
+        sireumJar.mklink(homeBinSireumJar)
+      }
+      println("Done!")
+    }
+
+    build()
+
+    (home / "bin" / "VER").writeOver(
+      proc"git log -n 1 --date=format:%Y%m%d --pretty=format:4.%cd.%h".at(home).runCheck().out)
   }
 
 
