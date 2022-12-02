@@ -419,12 +419,15 @@ import Init._
         "linux/arm" ~> "-aarch64.tar.gz"
     val ideaCacheDir = cache / "idea"
     val pluginsCacheDir = ideaCacheDir / "plugins"
-    val platform: String = kind match {
-      case Os.Kind.Mac => "mac"
-      case Os.Kind.LinuxArm => "linux/arm"
-      case Os.Kind.Linux => "linux"
-      case Os.Kind.Win => "win"
-      case _ => halt("Unsupported platform")
+
+    def platform(k: Os.Kind.Type): String = {
+      k match {
+        case Os.Kind.Mac => return "mac"
+        case Os.Kind.LinuxArm => return "linux/arm"
+        case Os.Kind.Linux => return "linux"
+        case Os.Kind.Win => return "win"
+        case _ => halt("Unsupported platform")
+      }
     }
 
     val plugins: HashMap[String, Plugin] = {
@@ -563,7 +566,33 @@ import Init._
       if (isDev) devVer else ver
     }
 
-    val pwd7z = homeBinPlatform / (if (Os.isWin) "7za.exe" else "7za")
+    val pwd7z = homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
+    val pwd7zsfx = pwd7z.up / s"7z.sfx"
+    val pwd7zUrl: String = Os.kind match {
+      case Os.Kind.Win => "https://github.com/sireum/bin-windows/raw/master/7za.exe"
+      case Os.Kind.Mac => "https://github.com/sireum/bin-mac/raw/master/7za"
+      case Os.Kind.Linux => "https://github.com/sireum/bin-linux/raw/master/7za"
+      case Os.Kind.LinuxArm => "https://github.com/sireum/bin-linux/raw/master/arm/7za"
+      case _ => halt("Infeasible")
+    }
+
+    if (!pwd7z.exists) {
+      pwd7z.up.mkdirAll()
+      println(s"Please wait while downloading ${pwd7z.name} ...")
+      pwd7z.downloadFrom(pwd7zUrl)
+      pwd7z.chmod("+x")
+      println()
+    }
+
+    if (buildSfx && !pwd7zsfx.exists) {
+      println(s"Please wait while downloading ${pwd7zsfx.name} ...")
+      pwd7zsfx.downloadFrom(
+        if (Os.isWin) ops.StringOps(pwd7zUrl).replaceAllLiterally("7za.exe", "7z.sfx")
+        else ops.StringOps(pwd7zUrl).replaceAllLiterally("7za", "7z.sfx")
+      )
+      pwd7zsfx.chmod("+x")
+      println()
+    }
 
     pluginsCacheDir.mkdirAll()
 
@@ -875,7 +904,7 @@ import Init._
     }
 
     def pack(): Unit = {
-      val plat = ops.StringOps(platform).replaceAllChars('/', '-')
+      val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
       val sfxSuffix: String = if (kind == Os.Kind.Win) ".exe" else ".sfx"
       val r = home / "distro" / s"$plat$devSuffix$sfxSuffix"
       r.removeAll()
@@ -907,7 +936,7 @@ import Init._
         case Os.Kind.Win =>
           sfx.mergeFrom(ISZ(repoDir / "bin" / "win" / "7z.sfx", distroDir.up / "config.txt", distroDir.up / distro7z))
         case _ =>
-          sfx.mergeFrom(ISZ(repoDir / "bin" / platform / "7z.sfx", distroDir.up / distro7z))
+          sfx.mergeFrom(ISZ(repoDir / "bin" / platform(kind) / "7z.sfx", distroDir.up / distro7z))
       }
       (distroDir.up / distro7z).removeAll()
       println("done!")
@@ -918,7 +947,7 @@ import Init._
       println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
       val suffix: String =
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
-        else ideaExtMap.get(platform).get
+        else ideaExtMap.get(platform(kind)).get
       val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
       val urlOps = ops.StringOps(url)
       val filename = urlOps.substring(urlOps.lastIndexOf('/') + 1, url.size)
