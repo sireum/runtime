@@ -373,6 +373,9 @@ import Init._
     ver.writeOver(version)
   }
 
+  @strictpure def ideaDirPath(isUltimate: B, isServer: B): Os.Path =
+    homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
+
   def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
     deps()
     val devSuffix: String = if (isDev) "-dev" else ""
@@ -380,7 +383,7 @@ import Init._
       eprintln(s"Server setup is only available in Linux")
       Os.exit(-1)
     }
-    val ideaDir: Os.Path = homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
+    val ideaDir: Os.Path = ideaDirPath(isUltimate, isServer)
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
     val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools")
     val pluginPrefix: String = "org.sireum.version.plugin."
