@@ -68,7 +68,7 @@ object Os {
   }
 
   @memoize def isMacArm: B = {
-    return isMac && ops.StringOps(proc"uname -m".run().out).trim == "arm64"
+    return isMac && prop("os.arch") == Some("aarch64")
   }
 
   @pure def isWin: B = {

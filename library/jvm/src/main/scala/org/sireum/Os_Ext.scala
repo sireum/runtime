@@ -73,12 +73,10 @@ object Os_Ext {
     else if (proc"wget --version".run().ok) ISZ("wget", "-qO")
     else ISZ()
 
-  lazy val hasWget: B = proc"wget --version".run().ok
-
   lazy val osKind: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
-      if (new Predef.String(os.proc("uname", "-m").call().out.bytes, "UTF-8").trim == "aarch64") Os.Kind.LinuxArm
+      if (prop("os.arch") == Some("aarch64")) Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
