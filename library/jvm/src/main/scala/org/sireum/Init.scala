@@ -94,15 +94,15 @@ import Init._
   }
 
   @memoize def javaVersion: String = {
-    return versions.get("org.sireum.version.zulu").get
+    var r = versions.get("org.sireum.version.zulu").get
+    if (Os.kind == Os.Kind.LinuxArm) {
+      r = ops.StringOps(r).replaceAllLiterally("-ca-fx-jdk", "-ca-jdk")
+    }
+    return r
   }
 
   @memoize def javaHome: Os.Path = {
     return Os.javaHomeOpt(kind, Some(home)).get
-  }
-
-  @memoize def tar: String = {
-    return ops.StringOps(proc"which tar".runCheck().out).trim
   }
 
   def installJava(): Unit = {
@@ -131,7 +131,7 @@ import Init._
         if (Os.isWin) {
           drop.unzipTo(homeBinPlatform)
         } else {
-          proc"$tar xfz $drop".at(homeBinPlatform).runCheck()
+          proc"tar xfz $drop".at(homeBinPlatform).runCheck()
         }
         for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("zulu")) {
           d.moveTo(javaHome)
@@ -860,7 +860,7 @@ import Init._
         ideaDir.mklink(dist)
       } else {
         val ideaDirParent = ideaDir.up.canon
-        proc"$tar xfz $ideaDrop".at(ideaDirParent).runCheck()
+        proc"tar xfz $ideaDrop".at(ideaDirParent).runCheck()
 
         for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-${if (isUltimate) "IU" else "IC"}-")) {
           p.moveOverTo(ideaDir)

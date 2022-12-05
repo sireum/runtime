@@ -73,13 +73,15 @@ object Os_Ext {
     else if (proc"wget --version".run().ok) ISZ("wget", "-qO")
     else ISZ()
 
-  lazy val osKind: Os.Kind.Type =
-    if (scala.util.Properties.isMac) Os.Kind.Mac
+  lazy val osKind: Os.Kind.Type = {
+    val r = if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
       if (prop("os.arch").get == string"aarch64") Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
+    r
+  }
 
   lazy val numOfProcessors: Z = Runtime.getRuntime.availableProcessors
 
