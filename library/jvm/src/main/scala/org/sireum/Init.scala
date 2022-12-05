@@ -93,6 +93,18 @@ import Init._
     return homeBin / "sireum.jar"
   }
 
+  @memoize def maryTtsJar: Os.Path = {
+    return homeLib / "marytts_text2wav.jar"
+  }
+
+  @memoize def checkstack: Os.Path = {
+    return homeBinPlatform / ".checkstack"
+  }
+
+  @memoize def checkstackVersion: String = {
+    return versions.get("org.sireum.version.checkstack").get
+  }
+
   @memoize def javaVersion: String = {
     var r = versions.get("org.sireum.version.zulu").get
     if (Os.kind == Os.Kind.LinuxArm) {
@@ -384,6 +396,34 @@ import Init._
     ver.writeOver(version)
   }
 
+  def installMaryTTS(): Unit = {
+    if (!maryTtsJar.exists) {
+      val cacheJar = cache / maryTtsJar.name
+      if (!cacheJar.exists) {
+        cacheJar.up.mkdirAll()
+        println("Please wait while downloading MaryTTS text2wav ...")
+        cacheJar.downloadFrom("https://github.com/sireum/rolling/releases/download/marytts-text2wav/txt2wav.jar")
+        cacheJar.copyOverTo(maryTtsJar)
+      }
+      println()
+    }
+  }
+
+  def installCheckStack(): Unit = {
+    kind match {
+      case Os.Kind.Linux =>
+      case Os.Kind.LinuxArm =>
+      case _ => return
+    }
+    val ver = homeBinPlatform / ".checkstack.ver"
+    if (!checkstack.exists || !ver.exists || ver.read != checkstackVersion) {
+      println(s"Please wait while downloading checkstack.pl $checkstackVersion ...")
+      checkstack.downloadFrom(s"https://raw.githubusercontent.com/torvalds/linux/$checkstackVersion/scripts/checkstack.pl")
+      ver.writeOver(checkstackVersion)
+      println()
+    }
+  }
+
   @strictpure def ideaDirPath(isUltimate: B, isServer: B): Os.Path =
     homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
 
@@ -512,8 +552,8 @@ import Init._
         ISZ("bin", "linux", "arm", "idea"),
         ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "7za"),
-        ISZ("bin", "linux", "arm", "fsnotifier"),
         ISZ("bin", "install", "clion.cmd"),
+        ISZ("bin", "install", "graal.cmd"),
         ISZ("bin", "sireum"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
