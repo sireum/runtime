@@ -76,7 +76,7 @@ object Os_Ext {
   lazy val osKind: Os.Kind.Type =
     if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
-      if (prop("os.arch") == Some("aarch64")) Os.Kind.LinuxArm
+      if (prop("os.arch").get == string"aarch64") Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported

@@ -101,6 +101,10 @@ import Init._
     return Os.javaHomeOpt(kind, Some(home)).get
   }
 
+  @memoize def tar: String = {
+    return ops.StringOps(proc"which tar".runCheck().out).trim
+  }
+
   def installJava(): Unit = {
     homeBinPlatform.mkdirAll()
 
@@ -119,7 +123,7 @@ import Init._
         val url = s"https://cdn.azul.com/zulu/bin/$dropName"
         val drop = cache / dropName
         if (!drop.exists) {
-          println(s"Please wait while downloading Zulu $javaVersion ...")
+          println(s"Please wait while downloading Zulu JDK $javaVersion ...")
           drop.downloadFrom(url)
           println()
         }
@@ -127,7 +131,7 @@ import Init._
         if (Os.isWin) {
           drop.unzipTo(homeBinPlatform)
         } else {
-          proc"tar xfz $drop".at(homeBinPlatform).runCheck()
+          proc"$tar xfz $drop".at(homeBinPlatform).runCheck()
         }
         for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("zulu")) {
           d.moveTo(javaHome)
@@ -856,7 +860,7 @@ import Init._
         ideaDir.mklink(dist)
       } else {
         val ideaDirParent = ideaDir.up.canon
-        proc"tar xfz $ideaDrop".at(ideaDirParent).runCheck()
+        proc"$tar xfz $ideaDrop".at(ideaDirParent).runCheck()
 
         for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-${if (isUltimate) "IU" else "IC"}-")) {
           p.moveOverTo(ideaDir)
