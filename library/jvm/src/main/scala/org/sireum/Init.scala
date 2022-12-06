@@ -62,11 +62,13 @@ import Init._
     }
   }
 
-  @memoize def cache: Os.Path = {
-    Os.env("SIREUM_CACHE") match {
-      case Some(d) => return Os.path(d)
-      case _ => return Os.home / "Downloads" / "sireum"
+  val cache: Os.Path = {
+    val r: Os.Path = Os.env("SIREUM_CACHE") match {
+      case Some(d) => Os.path(d)
+      case _ => Os.home / "Downloads" / "sireum"
     }
+    r.mkdirAll()
+    r
   }
 
   @memoize def scalacPluginVersion: String = {
