@@ -139,12 +139,14 @@ import Init._
           drop.downloadFrom(url)
           println()
         }
+        println(s"Extracting Zulu JDK $javaVersion ...")
         javaHome.removeAll()
         if (Os.isWin) {
           drop.unzipTo(homeBinPlatform)
         } else {
           drop.unTarGzTo(homeBinPlatform)
         }
+        println()
         for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("zulu")) {
           d.moveTo(javaHome)
         }
@@ -431,7 +433,6 @@ import Init._
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
     val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools")
     val pluginPrefix: String = "org.sireum.version.plugin."
-    val versions = HashMap ++ (home / "versions.properties").properties.entries
     val isLocal: B = ops.StringOps(home.string).startsWith(Os.home.canon.string)
     val settingsDir: String = if (isLocal) if (Os.isWin) ops.StringOps((home / ".settings").string).replaceAllChars('\\', '/') else (home / ".settings").string else "${user.home}"
     val ignoredIcons = HashSet ++ ISZ[String](
@@ -996,6 +997,17 @@ import Init._
       val filename = urlOps.substring(urlOps.lastIndexOf('/') + 1, url.size)
       val buildDir = ideaDir.up.canon
       buildDir.mkdirAll()
+      val resources = home / "resources"
+      if (!resources.exists) {
+        println("Please wait while downloading resources ...")
+        val drop = home / "resources.zip"
+        drop.downloadFrom("https://github.com/sireum/resources/archive/refs/heads/master.zip")
+        resources.mkdirAll()
+        drop.unzipTo(home)
+        (home / "resources-master").moveOverTo(resources)
+        drop.removeAll()
+        println()
+      }
       val ideaDrop = ideaCacheDir / filename
       if (!ideaDrop.exists && !isServer) {
         print(s"Downloading from $url ... ")
@@ -1026,8 +1038,10 @@ import Init._
 
     build()
 
-    (home / "bin" / "VER").writeOver(
-      proc"git log -n 1 --date=format:%Y%m%d --pretty=format:4.%cd.%h".at(home).runCheck().out)
+    if ((home / ".git").isDir) {
+      (home / "bin" / "VER").writeOver(
+        proc"git log -n 1 --date=format:%Y%m%d --pretty=format:4.%cd.%h".at(home).runCheck().out)
+    }
   }
 
 
@@ -1035,6 +1049,27 @@ import Init._
     installJava()
     installScala()
     installScalacPlugin()
+    if (kind == Os.Kind.Win) {
+      val sireumScript = homeBin / "sireum.bat"
+      if (!sireumScript.exists) {
+        sireumScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/sireum.bat")
+      }
+      val slangRunScript = homeBin / "slang-run.bat"
+      if (!slangRunScript.exists) {
+        slangRunScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/slang-run.bat")
+      }
+    } else {
+      val sireumScript = homeBin / "sireum"
+      if (!sireumScript.exists) {
+        sireumScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/sireum")
+        sireumScript.chmod("+x")
+      }
+      val slangRunScript = homeBin / "slang-run.sh"
+      if (!slangRunScript.exists) {
+        slangRunScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/slang-run.sh")
+        slangRunScript.chmod("+x")
+      }
+    }
   }
 
   def proyekCompileDeps(): Unit = {
