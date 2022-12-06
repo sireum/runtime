@@ -117,13 +117,6 @@ import Init._
     return Os.javaHomeOpt(kind, Some(home)).get
   }
 
-  def untargz(file: Os.Path, at: Os.Path): Unit = {
-    if (!proc"tar xfz $file".at(at).run().ok) {
-      val tar = ops.StringOps(proc"which tar".runCheck().out).trim
-      proc"$tar xfz $file".at(at).runCheck()
-    }
-  }
-
   def installJava(): Unit = {
     homeBinPlatform.mkdirAll()
 
@@ -150,7 +143,7 @@ import Init._
         if (Os.isWin) {
           drop.unzipTo(homeBinPlatform)
         } else {
-          untargz(drop, homeBinPlatform)
+          drop.unTarGzTo(homeBinPlatform)
         }
         for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("zulu")) {
           d.moveTo(javaHome)
@@ -907,8 +900,7 @@ import Init._
         ideaDir.mklink(dist)
       } else {
         val ideaDirParent = ideaDir.up.canon
-        untargz(ideaDrop, ideaDirParent)
-
+        ideaDrop.unTarGzTo(ideaDirParent)
         for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-${if (isUltimate) "IU" else "IC"}-")) {
           p.moveOverTo(ideaDir)
         }

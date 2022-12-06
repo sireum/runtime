@@ -70,7 +70,8 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "org.antlr:antlr-runtime:",
     "org.sireum:automaton:",
     "org.sireum:presentasi-jfx:",
-    "org.scalameta::scalafmt-cli:"
+    "org.scalameta::scalafmt-cli:",
+    "org.apache.commons:commons-compress:"
   ),
   pubOpt = pub(
     desc = "Slang Runtime Library",

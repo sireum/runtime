@@ -840,6 +840,10 @@ object Os {
       Ext.unzip(value, target.value)
     }
 
+    def unTarGzTo(target: Os.Path): Unit = {
+      Ext.unTarGz(value, target.value)
+    }
+
     @pure def up: Path = {
       return Path.Impl(Ext.parent(value))
     }
@@ -996,6 +1000,8 @@ object Os {
     def zip(path: String, target: String): Unit = $
 
     def unzip(path: String, target: String): Unit = $
+
+    def unTarGz(path: String, target: String): Unit = $
 
     @pure def parent(path: String): String = $
 

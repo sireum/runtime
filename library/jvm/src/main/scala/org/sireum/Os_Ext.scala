@@ -31,9 +31,13 @@ import java.nio.file.{AtomicMoveNotSupportedException, FileAlreadyExistsExceptio
 import java.util.concurrent.{TimeUnit => TU}
 import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => ZOS}
 import com.zaxxer.nuprocess._
+import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.sireum.$internal.CollectionCompat
 import org.sireum.$internal.CollectionCompat.Converters._
 import org.sireum.message.{FlatPos, Position}
+
+import java.nio.file.attribute.PosixFilePermission
 
 object Os_Ext {
 
@@ -100,6 +104,20 @@ object Os_Ext {
       case _ => None()
     }
   }
+
+  private lazy val permissions: Array[PosixFilePermission] = Array(
+    PosixFilePermission.OTHERS_EXECUTE,
+    PosixFilePermission.OTHERS_WRITE,
+    PosixFilePermission.OTHERS_READ,
+    PosixFilePermission.GROUP_EXECUTE,
+    PosixFilePermission.GROUP_WRITE,
+    PosixFilePermission.GROUP_READ,
+    PosixFilePermission.OWNER_EXECUTE,
+    PosixFilePermission.OWNER_WRITE,
+    PosixFilePermission.OWNER_READ
+  )
+
+  private lazy val hasTar: B = proc"tar --version".run().ok
 
   def totalMemory: Z = Runtime.getRuntime.totalMemory
 
@@ -649,6 +667,47 @@ object Os_Ext {
     new java.io.File(new java.net.URI(uri.value)).getCanonicalPath
   }
 
+  def unTarGz(path: String, target: String): Unit = {
+    if (hasTar) {
+      mkdir(target, T)
+      proc"tar xfz $path".at(Os.path(target)).runCheck()
+      return
+    }
+    def posixPermissionsFromMode(mode: Int): java.util.Set[PosixFilePermission] = {
+      val r = new java.util.HashSet[PosixFilePermission]()
+      for (i <- permissions.indices) {
+        if ((mode & (1 << i)) != 0) {
+          r.add(permissions(i))
+        }
+      }
+      r
+    }
+
+    val targetPath = toNIO(target)
+    val tais = new TarArchiveInputStream(
+      new GzipCompressorInputStream(
+        new java.io.BufferedInputStream(JFiles.newInputStream(toNIO(path)))))
+    try {
+      var tae: TarArchiveEntry = tais.getNextTarEntry
+      while (tae != null) {
+        val outPath = targetPath.resolve(tae.getName)
+        val out = fromUri(outPath.toUri.toASCIIString).value
+        if (tae.isSymbolicLink) {
+          val link = (Os.path(out).up.canon / tae.getLinkName).string
+          mklink(out, link)
+        } else if (tae.isDirectory) {
+          mkdir(out, T)
+        } else {
+          JFiles.copy(tais, outPath, SCO.REPLACE_EXISTING)
+          if (osKind != Os.Kind.Win) {
+            JFiles.setPosixFilePermissions(outPath, posixPermissionsFromMode(tae.getMode))
+          }
+        }
+        tae = tais.getNextTarEntry
+      }
+    } finally tais.close()
+  }
+
   def zip(path: String, target: String): Unit = {
     exe7zaOpt match {
       case Some(p) =>
@@ -697,6 +756,7 @@ object Os_Ext {
       }
     } finally zis.close()
   }
+
 
   def writeAppend(path: String, mode: Os.Path.WriteMode.Type): Boolean = {
     val f = toIO(path)
