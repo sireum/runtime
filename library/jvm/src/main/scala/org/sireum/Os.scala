@@ -31,8 +31,8 @@ object Os {
     return Ext.cliArgs
   }
 
-  @memoize def cwd: Path = {
-    return Path.Impl(Ext.cwd)
+  def cwd: Path = {
+    return path(prop("user.dir").get).canon
   }
 
   def exit(code: Z): Unit = {
@@ -55,8 +55,11 @@ object Os {
     return Ext.freeMemory
   }
 
-  @memoize def home: Path = {
-    return Path.Impl(Ext.home)
+  def home: Path = {
+    Os.env("HOME") match {
+      case Some(d) => return path(d).canon
+      case _ => return path(prop("user.home").get).canon
+    }
   }
 
   @pure def isLinux: B = {
@@ -67,7 +70,7 @@ object Os {
     return kind == Kind.Mac
   }
 
-  @memoize def isMacArm: B = {
+  def isMacArm: B = {
     return isMac && prop("os.arch").get == "aarch64"
   }
 
@@ -522,6 +525,7 @@ object Os {
     }
 
     def downloadFrom(url: String): B = {
+      up.mkdirAll()
       return Ext.download(value, url)
     }
 
@@ -675,7 +679,14 @@ object Os {
     }
 
     def removeOnExit(): Unit = {
-      Ext.removeOnExit(value)
+      if (isDir) {
+        val paths = Os.Path.walk(this, T, F, (_: Path) => T)
+        for (i <- paths.size - 1 to 0 by -1) {
+          Ext.removeOnExit(paths(i).value)
+        }
+      } else {
+        Ext.removeOnExit(value)
+      }
     }
 
     def sha1: String = {
@@ -853,11 +864,7 @@ object Os {
 
     @pure def cliArgs: ISZ[String] = $
 
-    @pure def cwd: String = $
-
     @pure def fileSep: String = $
-
-    @pure def home: String = $
 
     @pure def lineSep: String = $
 
