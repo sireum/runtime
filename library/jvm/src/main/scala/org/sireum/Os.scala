@@ -516,6 +516,19 @@ object Os {
       Ext.chmod(value, mask, T)
     }
 
+    def combineFrom(sources: ISZ[Os.Path]): Unit = {
+      val script = Os.tempFix("", ".bat")
+      script.removeOnExit()
+      removeAll()
+      if (Os.isWin) {
+        script.writeOver(st"""copy /b ${(sources, "+")} $this""".render)
+        proc"cmd /c $script".runCheck()
+      } else {
+        script.writeOver(st"""cat ${(sources, " ")} > $this""".render)
+        proc"sh $script".runCheck()
+      }
+    }
+
     def copyTo(target: Path): Unit = {
       Ext.copy(value, target.value, F)
     }
@@ -611,6 +624,13 @@ object Os {
     def overlayMove(target: Os.Path, includeDir: B, followLink: B,
                     pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
       return Path.overlay(T, this, target, includeDir, followLink, pred, report)
+    }
+
+    def prependWith(other: Os.Path): Unit = {
+      val temp = Os.temp()
+      temp.removeOnExit()
+      temp.combineFrom(ISZ(other, this))
+      temp.moveTo(this)
     }
 
     def properties: Map[String, String] = {
