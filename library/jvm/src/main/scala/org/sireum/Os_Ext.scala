@@ -97,8 +97,8 @@ object Os_Ext {
       case Os.Kind.LinuxArm => "bin/linux/arm/7za"
       case _ => "?"
     }
-    Os.env("SIREUM_HOME") match {
-      case Some(dir) if toIO((Os.path(dir) / suffix7za).string).canExecute => Some(Os.path(dir) / suffix7za)
+    Os.sireumHomeOpt match {
+      case Some(dir) if (dir / suffix7za).exists => Some(dir / suffix7za)
       case _ => None()
     }
   }
