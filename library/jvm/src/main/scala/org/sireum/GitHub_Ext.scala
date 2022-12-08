@@ -105,4 +105,7 @@ object GitHub_Ext {
       }
     }
   }
+
+  def submoduleShaOf(repo: Repository, path: String, ref: String): String =
+    connectRepo(repo.owner, repo.name).getFileContent(path.value, ref.value).getSha
 }

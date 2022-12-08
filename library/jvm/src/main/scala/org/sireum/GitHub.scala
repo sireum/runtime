@@ -39,6 +39,10 @@ object GitHub {
     def releases: Jen[Release] = {
       return Ext.releases(this)
     }
+
+    def submoduleShaOf(path: String, ref: String): String = {
+      return Ext.submoduleShaOf(this, path, ref)
+    }
   }
 
   @datatype class Release(repo: Repository,
@@ -77,6 +81,8 @@ object GitHub {
     def releases(repo: Repository): Jen[Release] = $
 
     def assets(release: Release): Jen[Asset] = $
+
+    def submoduleShaOf(repo: Repository, path: String, ref: String): String = $
   }
 }
 
