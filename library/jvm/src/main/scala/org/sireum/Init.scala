@@ -1061,6 +1061,19 @@ import Init._
 
     build()
 
+    if (kind == Os.Kind.Win) {
+      val slangRunScript = homeBin / "slang-run.bat"
+      if (!slangRunScript.exists) {
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.bat")
+      }
+    } else {
+      val slangRunScript = homeBin / "slang-run.sh"
+      if (!slangRunScript.exists) {
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.sh")
+        slangRunScript.chmod("+x")
+      }
+    }
+
     if ((home / ".git").isDir) {
       (home / "bin" / "VER").writeOver(
         proc"git log -n 1 --date=format:%Y%m%d --pretty=format:4.%cd.%h".at(home).runCheck().out)
@@ -1077,20 +1090,11 @@ import Init._
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum.bat")
       }
-      val slangRunScript = homeBin / "slang-run.bat"
-      if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.bat")
-      }
     } else {
       val sireumScript = homeBin / "sireum"
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum")
         sireumScript.chmod("+x")
-      }
-      val slangRunScript = homeBin / "slang-run.sh"
-      if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.sh")
-        slangRunScript.chmod("+x")
       }
     }
   }
