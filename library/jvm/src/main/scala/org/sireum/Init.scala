@@ -44,6 +44,11 @@ import Init._
                      val kind: Os.Kind.Type,
                      val versions: Map[String, String]) {
 
+  val commit: String = Os.env("SIREUM_V") match {
+    case Some(tip) => tip
+    case _ => "master"
+  }
+
   @memoize def homeBin: Os.Path = {
     return home / "bin"
   }
@@ -424,6 +429,21 @@ import Init._
   @strictpure def ideaDirPath(isUltimate: B, isServer: B): Os.Path =
     homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
 
+  def installScripts(): Unit = {
+    val install = homeBin / "install"
+    if (!install.exists) {
+      println("Please wait while downloading additional installation scripts ...")
+      val drop = homeBin / "install.zip"
+      val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/install", commit)
+      drop.downloadFrom(s"https://github.com/sireum/bin-install/archive/$sha.zip")
+      install.mkdirAll()
+      drop.unzipTo(home)
+      (home / s"bin-install-$sha").moveOverTo(install)
+      drop.removeAll()
+      println()
+    }
+  }
+
   def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
     deps()
     val devSuffix: String = if (isDev) "-dev" else ""
@@ -616,10 +636,10 @@ import Init._
     val pwd7z = homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
     val pwd7zsfx = pwd7z.up / s"7z.sfx"
     val pwd7zUrl: String = Os.kind match {
-      case Os.Kind.Win => "https://github.com/sireum/bin-windows/raw/master/7za.exe"
-      case Os.Kind.Mac => "https://github.com/sireum/bin-mac/raw/master/7za"
-      case Os.Kind.Linux => "https://github.com/sireum/bin-linux/raw/master/7za"
-      case Os.Kind.LinuxArm => "https://github.com/sireum/bin-linux/raw/master/arm/7za"
+      case Os.Kind.Win => s"https://github.com/sireum/bin-windows/raw/$commit/7za.exe"
+      case Os.Kind.Mac => s"https://github.com/sireum/bin-mac/raw/$commit/7za"
+      case Os.Kind.Linux => s"https://github.com/sireum/bin-linux/raw/$commit/7za"
+      case Os.Kind.LinuxArm => s"https://github.com/sireum/bin-linux/raw/$commit/arm/7za"
       case _ => halt("Infeasible")
     }
 
@@ -1003,10 +1023,11 @@ import Init._
       if (!resources.exists) {
         println("Please wait while downloading resources ...")
         val drop = home / "resources.zip"
-        drop.downloadFrom("https://github.com/sireum/resources/archive/refs/heads/master.zip")
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("resources", commit)
+        drop.downloadFrom(s"https://github.com/sireum/resources/archive/$sha.zip")
         resources.mkdirAll()
         drop.unzipTo(home)
-        (home / "resources-master").moveOverTo(resources)
+        (home / s"resources-$sha").moveOverTo(resources)
         drop.removeAll()
         println()
       }
@@ -1054,21 +1075,21 @@ import Init._
     if (kind == Os.Kind.Win) {
       val sireumScript = homeBin / "sireum.bat"
       if (!sireumScript.exists) {
-        sireumScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/sireum.bat")
+        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum.bat")
       }
       val slangRunScript = homeBin / "slang-run.bat"
       if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/slang-run.bat")
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.bat")
       }
     } else {
       val sireumScript = homeBin / "sireum"
       if (!sireumScript.exists) {
-        sireumScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/sireum")
+        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum")
         sireumScript.chmod("+x")
       }
       val slangRunScript = homeBin / "slang-run.sh"
       if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom("https://raw.githubusercontent.com/sireum/kekinian/master/bin/slang-run.sh")
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.sh")
         slangRunScript.chmod("+x")
       }
     }
