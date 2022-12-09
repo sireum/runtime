@@ -1030,7 +1030,8 @@ import Init._
       val buildDir = ideaDir.up.canon
       buildDir.mkdirAll()
       val resources = home / "resources"
-      if (!resources.exists) {
+      val noResources = !resources.exists
+      if (noResources) {
         val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("resources", commit)
         val drop = cache / s"resources-$sha.zip"
         if (!drop.exists) {
@@ -1067,7 +1068,9 @@ import Init._
       } else {
         sireumJar.mklink(homeBinSireumJar)
       }
-      resources.removeAll()
+      if (noResources) {
+        resources.removeAll()
+      }
       println("Done!")
     }
 
