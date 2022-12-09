@@ -156,7 +156,7 @@ object Os_Ext {
       if (cs != null) Os.uriToPath(cs.getLocation.toURI.toASCIIString).up
       else Os.slashDir.up
     if (path.name.value == "bin") path = path.up
-    if ((path / "bin" / "sireum.jar").exists) Some(path) else None()
+    if ((path / "bin" / "sireum.jar").exists) Some(path.canon) else None()
   } catch {
     case _: Throwable => None()
   }
