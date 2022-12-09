@@ -432,15 +432,16 @@ import Init._
   def installScripts(): Unit = {
     val install = homeBin / "install"
     if (!install.exists) {
-      println("Please wait while downloading additional installation scripts ...")
-      val drop = homeBin / "install.zip"
       val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/install", commit)
-      drop.downloadFrom(s"https://github.com/sireum/bin-install/archive/$sha.zip")
+      val drop = cache / s"install-$sha.zip"
+      if (!drop.exists) {
+        println("Please wait while downloading additional installation scripts ...")
+        drop.downloadFrom(s"https://github.com/sireum/bin-install/archive/$sha.zip")
+        println()
+      }
       install.mkdirAll()
       drop.unzipTo(home)
       (home / s"bin-install-$sha").moveOverTo(install)
-      drop.removeAll()
-      println()
     }
   }
 
@@ -1021,15 +1022,16 @@ import Init._
       buildDir.mkdirAll()
       val resources = home / "resources"
       if (!resources.exists) {
-        println("Please wait while downloading resources ...")
-        val drop = home / "resources.zip"
         val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("resources", commit)
-        drop.downloadFrom(s"https://github.com/sireum/resources/archive/$sha.zip")
+        val drop = cache / s"resources-$sha.zip"
+        if (!drop.exists) {
+          println("Please wait while downloading resources ...")
+          drop.downloadFrom(s"https://github.com/sireum/resources/archive/$sha.zip")
+          println()
+        }
         resources.mkdirAll()
         drop.unzipTo(home)
         (home / s"resources-$sha").moveOverTo(resources)
-        drop.removeAll()
-        println()
       }
       val ideaDrop = ideaCacheDir / filename
       if (!ideaDrop.exists && !isServer) {
@@ -1056,6 +1058,7 @@ import Init._
       } else {
         sireumJar.mklink(homeBinSireumJar)
       }
+      resources.removeAll()
       println("Done!")
     }
 
