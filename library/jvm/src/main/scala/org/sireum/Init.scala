@@ -637,10 +637,18 @@ import Init._
     val pwd7z = homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
     val pwd7zsfx = pwd7z.up / s"7z.sfx"
     val pwd7zUrl: String = Os.kind match {
-      case Os.Kind.Win => s"https://github.com/sireum/bin-windows/raw/$commit/7za.exe"
-      case Os.Kind.Mac => s"https://github.com/sireum/bin-mac/raw/$commit/7za"
-      case Os.Kind.Linux => s"https://github.com/sireum/bin-linux/raw/$commit/7za"
-      case Os.Kind.LinuxArm => s"https://github.com/sireum/bin-linux/raw/$commit/arm/7za"
+      case Os.Kind.Win =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
+        s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
+      case Os.Kind.Mac =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
+        s"https://github.com/sireum/bin-mac/raw/$sha/7za"
+      case Os.Kind.Linux =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        s"https://github.com/sireum/bin-linux/raw/$sha/7za"
+      case Os.Kind.LinuxArm =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
       case _ => halt("Infeasible")
     }
 
@@ -699,7 +707,7 @@ import Init._
           println("done!")
         } else {
           print(s"Extracting ${p.id} plugin from $zipPath ... ")
-          proc"$pwd7z x -y $zipPath".at(pluginsDir).runCheck()
+          zipPath.unzipTo(pluginsDir)
           println("done!")
         }
       }
@@ -748,8 +756,9 @@ import Init._
       rhDir.mkdirAll()
       if (!(rhDir / rhExe).exists) {
         print("Downloading ResourceHacker ... ")
-        (rhDir / "rh.zip").downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
-        proc"$pwd7z x rh.zip $rhExe".at(rhDir).runCheck()
+        val drop = (rhDir / "rh.zip")
+        drop.downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
+        drop.unzipTo(rhDir)
         println("done!")
       }
       val binDir = ideaDir / "bin"
@@ -951,7 +960,7 @@ import Init._
 
     def setupWin(ideaDrop: Os.Path): Unit = {
       ideaDir.mkdirAll()
-      proc"$pwd7z x -y $ideaDrop".at(ideaDir).runCheck()
+      ideaDrop.unzipTo(ideaDir)
       (ideaDir / "$PLUGINSDIR").removeAll()
       deleteSources()
       println("done!")
