@@ -753,23 +753,40 @@ import Init._
       }
       val rhExe = "ResourceHacker.exe"
       val rhDir = home / "resources" / "rh"
-      rhDir.mkdirAll()
-      if (!(rhDir / rhExe).exists) {
-        print("Downloading ResourceHacker ... ")
-        val drop = (rhDir / "rh.zip")
-        drop.downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
-        drop.unzipTo(rhDir)
-        println("done!")
+      val dcExe = "delcert.ext"
+      val dcDir = home / "resources" / "delcert"
+      def downloadTools(): Unit = {
+        rhDir.mkdirAll()
+        if (!(rhDir / rhExe).exists) {
+          print("Downloading ResourceHacker ... ")
+          val drop = rhDir / "rh.zip"
+          drop.downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
+          drop.unzipTo(rhDir)
+          println("done!")
+        }
+        dcDir.mkdirAll()
+        if (!(dcDir / dcExe).exists) {
+          print("Downloading delcert ... ")
+          val drop = dcDir / "delcert.zip"
+          drop.downloadFrom("https://github.com/sireum/rolling/releases/download/delcert/delcert.zip")
+          drop.unzipTo(dcDir)
+          println("done!")
+        }
       }
       val binDir = ideaDir / "bin"
       val idea64Exe = binDir / "idea64.exe"
-      print(s"Patching $idea64Exe ... ")
       if (Os.isWin) {
+        downloadTools()
+        print(s"Patching $idea64Exe ... ")
+        proc"${dcDir / dcExe} ${idea64Exe.name}".at(binDir).runCheck()
         proc"${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
       } else {
+        downloadTools()
+        print(s"Patching $idea64Exe ... ")
+        proc"wine ${dcDir / dcExe} ${idea64Exe.name}".at(binDir).runCheck()
         proc"wine ${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
+        println("done!")
       }
-      println("done!")
     }
 
     def patchIcon(isWin: B): Unit = {
