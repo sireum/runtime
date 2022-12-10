@@ -753,8 +753,8 @@ import Init._
       }
       val rhExe = "ResourceHacker.exe"
       val rhDir = home / "resources" / "rh"
-      val dcExe = "delcert.ext"
-      val dcDir = home / "resources" / "delcert"
+      val dcExe = "delcert.exe"
+      val dcDir = home / "resources" / "dc"
       def downloadTools(): Unit = {
         rhDir.mkdirAll()
         if (!(rhDir / rhExe).exists) {
@@ -762,6 +762,7 @@ import Init._
           val drop = rhDir / "rh.zip"
           drop.downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
           drop.unzipTo(rhDir)
+          drop.removeAll()
           println("done!")
         }
         dcDir.mkdirAll()
@@ -770,6 +771,7 @@ import Init._
           val drop = dcDir / "delcert.zip"
           drop.downloadFrom("https://github.com/sireum/rolling/releases/download/delcert/delcert.zip")
           drop.unzipTo(dcDir)
+          drop.removeAll()
           println("done!")
         }
       }
