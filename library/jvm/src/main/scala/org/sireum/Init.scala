@@ -777,15 +777,14 @@ import Init._
       }
       val binDir = ideaDir / "bin"
       val idea64Exe = binDir / "idea64.exe"
+      downloadTools()
       if (Os.isWin) {
-        downloadTools()
         print(s"Patching $idea64Exe ... ")
-        proc"${dcDir / dcExe} ${idea64Exe.name}".at(binDir).runCheck()
+        proc"${dcDir / dcExe} .\\${idea64Exe.name}".at(binDir).run()
         proc"${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
       } else {
-        downloadTools()
         print(s"Patching $idea64Exe ... ")
-        proc"wine ${dcDir / dcExe} ${idea64Exe.name}".at(binDir).runCheck()
+        proc"wine ${dcDir / dcExe} .\\${idea64Exe.name}".at(binDir).run()
         proc"wine ${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
         println("done!")
       }
