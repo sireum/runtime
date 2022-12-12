@@ -656,20 +656,29 @@ import Init._
 
     val pwd7z = homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
     val pwd7zsfx = pwd7z.up / s"7z.sfx"
-    val pwd7zUrl: String = Os.kind match {
-      case Os.Kind.Win =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
-        s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
-      case Os.Kind.Mac =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
-        s"https://github.com/sireum/bin-mac/raw/$sha/7za"
-      case Os.Kind.Linux =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
-        s"https://github.com/sireum/bin-linux/raw/$sha/7za"
-      case Os.Kind.LinuxArm =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
-        s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
-      case _ => halt("Infeasible")
+    var pwd7zUrlOpt = Option.none[String]()
+    def pwd7zUrl: String = {
+      pwd7zUrlOpt match {
+        case Some(url) => return url
+        case _ =>
+          val r: String = Os.kind match {
+            case Os.Kind.Win =>
+              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
+              s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
+            case Os.Kind.Mac =>
+              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
+              s"https://github.com/sireum/bin-mac/raw/$sha/7za"
+            case Os.Kind.Linux =>
+              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+              s"https://github.com/sireum/bin-linux/raw/$sha/7za"
+            case Os.Kind.LinuxArm =>
+              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+              s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
+            case _ => halt("Infeasible")
+          }
+          pwd7zUrlOpt = Some(r)
+          return r
+      }
     }
 
     if (!pwd7z.exists) {
