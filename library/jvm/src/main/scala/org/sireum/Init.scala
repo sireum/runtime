@@ -749,7 +749,7 @@ import Init._
       print(s"Patching $p ... ")
       val content = p.read
       val config = ideaConfig(isDev, isUltimate, None())
-      val settings = config.up.canon
+      var settings = config.up.canon.string
       val newContent: String = kind match {
         case Os.Kind.Mac =>
           val contentOps = ops.StringOps(content)
@@ -758,7 +758,8 @@ import Init._
           val k = contentOps.stringIndexOfFrom("</string>", j)
           s"${contentOps.substring(0, j)}<string>${config.up.canon.name}</string>\n        <key>idea.config.path</key>\n        <string>$config</string>\n        <key>idea.system.path</key>\n        <string>$settings/system</string>\n        <key>idea.log.path</key>\n        <string>$settings/log</string>\n        <key>idea.plugins.path</key>\n        <string>$settings/plugins${contentOps.substring(k, content.size)}"
         case Os.Kind.Win =>
-          s"idea.config.path=$config\r\nidea.system.path=$settings\\system\r\nidea.log.path=$settings\\log\r\nidea.plugins.path=$settings\\plugins\r\n$content"
+          settings = ops.StringOps(settings).replaceAllChars('\\', '/')
+          s"idea.config.path=$config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
         case _ =>
           s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
       }
