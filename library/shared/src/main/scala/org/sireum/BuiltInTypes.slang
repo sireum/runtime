@@ -529,6 +529,4 @@ package org.sireum
 
   def version: String = $
 
-  def init: Init = $
-
 }
