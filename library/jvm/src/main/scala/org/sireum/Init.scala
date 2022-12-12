@@ -445,6 +445,28 @@ import Init._
     }
   }
 
+  @memoize def isIdeaInUserHome: B = {
+    return ops.StringOps(home.string).startsWith(Os.home.canon.string)
+  }
+
+  def ideaConfig(isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
+    val devSuffix: String = if (isDev) "-dev" else ""
+    val ult: String = if (isUltimate) "-ult" else ""
+    val config: Os.Path = projectPathOpt match {
+      case Some(projectPath) => Os.home / ".config" / "JetBrains" / "RemoteDev-IU" /
+        ops.StringOps(projectPath.string).replaceAllLiterally(Os.fileSep, "_")
+      case _ =>
+        if (isIdeaInUserHome) home / ".settings" / s".SireumIVE$ult$devSuffix" / "config"
+        else Os.path(Os.prop("user.home").get).canon / s".SireumIVE$ult$devSuffix" / "config"
+    }
+    return config
+  }
+
+  def ideaSandbox(isDev: B): Os.Path = {
+    val devSuffix: String = if (isDev) "-dev" else ""
+    return (if (isIdeaInUserHome) (home / ".settings") else Os.home) / s".SireumIVE$devSuffix-sandbox"
+  }
+
   def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
     deps()
     val devSuffix: String = if (isDev) "-dev" else ""
@@ -456,8 +478,6 @@ import Init._
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
     val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools")
     val pluginPrefix: String = "org.sireum.version.plugin."
-    val isLocal: B = ops.StringOps(home.string).startsWith(Os.home.canon.string)
-    val settingsDir: String = if (isLocal) if (Os.isWin) ops.StringOps((home / ".settings").string).replaceAllChars('\\', '/') else (home / ".settings").string else "${user.home}"
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
       "idea-dev.icns",
@@ -719,19 +739,19 @@ import Init._
       }
       print(s"Patching $p ... ")
       val content = p.read
-      val ult: String = if (isUltimate) "-ult" else ""
+      val config = ideaConfig(isDev, isUltimate, None())
+      val settings = config.up.canon
       val newContent: String = kind match {
         case Os.Kind.Mac =>
           val contentOps = ops.StringOps(content)
           val i = contentOps.stringIndexOf("idea.paths.selector")
           val j = contentOps.stringIndexOfFrom("<string>", i)
           val k = contentOps.stringIndexOfFrom("</string>", j)
-          if (isLocal) s"${contentOps.substring(0, j)}<string>.SireumIVE$ult$devSuffix</string>\n        <key>idea.config.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/config</string>\n        <key>idea.system.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/system</string>\n        <key>idea.log.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/log</string>\n        <key>idea.plugins.path</key>\n        <string>$settingsDir/.SireumIVE$ult$devSuffix/plugins${contentOps.substring(k, content.size)}"
-          else s"${contentOps.substring(0, j)}<string>SireumIVE$ult$devSuffix${contentOps.substring(k, content.size)}"
+          s"${contentOps.substring(0, j)}<string>${config.up.canon.name}</string>\n        <key>idea.config.path</key>\n        <string>$config</string>\n        <key>idea.system.path</key>\n        <string>$settings/system</string>\n        <key>idea.log.path</key>\n        <string>$settings/log</string>\n        <key>idea.plugins.path</key>\n        <string>$settings/plugins${contentOps.substring(k, content.size)}"
         case Os.Kind.Win =>
-          s"idea.config.path=$settingsDir/.SireumIVE$ult$devSuffix/config\r\nidea.system.path=$settingsDir/.SireumIVE$ult$devSuffix/system\r\nidea.log.path=$settingsDir/.SireumIVE$ult$devSuffix/log\r\nidea.plugins.path=$settingsDir/.SireumIVE$ult$devSuffix/plugins\r\n$content"
+          s"idea.config.path=$config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
         case _ =>
-          s"idea.config.path=$settingsDir/.SireumIVE$ult$devSuffix/config\nidea.system.path=$settingsDir/.SireumIVE$ult$devSuffix/system\nidea.log.path=$settingsDir/.SireumIVE$ult$devSuffix/log\nidea.plugins.path=$settingsDir/.SireumIVE$ult$devSuffix/plugins\n$content"
+          s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
       }
       p.writeOver(newContent)
       println("done!")
