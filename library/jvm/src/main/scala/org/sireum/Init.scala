@@ -759,7 +759,7 @@ import Init._
           s"${contentOps.substring(0, j)}<string>${config.up.canon.name}</string>\n        <key>idea.config.path</key>\n        <string>$config</string>\n        <key>idea.system.path</key>\n        <string>$settings/system</string>\n        <key>idea.log.path</key>\n        <string>$settings/log</string>\n        <key>idea.plugins.path</key>\n        <string>$settings/plugins${contentOps.substring(k, content.size)}"
         case Os.Kind.Win =>
           settings = ops.StringOps(settings).replaceAllChars('\\', '/')
-          s"idea.config.path=$config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
+          s"idea.config.path=$settings/config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
         case _ =>
           s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
       }
