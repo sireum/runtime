@@ -547,7 +547,6 @@ import Init._
         ISZ("bin", "sireum.bat"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.bat"),
-        ISZ("bin", "VER"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -577,7 +576,6 @@ import Init._
         ISZ("bin", "sireum"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("bin", "VER"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -594,7 +592,6 @@ import Init._
         ISZ("bin", "sireum"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("bin", "VER"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -621,7 +618,6 @@ import Init._
         ISZ("bin", "sireum"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("bin", "VER"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1134,11 +1130,6 @@ import Init._
         slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.sh")
         slangRunScript.chmod("+x")
       }
-    }
-
-    if ((home / ".git").isDir) {
-      (home / "bin" / "VER").writeOver(
-        proc"git log -n 1 --date=format:%Y%m%d --pretty=format:4.%cd.%h".at(home).runCheck().out)
     }
   }
 
