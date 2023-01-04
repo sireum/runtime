@@ -143,7 +143,7 @@ object MessagePack {
       var a = IS[U8, Kind.Type]()
       var n = 0
       var i = u8"0"
-      while (n <= 256) {
+      while (n < 256) {
         a = a :+ getType0(i)
         n = n + 1
         i = i + u8"1"
