@@ -84,12 +84,12 @@ object IS {
       !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size - 1 <= companion.Max
         .asInstanceOf[ZLike[_]]
         .toMP,
-      s"Slang IS requires its index (${companion.Index}) plus its size ($size) less than or equal to it max ${companion.Max} plus one."
+      s"Slang IS requires its index (${companion.Index}) plus its size ($size) less than or equal to its Max (${companion.Max}) plus one."
     )
   }
 
   def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
-    checkSize(Z.MP(args.length))(companion)
+    IS.checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
     val a = boxer.create(length)
@@ -103,7 +103,7 @@ object IS {
 
   def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = {
     val length = size
-    checkSize(length)(companion)
+    IS.checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
     val a = boxer.create(length)
     var i = Z.MP.zero
@@ -138,7 +138,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) IS[I, V](e)(companion)
     else {
       val newLength = length.increase
-      IS.checkSize(newLength)
+      IS.checkSize(newLength)(companion)
       val a = boxer.clone(data, length, newLength, Z.MP.zero)
       boxer.store(a, length, e)
       IS[I, V](companion, a, newLength, boxer)
@@ -148,7 +148,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) IS[I, V](e)(companion)
     else {
       val newLength = length.increase
-      IS.checkSize(newLength)
+      IS.checkSize(newLength)(companion)
       val a = boxer.clone(data, length, newLength, Z.MP.one)
       boxer.store(a, Z.MP.zero, e)
       IS[I, V](companion, a, newLength, boxer)
@@ -158,7 +158,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     val bxr = if (isEmpty) other.boxer else boxer
     if (other.length == Z.MP.zero) return this
     val newLength = length + other.length
-    IS.checkSize(newLength)
+    IS.checkSize(newLength)(companion)
     val a = bxr.clone(data, length, newLength, Z.MP.zero)
     var i = length
     var j = Z.MP.zero

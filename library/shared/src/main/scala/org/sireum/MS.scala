@@ -84,12 +84,12 @@ object MS {
       !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size - 1 <= companion.Max
         .asInstanceOf[ZLike[_]]
         .toMP,
-      s"Slang IS requires its index (${companion.Index}) plus its size ($size) less than or equal to it max ${companion.Max} plus one."
+      s"Slang IS requires its index (${companion.Index}) plus its size ($size) less than or equal to its Max (${companion.Max}) plus one."
     )
   }
 
   def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
-    checkSize(Z.MP(args.length))(companion)
+    MS.checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
     val a = boxer.create(length)
@@ -103,7 +103,7 @@ object MS {
 
   def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     val length = size
-    checkSize(length)(companion)
+    MS.checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
     val a = boxer.create(length)
     var i = Z.MP.zero
@@ -152,7 +152,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) MS[I, V](e)(companion)
     else {
       val newLength = length.increase
-      MS.checkSize(newLength)
+      MS.checkSize(newLength)(companion)
       val a = boxer.cloneMut(data, length, newLength, Z.MP.zero)
       boxer.store(a, length, helper.assign(e))
       MS[I, V](companion, a, newLength, boxer)
@@ -162,7 +162,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     if (isEmpty) MS[I, V](e)(companion)
     else {
       val newLength = length.increase
-      MS.checkSize(newLength)
+      MS.checkSize(newLength)(companion)
       val a = boxer.cloneMut(data, length, newLength, Z.MP.one)
       boxer.store(a, Z.MP.zero, helper.assign(e))
       MS[I, V](companion, a, newLength, boxer)
@@ -172,7 +172,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     val bxr = if (isEmpty) other.boxer else boxer
     if (other.length == Z.MP.zero) return this
     val newLength = length + other.length
-    MS.checkSize(newLength)
+    MS.checkSize(newLength)(companion)
     val a = bxr.cloneMut(data, length, newLength, Z.MP.zero)
     var i = length
     var j = Z.MP.zero
