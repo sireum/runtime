@@ -1457,16 +1457,8 @@ final case class ZRange[I](
   def foreach[V](f: I => V): Unit = {
     val initZ = init.asInstanceOf[ZLike[_]].toMP
     val toZ = to.asInstanceOf[ZLike[_]].toMP
-    var iZ = initZ
     var i = init
-    def loopCond: B = {
-      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
-      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
-    }
-    while (loopCond) {
-      if (cid.cond(i)) {
-        f(i)
-      }
+    def updateI(): Unit = {
       var j = Z.MP.zero
       if (by < 0) {
         val n = -by
@@ -1481,24 +1473,35 @@ final case class ZRange[I](
           j = j + 1
         }
       }
-      iZ = i.asInstanceOf[ZLike[_]].toMP
+    }
+    var iZ = initZ
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    if (loopCond && cid.cond(i)) {
+      f(i)
+    } else {
+      return
+    }
+    iZ = iZ + by
+    while (loopCond) {
+      updateI()
+      if (cid.cond(i)) {
+        f(i)
+      } else {
+        return
+      }
+      iZ = iZ + by
     }
   }
 
   @pure def map[V](f: I => V): ISZ[V] = {
     val initZ = init.asInstanceOf[ZLike[_]].toMP
     val toZ = to.asInstanceOf[ZLike[_]].toMP
-    var iZ = initZ
     var i = init
     var r = ISZ[V]()
-    def loopCond: B = {
-      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
-      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
-    }
-    while (loopCond) {
-      if (cid.cond(i)) {
-        r = r :+ f(i)
-      }
+    def updateI(): Unit = {
       var j = Z.MP.zero
       if (by < 0) {
         val n = -by
@@ -1513,7 +1516,26 @@ final case class ZRange[I](
           j = j + 1
         }
       }
-      iZ = i.asInstanceOf[ZLike[_]].toMP
+    }
+    var iZ = initZ
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    if (loopCond && cid.cond(i)) {
+      r = r :+ f(i)
+    } else {
+      return r
+    }
+    iZ = iZ + by
+    while (loopCond) {
+      updateI()
+      if (cid.cond(i)) {
+        r = r :+ f(i)
+      } else {
+        return r
+      }
+      iZ = iZ + by
     }
     r
   }
@@ -1521,17 +1543,9 @@ final case class ZRange[I](
   @pure def flatMap[V](f: I => ISZ[V]): ISZ[V] = {
     val initZ = init.asInstanceOf[ZLike[_]].toMP
     val toZ = to.asInstanceOf[ZLike[_]].toMP
-    var iZ = initZ
     var i = init
     var r = ISZ[V]()
-    def loopCond: B = {
-      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
-      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
-    }
-    while (loopCond) {
-      if (cid.cond(i)) {
-        r = r ++ f(i)
-      }
+    def updateI(): Unit = {
       var j = Z.MP.zero
       if (by < 0) {
         val n = -by
@@ -1546,7 +1560,26 @@ final case class ZRange[I](
           j = j + 1
         }
       }
-      iZ = i.asInstanceOf[ZLike[_]].toMP
+    }
+    var iZ = initZ
+    def loopCond: B = {
+      if (isInclusive) (iZ <= toZ && by > 0) || (iZ >= toZ && by < 0)
+      else (iZ < toZ && by > 0) || (iZ > toZ && by < 0)
+    }
+    if (loopCond && cid.cond(i)) {
+      r = r ++ f(i)
+    } else {
+      return r
+    }
+    iZ = iZ + by
+    while (loopCond) {
+      updateI()
+      if (cid.cond(i)) {
+        r = r ++ f(i)
+      } else {
+        return r
+      }
+      iZ = iZ + by
     }
     r
   }
