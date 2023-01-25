@@ -58,3 +58,5 @@ class bits(signed: B = T, width: Z = 0, min: Z = 0, max: Z = 0, index: B = F)
 class imm extends StaticAnnotation
 
 class mut extends StaticAnnotation
+
+class index extends StaticAnnotation

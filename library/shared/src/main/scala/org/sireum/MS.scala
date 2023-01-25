@@ -29,7 +29,7 @@ import org.sireum.$internal.{Boxer, MSMarker}
 
 object MS {
 
-  class WithFilter[I, V](ms: MS[I, V], p: V => B) {
+  class WithFilter[@index I, V](ms: MS[I, V], p: V => B) {
     def foreach[U](f: V => U): Unit = {
       var i = Z.MP.zero
       while (i < ms.length) {
@@ -78,7 +78,7 @@ object MS {
     def withFilter(p2: V => B): WithFilter[I, V] = new WithFilter[I, V](ms, v => p(v) && p2(v))
   }
 
-  def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[@index I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang MS requires a non-negative size.")
     assert(
       !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size - 1 <= companion.Max
@@ -88,7 +88,7 @@ object MS {
     )
   }
 
-  def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+  def apply[@index I, V](args: V*)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     MS.checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
@@ -101,7 +101,7 @@ object MS {
     MS[I, V](companion, a, length, boxer)
   }
 
-  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
+  def create[@index I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): MS[I, V] = {
     val length = size
     MS.checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
@@ -114,13 +114,13 @@ object MS {
     MS[I, V](companion, a, length, boxer)
   }
 
-  def apply[I, V](companion: $ZCompanion[I], data: scala.AnyRef, length: Z, boxer: Boxer): MS[I, V] =
+  def apply[@index I, V](companion: $ZCompanion[I], data: scala.AnyRef, length: Z, boxer: Boxer): MS[I, V] =
     new MS[I, V](companion, data, length, boxer)
 
-  def unapplySeq[I, V](o: MS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements.map(helper.cloneAssign))
+  def unapplySeq[@index I, V](o: MS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements.map(helper.cloneAssign))
 }
 
-final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
+final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
     extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
 
   private var isOwned: scala.Boolean = false
@@ -168,7 +168,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       MS[I, V](companion, a, newLength, boxer)
     }
 
-  def ++[I2](other: MS[I2, V]): MS[I, V] = {
+  def ++[@index I2](other: MS[I2, V]): MS[I, V] = {
     val bxr = if (isEmpty) other.boxer else boxer
     if (other.length == Z.MP.zero) return this
     val newLength = length + other.length
@@ -184,7 +184,7 @@ final class MS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     MS[I, V](companion, a, newLength, bxr)
   }
 
-  def --[I2](other: MS[I2, V]): MS[I, V] =
+  def --[@index I2](other: MS[I2, V]): MS[I, V] =
     if (isEmpty || other.length == Z.MP.zero) this
     else {
       val otherElements = other.elements

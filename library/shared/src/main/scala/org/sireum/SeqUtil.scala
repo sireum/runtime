@@ -29,7 +29,7 @@ object SeqUtil {
 
   object IS {
 
-    @strictpure def unique[I, T](s: IS[I, T]): B = ∀(s.indices)(i => ∀(s.indices)(j => (i != j) ->: (s(i) != s(j))))
+    @strictpure def unique[@index I, T](s: IS[I, T]): B = ∀(s.indices)(i => ∀(s.indices)(j => (i != j) ->: (s(i) != s(j))))
 
   }
 

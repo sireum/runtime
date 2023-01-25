@@ -37,7 +37,7 @@ object AssocS {
 
   @strictpure def of[K, V]: AssocS[K, V] = AssocS.empty
 
-  @strictpure def ++[K, V, I](s: IS[I, (K, V)]): AssocS[K, V] = AssocS.empty[K, V] ++ s
+  @strictpure def ++[K, V, @index I](s: IS[I, (K, V)]): AssocS[K, V] = AssocS.empty[K, V] ++ s
 
   @strictpure def entriesOf[K, V](m: AssocS[K, V]): Entries.Type[K, V] = m.entries
 
@@ -315,7 +315,7 @@ object AssocS {
     return AssocS(AssocS.Entries.add(entries, p))
   }
 
-  @pure def ++[I](kvs: IS[I, (K, V)]): AssocS[K, V] = {
+  @pure def ++[@index I](kvs: IS[I, (K, V)]): AssocS[K, V] = {
     var r = this
     for (kv <- kvs) {
       r = r + kv
@@ -401,7 +401,7 @@ object AssocS {
     return AssocS.Entries.indexOf(entries, key)
   }
 
-  @pure def --[I](keys: IS[I, K]): AssocS[K, V] = {
+  @pure def --[@index I](keys: IS[I, K]): AssocS[K, V] = {
     var deletedAssocSpings = ISZ[(K, V)]()
     for (key <- keys) {
       get(key) match {

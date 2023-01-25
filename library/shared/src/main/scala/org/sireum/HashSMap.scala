@@ -36,7 +36,7 @@ object HashSMap {
     return HashSMap(HashMap.emptyInit(initialCapacity), ISZ())
   }
 
-  @pure def ++[I, K, T](s: IS[I, (K, T)]): HashSMap[K, T] = {
+  @pure def ++[@index I, K, T](s: IS[I, (K, T)]): HashSMap[K, T] = {
     return HashSMap.emptyInit[K, T](s.size) ++ s
   }
 
@@ -69,7 +69,7 @@ object HashSMap {
     return HashSMap(newMap, if (newMap.size == map.size) keys else keys :+ p._1)
   }
 
-  @pure def ++[I](entries: IS[I, (K, T)]): HashSMap[K, T] = {
+  @pure def ++[@index I](entries: IS[I, (K, T)]): HashSMap[K, T] = {
     if (entries.isEmpty) {
       return this
     }

@@ -633,14 +633,14 @@ object Json {
       |}"""
     }
 
-    @pure def printIS[I](isSimple: B, elements: IS[I, ST]): ST = {
+    @pure def printIS[@index I](isSimple: B, elements: IS[I, ST]): ST = {
       return if (isSimple) st"[${(elements, ", ")}]"
       else st"""[
       |  ${(elements, ",\n")}
       |]"""
     }
 
-    @pure def printMS[I](isSimple: B, elements: MS[I, ST]): ST = {
+    @pure def printMS[@index I](isSimple: B, elements: MS[I, ST]): ST = {
       return if (isSimple) st"[${(elements, ", ")}]"
       else st"""[
       |  ${(elements, ",\n")}

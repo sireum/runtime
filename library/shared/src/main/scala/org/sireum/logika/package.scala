@@ -420,7 +420,7 @@ package object logika {
     }
   }
 
-  final implicit class _MSClone[I, V](val _ms: MS[I, V]) extends AnyVal {
+  final implicit class _MSClone[@index I, V](val _ms: MS[I, V]) extends AnyVal {
     def clone: MS[I, V] = _ms.$clone
   }
 

@@ -37,7 +37,7 @@ object HashMap {
     return HashMap[K, T](ISZ.create(sz, Map.empty), 0)
   }
 
-  @pure def ++[I, K, T](s: IS[I, (K, T)]): HashMap[K, T] = {
+  @pure def ++[@index I, K, T](s: IS[I, (K, T)]): HashMap[K, T] = {
     return HashMap.emptyInit[K, T](s.size) ++ s
   }
 
@@ -92,7 +92,7 @@ object HashMap {
     return r(mapEntries = r.mapEntries(i ~> (m + key ~> value)), size = newSize)
   }
 
-  @pure def ++[I](entries: IS[I, (K, T)]): HashMap[K, T] = {
+  @pure def ++[@index I](entries: IS[I, (K, T)]): HashMap[K, T] = {
     if (entries.isEmpty) {
       return this
     }
@@ -133,7 +133,7 @@ object HashMap {
     return m.entry(key)
   }
 
-  @pure def --[I](keys: IS[I, K]): HashMap[K, T] = {
+  @pure def --[@index I](keys: IS[I, K]): HashMap[K, T] = {
     var r = this
     for (k <- keys) {
       r.get(k) match {

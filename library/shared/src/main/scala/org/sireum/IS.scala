@@ -29,7 +29,7 @@ import org.sireum.$internal.{Boxer, ISMarker}
 
 object IS {
 
-  class WithFilter[I, V](is: IS[I, V], p: V => B) {
+  class WithFilter[@index I, V](is: IS[I, V], p: V => B) {
     def map[V2](f: V => V2): IS[I, V2] =
       if (is.isEmpty) IS[I, V2]()(is.companion)
       else {
@@ -78,7 +78,7 @@ object IS {
     def withFilter(p2: V => B): WithFilter[I, V] = new WithFilter[I, V](is, v => p(v) && p2(v))
   }
 
-  def checkSize[I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
+  def checkSize[@index I](size: Z)(implicit companion: $ZCompanion[I]): Unit = {
     assert(Z.MP.zero <= size, s"Slang IS requires a non-negative size.")
     assert(
       !companion.hasMax || companion.Index.asInstanceOf[ZLike[_]].toMP + size - 1 <= companion.Max
@@ -88,7 +88,7 @@ object IS {
     )
   }
 
-  def apply[I, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+  def apply[@index I, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
     IS.checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
     val length = Z.MP(args.length)
@@ -101,7 +101,7 @@ object IS {
     IS[I, V](companion, a, length, boxer)
   }
 
-  def create[I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = {
+  def create[@index I, V](size: Z, default: V)(implicit companion: $ZCompanion[I]): IS[I, V] = {
     val length = size
     IS.checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
@@ -114,13 +114,13 @@ object IS {
     IS[I, V](companion, a, length, boxer)
   }
 
-  def apply[I, V](companion: $ZCompanion[I], data: scala.AnyRef, length: Z, boxer: Boxer): IS[I, V] =
+  def apply[@index I, V](companion: $ZCompanion[I], data: scala.AnyRef, length: Z, boxer: Boxer): IS[I, V] =
     new IS[I, V](companion, data, length, boxer)
 
-  def unapplySeq[I, V](o: IS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements)
+  def unapplySeq[@index I, V](o: IS[I, V]): scala.Option[scala.Seq[V]] = scala.Some(o.elements)
 }
 
-final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
+final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
     extends Immutable with ISMarker with _root_.java.lang.Iterable[V] {
 
   def hash: Z = hashCode
@@ -154,7 +154,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
       IS[I, V](companion, a, newLength, boxer)
     }
 
-  def ++[I2](other: IS[I2, V]): IS[I, V] = {
+  def ++[@index I2](other: IS[I2, V]): IS[I, V] = {
     val bxr = if (isEmpty) other.boxer else boxer
     if (other.length == Z.MP.zero) return this
     val newLength = length + other.length
@@ -170,7 +170,7 @@ final class IS[I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val 
     IS[I, V](companion, a, newLength, bxr)
   }
 
-  def --[I2](other: IS[I2, V]): IS[I, V] =
+  def --[@index I2](other: IS[I2, V]): IS[I, V] =
     if (isEmpty || other.length == Z.MP.zero) this
     else {
       val otherElements = other.elements

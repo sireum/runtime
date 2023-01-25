@@ -224,7 +224,7 @@ object Graph {
     }
   }
 
-  @pure def --*[I](ns: IS[I, W]): Graph[W, E] = {
+  @pure def --*[@index I](ns: IS[I, W]): Graph[W, E] = {
     var r: Graph[W, E] = if (multi) Graph.emptyMulti[W, E] else Graph.empty[W, E]
     val ins = HashSet ++ ns.map[Z](n => nodes.get(n).get)
     for (es <- incomingEdges.values) {
@@ -253,7 +253,7 @@ object Graph {
     return removeEdgeN(p._1, p._2)
   }
 
-  @pure def --[I](edges: IS[I, Graph.Edge[W, E]]): Graph[W, E] = {
+  @pure def --[@index I](edges: IS[I, Graph.Edge[W, E]]): Graph[W, E] = {
     var r = this
     for (e <- edges) {
       r = r - e

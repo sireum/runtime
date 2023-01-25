@@ -32,7 +32,7 @@ object Map {
 
   @strictpure def of[K, T]: Map[K, T] = Map.empty
 
-  @strictpure def ++[K, T, I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
+  @strictpure def ++[K, T, @index I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
 
   @strictpure def entriesOf[K, T](m: Map[K, T]): Entries.Type[K, T] = m.entries
 
@@ -87,7 +87,7 @@ object Map {
     return Map(AssocS.Entries.add(entries, p))
   }
 
-  @pure def ++[I](kvs: IS[I, (K, T)]): Map[K, T] = {
+  @pure def ++[@index I](kvs: IS[I, (K, T)]): Map[K, T] = {
     var r = this
     for (kv <- kvs) {
       r = r + kv
@@ -173,7 +173,7 @@ object Map {
     return AssocS.Entries.indexOf(entries, key)
   }
 
-  @pure def --[I](keys: IS[I, K]): Map[K, T] = {
+  @pure def --[@index I](keys: IS[I, K]): Map[K, T] = {
     var deletedMappings = ISZ[(K, T)]()
     for (key <- keys) {
       get(key) match {

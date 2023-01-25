@@ -66,7 +66,7 @@ object ISOps_Ext {
     }
   }
 
-  def mParMap[I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
+  def mParMap[@index I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val t = Thread.currentThread
@@ -81,7 +81,7 @@ object ISOps_Ext {
     IS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
-  @pure def sortWith[I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
+  @pure def sortWith[@index I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
     var i = Z.MP.zero
@@ -111,7 +111,7 @@ object ISZOpsUtil_Ext {
 
 object MSOps_Ext {
 
-  def mParMap[I, V, U](s: MS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): MS[I, U] = {
+  def mParMap[@index I, V, U](s: MS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): MS[I, U] = {
     val elements = s.elements
     val ies = elements.indices.zip(elements)
     val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
@@ -124,7 +124,7 @@ object MSOps_Ext {
     MS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
-  @pure def sortWith[I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
+  @pure def sortWith[@index I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
     var i = Z.MP.zero

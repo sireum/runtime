@@ -325,7 +325,7 @@ package org.sireum
 
 @ext object IS {
 
-  @pure def create[I, E](size: Z, default: E): IS[I, E] =
+  @pure def create[@index I, E](size: Z, default: E): IS[I, E] =
     Contract.Only(
       Requires(seqIndexValidSize[I](size)),
       Ensures(
@@ -336,7 +336,7 @@ package org.sireum
 
 }
 
-@ext trait IS[@imm I, @imm E] {
+@ext trait IS[@index I, @imm E] {
 
   @pure def hash: Z
 
@@ -352,9 +352,9 @@ package org.sireum
 
   @pure def +:(e: E): IS[I, E]
 
-  @pure def ++[I2](other: IS[I2, E]): IS[I, E]
+  @pure def ++[@index I2](other: IS[I2, E]): IS[I, E]
 
-  @pure def --[I2](other: IS[I2, E]): IS[I, E]
+  @pure def --[@index I2](other: IS[I2, E]): IS[I, E]
 
   @pure def -(e: E): IS[I, E]
 
@@ -416,7 +416,7 @@ package org.sireum
 
 @ext object MS {
 
-  @pure def create[I, @mut E](size: Z, default: E): MS[I, E] =
+  @pure def create[@index I, @mut E](size: Z, default: E): MS[I, E] =
     Contract.Only(
       Requires(seqIndexValidSize[I](size)),
       Ensures(
@@ -427,7 +427,7 @@ package org.sireum
 
 }
 
-@ext trait MS[@imm I, @mut E] {
+@ext trait MS[@index I, @mut E] {
 
   @pure def hash: Z
 
@@ -443,9 +443,9 @@ package org.sireum
 
   @pure def +:(e: E): MS[I, E]
 
-  @pure def ++[I2](other: MS[I2, E]): MS[I, E]
+  @pure def ++[@index I2](other: MS[I2, E]): MS[I, E]
 
-  @pure def --[I2](other: MS[I2, E]): MS[I, E]
+  @pure def --[@index I2](other: MS[I2, E]): MS[I, E]
 
   @pure def -(e: E): MS[I, E]
 

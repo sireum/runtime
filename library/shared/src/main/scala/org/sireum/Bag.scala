@@ -31,7 +31,7 @@ object Bag {
     return Bag(Map.empty[T, Z])
   }
 
-  @pure def ++[I, T](s: IS[I, T]): Bag[T] = {
+  @pure def ++[@index I, T](s: IS[I, T]): Bag[T] = {
     return Bag.empty[T] ++ s
   }
 
@@ -91,7 +91,7 @@ object Bag {
     return addN(e, n)
   }
 
-  @pure def ++[I](es: IS[I, T]): Bag[T] = {
+  @pure def ++[@index I](es: IS[I, T]): Bag[T] = {
     var r = this
     for (e <- es) {
       r = r + e
@@ -103,7 +103,7 @@ object Bag {
     return removeN(e, 1)
   }
 
-  @pure def --[I](es: IS[I, T]): Bag[T] = {
+  @pure def --[@index I](es: IS[I, T]): Bag[T] = {
     var r = this
     for (e <- es) {
       r = r - e

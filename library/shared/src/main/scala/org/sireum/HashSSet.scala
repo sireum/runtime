@@ -36,7 +36,7 @@ object HashSSet {
     return HashSSet(HashSMap.emptyInit(initialCapacity))
   }
 
-  @pure def ++[I, T](s: IS[I, T]): HashSSet[T] = {
+  @pure def ++[@index I, T](s: IS[I, T]): HashSSet[T] = {
     return HashSSet.emptyInit[T](s.size) ++ s
   }
 }
@@ -47,7 +47,7 @@ object HashSSet {
     return HashSSet(map + e ~> T)
   }
 
-  @pure def ++[I](is: IS[I, T]): HashSSet[T] = {
+  @pure def ++[@index I](is: IS[I, T]): HashSSet[T] = {
     var r = this
     for (e <- is) {
       r = r + e
@@ -59,7 +59,7 @@ object HashSSet {
     return HashSSet(map - e ~> T)
   }
 
-  @pure def --[I](is: IS[I, T]): HashSSet[T] = {
+  @pure def --[@index I](is: IS[I, T]): HashSSet[T] = {
     var r = this
     for (e <- is) {
       r = r - e

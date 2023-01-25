@@ -119,7 +119,7 @@ package object sireum extends $internal.PackageTrait with contract {
     final def sn(args: Any*): StepId = macro Macro.sn
   }
 
-  final implicit class Any2HashStringEq(val _o: Any) extends AnyVal {
+  final implicit class Any2HashStringEqToZ(val _o: Any) extends AnyVal {
     def hash: Z = _o.hashCode
     def string: String = _o.toString
     @inline def ≡(other: Any): B = this === other
@@ -164,6 +164,11 @@ package object sireum extends $internal.PackageTrait with contract {
       }
     }
     def =!=(other: Any): B = !(this === other)
+
+    def toZ: Z = _o match {
+      case _o: ZLike[_] => _o.toZ
+      case _ => halt(s"Cannot use toZ on ${_o}")
+    }
   }
 
   final implicit class $Boolean2B(val _value: scala.Boolean) extends AnyVal {

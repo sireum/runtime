@@ -308,11 +308,13 @@ object Z extends $ZCompanion[Z] {
       def box[T](o: scala.Any): T = o match {
         case o: MP.Long => o.asInstanceOf[T]
         case o: scala.BigInt => MP.BigInt(o).asInstanceOf[T]
+        case o: org.sireum.Z.Range[_] => o.asInstanceOf[T]
       }
 
       def unbox(o: scala.Any): scala.Any = o match {
         case o: MP.Long => o
         case o: MP.BigInt => o.value
+        case o: org.sireum.Z.Range[_] => o
       }
 
       override def copyMut(src: AnyRef, srcPos: Index, dest: AnyRef, destPos: Index, length: Index): Unit =
@@ -1345,6 +1347,8 @@ trait ZLike[T <: ZLike[T]] extends Any with Number with Comparable[T] {
 
   def toMP: Z
 
+  def toZ: Z
+
   def to(n: T): ZRange[T] = ZRange[T](T, this, n, 1, new ZRange.CondIncDec[T] {
     @pure def cond(i: T): B = T
     @pure def increase(i: T): T = i.increase
@@ -1425,6 +1429,8 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
   }
 
   final def toMP: Z = this
+
+  final def toZ: Z = this
 
   def toIntOpt: scala.Option[scala.Int]
 

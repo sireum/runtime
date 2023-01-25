@@ -32,7 +32,7 @@ object Set {
 
   @strictpure def empty[T]: Set[T] = Set[T](ISZ())
 
-  @strictpure def ++[I, T](s: IS[I, T]): Set[T] = empty[T] ++ s
+  @strictpure def ++[@index I, T](s: IS[I, T]): Set[T] = empty[T] ++ s
 
   @strictpure def elementsOf[T](s: Set[T]): ISZ[T] = s.elements
 
@@ -95,7 +95,7 @@ object Set {
     return Set(newElements)
   }
 
-  @pure def ++[I](is: IS[I, T]): Set[T] = {
+  @pure def ++[@index I](is: IS[I, T]): Set[T] = {
     var r = this
     for (e <- is) {
       r = r + e
@@ -134,7 +134,7 @@ object Set {
     return Set(newElements)
   }
 
-  @pure def --[I](is: IS[I, T]): Set[T] = {
+  @pure def --[@index I](is: IS[I, T]): Set[T] = {
     var r = this
     for (e <- is) {
       r = r - e

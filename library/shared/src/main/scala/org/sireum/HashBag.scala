@@ -35,7 +35,7 @@ object HashBag {
     return HashBag(HashMap.emptyInit(initialCapacity))
   }
 
-  @pure def ++[I, T](s: IS[I, T]): HashBag[T] = {
+  @pure def ++[@index I, T](s: IS[I, T]): HashBag[T] = {
     return HashBag.empty[T] ++ s
   }
 
@@ -94,7 +94,7 @@ object HashBag {
     return this(map + e ~> (count(e) + n))
   }
 
-  @pure def ++[I](es: IS[I, T]): HashBag[T] = {
+  @pure def ++[@index I](es: IS[I, T]): HashBag[T] = {
     var r = this
     for (e <- es) {
       r = r + e
@@ -106,7 +106,7 @@ object HashBag {
     return removeN(e, 1)
   }
 
-  @pure def --[I](s: IS[I, T]): HashBag[T] = {
+  @pure def --[@index I](s: IS[I, T]): HashBag[T] = {
     var r = this
     for (e <- s) {
       r = r - e

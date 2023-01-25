@@ -199,7 +199,7 @@ package org.sireum
     return r
   }
 
-  @pure def toMS[I](init: MS[I, T]): MS[I, T] = {
+  @pure def toMS[@index I](init: MS[I, T]): MS[I, T] = {
     var r = init
 
     def append(o: T): Unit = {
@@ -228,7 +228,7 @@ object MJen {
 
   object Internal {
 
-    @record class ISImpl[@imm I, @imm T](val s: IS[I, T]) extends MJen[T] {
+    @record class ISImpl[@index I, @imm T](val s: IS[I, T]) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- s) {
@@ -245,7 +245,7 @@ object MJen {
       }
     }
 
-    @record class MSImpl[I, T](val s: MS[I, T]) extends MJen[T] {
+    @record class MSImpl[@index I, T](val s: MS[I, T]) extends MJen[T] {
       override def generate(f: T => MJen.Action): MJen.Action = {
         var last = MJen.Continue
         for (e <- s) {
@@ -522,11 +522,11 @@ object MJen {
 
   }
 
-  @pure def IS[I, T](s: IS[I, T]): MJen[T] = {
+  @pure def IS[@index I, T](s: IS[I, T]): MJen[T] = {
     return Internal.ISImpl(s)
   }
 
-  @pure def MS[I, T](s: MS[I, T]): MJen[T] = {
+  @pure def MS[@index I, T](s: MS[I, T]): MJen[T] = {
     return Internal.MSImpl(s)
   }
 

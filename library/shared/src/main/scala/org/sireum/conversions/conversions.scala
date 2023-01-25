@@ -2503,9 +2503,9 @@ import org.sireum.Z64._
 
   @pure def toBase64(data: IS[Z, U8]): String = $
 
-  @pure def fromCis[I](cs: IS[I, C]): String = $
+  @pure def fromCis[@index I](cs: IS[I, C]): String = $
 
-  @pure def fromCms[I](cs: MS[I, C]): String = $
+  @pure def fromCms[@index I](cs: MS[I, C]): String = $
 
   @pure def fromU8is(u8s: IS[Z, U8]): String = $
 
@@ -2523,13 +2523,13 @@ import org.sireum.Z64._
 }
 
 @ext object ISB {
-  @pure def fromISU8[I](s: IS[I, U8]): IS[I, B] = $
-  @pure def toISU8[I](s: IS[I, B]): IS[I, U8] = $
-  @pure def toMSU8[I](s: IS[I, B]): MS[I, U8] = $
+  @pure def fromISU8[@index I](s: IS[I, U8]): IS[I, B] = $
+  @pure def toISU8[@index I](s: IS[I, B]): IS[I, U8] = $
+  @pure def toMSU8[@index I](s: IS[I, B]): MS[I, U8] = $
 }
 
 @ext object MSB {
-  @pure def fromMSU8[I](s: MS[I, U8]): MS[I, B] = $
-  @pure def toISU8[I](s: MS[I, B]): IS[I, U8] = $
-  @pure def toMSU8[I](s: MS[I, B]): MS[I, U8] = $
+  @pure def fromMSU8[@index I](s: MS[I, U8]): MS[I, B] = $
+  @pure def toISU8[@index I](s: MS[I, B]): IS[I, U8] = $
+  @pure def toMSU8[@index I](s: MS[I, B]): MS[I, U8] = $
 }

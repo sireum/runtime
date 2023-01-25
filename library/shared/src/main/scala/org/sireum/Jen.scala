@@ -199,7 +199,7 @@ package org.sireum
     return r
   }
 
-  @pure def toIS[I](init: IS[I, T]): IS[I, T] = {
+  @pure def toIS[@index I](init: IS[I, T]): IS[I, T] = {
     var r = init
 
     def append(o: T): Unit = {
@@ -215,7 +215,7 @@ package org.sireum
     return r
   }
 
-  @pure def toMS[I](init: MS[I, T]): MS[I, T] = {
+  @pure def toMS[@index I](init: MS[I, T]): MS[I, T] = {
     var r = init
 
     def append(o: T): Unit = {
@@ -244,7 +244,7 @@ object Jen {
 
   object Internal {
 
-    @datatype class ISImpl[I, T](val s: IS[I, T]) extends Jen[T] {
+    @datatype class ISImpl[@index I, T](val s: IS[I, T]) extends Jen[T] {
       override def generate(f: T => Jen.Action): Jen.Action = {
         var last = Jen.Continue
         for (e <- s) {
@@ -521,7 +521,7 @@ object Jen {
 
   }
 
-  @pure def IS[I, T](s: IS[I, T]): Jen[T] = {
+  @pure def IS[@index I, T](s: IS[I, T]): Jen[T] = {
     return Internal.ISImpl(s)
   }
 

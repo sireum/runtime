@@ -157,7 +157,7 @@ import ObjPrinter._
     return printIS(stZ, elementType, s, printZ _, e)
   }
 
-  def printIS[I, E](indexType: ST, elementType: ST, s: IS[I, E], i: I => ST, e: E => ST): ST = {
+  def printIS[@index I, E](indexType: ST, elementType: ST, s: IS[I, E], i: I => ST, e: E => ST): ST = {
     val f: () => ST = { () =>
       val t = st"IS[$indexType, $elementType]"
       val elements = s.map(e)
@@ -186,7 +186,7 @@ import ObjPrinter._
     return cache(s, f)
   }
 
-  def printMS[I, @mut E](indexType: ST, elementType: ST, s: MS[I, E], i: I => ST, e: E => ST): ST = {
+  def printMS[@index I, @mut E](indexType: ST, elementType: ST, s: MS[I, E], i: I => ST, e: E => ST): ST = {
     val f: () => ST = { () =>
       val t = st"MS[$indexType, $elementType]"
       val elements = s.map(e)

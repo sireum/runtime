@@ -28,7 +28,7 @@ package org.sireum.ops
 
 import org.sireum._
 
-@sig trait ISOps[I, T] {
+@sig trait ISOps[@index I, T] {
 
   @pure def contains(e: T): B
 
@@ -94,7 +94,7 @@ import org.sireum._
 
 }
 
-@msig trait MSOps[@imm I, T] {
+@msig trait MSOps[@index I, T] {
 
   @pure def contains(e: T): B
 
