@@ -1203,13 +1203,25 @@ object Z extends $ZCompanion[Z] {
   def BitWidth: scala.Int = halt(s"Unsupported $Name operation 'BitWidth'")
 
   def random: Z = {
-    val r = new scala.util.Random
+    val r = _root_.java.util.concurrent.ThreadLocalRandom.current
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
+  }
+
+  def randomBetween(min: Z, max: Z): Z = {
+    assert(min <= max)
+    val d = max - min + 1
+    return min + random % d
   }
 
   def randomSeed(seed: Z): Z = {
     val r = new scala.util.Random((seed.toMP % Z.MP(U._64(-1).toBigInt + 1)).toLongOpt.get)
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
+  }
+
+  def randomSeedBetween(seed: Z, min: Z, max: Z): Z = {
+    assert(min <= max)
+    val d = max - min + 1
+    return min + randomSeed(seed) % d
   }
 
   import scala.language.implicitConversions

@@ -51,9 +51,23 @@ object C {
     }
   }
 
-  def random: C = {
-    val r = new _root_.java.util.Random
-    C(r.nextInt.toChar.toInt)
+  def fromZ(n: Z): C = {
+    assert(0 <= n && n <= 0x110000)
+    C(n.toInt)
+  }
+
+  def random: C = C(Z.randomBetween(0, 0x110000).toInt)
+
+  def randomBetween(min: C, max: C): C = {
+    assert(min <= max)
+    C(Z.randomBetween(min.value, max.value).toInt)
+  }
+
+  def randomSeed(seed: Z): C = C(Z.randomSeedBetween(seed, 0, 0x110000).toInt)
+
+  def randomSeedBetween(seed: Z, min: C, max: C): C = {
+    assert(min <= max)
+    C(Z.randomSeedBetween(seed, min.value, max.value).toInt)
   }
 
   def unapply(c: C): scala.Some[scala.Int] = scala.Some(c.value)

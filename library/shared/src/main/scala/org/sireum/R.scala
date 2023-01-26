@@ -61,6 +61,23 @@ object R {
     R(Z.random) / (if (d == 0) R(Z.MP.one) else R(d))
   }
 
+  def randomSeed(seed: Z): R = {
+    val d = Z.randomSeed(seed)
+    R(Z.randomSeed(seed + 1)) / (if (d == 0) R(Z.MP.one) else R(d))
+  }
+
+  def randomBetween(min: R, max: R): R = {
+    assert(min <= max)
+    val d = max - min + r"1"
+    R(random.value.remainder(d.value)) + min
+  }
+
+  def randomSeedBetween(seed: Z, min: R, max: R): R = {
+    assert(min <= max)
+    val d = max - min + r"1"
+    R(randomSeed(seed).value.remainder(d.value)) + min
+  }
+
   import scala.language.implicitConversions
 
   implicit def apply(r: BigDecimal): R = new R(r)

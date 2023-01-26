@@ -30,6 +30,8 @@ package org.sireum
 
   def random: B = $
 
+  def randomSeed(seed: Z): B = $
+
 }
 
 @ext trait B {
@@ -69,7 +71,15 @@ package org.sireum
 
 @ext object C {
 
+  def fromZ(n: Z): C = $
+
   def random: C = $
+
+  def randomSeed(seed: Z): Z = $
+
+  def randomBetween(min: C, max: C): C = $
+
+  def randomSeedBetween(seed: Z, min: C, max: C): C = $
 
 }
 
@@ -108,6 +118,12 @@ package org.sireum
 @ext object Z {
 
   def random: Z = $
+
+  def randomSeed(seed: Z): Z = $
+
+  def randomBetween(min: Z, max: Z): Z = $
+
+  def randomSeedBetween(seed: Z, min: Z, max: Z): Z = $
 
 }
 
@@ -158,6 +174,12 @@ package org.sireum
 
   def random: F32 = $
 
+  def randomSeed(seed: Z): F32 = $
+
+  def randomBetween(min: F32, max: F32): F32 = $
+
+  def randomSeedBetween(seed: Z, min: F32, max: F32): F32 = $
+
 }
 
 @ext trait F32 {
@@ -207,6 +229,12 @@ package org.sireum
 
   def random: F64 = $
 
+  def randomSeed(seed: Z): F64 = $
+
+  def randomBetween(min: F64, max: F64): F64 = $
+
+  def randomSeedBetween(seed: Z, min: F64, max: F64): F64 = $
+
 }
 
 @ext trait F64 {
@@ -248,6 +276,12 @@ package org.sireum
 @ext object R {
 
   def random: R = $
+
+  def randomSeed(seed: Z): R = $
+
+  def randomBetween(min: R, max: R): R = $
+
+  def randomSeedBetween(seed: Z, min: R, max: R): R = $
 
 }
 

@@ -147,6 +147,8 @@ object B {
 
   def random: B = new _root_.java.util.Random().nextBoolean
 
+  def randomSeed(seed: Z): B = new _root_.java.util.Random(seed.toLong).nextBoolean
+
   def unapply(b: B): scala.Option[scala.Boolean] = scala.Some(b.value)
 
   import scala.language.implicitConversions
