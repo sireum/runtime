@@ -112,6 +112,8 @@ package org.sireum
   @pure def |^(other: C): C
 
   @pure def isWhitespace: B
+
+  @pure def toZ: Z
 }
 
 

@@ -122,6 +122,8 @@ final class C(val value: scala.Int) extends AnyVal with Immutable with $internal
 
   @inline def isWhitespace: B = value.toChar.isWhitespace
 
+  @inline def toZ: Z = value
+
   def boxer: $internal.Boxer = C.Boxer
 
 }
