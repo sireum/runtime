@@ -68,14 +68,22 @@ object R {
 
   def randomBetween(min: R, max: R): R = {
     assert(min <= max)
-    val d = max - min + r"1"
-    R(random.value.remainder(d.value)) + min
+    var r = random
+    if (r < r"0") {
+      r = -r
+    }
+    r = r.value.remainder((max - min + r"1").value) + min
+    return r
   }
 
   def randomSeedBetween(seed: Z, min: R, max: R): R = {
     assert(min <= max)
-    val d = max - min + r"1"
-    R(randomSeed(seed).value.remainder(d.value)) + min
+    var r = randomSeed(seed)
+    if (r < r"0") {
+      r = -r
+    }
+    r = r.value.remainder((max - min + r"1").value) + min
+    return r
   }
 
   import scala.language.implicitConversions

@@ -83,14 +83,18 @@ object F32 {
   }
 
   def randomSeed(seed: Z): F32 = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLongOpt.get)
+    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLong)
     r.nextInt().toFloat + r.nextFloat()
   }
 
   def randomBetween(min: F32, max: F32): F32 = {
     assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
       (min < max || _root_.java.lang.Float.floatToIntBits(min.value) == _root_.java.lang.Float.floatToIntBits(max.value)))
-    var r = random * (max - min) + min
+    var r = random
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
     if (r >= max) {
       r = _root_.java.lang.Float.intBitsToFloat(_root_.java.lang.Float.floatToIntBits(max.value) - 1)
     }
@@ -100,7 +104,11 @@ object F32 {
   def randomSeedBetween(seed: Z, min: F32, max: F32): F32 = {
     assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
       (min < max || _root_.java.lang.Float.floatToIntBits(min.value) == _root_.java.lang.Float.floatToIntBits(max.value)))
-    var r = randomSeed(seed) * (max - min) + min
+    var r = randomSeed(seed)
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
     if (r >= max) {
       r = _root_.java.lang.Float.intBitsToFloat(_root_.java.lang.Float.floatToIntBits(max.value) - 1)
     }
@@ -218,14 +226,18 @@ object F64 {
   }
 
   def randomSeed(seed: Z): F64 = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLongOpt.get)
+    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLong)
     r.nextLong().toDouble + r.nextDouble()
   }
 
   def randomBetween(min: F64, max: F64): F64 = {
     assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
       (min < max || _root_.java.lang.Double.doubleToLongBits(min.value) == _root_.java.lang.Double.doubleToLongBits(max.value)))
-    var r = random % (max - min) + min
+    var r = random
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
     if (r >= max) {
       r = _root_.java.lang.Double.longBitsToDouble(_root_.java.lang.Double.doubleToLongBits(max.value) - 1)
     }
@@ -235,9 +247,13 @@ object F64 {
   def randomSeedBetween(seed: Z, min: F64, max: F64): F64 = {
     assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
       (min < max || _root_.java.lang.Double.doubleToLongBits(min.value) == _root_.java.lang.Double.doubleToLongBits(max.value)))
-    var r = randomSeed(seed) % (max - min) + min
+    var r = randomSeed(seed)
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
     if (r > max) {
-      r = max
+      r = _root_.java.lang.Double.longBitsToDouble(_root_.java.lang.Double.doubleToLongBits(max.value) - 1)
     }
     return r
   }

@@ -1209,19 +1209,27 @@ object Z extends $ZCompanion[Z] {
 
   def randomBetween(min: Z, max: Z): Z = {
     assert(min <= max)
-    val d = max - min + 1
-    return min + random % d
+    var r = random
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
+    return r
   }
 
   def randomSeed(seed: Z): Z = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(U._64(-1).toBigInt + 1)).toLongOpt.get)
+    val r = new scala.util.Random((seed.toMP % Z.MP(U._64(-1).toBigInt + 1)).toLong)
     MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
   }
 
   def randomSeedBetween(seed: Z, min: Z, max: Z): Z = {
     assert(min <= max)
-    val d = max - min + 1
-    return min + randomSeed(seed) % d
+    var r = randomSeed(seed)
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (max - min + 1) + min
+    return r
   }
 
   import scala.language.implicitConversions
