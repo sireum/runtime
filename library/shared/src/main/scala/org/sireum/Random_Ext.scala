@@ -44,7 +44,7 @@ object Random_Ext {
       r = -r
     }
     r = r % (U64.Max.toZ + 1)
-    val sm = Random.Xoroshiro.SplitMix64(U64.fromZ(r))
+    val sm = Random.Impl.SplitMix64(U64.fromZ(r))
     val g64 = _gen64.get
     g64.gen.seed0 = sm.next()
     g64.gen.seed1 = sm.next()

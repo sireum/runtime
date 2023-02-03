@@ -32,7 +32,7 @@ import org.sireum.U64._
 
 object Random {
 
-  @record class Gen64(val gen: Xoroshiro.Xoroshiro64) {
+  @record class Gen64(val gen: Impl.Xoshiro256) {
     def nextB(): B = {
       Contract(Modifies(gen))
       return (nextU64() >>> u64"63") == u64"1"
@@ -187,7 +187,7 @@ object Random {
 
     def nextU64(): U64 = {
       Contract(Modifies(gen))
-      return gen.gen256pp()
+      return gen.pp()
     }
 
     def nextU8Between(min: U8, max: U8): U8 = {
@@ -431,22 +431,24 @@ object Random {
     }
   }
 
-  @strictpure def create64: Gen64 = Gen64(Xoroshiro.Xoroshiro64.create)
+  @strictpure def create64: Gen64 = Gen64(Impl.Xoshiro256.create)
 
-  @strictpure def createSeed64(seed: U64): Gen64 = Gen64(Xoroshiro.Xoroshiro64.createSeed(seed))
+  @strictpure def createSeed64(seed: U64): Gen64 = Gen64(Impl.Xoshiro256.createSeed(seed))
 
   @strictpure def rotl32(x: U32, k: U32): U32 = (x << k) | (x >> (u32"32" - k))
 
   @strictpure def rotl64(x: U64, k: U64): U64 = (x << k) | (x >> (u64"64" - k))
 
-  /*  Written in 2019 by David Blackman and Sebastiano Vigna (vigna@acm.org)
+  object Impl {
 
-  To the extent possible under law, the author has dedicated all copyright
-  and related and neighboring rights to this software to the public domain
-  worldwide. This software is distributed without any warranty.
+    /*  Written in 2019 by David Blackman and Sebastiano Vigna (vigna@acm.org)
 
-  See <http://creativecommons.org/publicdomain/zero/1.0/>. */
-  object Xoroshiro {
+    To the extent possible under law, the author has dedicated all copyright
+    and related and neighboring rights to this software to the public domain
+    worldwide. This software is distributed without any warranty.
+
+    See <http://creativecommons.org/publicdomain/zero/1.0/>. */
+
     // Adapted from: https://prng.di.unimi.it/splitmix64.c
     object SplitMix64 {
       def create: SplitMix64 = {
@@ -463,19 +465,19 @@ object Random {
       }
     }
 
-    object Xoroshiro64 {
-      @pure def create: Xoroshiro64 = {
+    object Xoshiro256 {
+      @pure def create: Xoshiro256 = {
         val r = SplitMix64.create
-        return Xoroshiro64(r.next(), r.next(), r.next(), r.next())
+        return Xoshiro256(r.next(), r.next(), r.next(), r.next())
       }
 
-      @pure def createSeed(seed: U64): Xoroshiro64 = {
+      @pure def createSeed(seed: U64): Xoshiro256 = {
         val r = SplitMix64(seed)
-        return Xoroshiro64(r.next(), r.next(), r.next(), r.next())
+        return Xoshiro256(r.next(), r.next(), r.next(), r.next())
       }
     }
 
-    @record class Xoroshiro64(var seed0: U64, var seed1: U64, var seed2: U64, var seed3: U64) {
+    @record class Xoshiro256(var seed0: U64, var seed1: U64, var seed2: U64, var seed3: U64) {
       def update(): Unit = {
         val t = seed1 << u64"17"
         seed2 = seed2 |^ seed0
@@ -487,21 +489,21 @@ object Random {
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro256plusplus.c
-      def gen256pp(): U64 = {
+      def pp(): U64 = {
         val result = rotl64(seed0 + seed3, u64"23") + seed0
         update()
         return result
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro256starstar.c
-      def gen256ss(): U64 = {
+      def ss(): U64 = {
         val result = rotl64(seed1 * u64"5", u64"7") * u64"9"
         update()
         return result;
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro256plus.c
-      def gen256p(): U64 = {
+      def p(): U64 = {
         val result = seed0 + seed3
         update()
         return result
@@ -509,25 +511,25 @@ object Random {
     }
 
 
-    object Xoroshiro32 {
-      @pure def create: Xoroshiro32 = {
+    object Xoroshiro128 {
+      @pure def create: Xoroshiro128 = {
         val r = SplitMix64.create
         val n0 = r.next()
         val n1 = r.next()
-        return Xoroshiro32(conversions.U64.toU32(n0 >> u64"32"), conversions.U64.toU32(n0 & u64"0xFFFFFFFF"),
+        return Xoroshiro128(conversions.U64.toU32(n0 >> u64"32"), conversions.U64.toU32(n0 & u64"0xFFFFFFFF"),
           conversions.U64.toU32(n1 >> u64"32"), conversions.U64.toU32(n1 & u64"0xFFFFFFFF"))
       }
 
-      @pure def createSeed(seed: U64): Xoroshiro32 = {
+      @pure def createSeed(seed: U64): Xoroshiro128 = {
         val r = SplitMix64(seed)
         val n0 = r.next()
         val n1 = r.next()
-        return Xoroshiro32(conversions.U64.toU32(n0 >> u64"32"), conversions.U64.toU32(n0 & u64"0xFFFFFFFF"),
+        return Xoroshiro128(conversions.U64.toU32(n0 >> u64"32"), conversions.U64.toU32(n0 & u64"0xFFFFFFFF"),
           conversions.U64.toU32(n1 >> u64"32"), conversions.U64.toU32(n1 & u64"0xFFFFFFFF"))
       }
     }
 
-    @record class Xoroshiro32(var seed0: U32, var seed1: U32, var seed2: U32, var seed3: U32) {
+    @record class Xoroshiro128(var seed0: U32, var seed1: U32, var seed2: U32, var seed3: U32) {
       def update(): Unit = {
         val t = seed1 << u32"9"
         seed2 = seed2 |^ seed0
@@ -539,21 +541,21 @@ object Random {
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro128plusplus.c
-      def gen128pp(): U32 = {
+      def pp(): U32 = {
         val result = rotl32(seed0 + seed3, u32"7") + seed0
         update()
         return result
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro128starstar.c
-      def gen128ss(): U32 = {
+      def ss(): U32 = {
         val result = rotl32(seed1 * u32"5", u32"7") * u32"9"
         update()
         return result
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro128plus.c
-      def generate(): U32 = {
+      def p(): U32 = {
         val result = seed0 + seed3
         update()
         return result
