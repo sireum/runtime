@@ -123,7 +123,15 @@ object MS {
 final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
     extends Mutable with MSMarker with _root_.java.lang.Iterable[V] {
 
+  private var isClonable: scala.Boolean = true
   private var isOwned: scala.Boolean = false
+
+  override def $clonable: Boolean = isClonable
+
+  override def $clonable_=(b: Boolean): this.type = {
+    isClonable = false
+    this
+  }
 
   override def $owned: scala.Boolean = isOwned
 

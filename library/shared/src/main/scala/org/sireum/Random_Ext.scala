@@ -29,26 +29,14 @@ object Random_Ext {
 
   val _gen64: _root_.java.lang.ThreadLocal[Random.Gen64] = new _root_.java.lang.ThreadLocal[Random.Gen64]
 
-  def gen64: Random.Gen64 = {
+  def instance: Random.Gen64 = {
     var r = _gen64.get()
     if (r == null) {
       r = Random.create64
+      r.$owned = true
+      r.$clonable = false
       _gen64.set(r)
     }
     r
-  }
-
-  def setSeed(seed: Z): Unit = {
-    var r = seed
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (U64.Max.toZ + 1)
-    val sm = Random.Impl.SplitMix64(U64.fromZ(r))
-    val g64 = _gen64.get
-    g64.gen.seed0 = sm.next()
-    g64.gen.seed1 = sm.next()
-    g64.gen.seed2 = sm.next()
-    g64.gen.seed3 = sm.next()
   }
 }

@@ -30,6 +30,9 @@ trait ImmutableMarker extends Any with Clonable {
 }
 
 trait MutableMarker extends Any with Clonable {
+  def $clonable: Boolean
+  def $clonable_=(b: Boolean): MutableMarker
+
   def $owned: Boolean
   def $owned_=(b: Boolean): MutableMarker
 

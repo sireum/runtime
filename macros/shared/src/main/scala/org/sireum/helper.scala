@@ -121,7 +121,7 @@ object helper {
   }
 
   def retMut[T](x: MutableMarker): T =
-    (if (x.$owned) x.$clone else x).asInstanceOf[T]
+    (if (x.$owned && x.$clonable) x.$clone else x).asInstanceOf[T]
 
   def ret[T](arg: T): T = {
     arg match {

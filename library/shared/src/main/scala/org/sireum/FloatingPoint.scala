@@ -77,22 +77,22 @@ object F32 {
     def unapply(n: F32): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
-  def random: F32 = Random.Ext.gen64.nextF32()
+  def random: F32 = Random.Ext.instance.nextF32()
 
   def randomSeed(seed: Z): F32 = {
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextF32()
+    Random.setSeed(seed)
+    Random.Ext.instance.nextF32()
   }
 
   def randomBetween(min: F32, max: F32): F32 = {
     assert(min <= max)
-    Random.Ext.gen64.nextF32Between(min, max)
+    Random.Ext.instance.nextF32Between(min, max)
   }
 
   def randomSeedBetween(seed: Z, min: F32, max: F32): F32 = {
     assert(min <= max)
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextF32Between(min, max)
+    Random.setSeed(seed)
+    Random.Ext.instance.nextF32Between(min, max)
   }
 
   def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
@@ -200,22 +200,22 @@ object F64 {
     def unapply(n: F64): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
-  def random: F64 = Random.Ext.gen64.nextF64()
+  def random: F64 = Random.Ext.instance.nextF64()
 
   def randomSeed(seed: Z): F64 = {
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextF64()
+    Random.setSeed(seed)
+    Random.Ext.instance.nextF64()
   }
 
   def randomBetween(min: F64, max: F64): F64 = {
     assert(min <= max)
-    Random.Ext.gen64.nextF64Between(min, max)
+    Random.Ext.instance.nextF64Between(min, max)
   }
 
   def randomSeedBetween(seed: Z, min: F64, max: F64): F64 = {
     assert(min <= max)
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextF64Between(min, max)
+    Random.setSeed(seed)
+    Random.Ext.instance.nextF64Between(min, max)
   }
 
   def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)

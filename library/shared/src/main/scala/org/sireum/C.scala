@@ -52,26 +52,26 @@ object C {
   }
 
   def fromZ(n: Z): C = {
-    assert(0 <= n && n <= 0x110000)
+    assert(0 <= n && n <= 0x10FFFF)
     C(n.toInt)
   }
 
-  def random: C = Random.Ext.gen64.nextC()
+  def random: C = Random.Ext.instance.nextC()
 
   def randomBetween(min: C, max: C): C = {
     assert(min <= max)
-    Random.Ext.gen64.nextCBetween(min, max)
+    Random.Ext.instance.nextCBetween(min, max)
   }
 
   def randomSeed(seed: Z): C = {
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextC()
+    Random.setSeed(seed)
+    Random.Ext.instance.nextC()
   }
 
   def randomSeedBetween(seed: Z, min: C, max: C): C = {
     assert(min <= max)
-    Random.Ext.setSeed(seed)
-    Random.Ext.gen64.nextCBetween(min, max)
+    Random.setSeed(seed)
+    Random.Ext.instance.nextCBetween(min, max)
   }
 
   def unapply(c: C): scala.Some[scala.Int] = scala.Some(c.value)
@@ -122,7 +122,7 @@ final class C(val value: scala.Int) extends AnyVal with Immutable with $internal
 
   @inline override def string: String = toString
 
-  @inline override def toString: Predef.String = new Predef.String(Array(value), 0, 1)
+  @inline override def toString: Predef.String = new Predef.String(Array[Int](value), 0, 1)
 
   @inline def isWhitespace: B = value.toChar.isWhitespace
 

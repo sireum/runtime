@@ -40,7 +40,8 @@ object Random {
 
     def nextC(): C = {
       Contract(Modifies(gen))
-      return conversions.U32.toC(nextU32() % u32"0x110000")
+      val n = nextU32()
+      return conversions.U32.toC(n % u32"0x110000")
     }
 
     def nextZ(): Z = {
@@ -431,6 +432,19 @@ object Random {
     }
   }
 
+  def setSeed(seed: Z): Unit = {
+    var r = seed
+    if (r < 0) {
+      r = -r
+    }
+    r = r % (U64.Max.toZ + 1)
+    val sm = Random.Impl.SplitMix64(U64.fromZ(r))
+    Ext.instance.gen.seed0 = sm.next()
+    Ext.instance.gen.seed1 = sm.next()
+    Ext.instance.gen.seed2 = sm.next()
+    Ext.instance.gen.seed3 = sm.next()
+  }
+
   @strictpure def create64: Gen64 = Gen64(Impl.Xoshiro256.create)
 
   @strictpure def createSeed64(seed: U64): Gen64 = Gen64(Impl.Xoshiro256.createSeed(seed))
@@ -564,8 +578,7 @@ object Random {
   }
 
   @ext("Random_Ext") object Ext {
-    def gen64: Gen64 = $
-    def setSeed(seed: Z): Unit = $
+    def instance: Gen64 = $
   }
 
 }

@@ -85,7 +85,15 @@ trait MSigTrait extends Mutable {
 
 trait RecordSig extends MSigTrait with RecordMarker {
 
+  private var $isClonable: Boolean = true
   private var $isOwned: Boolean = false
+
+  final override def $clonable: Boolean = $isClonable
+
+  final override def $clonable_=(b: Boolean): this.type = {
+    $isClonable = false
+    this
+  }
 
   final override def $owned: Boolean = $isOwned
 

@@ -1209,11 +1209,17 @@ object Z extends $ZCompanion[Z] {
 
   def randomBetween(min: Z, max: Z): Z = {
     assert(min <= max)
-    var r = random
-    if (r < 0) {
-      r = -r
+    val d = max - min + 1
+    var r: Z = 0
+    if (d <= U8.Max.toZ) r = U8.random.toZ
+    else if (d <= U16.Max.toZ) r = U16.random.toZ
+    else if (d <= U32.Max.toZ) r = U32.random.toZ
+    else if (d <= U64.Max.toZ) r = U64.random.toZ
+    else {
+      r = random
+      if (r < 0) r = -r
     }
-    r = r % (max - min + 1) + min
+    r = r % d + min
     return r
   }
 

@@ -450,15 +450,23 @@ object Os_Ext {
     }
 
   def readLineMStream(p: String): Os.Path.MJen[String] = {
-    class G extends Os.Path.MJen[String] {
-      private var _owned: Boolean = false
+    final class G extends Os.Path.MJen[String] {
+      private var isClonable: scala.Boolean = true
+      private var isOwned: scala.Boolean = false
 
-      def $owned_=(owned: Boolean): G = {
-        _owned = owned
+      override def $clonable: Boolean = isClonable
+
+      override def $clonable_=(b: Boolean): this.type = {
+        isClonable = false
         this
       }
 
-      def $owned: Boolean = _owned
+      override def $owned: scala.Boolean = isOwned
+
+      override def $owned_=(b: scala.Boolean): this.type = {
+        isOwned = b
+        this
+      }
 
       def $clone: G = new G
 
@@ -482,15 +490,23 @@ object Os_Ext {
   }
 
   def readU8MStream(p: String): Os.Path.MJen[U8] = {
-    class G extends Os.Path.MJen[U8] {
-      private var _owned: Boolean = false
+    final class G extends Os.Path.MJen[U8] {
+      private var isClonable: scala.Boolean = true
+      private var isOwned: scala.Boolean = false
 
-      def $owned_=(owned: Boolean): G = {
-        _owned = owned
+      override def $clonable: Boolean = isClonable
+
+      override def $clonable_=(b: Boolean): this.type = {
+        isClonable = false
         this
       }
 
-      def $owned: Boolean = _owned
+      override def $owned: scala.Boolean = isOwned
+
+      override def $owned_=(b: scala.Boolean): this.type = {
+        isOwned = b
+        this
+      }
 
       def $clone: G = new G
 
@@ -577,15 +593,23 @@ object Os_Ext {
   }
 
   def readCMStream(p: String): Os.Path.MJen[C] = {
-    class G extends Os.Path.MJen[C] {
-      private var _owned: Boolean = false
+    final class G extends Os.Path.MJen[C] {
+      private var isClonable: scala.Boolean = true
+      private var isOwned: scala.Boolean = false
 
-      def $owned_=(owned: Boolean): G = {
-        _owned = owned
+      override def $clonable: Boolean = isClonable
+
+      override def $clonable_=(b: Boolean): this.type = {
+        isClonable = false
         this
       }
 
-      def $owned: Boolean = _owned
+      override def $owned: scala.Boolean = isOwned
+
+      override def $owned_=(b: scala.Boolean): this.type = {
+        isOwned = b
+        this
+      }
 
       def $clone: G = new G
 
