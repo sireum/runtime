@@ -145,9 +145,12 @@ object B {
   val T = new B(true)
   val F = new B(false)
 
-  def random: B = new _root_.java.util.Random().nextBoolean
+  def random: B = Random.Ext.gen64.nextB()
 
-  def randomSeed(seed: Z): B = new _root_.java.util.Random(seed.toLong).nextBoolean
+  def randomSeed(seed: Z): B = {
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextB()
+  }
 
   def unapply(b: B): scala.Option[scala.Boolean] = scala.Some(b.value)
 

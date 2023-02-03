@@ -77,42 +77,22 @@ object F32 {
     def unapply(n: F32): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
-  def random: F32 = {
-    val tlr = _root_.java.util.concurrent.ThreadLocalRandom.current
-    tlr.nextInt.toFloat + tlr.nextFloat()
-  }
+  def random: F32 = Random.Ext.gen64.nextF32()
 
   def randomSeed(seed: Z): F32 = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLong)
-    r.nextInt().toFloat + r.nextFloat()
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextF32()
   }
 
   def randomBetween(min: F32, max: F32): F32 = {
-    assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
-      (min < max || _root_.java.lang.Float.floatToIntBits(min.value) == _root_.java.lang.Float.floatToIntBits(max.value)))
-    var r = random
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (max - min + 1) + min
-    if (r >= max) {
-      r = _root_.java.lang.Float.intBitsToFloat(_root_.java.lang.Float.floatToIntBits(max.value) - 1)
-    }
-    return r
+    assert(min <= max)
+    Random.Ext.gen64.nextF32Between(min, max)
   }
 
   def randomSeedBetween(seed: Z, min: F32, max: F32): F32 = {
-    assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
-      (min < max || _root_.java.lang.Float.floatToIntBits(min.value) == _root_.java.lang.Float.floatToIntBits(max.value)))
-    var r = randomSeed(seed)
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (max - min + 1) + min
-    if (r >= max) {
-      r = _root_.java.lang.Float.intBitsToFloat(_root_.java.lang.Float.floatToIntBits(max.value) - 1)
-    }
-    return r
+    assert(min <= max)
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextF32Between(min, max)
   }
 
   def unapply(f: F32): scala.Option[scala.Float] = scala.Some(f.value)
@@ -220,42 +200,22 @@ object F64 {
     def unapply(n: F64): scala.Option[Predef.String] = scala.Some(n.toString)
   }
 
-  def random: F64 = {
-    val tlr = _root_.java.util.concurrent.ThreadLocalRandom.current
-    tlr.nextLong.toDouble + tlr.nextDouble()
-  }
+  def random: F64 = Random.Ext.gen64.nextF64()
 
   def randomSeed(seed: Z): F64 = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(Z.U._64(-1).toBigInt + 1)).toLong)
-    r.nextLong().toDouble + r.nextDouble()
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextF64()
   }
 
   def randomBetween(min: F64, max: F64): F64 = {
-    assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
-      (min < max || _root_.java.lang.Double.doubleToLongBits(min.value) == _root_.java.lang.Double.doubleToLongBits(max.value)))
-    var r = random
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (max - min + 1) + min
-    if (r >= max) {
-      r = _root_.java.lang.Double.longBitsToDouble(_root_.java.lang.Double.doubleToLongBits(max.value) - 1)
-    }
-    return r
+    assert(min <= max)
+    Random.Ext.gen64.nextF64Between(min, max)
   }
 
   def randomSeedBetween(seed: Z, min: F64, max: F64): F64 = {
-    assert(!min.isNaN && !min.isInfinite && !max.isNaN && !max.isInfinite &&
-      (min < max || _root_.java.lang.Double.doubleToLongBits(min.value) == _root_.java.lang.Double.doubleToLongBits(max.value)))
-    var r = randomSeed(seed)
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (max - min + 1) + min
-    if (r > max) {
-      r = _root_.java.lang.Double.longBitsToDouble(_root_.java.lang.Double.doubleToLongBits(max.value) - 1)
-    }
-    return r
+    assert(min <= max)
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextF64Between(min, max)
   }
 
   def unapply(d: F64): scala.Option[scala.Double] = scala.Some(d.value)

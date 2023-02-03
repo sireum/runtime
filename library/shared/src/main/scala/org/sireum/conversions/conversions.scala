@@ -2057,6 +2057,8 @@ import org.sireum.Z64._
   /* @first */
   @pure def toRawF32(n: U32): F32 = $
 
+  @pure def toF32(n: U32): F32 = $
+
   @pure def toC(n: U32): C = $
 }
 
@@ -2451,6 +2453,8 @@ import org.sireum.Z64._
 
   /* @first */
   @pure def toRawF64(n: U64): F64 = $
+
+  @pure def toF64(n: U64): F64 = $
 }
 
 @ext object F32 {
@@ -2463,6 +2467,8 @@ import org.sireum.Z64._
 
   @pure def toF32(n: F32): F32 =
     $ // l""" ensures result ≡ n """
+
+  @pure def toF64(n: F32): F64 = $
 
   @pure def toR(n: F32): R = $
 }

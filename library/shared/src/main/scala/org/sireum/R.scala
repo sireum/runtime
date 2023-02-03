@@ -56,34 +56,22 @@ object R {
     def apply(s: Predef.String): R = R(BigDecimal(s))
   }
 
-  def random: R = {
-    val d = Z.random
-    R(Z.random) / (if (d == 0) R(Z.MP.one) else R(d))
-  }
+  def random: R = Random.Ext.gen64.nextR()
 
   def randomSeed(seed: Z): R = {
-    val d = Z.randomSeed(seed)
-    R(Z.randomSeed(seed + 1)) / (if (d == 0) R(Z.MP.one) else R(d))
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextR()
   }
 
   def randomBetween(min: R, max: R): R = {
     assert(min <= max)
-    var r = random
-    if (r < r"0") {
-      r = -r
-    }
-    r = r.value.remainder((max - min + r"1").value) + min
-    return r
+    Random.Ext.gen64.nextRBetween(min, max)
   }
 
   def randomSeedBetween(seed: Z, min: R, max: R): R = {
     assert(min <= max)
-    var r = randomSeed(seed)
-    if (r < r"0") {
-      r = -r
-    }
-    r = r.value.remainder((max - min + r"1").value) + min
-    return r
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextRBetween(min, max)
   }
 
   import scala.language.implicitConversions

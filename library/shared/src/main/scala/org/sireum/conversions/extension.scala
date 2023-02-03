@@ -1689,6 +1689,8 @@ object U32_Ext {
 
   @pure def toRawF32(n: U32): F32 = org.sireum.F32(_root_.java.lang.Float.intBitsToFloat(n.value))
 
+  @pure def toF32(n: U32): F32 = n.value.asInstanceOf[Float]
+
   @pure def toC(n: U32): C = org.sireum.C(n.value)
 }
 object U33_Ext {
@@ -2078,6 +2080,8 @@ object U64_Ext {
   @pure def toRawS64(n: U64): S64 = org.sireum.S64(n.value)
 
   @pure def toRawF64(n: U64): F64 = org.sireum.F64(_root_.java.lang.Double.longBitsToDouble(n.value))
+
+  @pure def toF64(n: U64): F64 = n.value.asInstanceOf[Double]
 }
 
 object F32_Ext {
@@ -2085,6 +2089,8 @@ object F32_Ext {
   @pure def toB(n: F32): B = n != f32"0.0"
 
   @pure def toRawU32(n: F32): U32 = org.sireum.U32($internal.Macro.f32Bit(n.value))
+
+  @pure def toF64(n: F32): F64 = n.value
 
   @pure def toF32(n: F32): F32 = n
 

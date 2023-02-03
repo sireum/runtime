@@ -60,7 +60,7 @@ object String {
     }
   }
 
-  def random: String = scala.util.Random.alphanumeric.take((Z.random.toBigInt % 1024).toInt).mkString
+  def random: String = scala.util.Random.alphanumeric.take((N16.random.toZ % 1024).toInt).mkString
 
   def unapply(s: String): scala.Option[Predef.String] = scala.Some(s.value)
 

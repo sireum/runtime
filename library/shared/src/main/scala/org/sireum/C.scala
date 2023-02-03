@@ -56,18 +56,22 @@ object C {
     C(n.toInt)
   }
 
-  def random: C = C(Z.randomBetween(0, 0x110000).toInt)
+  def random: C = Random.Ext.gen64.nextC()
 
   def randomBetween(min: C, max: C): C = {
     assert(min <= max)
-    C(Z.randomBetween(min.value, max.value).toInt)
+    Random.Ext.gen64.nextCBetween(min, max)
   }
 
-  def randomSeed(seed: Z): C = C(Z.randomSeedBetween(seed, 0, 0x110000).toInt)
+  def randomSeed(seed: Z): C = {
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextC()
+  }
 
   def randomSeedBetween(seed: Z, min: C, max: C): C = {
     assert(min <= max)
-    C(Z.randomSeedBetween(seed, min.value, max.value).toInt)
+    Random.Ext.setSeed(seed)
+    Random.Ext.gen64.nextCBetween(min, max)
   }
 
   def unapply(c: C): scala.Some[scala.Int] = scala.Some(c.value)
