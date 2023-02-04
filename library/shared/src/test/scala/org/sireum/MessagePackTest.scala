@@ -583,7 +583,7 @@ class MessagePackTest extends TestSuite {
       val r = MessagePack.reader(buf)
       r.init()
       val m = g(r)
-      assert(m == n)
+      assert(m.asInstanceOf[Object].equals(n.asInstanceOf[Object]))
       true
     }
   }
