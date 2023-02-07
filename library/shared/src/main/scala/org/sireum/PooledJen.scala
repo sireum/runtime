@@ -45,18 +45,18 @@ object PooledJen extends App {
         var last = Jen.Continue
         if (num >= 0) {
           for (_ <- 0 until num) {
-            val fun = pj.funs(pj.lastFunIndex)
+            val fun = pj.funs(f)
             last = fun.appl(pj, PooledJen.Data.Z(Z.random))
-            pj.funs(pj.lastFunIndex) = fun
+            pj.funs(f) = fun
             if (!last) {
               return Jen.End
             }
           }
         } else {
           while (T) {
-            val fun = pj.funs(pj.lastFunIndex)
+            val fun = pj.funs(f)
             last = fun.appl(pj, PooledJen.Data.Z(Z.random))
-            pj.funs(pj.lastFunIndex) = fun
+            pj.funs(f) = fun
             if (!last) {
               return Jen.End
             }
@@ -70,9 +70,8 @@ object PooledJen extends App {
     // needed for for-loop/for-yield in the JVM
     @datatype class Mapped(val node: NodeIndex, val f: PooledJen.Data => PooledJen.Data) extends Node {
       override def gen(pj: PooledJen, g: FunIndex): Jen.Action = {
-        var pj2 = pj
-        pj2 = pj2(funs = pj2.funs :+ Fun.Apply(g, f))
-        return pj2.nodes(node).gen(pj2, pj2.lastFunIndex)
+        pj.funs = pj.funs :+ Fun.Apply(g, f)
+        return pj.nodes(node).gen(pj, pj.lastFunIndex)
       }
 
       override def string: String = {
@@ -145,7 +144,7 @@ object PooledJen extends App {
 }
 
 @record class PooledJen(val nodes: IS[PooledJen.NodeIndex, PooledJen.Node],
-                        val funs: MS[PooledJen.FunIndex, PooledJen.Fun]) {
+                        var funs: MS[PooledJen.FunIndex, PooledJen.Fun]) {
 
   @strictpure def lastNodeIndex: PooledJen.NodeIndex = PooledJen.NodeIndex.fromZ(nodes.size - 1)
 
@@ -161,23 +160,18 @@ object PooledJen extends App {
   }
 
   def take(n: Z): PooledJen = {
-    var pj = this
-    pj = pj(nodes = pj.nodes :+ PooledJen.Node.Sliced(pj.lastNodeIndex, 0, n))
-    return pj
+    return PooledJen(nodes :+ PooledJen.Node.Sliced(lastNodeIndex, 0, n), funs)
   }
 
   // needed for for-loop in the JVM
   def foreach(f: PooledJen.Data => Unit): Unit = {
-    var pj = this
-    pj = pj(funs = pj.funs :+ PooledJen.Fun.ForEach(f))
-    pj.generate(pj.lastFunIndex)
+    funs = funs :+ PooledJen.Fun.ForEach(f)
+    generate(lastFunIndex)
   }
 
   // needed for for-loop/for-yield in the JVM
   def map(f: PooledJen.Data => PooledJen.Data): PooledJen = {
-    var pj = this
-    pj = pj(nodes = pj.nodes :+ PooledJen.Node.Mapped(pj.lastNodeIndex, f))
-    return pj
+    return PooledJen(nodes :+ PooledJen.Node.Mapped(lastNodeIndex, f), funs)
   }
 
   // needed for for-loop/for-yield in the JVM
