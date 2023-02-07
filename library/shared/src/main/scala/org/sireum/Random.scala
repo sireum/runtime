@@ -72,12 +72,14 @@ object Random {
 
     def nextF32(): F32 = {
       Contract(Modifies(gen))
-      return conversions.U32.toRawF32(nextU32())
+      val r = conversions.U32.toRawF32(nextU32())
+      return if (r.isNaN) F32.NaN else r
     }
 
     def nextF64(): F64 = {
       Contract(Modifies(gen))
-      return conversions.U64.toRawF64(nextU64())
+      val r = conversions.U64.toRawF64(nextU64())
+      return if (r.isNaN) F64.NaN else r
     }
 
     def nextR(): R = {
