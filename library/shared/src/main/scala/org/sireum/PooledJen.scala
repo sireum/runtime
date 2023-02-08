@@ -12,6 +12,13 @@ object PooledJen extends App {
     }
     println()
 
+    println(s"Printing $n*$n random Z values (ISZ) ...")
+    val zzs: ISZ[(Z, Z)] = for (data <- PooledJen.createRandomZs(n); data2 <- PooledJen.createRandomZs(n)) yield (data, data2)
+    for (zz <- zzs) {
+      println(zz)
+    }
+    println()
+
     println(s"Printing $n random Z values (PooledJen/for-loop) ...")
     for (data <- PooledJen.createRandomZPooledJen(n).toISZ) { // without toISZ, this does not pass Tipe because PooledJen is currently not a for-loop iterator
       val PooledJen.Data.Z(v) = data
@@ -28,19 +35,19 @@ object PooledJen extends App {
     println()
 
     println(s"Printing $n random Z values (PooledJen/for-yield) ...")
-    var vs: PooledJen = for (data <- PooledJen.createRandomZPooledJen(-1).take(n)) yield data
-    for (data <- vs.toISZ) {
+    var pzs: PooledJen = for (data <- PooledJen.createRandomZPooledJen(-1).take(n)) yield data
+    for (data <- pzs.toISZ) {
       val PooledJen.Data.Z(v) = data
       println(v)
     }
     println()
 
     println(s"Printing $n*$n random Z values (PooledJen/for-yields) ...")
-    vs = for (data <- PooledJen.createRandomZPooledJen(-1).take(n);
-              data2 <- PooledJen.createRandomZPooledJen(-1).take(n)) yield
+    pzs = for (data <- PooledJen.createRandomZPooledJen(-1).take(n);
+               data2 <- PooledJen.createRandomZPooledJen(-1).take(n)) yield
       Data.PairZ(data.asInstanceOf[Data.Z].value, data2.asInstanceOf[Data.Z].value)
 
-    for (v <- vs.toISZ) {
+    for (v <- pzs.toISZ) {
       val PooledJen.Data.PairZ(v1, v2) = v
       println(s"($v1, $v2)")
     }
@@ -56,22 +63,25 @@ object PooledJen extends App {
     return r
   }
 
-  def createRandomZPooledJen(n: Z): PooledJen = {  // n < 0 means infinite stream
+  def createRandomZPooledJen(n: Z): PooledJen = { // n < 0 means infinite stream
     return PooledJen(IS[PooledJen.NodeIndex, PooledJen.Node](Node.RandomZJen(n)), MS[PooledJen.FunIndex, PooledJen.Fun]())
   }
 
   @range(min = 0) class NodeIndex
+
   @range(min = 0) class FunIndex
 
   @sig trait Data // top-level container class for generator payload
 
   object Data {
     @datatype class Z(val value: org.sireum.Z) extends Data
+
     @datatype class PairZ(val value1: org.sireum.Z, val value2: org.sireum.Z) extends Data
   }
 
   @datatype trait Node {
     def gen(pj: PooledJen, f: FunIndex): Jen.Action
+
     def addIndex(offset: NodeIndex): Node
   }
 
@@ -165,6 +175,7 @@ object PooledJen extends App {
   // Fun is a record because it may store some states (e.g., Sliced#count below)
   @record trait Fun {
     def appl(pj: PooledJen, o: Data): Jen.Action
+
     def addIndex(offset: FunIndex): Fun
   }
 
