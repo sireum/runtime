@@ -6,7 +6,7 @@ object PooledJen extends App {
   def main(args: ISZ[String]): Z = {
     var n = 3
     println(s"Printing $n random Z values ...")
-    for (data <- PooledJen.createRandomZPooledJen(n).toISZ) {
+    for (data <- PooledJen.createRandomZPooledJen(n).toISZ) { // without toISZ, this does not pass Tipe because PooledJen is currently not a for-loop iterator
       val PooledJen.Data.Z(n) = data
       println(n)
     }
@@ -14,7 +14,7 @@ object PooledJen extends App {
 
     n = 4
     println(s"Printing $n random Z values ...")
-    for (data <- PooledJen.createRandomZPooledJen(-1).take(n)) { // does not pass Tipe because PooledJen is currently not a for-loop iterator
+    for (data <- PooledJen.createRandomZPooledJen(-1).take(n).toISZ) { // without toISZ, this does not pass Tipe because PooledJen is currently not a for-loop iterator
       val PooledJen.Data.Z(n) = data
       println(n)
     }
@@ -81,9 +81,8 @@ object PooledJen extends App {
 
     @datatype class Sliced(val node: NodeIndex, val start: Z, val end: Z) extends Node {
       override def gen(pj: PooledJen, g: FunIndex): Jen.Action = {
-        var pj2 = pj
-        pj2 = pj2(funs = pj2.funs :+ Fun.Sliced(g, start, end, 0))
-        val r = pj2.nodes(node).gen(pj2, pj2.lastFunIndex)
+        pj.funs = pj.funs :+ Fun.Sliced(g, start, end, 0)
+        val r = pj.nodes(node).gen(pj, pj.lastFunIndex)
         return r
       }
 
@@ -91,7 +90,6 @@ object PooledJen extends App {
         return if (end < 0) s"Sliced($start, ~)" else s"Sliced($start, $end)"
       }
     }
-
   }
 
   // Fun is a record because it may store some states (e.g., Sliced#count below)
@@ -140,6 +138,13 @@ object PooledJen extends App {
         }
       }      
     }
+
+    @record class Acc(var data: ISZ[Data]) extends Fun {
+      def appl(pj: PooledJen, o: Data): Jen.Action = {
+        data = data :+ o
+        return Jen.Continue
+      }
+    }
   }
 }
 
@@ -185,11 +190,10 @@ object PooledJen extends App {
   }
 
   def toISZ: ISZ[PooledJen.Data] = {
-    var r = ISZ[PooledJen.Data]()
-    for (d <- this) { // does not pass Tipe because PooledJen is currently not a for-loop iterator
-      r = r :+ d
-    }
-    return r
+    val index = PooledJen.FunIndex.fromZ(funs.size)
+    funs = funs :+ PooledJen.Fun.Acc(ISZ())
+    generate(index)
+    return funs(index).asInstanceOf[PooledJen.Fun.Acc].data
   }
 
   override def string: String = {
