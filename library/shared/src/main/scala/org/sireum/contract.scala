@@ -361,11 +361,24 @@ trait contract {
 
     trait InfoFlowInvariant
 
-    trait FlowCase
+    trait FlowElement
+
+    trait FlowFlow extends FlowElement
+
+    trait FlowFrom
+
+    trait FlowTo
+
+    trait FlowCase extends FlowElement
 
     trait InAgree
 
     trait OutAgree
+
+    trait Groups extends FlowElement
+
+    trait Vars
+
     // end InfoFlow traits
   }
 
@@ -529,7 +542,7 @@ trait contract {
   def ⊢(conclusion: B): Contract.Sequent = ???
 
   // begin InfoFlow nodes
-  def InfoFlows(flowCases: Contract.FlowCase*): Contract.InfoFlows = ???
+  def InfoFlows(flowCases: Contract.FlowElement*): Contract.InfoFlows = ???
 
   def InfoFlowInvariant(flowCases: Contract.FlowCase*): B = ???
 
@@ -541,9 +554,18 @@ trait contract {
 
   def AssumeAgree(channel: String, requires: Contract.Requires, inAgree: Contract.InAgree): B = ???
 
+
   def AssertAgree(channel: String): B = ???
 
   def AssertAgree(channel: String, outAgree: Contract.OutAgree): B = ???
+
+
+  def Flow(channel: String, from: Contract.FlowFrom, to: Contract.FlowTo): Contract.FlowFlow = ???
+
+  def From(from: Any*): Contract.FlowFrom = ???
+
+  def To(to: Any*): Contract.FlowTo = ???
+
 
   def FlowCase(channel: String, inAgreements: Contract.InAgree, outAgreements: Contract.OutAgree): Contract.FlowCase = ???
 
@@ -552,6 +574,12 @@ trait contract {
   def InAgree(inAgree: Any*): Contract.InAgree = ???
 
   def OutAgree(outAgree: Any*): Contract.OutAgree = ???
+
+
+  def Groups(label: String, vars: Contract.Vars): Contract.Groups = ???
+
+  def Vars(v: Any*): Contract.Vars = ???
+
   // end InfoFlow nodes
 
   object All {

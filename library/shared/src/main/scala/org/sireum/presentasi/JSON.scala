@@ -32,6 +32,7 @@ package org.sireum.presentasi
 
 import org.sireum._
 import org.sireum.Json.Printer._
+import org.sireum.presentasi.Presentation
 
 object JSON {
 

@@ -32,6 +32,7 @@ package org.sireum.cli
 
 import org.sireum._
 import org.sireum.Json.Printer._
+import org.sireum.cli.CliOpt
 
 object JSON {
 

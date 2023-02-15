@@ -32,6 +32,9 @@ package org.sireum.project
 
 import org.sireum._
 import org.sireum.Json.Printer._
+import org.sireum.project.Project
+import org.sireum.project.Module
+import org.sireum.project.PublishInfo
 
 object JSON {
 
