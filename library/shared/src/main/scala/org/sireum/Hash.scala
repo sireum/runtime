@@ -134,7 +134,7 @@ object Hash {
           return conversions.U8.toU32(data(i)) |
             conversions.U8.toU32(data(i + 1)) << u32"8" |
             conversions.U8.toU32(data(i + 2)) << u32"16"
-        case _ => fetch(i)
+        case _ => return fetch(i)
       }
     }
 

@@ -378,7 +378,7 @@ import Poset._
 
   @pure def childrenOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSSet ++ Poset.Internal.childrenOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => return HashSSet ++ Poset.Internal.childrenOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -392,7 +392,7 @@ import Poset._
 
   @pure def parentsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSSet ++ Poset.Internal.parentsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => return HashSSet ++ Poset.Internal.parentsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -403,7 +403,7 @@ import Poset._
 
   @pure def ancestorsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSSet ++ Poset.Internal.ancestorsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => return HashSSet ++ Poset.Internal.ancestorsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }
@@ -415,7 +415,7 @@ import Poset._
 
   @pure def descendantsOf(node: T): HashSSet[T] = {
     nodes.get(node) match {
-      case Some(n) => HashSSet ++ Poset.Internal.descendantsOf(this, n).elements.map[T](n => nodesInverse(n))
+      case Some(n) => return HashSSet ++ Poset.Internal.descendantsOf(this, n).elements.map[T](n => nodesInverse(n))
       case _ => return emptySet
     }
   }

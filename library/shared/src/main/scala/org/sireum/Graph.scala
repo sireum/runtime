@@ -270,7 +270,7 @@ object Graph {
 
   @pure def outgoing(source: W): ISZ[Graph.Edge[W, E]] = {
     nodes.get(source) match {
-      case Some(src) => Graph.Internal.outgoing(this, src).map[Graph.Edge[W, E]](e => e.toEdge(nodesInverse))
+      case Some(src) => return Graph.Internal.outgoing(this, src).map[Graph.Edge[W, E]](e => e.toEdge(nodesInverse))
       case _ => return ISZ()
     }
   }
