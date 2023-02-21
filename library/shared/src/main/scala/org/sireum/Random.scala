@@ -84,11 +84,7 @@ object Random {
 
     def nextR(): R = {
       Contract(Modifies(gen))
-      val n = nextU8Between(u8"0", u8"16").toZ
-      var r = conversions.F64.toR(nextF64())
-      for (_ <- 0 until n) {
-        r = r * conversions.F64.toR(nextF64())
-      }
+      val r = conversions.F64.toR(nextF64_01()) * conversions.Z.toR(nextZ())
       return r
     }
 
