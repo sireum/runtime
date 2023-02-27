@@ -27,9 +27,9 @@ package org.sireum
 
 object Random_Ext {
 
-  val _gen64: _root_.java.lang.ThreadLocal[Random.Gen64] = new _root_.java.lang.ThreadLocal[Random.Gen64]
+  val _gen64: _root_.java.lang.ThreadLocal[Random.Gen64Impl] = new _root_.java.lang.ThreadLocal[Random.Gen64Impl]
 
-  def instance: Random.Gen64 = {
+  def instance: Random.Gen = {
     var r = _gen64.get()
     if (r == null) {
       r = Random.create64
@@ -39,4 +39,14 @@ object Random_Ext {
     }
     r
   }
+
+  def setSeed(n: U64): Unit = {
+    val sm = Random.Impl.SplitMix64(n)
+    val genImpl = instance.asInstanceOf[Random.Gen64Impl]
+    genImpl.gen.seed0 = sm.next()
+    genImpl.gen.seed1 = sm.next()
+    genImpl.gen.seed2 = sm.next()
+    genImpl.gen.seed3 = sm.next()
+  }
+
 }

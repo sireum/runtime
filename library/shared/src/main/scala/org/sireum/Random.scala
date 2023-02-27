@@ -32,20 +32,22 @@ import org.sireum.U64._
 
 object Random {
 
-  @record class Gen64(val gen: Impl.Xoshiro256) {
+  @msig trait Gen {
+    @spec var seedRep: Z = $
+
     def nextB(): B = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return (nextU64() >>> u64"63") == u64"1"
     }
 
     def nextC(): C = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       val n = nextU32()
       return conversions.U32.toC(n % u32"0x110000")
     }
 
     def nextZ(): Z = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       val n = nextU8Between(u8"0", u8"16").toZ
       var r: Z = nextS64().toZ
       for (_ <- 0 until n) {
@@ -56,7 +58,7 @@ object Random {
 
     def nextF32_01(): F32 = {
       Contract(
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(0f <= Res, 1f > Res)
       )
       return conversions.U32.toF32(nextU32() >> u32"7") * f32"0x1.0p-25"
@@ -64,26 +66,26 @@ object Random {
 
     def nextF64_01(): F64 = {
       Contract(
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(0d <= Res, 1d > Res)
       )
       return conversions.U64.toF64(nextU64() >> u64"11") * f64"0x1.0p-53"
     }
 
     def nextF32(): F32 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       val r = conversions.U32.toRawF32(nextU32())
       return if (r.isNaN) F32.NaN else r
     }
 
     def nextF64(): F64 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       val r = conversions.U64.toRawF64(nextU64())
       return if (r.isNaN) F64.NaN else r
     }
 
     def nextR(): R = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       val r = conversions.F64.toR(nextF64_01()) * conversions.Z.toR(nextZ())
       return r
     }
@@ -91,7 +93,7 @@ object Random {
     def nextCBetween(min: C, max: C): C = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextC().toZ
@@ -102,7 +104,7 @@ object Random {
     def nextZBetween(min: Z, max: Z): Z = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextZ()
@@ -116,7 +118,7 @@ object Random {
     def nextF32Between(min: F32, max: F32): F32 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextF32_01() * (max - min) + min
@@ -129,7 +131,7 @@ object Random {
     def nextF64Between(min: F64, max: F64): F64 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextF64_01() * (max - min) + min
@@ -142,7 +144,7 @@ object Random {
     def nextRBetween(min: R, max: R): R = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       val r = conversions.F64.toR(nextF64Between(0d, 1d)) * (max - min) + min
@@ -150,49 +152,43 @@ object Random {
     }
 
     def nextS8(): S8 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U8.toRawS8(conversions.U64.toU8(nextU64() >>> u64"56"))
     }
 
     def nextS16(): S16 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U16.toRawS16(conversions.U64.toU16(nextU64() >>> u64"48"))
     }
 
     def nextS32(): S32 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U32.toRawS32(conversions.U64.toU32(nextU64() >>> u64"32"))
     }
 
     def nextS64(): S64 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U64.toRawS64(nextU64())
     }
 
     def nextU8(): U8 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return U8.fromZ((nextU64() >>> u64"56").toZ)
     }
 
     def nextU16(): U16 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return U16.fromZ((nextU64() >>> u64"48").toZ)
     }
 
-    def nextU32(): U32 = {
-      Contract(Modifies(gen))
-      return U32.fromZ((nextU64() >>> u64"32").toZ)
-    }
+    def nextU32(): U32 = Contract.Only(Modifies(seedRep))
 
-    def nextU64(): U64 = {
-      Contract(Modifies(gen))
-      return gen.pp()
-    }
+    def nextU64(): U64 = Contract.Only(Modifies(seedRep))
 
     def nextU8Between(min: U8, max: U8): U8 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextU8().toZ
@@ -203,7 +199,7 @@ object Random {
     def nextU16Between(min: U16, max: U16): U16 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextU16().toZ
@@ -214,7 +210,7 @@ object Random {
     def nextU32Between(min: U32, max: U32): U32 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextU32().toZ
@@ -225,7 +221,7 @@ object Random {
     def nextU63Between(min: U64, max: U64): U64 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextU64().toZ
@@ -234,49 +230,49 @@ object Random {
     }
 
     def nextN8(): N8 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U8.toN8(nextU8())
     }
 
     def nextN16(): N16 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U16.toN16(nextU16())
     }
 
     def nextN32(): N32 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U32.toN32(nextU32())
     }
 
     def nextN64(): N64 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.U64.toN64(nextU64())
     }
 
     def nextZ8(): Z8 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.S8.toZ8(nextS8())
     }
 
     def nextZ16(): Z16 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.S16.toZ16(nextS16())
     }
 
     def nextZ32(): Z32 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.S32.toZ32(nextS32())
     }
 
     def nextZ64(): Z64 = {
-      Contract(Modifies(gen))
+      Contract(Modifies(seedRep))
       return conversions.S64.toZ64(nextS64())
     }
 
     def nextN8Between(min: N8, max: N8): N8 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextN8().toZ
@@ -287,7 +283,7 @@ object Random {
     def nextN16Between(min: N16, max: N16): N16 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextN16().toZ
@@ -298,7 +294,7 @@ object Random {
     def nextN32Between(min: N32, max: N32): N32 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextN32().toZ
@@ -309,7 +305,7 @@ object Random {
     def nextN64Between(min: N64, max: N64): N64 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextN64().toZ
@@ -320,7 +316,7 @@ object Random {
     def nextS8Between(min: S8, max: S8): S8 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextS8().toZ
@@ -334,7 +330,7 @@ object Random {
     def nextS16Between(min: S16, max: S16): S16 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextS16().toZ
@@ -348,7 +344,7 @@ object Random {
     def nextS32Between(min: S32, max: S32): S32 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextS32().toZ
@@ -362,7 +358,7 @@ object Random {
     def nextS64Between(min: S64, max: S64): S64 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextS64().toZ
@@ -376,7 +372,7 @@ object Random {
     def nextZ8Between(min: Z8, max: Z8): Z8 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextZ8().toZ
@@ -390,7 +386,7 @@ object Random {
     def nextZ16Between(min: Z16, max: Z16): Z16 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextZ16().toZ
@@ -404,7 +400,7 @@ object Random {
     def nextZ32Between(min: Z32, max: Z32): Z32 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextZ32().toZ
@@ -418,7 +414,7 @@ object Random {
     def nextZ64Between(min: Z64, max: Z64): Z64 = {
       Contract(
         Requires(min <= max),
-        Modifies(gen),
+        Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
       var r = nextZ64().toZ
@@ -430,22 +426,38 @@ object Random {
     }
   }
 
+  @msig trait Gen64 extends Gen {
+    def genU64(): U64 = Contract.Only(Modifies(seedRep))
+
+    override def nextU32(): U32 = {
+      Contract(Modifies(seedRep))
+      return U32.fromZ((nextU64() >>> u64"32").toZ)
+    }
+
+    override def nextU64(): U64 = {
+      Contract(Modifies(seedRep))
+      return genU64()
+    }
+  }
+
+  @record class Gen64Impl(val gen: Impl.Xoshiro256) extends Gen64 {
+    override def genU64(): U64 = {
+      return gen.pp()
+    }
+  }
+
   def setSeed(seed: Z): Unit = {
     var r = seed
     if (r < 0) {
       r = -r
     }
     r = r % (U64.Max.toZ + 1)
-    val sm = Random.Impl.SplitMix64(U64.fromZ(r))
-    Ext.instance.gen.seed0 = sm.next()
-    Ext.instance.gen.seed1 = sm.next()
-    Ext.instance.gen.seed2 = sm.next()
-    Ext.instance.gen.seed3 = sm.next()
+    Ext.setSeed(U64.fromZ(r))
   }
 
-  @strictpure def create64: Gen64 = Gen64(Impl.Xoshiro256.create)
+  @strictpure def create64: Gen64Impl = Gen64Impl(Impl.Xoshiro256.create)
 
-  @strictpure def createSeed64(seed: U64): Gen64 = Gen64(Impl.Xoshiro256.createSeed(seed))
+  @strictpure def createSeed64(seed: U64): Gen = Gen64Impl(Impl.Xoshiro256.createSeed(seed))
 
   @strictpure def rotl32(x: U32, k: U32): U32 = (x << k) | (x >> (u32"32" - k))
 
@@ -576,7 +588,8 @@ object Random {
   }
 
   @ext("Random_Ext") object Ext {
-    def instance: Gen64 = $
+    def instance: Gen = $
+    def setSeed(n: U64): Unit = $
   }
 
 }
