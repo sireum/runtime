@@ -28,43 +28,43 @@ package org.sireum
 
 @datatype trait Either[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => Either.Left[L, R](e) ≡ this} == Res))
+  @pure def isLeft: B = Contract.Only(Ensures(this.isInstanceOf[Either.Left[L, R]] == Res))
 
-  @pure def isRight: B = Contract.Only(Ensures(!isLeft))
+  @pure def isRight: B = Contract.Only(Ensures(this.isInstanceOf[Either.Right[L, R]] == Res))
 
   @pure def leftOpt: Option[L] = Contract.Only(
     Case(
       "Left",
-      Requires(isLeft),
+      Requires(this.isInstanceOf[Either.Left[L, R]]),
       Ensures(this ≡ Either.Left[L, R](Res[Option[L]].get))
     ),
     Case(
       "Right",
-      Requires(isRight),
+      Requires(this.isInstanceOf[Either.Right[L, R]]),
       Ensures(None[L]() ≡ Res)
-    ),
+    )
   )
 
   @pure def left: L = Contract.Only(
-    Requires(isLeft),
+    Requires(this.isInstanceOf[Either.Left[L, R]]),
     Ensures(this ≡ Either.Left[L, R](Res))
   )
 
   @pure def rightOpt: Option[R] = Contract.Only(
     Case(
       "Left",
-      Requires(isLeft),
+      Requires(this.isInstanceOf[Either.Left[L, R]]),
       Ensures(None[R]() ≡ Res)
     ),
     Case(
       "Right",
-      Requires(isRight),
+      Requires(this.isInstanceOf[Either.Right[L, R]]),
       Ensures(this ≡ Either.Right[L, R](Res[Option[R]].get))
     )
   )
 
   @pure def right: R = Contract.Only(
-    Requires(isRight),
+    Requires(this.isInstanceOf[Either.Right[L, R]]),
     Ensures(this ≡ Either.Right[L, R](Res))
   )
 }

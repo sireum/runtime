@@ -40,18 +40,18 @@ object Option {
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(!isEmpty == Res)
+    Ensures((this ≢ None[T]()) == Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): Option[T2] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(None[T2]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(Some(f(get)) ≡ Res)
     )
   )
@@ -59,12 +59,12 @@ object Option {
   @pure def flatMap[T2](f: T => Option[T2] @pure): Option[T2] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(None[T2]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(f(get) ≡ Res)
     )
   )
@@ -72,12 +72,12 @@ object Option {
   @pure def forall(f: T => B @pure): B = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(f(get) == Res)
     )
   )
@@ -85,30 +85,30 @@ object Option {
   @pure def exists(f: T => B @pure): B = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(!Res[B])
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(f(get) == Res)
     )
   )
 
   @pure def get: T = Contract.Only(
-    Requires(nonEmpty),
+    Requires(this ≢ None[T]()),
     Ensures(this ≡ Some(Res))
   )
 
   @pure def getOrElse(default: => T): T = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(default ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(this ≡ Some(Res))
     )
   )
@@ -116,12 +116,12 @@ object Option {
   @pure def getOrElseEager(default: T): T = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(default ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(this ≡ Some(Res))
     )
   )
@@ -129,12 +129,12 @@ object Option {
   @pure def toIS: ISZ[T] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ None[T]()),
       Ensures(ISZ[T]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ None[T]()),
       Ensures(ISZ[T](get) ≡ Res)
     )
   )

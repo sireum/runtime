@@ -41,18 +41,18 @@ object MOption {
   )
 
   @pure def nonEmpty: B = Contract.Only(
-    Ensures(!isEmpty == Res)
+    Ensures((this ≢ MNone[T]()) == Res)
   )
 
   @pure def map[T2](f: T => T2 @pure): MOption[T2] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(MNone[T2]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(MSome(f(get)) ≡ Res)
     )
   )
@@ -60,12 +60,12 @@ object MOption {
   @pure def flatMap[T2](f: T => MOption[T2] @pure): MOption[T2] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(MNone[T2]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(f(get) ≡ Res)
     )
   )
@@ -73,12 +73,12 @@ object MOption {
   @pure def forall(f: T => B @pure): B = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(f(get) == Res)
     )
   )
@@ -86,30 +86,30 @@ object MOption {
   @pure def exists(f: T => B @pure): B = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(!Res[B])
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(f(get) == Res)
     )
   )
 
   @pure def get: T = Contract.Only(
-    Requires(nonEmpty),
+    Requires(this ≢ MNone[T]()),
     Ensures(this ≡ MSome(Res))
   )
 
   @pure def getOrElse(default: => T): T = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(default ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(this ≡ MSome(Res))
     )
   )
@@ -117,12 +117,12 @@ object MOption {
   @pure def getOrElseEager(default: T): T = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(default ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(this ≡ MSome(Res))
     )
   )
@@ -130,12 +130,12 @@ object MOption {
   @pure def toMS: MSZ[T] = Contract.Only(
     Case(
       "Empty",
-      Requires(isEmpty),
+      Requires(this ≡ MNone[T]()),
       Ensures(MSZ[T]() ≡ Res)
     ),
     Case(
       "Non-empty",
-      Requires(nonEmpty),
+      Requires(this ≢ MNone[T]()),
       Ensures(MSZ[T](get) ≡ Res)
     )
   )

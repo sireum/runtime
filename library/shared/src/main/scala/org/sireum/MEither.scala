@@ -28,37 +28,37 @@ package org.sireum
 
 @record trait MEither[L, R] {
 
-  @pure def isLeft: B = Contract.Only(Ensures(∃{e: L => this ≡ MEither.Left[L, R](e) } == Res))
+  @pure def isLeft: B = Contract.Only(Ensures(this.isInstanceOf[MEither.Left[L, R]] == Res))
 
-  @pure def isRight: B = Contract.Only(Ensures(!isLeft))
+  @pure def isRight: B = Contract.Only(Ensures(this.isInstanceOf[MEither.Right[L, R]] == Res))
 
   @pure def leftOpt: MOption[L] = Contract.Only(
     Case(
       "Left",
-      Requires(isLeft),
+      Requires(this.isInstanceOf[MEither.Left[L, R]]),
       Ensures(this ≡ MEither.Left[L, R](Res[MOption[L]].get))
     ),
     Case(
       "Right",
-      Requires(isRight),
+      Requires(this.isInstanceOf[MEither.Right[L, R]]),
       Ensures(MNone[L]() ≡ Res)
-    ),
+    )
   )
 
   @pure def left: L = Contract.Only(
-    Requires(isLeft),
+    Requires(this.isInstanceOf[MEither.Left[L, R]]),
     Ensures(this ≡ MEither.Left[L, R](Res))
   )
 
   @pure def rightOpt: MOption[R] = Contract.Only(
     Case(
       "Left",
-      Requires(isLeft),
+      Requires(this.isInstanceOf[MEither.Left[L, R]]),
       Ensures(MNone[R]() ≡ Res)
     ),
     Case(
       "Right",
-      Requires(isRight),
+      Requires(this.isInstanceOf[MEither.Right[L, R]]),
       Ensures(this ≡ MEither.Right[L, R](Res[MOption[R]].get))
     )
   )
