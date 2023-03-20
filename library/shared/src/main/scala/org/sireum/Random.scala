@@ -27,8 +27,13 @@
 package org.sireum
 
 import org.sireum.U8._
+import org.sireum.U16._
 import org.sireum.U32._
 import org.sireum.U64._
+import org.sireum.S8._
+import org.sireum.S16._
+import org.sireum.S32._
+import org.sireum.S64._
 
 object Random {
 
@@ -107,11 +112,21 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextZ()
-      if (r < 0) {
-        r = -r
+      val d = max - min + 1
+      var r: Z = if (U64.Min.toZ <= d && d <= U64.Max.toZ) {
+        var m = u64"1"
+        while (m < u64"64" && (u64"1" << m).toZ <= d) {
+          m = m + u64"1"
+        }
+        (nextU64() >>> (u64"64" - m)).toZ
+      } else {
+        var t = nextZ()
+        if (t < 0) {
+          t = -t
+        }
+        t
       }
-      r = r % (max - min + 1) + min
+      r = r % d + min
       return r
     }
 
@@ -191,9 +206,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextU8().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return U8.fromZ(r)
+      if (U8.Min == min && U8.Max == max) {
+        return nextU8()
+      }
+      val d = max - min + u8"1"
+      val r: U8 = {
+        var m = u8"1"
+        while (m < u8"8" && (u8"1" << m) <= d) {
+          m = m + u8"1"
+        }
+        nextU8() >>> (u8"8" - m)
+      }
+      return r % d + min
     }
 
     def nextU16Between(min: U16, max: U16): U16 = {
@@ -202,9 +226,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextU16().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return U16.fromZ(r)
+      if (U16.Min == min && U16.Max == max) {
+        return nextU16()
+      }
+      val d = max - min + u16"1"
+      val r: U16 = {
+        var m = u16"1"
+        while (m < u16"16" && (u16"1" << m) <= d) {
+          m = m + u16"1"
+        }
+        nextU16() >>> (u16"16" - m)
+      }
+      return r % d + min
     }
 
     def nextU32Between(min: U32, max: U32): U32 = {
@@ -213,20 +246,38 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextU32().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return U32.fromZ(r)
+      if (U32.Min == min && U32.Max == max) {
+        return nextU32()
+      }
+      val d = max - min + u32"1"
+      val r: U32 = {
+        var m = u32"1"
+        while (m < u32"32" && (u32"1" << m) <= d) {
+          m = m + u32"1"
+        }
+        nextU32() >>> (u32"32" - m)
+      }
+      return r % d + min
     }
 
-    def nextU63Between(min: U64, max: U64): U64 = {
+    def nextU64Between(min: U64, max: U64): U64 = {
       Contract(
         Requires(min <= max),
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextU64().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return U64.fromZ(r)
+      if (U64.Min == min && U64.Max == max) {
+        return nextU64()
+      }
+      val d = max - min + u64"1"
+      val r: U64 = {
+        var m = u64"1"
+        while (m < u64"64" && (u64"1" << m) <= d) {
+          m = m + u64"1"
+        }
+        nextU64() >>> (u64"64" - m)
+      }
+      return r % d + min
     }
 
     def nextN8(): N8 = {
@@ -275,9 +326,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextN8().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return N8.fromZ(r)
+      return N8.fromZ(nextU8Between(U8.fromZ(min.toZ), U8.fromZ(max.toZ)).toZ)
     }
 
     def nextN16Between(min: N16, max: N16): N16 = {
@@ -286,9 +335,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextN16().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return N16.fromZ(r)
+      return N16.fromZ(nextU16Between(U16.fromZ(min.toZ), U16.fromZ(max.toZ)).toZ)
     }
 
     def nextN32Between(min: N32, max: N32): N32 = {
@@ -297,9 +344,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextN32().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return N32.fromZ(r)
+      return N32.fromZ(nextU32Between(U32.fromZ(min.toZ), U32.fromZ(max.toZ)).toZ)
     }
 
     def nextN64Between(min: N64, max: N64): N64 = {
@@ -308,9 +353,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextN64().toZ
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return N64.fromZ(r)
+      return N64.fromZ(nextU64Between(U64.fromZ(min.toZ), U64.fromZ(max.toZ)).toZ)
     }
 
     def nextS8Between(min: S8, max: S8): S8 = {
@@ -319,12 +362,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextS8().toZ
-      if (r < 0) {
-        r = -r
+      if (S8.Min == min && S8.Max == max) {
+        return nextS8()
       }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return S8.fromZ(r)
+      val d = max.toZ - min.toZ + 1
+      val r: Z = {
+        var m = u8"1"
+        while (m < u8"8" && (u8"1" << m).toZ <= d) {
+          m = m + u8"1"
+        }
+        (nextU8() >>> (u8"8" - m)).toZ
+      }
+      return S8.fromZ(r % d + min.toZ)
     }
 
     def nextS16Between(min: S16, max: S16): S16 = {
@@ -333,12 +382,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextS16().toZ
-      if (r < 0) {
-        r = -r
+      if (S16.Min == min && S16.Max == max) {
+        return nextS16()
       }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return S16.fromZ(r)
+      val d = max.toZ - min.toZ + 1
+      val r: Z = {
+        var m = u16"1"
+        while (m < u16"16" && (u16"1" << m).toZ <= d) {
+          m = m + u16"1"
+        }
+        (nextU16() >>> (u16"16" - m)).toZ
+      }
+      return S16.fromZ(r % d + min.toZ)
     }
 
     def nextS32Between(min: S32, max: S32): S32 = {
@@ -347,12 +402,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextS32().toZ
-      if (r < 0) {
-        r = -r
+      if (S32.Min == min && S32.Max == max) {
+        return nextS32()
       }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return S32.fromZ(r)
+      val d = max.toZ - min.toZ + 1
+      val r: Z = {
+        var m = u32"1"
+        while (m < u32"32" && (u32"1" << m).toZ <= d) {
+          m = m + u32"1"
+        }
+        (nextU32() >>> (u32"32" - m)).toZ
+      }
+      return S32.fromZ(r % d + min.toZ)
     }
 
     def nextS64Between(min: S64, max: S64): S64 = {
@@ -361,12 +422,18 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextS64().toZ
-      if (r < 0) {
-        r = -r
+      if (S64.Min == min && S64.Max == max) {
+        return nextS64()
       }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return S64.fromZ(r)
+      val d = max.toZ - min.toZ + 1
+      val r: Z = {
+        var m = u64"1"
+        while (m < u64"64" && (u64"1" << m).toZ <= d) {
+          m = m + u64"1"
+        }
+        (nextU64() >>> (u64"64" - m)).toZ
+      }
+      return S64.fromZ(r % d + min.toZ)
     }
 
     def nextZ8Between(min: Z8, max: Z8): Z8 = {
@@ -375,12 +442,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextZ8().toZ
-      if (r < 0) {
-        r = -r
-      }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return Z8.fromZ(r)
+      return Z8.fromZ(nextS8Between(S8.fromZ(min.toZ), S8.fromZ(max.toZ)).toZ)
     }
 
     def nextZ16Between(min: Z16, max: Z16): Z16 = {
@@ -389,12 +451,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextZ16().toZ
-      if (r < 0) {
-        r = -r
-      }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return Z16.fromZ(r)
+      return Z16.fromZ(nextS16Between(S16.fromZ(min.toZ), S16.fromZ(max.toZ)).toZ)
     }
 
     def nextZ32Between(min: Z32, max: Z32): Z32 = {
@@ -403,12 +460,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextZ32().toZ
-      if (r < 0) {
-        r = -r
-      }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return Z32.fromZ(r)
+      return Z32.fromZ(nextS32Between(S32.fromZ(min.toZ), S32.fromZ(max.toZ)).toZ)
     }
 
     def nextZ64Between(min: Z64, max: Z64): Z64 = {
@@ -417,12 +469,7 @@ object Random {
         Modifies(seedRep),
         Ensures(min <= Res, max >= Res)
       )
-      var r = nextZ64().toZ
-      if (r < 0) {
-        r = -r
-      }
-      r = r % ((max - min).toZ + 1) + min.toZ
-      return Z64.fromZ(r)
+      return Z64.fromZ(nextS64Between(S64.fromZ(min.toZ), S64.fromZ(max.toZ)).toZ)
     }
   }
 
