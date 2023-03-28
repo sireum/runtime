@@ -1105,6 +1105,10 @@ import Init._
       val sireumJar = pluginsDir / "sireum-intellij-plugin" / "lib" / "sireum.jar"
       val homeBinSireumJar = homeBin / "sireum.jar"
       sireumJar.removeAll()
+      val nailgunJar = pluginsDir / "Scala" / "lib" / "jps" / "nailgun.jar"
+      print(s"Patching $nailgunJar ... ")
+      Asm.rewriteSetSecurityManager(nailgunJar)
+      println()
       if (buildSfx) {
         homeBinSireumJar.copyTo(sireumJar)
         pack()
