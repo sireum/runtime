@@ -767,8 +767,8 @@ import Init._
       print(s"Patching $p ... ")
       val content = ops.StringOps(p.read).trim
       val newContent: String =
-        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
-        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n"
+        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n-Dorg.sireum.home=$home\r\n"
+        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n-Dorg.sireum.home=$home\n"
       p.writeOver(newContent)
       println("done!")
     }
