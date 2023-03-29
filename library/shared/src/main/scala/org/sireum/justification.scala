@@ -41,6 +41,15 @@ object justification {
 
   @just def ClaimOf[T](name: T): Unit = $
 
+  @just def Subst1(x: StepId, y: StepId): Unit = $
+
+  @just def Subst2(x: StepId, y: StepId): Unit = $
+
+  @just def Algebra: Unit = $
+
+  @just def Algebra_*(stepIds: ISZ[StepId]): Unit = $
+
+
   object natded {
 
     object prop {
