@@ -1203,39 +1203,23 @@ object Z extends $ZCompanion[Z] {
   def BitWidth: scala.Int = halt(s"Unsupported $Name operation 'BitWidth'")
 
   def random: Z = {
-    val r = _root_.java.util.concurrent.ThreadLocalRandom.current
-    MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
+    return Random.Ext.instance.nextZ()
   }
 
   def randomBetween(min: Z, max: Z): Z = {
     assert(min <= max)
-    val d = max - min + 1
-    var r: Z = 0
-    if (d <= U8.Max.toZ) r = U8.random.toZ
-    else if (d <= U16.Max.toZ) r = U16.random.toZ
-    else if (d <= U32.Max.toZ) r = U32.random.toZ
-    else if (d <= U64.Max.toZ) r = U64.random.toZ
-    else {
-      r = random
-      if (r < 0) r = -r
-    }
-    r = r % d + min
-    return r
+    return Random.Ext.instance.nextZBetween(min, max)
   }
 
   def randomSeed(seed: Z): Z = {
-    val r = new scala.util.Random((seed.toMP % Z.MP(U._64(-1).toBigInt + 1)).toLong)
-    MP(scala.BigInt(numbits = r.nextInt(r.nextInt(1024) + 1), rnd = r))
+    Random.setSeed(seed)
+    return Random.Ext.instance.nextZ()
   }
 
   def randomSeedBetween(seed: Z, min: Z, max: Z): Z = {
     assert(min <= max)
-    var r = randomSeed(seed)
-    if (r < 0) {
-      r = -r
-    }
-    r = r % (max - min + 1) + min
-    return r
+    Random.setSeed(seed)
+    return Random.Ext.instance.nextZBetween(min, max)
   }
 
   import scala.language.implicitConversions
