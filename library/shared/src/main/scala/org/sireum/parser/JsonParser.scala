@@ -265,8 +265,9 @@ object JsonParser {
     return JsonLexer(Indexable.fromIszDocInfo(conversions.String.toCis(input), docInfo)).tokenizeAll(skipHidden, stopAtError, reporter)
   }
 
-  @strictpure def offsetLength(offset: Z, length: Z): U64 =
-    (conversions.Z.toU64(offset) << u64"32") | (conversions.Z.toU64(length) & u64"0xFFFFFFFF")
+  @pure def offsetLength(offset: Z, length: Z): U64 = {
+    return (conversions.Z.toU64(offset) << u64"32") | (conversions.Z.toU64(length) & u64"0xFFFFFFFF")
+  }
 
 }
 
@@ -728,7 +729,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_true(index: Z): Option[Result] = lexH(index, lit_true(index), """'true'""", u32"0xAFEF039D" /* "true" */, F)
+  @pure def lex_true(index: Z): Option[Result] = { return lexH(index, lit_true(index), """'true'""", u32"0xAFEF039D" /* "true" */, F) }
 
   @pure def lit_false(i: Z): Z = {
     if (!cis.has(i + 5)) {
@@ -740,7 +741,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_false(index: Z): Option[Result] = lexH(index, lit_false(index), """'false'""", u32"0xD8AFD1B9" /* "false" */, F)
+  @pure def lex_false(index: Z): Option[Result] = { return lexH(index, lit_false(index), """'false'""", u32"0xD8AFD1B9" /* "false" */, F) }
 
   @pure def lit_null(i: Z): Z = {
     if (!cis.has(i + 4)) {
@@ -752,7 +753,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_null(index: Z): Option[Result] = lexH(index, lit_null(index), """'null'""", u32"0x3EA44541" /* "null" */, F)
+  @pure def lex_null(index: Z): Option[Result] = { return lexH(index, lit_null(index), """'null'""", u32"0x3EA44541" /* "null" */, F) }
 
   @pure def lit_u007B(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == '{') {
@@ -761,7 +762,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u007B(index: Z): Option[Result] = lexH(index, lit_u007B(index), """'{'""", u32"0xFDCE65E5" /* "{" */, F)
+  @pure def lex_u007B(index: Z): Option[Result] = { return lexH(index, lit_u007B(index), """'{'""", u32"0xFDCE65E5" /* "{" */, F) }
 
   @pure def lit_u003A(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == ':') {
@@ -770,7 +771,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u003A(index: Z): Option[Result] = lexH(index, lit_u003A(index), """':'""", u32"0x763C38BE" /* ":" */, F)
+  @pure def lex_u003A(index: Z): Option[Result] = { return lexH(index, lit_u003A(index), """':'""", u32"0x763C38BE" /* ":" */, F) }
 
   @pure def lit_u002C(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == ',') {
@@ -779,7 +780,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u002C(index: Z): Option[Result] = lexH(index, lit_u002C(index), """','""", u32"0x45445E21" /* "," */, F)
+  @pure def lex_u002C(index: Z): Option[Result] = { return lexH(index, lit_u002C(index), """','""", u32"0x45445E21" /* "," */, F) }
 
   @pure def lit_u007D(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == '}') {
@@ -788,7 +789,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u007D(index: Z): Option[Result] = lexH(index, lit_u007D(index), """'}'""", u32"0x5BF60471" /* "}" */, F)
+  @pure def lex_u007D(index: Z): Option[Result] = { return lexH(index, lit_u007D(index), """'}'""", u32"0x5BF60471" /* "}" */, F) }
 
   @pure def lit_u005B(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == '[') {
@@ -797,7 +798,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u005B(index: Z): Option[Result] = lexH(index, lit_u005B(index), """'['""", u32"0xA44269E9" /* "[" */, F)
+  @pure def lex_u005B(index: Z): Option[Result] = { return lexH(index, lit_u005B(index), """'['""", u32"0xA44269E9" /* "[" */, F) }
 
   @pure def lit_u005D(i: Z): Z = {
     if (cis.has(i) && cis.at(i) == ']') {
@@ -806,7 +807,7 @@ import JsonParser._
     return -1
   }
 
-  @strictpure def lex_u005D(index: Z): Option[Result] = lexH(index, lit_u005D(index), """']'""", u32"0x9977908D" /* "]" */, F)
+  @pure def lex_u005D(index: Z): Option[Result] = { return lexH(index, lit_u005D(index), """']'""", u32"0x9977908D" /* "]" */, F) }
 
   @pure def dfa_STRING(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2"), i)
@@ -890,7 +891,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_STRING(index: Z): Option[Result] = lexH(index, dfa_STRING(index), """STRING""", u32"0xA7CF0FE0", F)
+  @pure def lex_STRING(index: Z): Option[Result] = { return lexH(index, dfa_STRING(index), """STRING""", u32"0xA7CF0FE0", F) }
 
   @pure def dfa_NUMBER(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"2", state"4", state"7", state"8", state"9"), i)
@@ -1006,7 +1007,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_NUMBER(index: Z): Option[Result] = lexH(index, dfa_NUMBER(index), """NUMBER""", u32"0x28C20CF1", F)
+  @pure def lex_NUMBER(index: Z): Option[Result] = { return lexH(index, dfa_NUMBER(index), """NUMBER""", u32"0x28C20CF1", F) }
 
   @pure def dfa_WS(i: Z): Z = {
     val ctx = LContext.create(ISZ(state"1"), i)
@@ -1038,7 +1039,7 @@ import JsonParser._
     return ctx.afterAcceptIndex
   }
 
-  @strictpure def lex_WS(index: Z): Option[Result] = lexH(index, dfa_WS(index), """WS""", u32"0x0E3F5D1E", T)
+  @pure def lex_WS(index: Z): Option[Result] = { return lexH(index, dfa_WS(index), """WS""", u32"0x0E3F5D1E", T) }
 
   @pure def hidden(i: Z): Z = {
      var j: Z = -1

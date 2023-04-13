@@ -36,7 +36,9 @@ package org.sireum
                                  val module: String,
                                  val version: String,
                                  val pathString: String) {
-  @strictpure def path: Os.Path = Os.path(pathString)
+  @pure def path: Os.Path = {
+    return Os.path(pathString)
+  }
 }
 
 object Coursier {

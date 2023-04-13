@@ -426,8 +426,9 @@ import Init._
     }
   }
 
-  @strictpure def ideaDirPath(isUltimate: B, isServer: B): Os.Path =
-    homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
+  @pure def ideaDirPath(isUltimate: B, isServer: B): Os.Path = {
+    return homeBinPlatform / (if (isServer) "idea-server" else if (isUltimate) "idea-ultimate" else "idea")
+  }
 
   def installScripts(): Unit = {
     val install = homeBin / "install"

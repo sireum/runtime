@@ -30,7 +30,9 @@ import org.sireum._
 
 object PStorage {
 
-  @strictpure def empty: PStorage = Ext.create
+  @pure def empty: PStorage = {
+    return Ext.create
+  }
 
   @ext("PStorage_Ext") object Ext {
     @pure def create: PStorage = $

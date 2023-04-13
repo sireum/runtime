@@ -278,9 +278,7 @@ object Poset {
     }
   }
 
-  def empty[T]: Poset[T] = {
-    return Poset[T](HashSMap.empty, ISZ(), HashSMap.empty, HashSMap.empty)
-  }
+  @strictpure def empty[T]: Poset[T] = Poset[T](HashSMap.empty, ISZ(), HashSMap.empty, HashSMap.empty)
 }
 
 import Poset._

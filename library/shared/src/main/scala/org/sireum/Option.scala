@@ -35,11 +35,11 @@ object Option {
 
 @datatype trait Option[T] {
 
-  @pure def isEmpty: B = Contract.Only(
+  @strictpure def isEmpty: B = Contract.Only(
     Ensures((this ≡ None[T]()) == Res)
   )
 
-  @pure def nonEmpty: B = Contract.Only(
+  @strictpure def nonEmpty: B = Contract.Only(
     Ensures((this ≢ None[T]()) == Res)
   )
 
@@ -95,12 +95,12 @@ object Option {
     )
   )
 
-  @pure def get: T = Contract.Only(
+  @strictpure def get: T = Contract.Only(
     Requires(this ≢ None[T]()),
     Ensures(this ≡ Some(Res))
   )
 
-  @pure def getOrElse(default: => T): T = Contract.Only(
+  @strictpure def getOrElse(default: => T): T = Contract.Only(
     Case(
       "Empty",
       Requires(this ≡ None[T]()),
@@ -113,7 +113,7 @@ object Option {
     )
   )
 
-  @pure def getOrElseEager(default: T): T = Contract.Only(
+  @strictpure def getOrElseEager(default: T): T = Contract.Only(
     Case(
       "Empty",
       Requires(this ≡ None[T]()),
@@ -144,15 +144,9 @@ object Option {
 
 @datatype class None[T] extends Option[T] {
 
-  @pure override def isEmpty: B = {
-    Contract(Ensures(Res))
-    return T
-  }
+  @strictpure override def isEmpty: B = T
 
-  @pure override def nonEmpty: B = {
-    Contract(Ensures(!Res[B]))
-    return F
-  }
+  @strictpure override def nonEmpty: B = F
 
   @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
     Contract(Ensures(None[T2]() ≡ Res))
@@ -184,10 +178,7 @@ object Option {
     return default
   }
 
-  @pure override def get: T = {
-    Contract(Requires(F))
-    halt("Invalid 'None' operation 'get'.")
-  }
+  @strictpure override def get: T = halt("Invalid 'None' operation 'get'.")
 
   @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(ISZ[T]() == Res))
@@ -199,15 +190,9 @@ object Option {
 
 @datatype class Some[T](val value: T) extends Option[T] {
 
-  @pure override def isEmpty: B = {
-    Contract(Ensures(!Res[B]))
-    return F
-  }
+  @strictpure override def isEmpty: B = F
 
-  @pure override def nonEmpty: B = {
-    Contract(Ensures(Res))
-    return T
-  }
+  @strictpure override def nonEmpty: B = T
 
   @pure override def map[T2](f: T => T2 @pure): Option[T2] = {
     Contract(Ensures(Some(f(value)) ≡ Res))
@@ -239,10 +224,7 @@ object Option {
     return value
   }
 
-  @pure override def get: T = {
-    Contract(Ensures(value ≡ Res))
-    return value
-  }
+  @strictpure override def get: T = value
 
   @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(ISZ(value) ≡ Res))

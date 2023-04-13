@@ -27,13 +27,9 @@ package org.sireum
 
 object HashBag {
 
-  @pure def empty[T]: HashBag[T] = {
-    return HashBag(HashMap.empty)
-  }
+  @strictpure def empty[T]: HashBag[T] = HashBag(HashMap.empty)
 
-  @pure def emptyInit[T](initialCapacity: Z): HashBag[T] = {
-    return HashBag(HashMap.emptyInit(initialCapacity))
-  }
+  @strictpure def emptyInit[T](initialCapacity: Z): HashBag[T] = HashBag(HashMap.emptyInit(initialCapacity))
 
   @pure def ++[@index I, T](s: IS[I, T]): HashBag[T] = {
     return HashBag.empty[T] ++ s

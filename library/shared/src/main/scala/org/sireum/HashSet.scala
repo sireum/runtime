@@ -28,13 +28,9 @@ package org.sireum
 
 object HashSet {
 
-  @pure def empty[T]: HashSet[T] = {
-    return HashSet(HashMap.empty[T, B])
-  }
+  @strictpure def empty[T]: HashSet[T] = HashSet(HashMap.empty[T, B])
 
-  @pure def emptyInit[T](initialCapacity: Z): HashSet[T] = {
-    return HashSet(HashMap.emptyInit(initialCapacity))
-  }
+  @strictpure def emptyInit[T](initialCapacity: Z): HashSet[T] = HashSet(HashMap.emptyInit(initialCapacity))
 
   @pure def ++[@index I, T](s: IS[I, T]): HashSet[T] = {
     return HashSet.emptyInit[T](s.size) ++ s

@@ -58,7 +58,9 @@ object ParseTree {
   @datatype class Node(val children: ISZ[ParseTree],
                        @hidden val ruleName: String,
                        @hidden val tipe: U32) extends ParseTree {
-    @strictpure override def toST: ST = st"""$ruleName(${(for (child <- children) yield child.toST, ", ")})"""
+    @pure override def toST: ST = {
+      return st"""$ruleName(${(for (child <- children) yield child.toST, ", ")})"""
+    }
   }
 
   @record class DotGenerator {

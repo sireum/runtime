@@ -502,9 +502,13 @@ object Random {
     Ext.setSeed(U64.fromZ(r))
   }
 
-  @strictpure def create64: Gen64Impl = Gen64Impl(Impl.Xoshiro256.create)
+  @pure def create64: Gen64Impl = {
+    return Gen64Impl(Impl.Xoshiro256.create)
+  }
 
-  @strictpure def createSeed64(seed: U64): Gen = Gen64Impl(Impl.Xoshiro256.createSeed(seed))
+  @pure def createSeed64(seed: U64): Gen = {
+    return Gen64Impl(Impl.Xoshiro256.createSeed(seed))
+  }
 
   @strictpure def rotl32(x: U32, k: U32): U32 = (x << k) | (x >> (u32"32" - k))
 

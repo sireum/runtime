@@ -47,8 +47,9 @@ object Indexable {
   @datatype class IszDocInfo[T](val is: ISZ[T], val info: message.DocInfo) extends Indexable.Pos[T] {
     @strictpure override def at(i: Z): T = is(i)
     @strictpure override def has(i: Z): B = i < is.size
-    @strictpure def posOpt(offset: Z, length: Z): Option[message.Position] =
-      Some(message.PosInfo(info, (conversions.Z.toU64(offset) << u64"32") | conversions.Z.toU64(length)))
+    @pure def posOpt(offset: Z, length: Z): Option[message.Position] = {
+      return Some(message.PosInfo(info, (conversions.Z.toU64(offset) << u64"32") | conversions.Z.toU64(length)))
+    }
   }
 
   @strictpure def fromIsz[T](is: ISZ[T]): Indexable[T] = Isz(is)

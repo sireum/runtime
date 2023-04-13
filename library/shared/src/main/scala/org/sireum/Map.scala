@@ -32,7 +32,9 @@ object Map {
 
   @strictpure def of[K, T]: Map[K, T] = Map.empty
 
-  @strictpure def ++[K, T, @index I](s: IS[I, (K, T)]): Map[K, T] = Map.empty[K, T] ++ s
+  @pure def ++[K, T, @index I](s: IS[I, (K, T)]): Map[K, T] = {
+    return Map.empty[K, T] ++ s
+  }
 
   @strictpure def entriesOf[K, T](m: Map[K, T]): Entries.Type[K, T] = m.entries
 
@@ -69,9 +71,13 @@ object Map {
     return AssocS.Entries.values(entries)
   }
 
-  @strictpure def keySet: Set[K] = Set.empty[K] ++ keys
+  @pure def keySet: Set[K] = {
+    return Set.empty[K] ++ keys
+  }
 
-  @strictpure def valueSet: Set[T] =  Set.empty[T] ++ values
+  @pure def valueSet: Set[T] = {
+    return Set.empty[T] ++ values
+  }
 
   @pure def +(p: (K, T)): Map[K, T] = {
     Contract(

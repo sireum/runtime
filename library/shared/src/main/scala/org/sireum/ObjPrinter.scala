@@ -55,7 +55,9 @@ object ObjPrinter {
 
   @strictpure def printB(b: B): ST = if (b) stTrue else stFalse
 
-  @strictpure def printC(c: C): ST = st"'${ops.COps(c).escapeString}'"
+  @pure def printC(c: C): ST = {
+    return st"'${ops.COps(c).escapeString}'"
+  }
 
   @strictpure def printZ(n: Z): ST = printNumber("z", n.string)
 
@@ -85,13 +87,21 @@ object ObjPrinter {
 
   @strictpure def printS64(n: S64): ST = printNumber("s64", n.string)
 
-  @strictpure def printU8(n: U8): ST = printNumber("u8", conversions.U8.toZ(n).string)
+  @pure def printU8(n: U8): ST = {
+    return printNumber("u8", conversions.U8.toZ(n).string)
+  }
 
-  @strictpure def printU16(n: U16): ST = printNumber("u16", conversions.U16.toZ(n).string)
+  @pure def printU16(n: U16): ST = {
+    return printNumber("u16", conversions.U16.toZ(n).string)
+  }
 
-  @strictpure def printU32(n: U32): ST = printNumber("u32", conversions.U32.toZ(n).string)
+  @pure def printU32(n: U32): ST = {
+    return printNumber("u32", conversions.U32.toZ(n).string)
+  }
 
-  @strictpure def printU64(n: U64): ST = printNumber("u64", conversions.U64.toZ(n).string)
+  @pure def printU64(n: U64): ST = {
+    return printNumber("u64", conversions.U64.toZ(n).string)
+  }
 
   @strictpure def printF32(n: F32): ST = printNumber("f32", n.string)
 
@@ -101,7 +111,9 @@ object ObjPrinter {
 
   @strictpure def printNumber(prefix: String, s: String): ST = st"""$prefix"$s""""
 
-  @strictpure def printString(s: String): ST = st""""${ops.StringOps(s).escapeST}""""
+  @pure def printString(s: String): ST = {
+    return st""""${ops.StringOps(s).escapeST}""""
+  }
 
   @pure def printOption[T](eType: ST, o: Option[T], f: T => ST): ST = {
     o match {

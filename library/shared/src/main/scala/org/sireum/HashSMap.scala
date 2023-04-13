@@ -28,13 +28,10 @@ package org.sireum
 
 object HashSMap {
 
-  @pure def empty[K, T]: HashSMap[K, T] = {
-    return HashSMap(HashMap.empty, ISZ())
-  }
+  @strictpure def empty[K, T]: HashSMap[K, T] = HashSMap(HashMap.empty, ISZ())
 
-  @pure def emptyInit[K, T](initialCapacity: Z): HashSMap[K, T] = {
-    return HashSMap(HashMap.emptyInit(initialCapacity), ISZ())
-  }
+  @strictpure def emptyInit[K, T](initialCapacity: Z): HashSMap[K, T] =
+    HashSMap(HashMap.emptyInit(initialCapacity), ISZ())
 
   @pure def ++[@index I, K, T](s: IS[I, (K, T)]): HashSMap[K, T] = {
     return HashSMap.emptyInit[K, T](s.size) ++ s

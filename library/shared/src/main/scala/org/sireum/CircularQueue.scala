@@ -33,13 +33,13 @@ import ContractUtil._
 
   @spec def repInv = Invariant(rep.size <= max)
 
-  @pure def max: Z
+  @strictpure def max: Z
 
-  @pure def default: E
+  @strictpure def default: E
 
-  @pure def scrub: B
+  @strictpure def scrub: B
 
-  @pure def policy: CircularQueue.Policy.Type
+  @strictpure def policy: CircularQueue.Policy.Type
 
   def size: Z = Contract.Only(Ensures(Res == rep.size))
 

@@ -110,17 +110,18 @@ object ProjectUtil {
     return shared
   }
 
-  @strictpure def moduleShared(id: String,
+  @pure def moduleShared(id: String,
                                baseDir: Os.Path,
                                sharedDeps: ISZ[String],
-                               sharedIvyDeps: ISZ[String]): Module =
-    moduleSharedPub(
+                               sharedIvyDeps: ISZ[String]): Module = {
+    return moduleSharedPub(
       id = id,
       baseDir = baseDir,
       sharedDeps = sharedDeps,
       sharedIvyDeps = sharedIvyDeps,
       pubOpt = None()
     )
+  }
 
   @pure def moduleJvmPub(id: String,
                          baseDir: Os.Path,
@@ -144,11 +145,12 @@ object ProjectUtil {
     return jvm
   }
 
-  @strictpure def moduleJvm(id: String,
+  @pure def moduleJvm(id: String,
                             baseDir: Os.Path,
                             jvmDeps: ISZ[String],
-                            jvmIvyDeps: ISZ[String]): Module =
-    moduleJvmPub(id, baseDir, jvmDeps, jvmIvyDeps, None())
+                            jvmIvyDeps: ISZ[String]): Module = {
+    return moduleJvmPub(id, baseDir, jvmDeps, jvmIvyDeps, None())
+  }
 
   @pure def moduleJsPub(id: String,
                         baseDir: Os.Path,
@@ -172,17 +174,18 @@ object ProjectUtil {
     return js
   }
 
-  @strictpure def moduleJs(id: String,
-                           baseDir: Os.Path,
-                           jsDeps: ISZ[String],
-                           jsIvyDeps: ISZ[String]): Module =
-    moduleJsPub(
+  @pure def moduleJs(id: String,
+                     baseDir: Os.Path,
+                     jsDeps: ISZ[String],
+                     jsIvyDeps: ISZ[String]): Module = {
+    return moduleJsPub(
       id = id,
       baseDir = baseDir,
       jsDeps = jsDeps,
       jsIvyDeps = jsIvyDeps,
       pubOpt = None()
     )
+  }
 
   @pure def moduleSharedJvmPub(baseId: String,
                                baseDir: Os.Path,
@@ -196,13 +199,13 @@ object ProjectUtil {
     return (shared, jvm)
   }
 
-  @strictpure def moduleSharedJvm(baseId: String,
-                                  baseDir: Os.Path,
-                                  sharedDeps: ISZ[String],
-                                  sharedIvyDeps: ISZ[String],
-                                  jvmDeps: ISZ[String],
-                                  jvmIvyDeps: ISZ[String]): (Module, Module) =
-    moduleSharedJvmPub(
+  @pure def moduleSharedJvm(baseId: String,
+                            baseDir: Os.Path,
+                            sharedDeps: ISZ[String],
+                            sharedIvyDeps: ISZ[String],
+                            jvmDeps: ISZ[String],
+                            jvmIvyDeps: ISZ[String]): (Module, Module) = {
+    return moduleSharedJvmPub(
       baseId = baseId,
       baseDir = baseDir,
       sharedDeps = sharedDeps,
@@ -211,6 +214,7 @@ object ProjectUtil {
       jvmIvyDeps = jvmIvyDeps,
       pubOpt = None()
     )
+  }
 
 
   @pure def moduleSharedJsPub(baseId: String,
@@ -225,13 +229,13 @@ object ProjectUtil {
     return (shared, js)
   }
 
-  @strictpure def moduleSharedJs(baseId: String,
-                                 baseDir: Os.Path,
-                                 sharedDeps: ISZ[String],
-                                 sharedIvyDeps: ISZ[String],
-                                 jsDeps: ISZ[String],
-                                 jsIvyDeps: ISZ[String]): (Module, Module) =
-    moduleSharedJsPub(
+  @pure def moduleSharedJs(baseId: String,
+                           baseDir: Os.Path,
+                           sharedDeps: ISZ[String],
+                           sharedIvyDeps: ISZ[String],
+                           jsDeps: ISZ[String],
+                           jsIvyDeps: ISZ[String]): (Module, Module) = {
+    return moduleSharedJsPub(
       baseId = baseId,
       baseDir = baseDir,
       sharedDeps = sharedDeps,
@@ -240,6 +244,7 @@ object ProjectUtil {
       jsIvyDeps = jsIvyDeps,
       pubOpt = None()
     )
+  }
 
   @pure def moduleSharedJvmJsPub(baseId: String,
                                  baseDir: Os.Path,
@@ -255,15 +260,15 @@ object ProjectUtil {
     return (shared, jvm, js(id = s"$baseId-$jsSuffix"))
   }
 
-  @strictpure def moduleSharedJvmJs(baseId: String,
-                                    baseDir: Os.Path,
-                                    sharedDeps: ISZ[String],
-                                    sharedIvyDeps: ISZ[String],
-                                    jvmDeps: ISZ[String],
-                                    jvmIvyDeps: ISZ[String],
-                                    jsDeps: ISZ[String],
-                                    jsIvyDeps: ISZ[String]): (Module, Module, Module) =
-    moduleSharedJvmJsPub(
+  @pure def moduleSharedJvmJs(baseId: String,
+                              baseDir: Os.Path,
+                              sharedDeps: ISZ[String],
+                              sharedIvyDeps: ISZ[String],
+                              jvmDeps: ISZ[String],
+                              jvmIvyDeps: ISZ[String],
+                              jsDeps: ISZ[String],
+                              jsIvyDeps: ISZ[String]): (Module, Module, Module) = {
+    return moduleSharedJvmJsPub(
       baseId = baseId,
       baseDir = baseDir,
       sharedDeps = sharedDeps,
@@ -274,12 +279,13 @@ object ProjectUtil {
       jsIvyDeps = jsIvyDeps,
       pubOpt = None()
     )
+  }
 
-  @strictpure def pub(desc: String,
-                      url: String,
-                      licenses: ISZ[PublishInfo.License],
-                      devs: ISZ[PublishInfo.Developer]): Option[PublishInfo] =
-    Some(
+  @pure def pub(desc: String,
+                url: String,
+                licenses: ISZ[PublishInfo.License],
+                devs: ISZ[PublishInfo.Developer]): Option[PublishInfo] = {
+    return Some(
       PublishInfo(
         description = desc,
         url = url,
@@ -287,6 +293,7 @@ object ProjectUtil {
         developers = devs
       )
     )
+  }
 
   @pure def toDot(p: Project): String = {
     @pure def node2st(name: String): ST = {
@@ -418,24 +425,31 @@ object ProjectUtil {
     path.writeOver(org.sireum.project.JSON.fromProject(prj(poset = Poset.empty), F))
   }
 
-  @strictpure def pathSep(base: Os.Path, sub: String): Os.Path =
-    if (ops.StringOps(sub).startsWith(Os.fileSep)) Os.path(s"$base$sub")
+  @pure def pathSep(base: Os.Path, sub: String): Os.Path = {
+    return if (ops.StringOps(sub).startsWith(Os.fileSep)) Os.path(s"$base$sub")
     else base / sub
-
-  @strictpure def moduleBasePath(m: Module): Os.Path = m.subPathOpt match {
-    case Some(sp) => pathSep(Os.path(m.basePath), sp)
-    case _ => Os.path(m.basePath)
   }
 
-  @strictpure def moduleSources(m: Module): ISZ[Os.Path] =
-    for (p <- for (source <- m.sources) yield pathSep(moduleBasePath(m), source) if p.exists) yield p
+  @pure def moduleBasePath(m: Module): Os.Path = {
+    m.subPathOpt match {
+      case Some(sp) => return pathSep(Os.path(m.basePath), sp)
+      case _ => return Os.path(m.basePath)
+    }
+  }
 
-  @strictpure def moduleResources(m: Module): ISZ[Os.Path] =
-    for (p <- for (resource <- m.resources) yield pathSep(moduleBasePath(m), resource) if p.exists) yield p
+  @pure def moduleSources(m: Module): ISZ[Os.Path] = {
+    return for (p <- for (source <- m.sources) yield pathSep(moduleBasePath(m), source) if p.exists) yield p
+  }
 
-  @strictpure def moduleTestSources(m: Module): ISZ[Os.Path] =
-    for (p <- for (testSource <- m.testSources) yield pathSep(moduleBasePath(m), testSource) if p.exists) yield p
+  @pure def moduleResources(m: Module): ISZ[Os.Path] = {
+    return for (p <- for (resource <- m.resources) yield pathSep(moduleBasePath(m), resource) if p.exists) yield p
+  }
 
-  @strictpure def moduleTestResources(m: Module): ISZ[Os.Path] =
-    for (p <- for (testResource <- m.testResources) yield pathSep(moduleBasePath(m), testResource) if p.exists) yield p
+  @pure def moduleTestSources(m: Module): ISZ[Os.Path] = {
+    return for (p <- for (testSource <- m.testSources) yield pathSep(moduleBasePath(m), testSource) if p.exists) yield p
+  }
+
+  @pure def moduleTestResources(m: Module): ISZ[Os.Path] = {
+    return for (p <- for (testResource <- m.testResources) yield pathSep(moduleBasePath(m), testResource) if p.exists) yield p
+  }
 }

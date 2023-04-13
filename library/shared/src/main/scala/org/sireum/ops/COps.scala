@@ -30,7 +30,9 @@ import org.sireum._
 
 @datatype class COps(val c: C) {
 
-  @strictpure def category: COps.Category.Type = COps.Ext.categoryOf(c)
+  @pure def category: COps.Category.Type = {
+    return COps.Ext.categoryOf(c)
+  }
 
   @pure def toUnicodeHex: (C, C, C, C) = {
     return (COps.hex2c(c >>> '\u000C'), COps.hex2c((c >>> '\u0008') & '\u000F'), COps.hex2c((c >>> '\u0004') & '\u000F'), COps.hex2c(c & '\u000F'))

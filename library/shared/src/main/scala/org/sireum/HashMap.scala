@@ -28,13 +28,11 @@ package org.sireum
 
 object HashMap {
 
-  @pure def empty[K, T]: HashMap[K, T] = {
-    return emptyInit[K, T](12)
-  }
+  @strictpure def empty[K, T]: HashMap[K, T] = emptyInit[K, T](12)
 
-  @pure def emptyInit[K, T](initialCapacity: Z): HashMap[K, T] = {
+  @strictpure def emptyInit[K, T](initialCapacity: Z): HashMap[K, T] = {
     val sz: Z = if (initialCapacity <= 0) 4 else initialCapacity * 4 / 3 + 1
-    return HashMap[K, T](ISZ.create(sz, Map.empty), 0)
+    HashMap[K, T](ISZ.create(sz, Map.empty), 0)
   }
 
   @pure def ++[@index I, K, T](s: IS[I, (K, T)]): HashMap[K, T] = {

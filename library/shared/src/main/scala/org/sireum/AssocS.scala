@@ -37,7 +37,9 @@ object AssocS {
 
   @strictpure def of[K, V]: AssocS[K, V] = AssocS.empty
 
-  @strictpure def ++[K, V, @index I](s: IS[I, (K, V)]): AssocS[K, V] = AssocS.empty[K, V] ++ s
+  @pure def ++[K, V, @index I](s: IS[I, (K, V)]): AssocS[K, V] = {
+    return AssocS.empty[K, V] ++ s
+  }
 
   @strictpure def entriesOf[K, V](m: AssocS[K, V]): Entries.Type[K, V] = m.entries
 
@@ -297,9 +299,13 @@ object AssocS {
     return AssocS.Entries.values(entries)
   }
 
-  @strictpure def keySet: Set[K] = Set.empty[K] ++ keys
+  @pure def keySet: Set[K] = {
+    return Set.empty[K] ++ keys
+  }
 
-  @strictpure def valueSet: Set[V] = Set.empty[V] ++ values
+  @pure def valueSet: Set[V] = {
+    return Set.empty[V] ++ values
+  }
 
   @pure def +(p: (K, V)): AssocS[K, V] = {
     Contract(

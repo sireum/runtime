@@ -37,11 +37,13 @@ object Project {
                         val poset: Poset[String],
                         val mavenRepoUrls: ISZ[String]) {
 
-  @strictpure def +(module: Module): Project = Project(
-    modules = modules + module.id ~> module,
-    poset = poset.addParents(module.id, module.deps),
-    mavenRepoUrls = mavenRepoUrls
-  )
+  @pure def +(module: Module): Project = {
+    return Project(
+      modules = modules + module.id ~> module,
+      poset = poset.addParents(module.id, module.deps),
+      mavenRepoUrls = mavenRepoUrls
+    )
+  }
 
   @strictpure def addMavenRepository(url: String): Project = Project(
     modules = modules, poset = poset, mavenRepoUrls = mavenRepoUrls :+ url
@@ -51,13 +53,19 @@ object Project {
     modules = modules, poset = poset, mavenRepoUrls = mavenRepoUrls ++ urls
   )
 
-  @strictpure override def hash: Z = modules.hash
+  @pure override def hash: Z = {
+    return modules.hash
+  }
 
   @strictpure def isEqual(other: Project): B = modules == other.modules
 
-  @strictpure def <=(other: Project): B = modules == (other.modules -- (other.modules.keys -- modules.keys))
+  @pure def <=(other: Project): B = {
+    return modules == (other.modules -- (other.modules.keys -- modules.keys))
+  }
 
-  @strictpure def >=(other: Project): B = (modules -- (modules.keys -- other.modules.keys)) == other.modules
+  @pure def >=(other: Project): B = {
+    return (modules -- (modules.keys -- other.modules.keys)) == other.modules
+  }
 
   @pure def ++(other: Project): Project = {
     var r = this
@@ -162,7 +170,9 @@ object Project {
                        val testResources: ISZ[String],
                        val publishInfoOpt: Option[PublishInfo]) {
 
-  @strictpure def hasTarget(target: Target.Type): B = ops.ISZOps(targets).contains(target)
+  @pure def hasTarget(target: Target.Type): B = {
+    return ops.ISZOps(targets).contains(target)
+  }
 
 }
 

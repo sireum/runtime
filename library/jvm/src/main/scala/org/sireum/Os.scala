@@ -484,7 +484,9 @@ object Os {
 
     @pure def value: String
 
-    @strictpure def procString: String = ops.StringOps(value).replaceAllChars(' ', '␣')
+    @pure def procString: String = {
+      return ops.StringOps(value).replaceAllChars(' ', '␣')
+    }
 
     @pure def /(name: String): Path = {
       return Path.Impl(s"$value$fileSep$name")
