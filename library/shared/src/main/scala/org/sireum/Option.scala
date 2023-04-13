@@ -178,7 +178,10 @@ object Option {
     return default
   }
 
-  @strictpure override def get: T = halt("Invalid 'None' operation 'get'.")
+  @strictpure override def get: T = {
+    Contract(Requires(F))
+    halt("Invalid 'None' operation 'get'.")
+  }
 
   @pure override def toIS: IS[Z, T] = {
     Contract(Ensures(ISZ[T]() == Res))
