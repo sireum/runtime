@@ -197,7 +197,7 @@ object AssocS {
           Modifies(index, i),
           0 <= i,
           i <= entries.size,
-          (index != -1) ->: (0 <= index & index < entries.size & entries(index)._1 == key),
+          (index != -1) ->: ((0 <= index & index < entries.size) && entries(index)._1 == key),
           (index == -1) ->: ∀(0 until i)(j => key != entries(j)._1)
         )
         if (entries(i)._1 == key) {

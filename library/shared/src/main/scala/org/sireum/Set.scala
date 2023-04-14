@@ -409,7 +409,7 @@ object Set {
         Modifies(index, i),
         0 <= i,
         i <= elements.size,
-        (index != -1) ->: (0 <= index & index < elements.size & elements(index) == e),
+        (index != -1) ->: ((0 <= index & index < elements.size) && elements(index) == e),
         (index == -1) ->: ∀(0 until i)(j => e != elements(j))
       )
       if (elements(i) == e) {
