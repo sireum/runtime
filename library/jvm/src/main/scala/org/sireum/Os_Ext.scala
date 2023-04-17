@@ -286,18 +286,12 @@ object Os_Ext {
           removeAll(target)
           mkdir(parent(target), T)
         }
-        JFiles.move(p, t, SCO.ATOMIC_MOVE)
-      } else {
-        JFiles.move(p, t, SCO.ATOMIC_MOVE)
       }
+      JFiles.move(p, t, SCO.ATOMIC_MOVE)
     } catch {
       case _: AtomicMoveNotSupportedException =>
-        if (over) {
-          if (t.toFile.exists()) {
-            removeAll(target)
-            mkdir(parent(target), T)
-          }
-          JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
+        if (Os.isWin) {
+          JFiles.move(p, t)
         } else {
           JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
         }
