@@ -465,14 +465,15 @@ import Init._
 
     println("Extracting SMT-LIB2 TextMate configuration ...")
 
-    val d = Os.tempDir()
-    bundle.unzipTo(d)
+    val d = ver.up.up
+    val top = d / s"tmlanguages-$sha"
+    d.mkdirAll()
+    top.removeAll()
     ver.up.removeAll()
-    ver.up.up.mkdirAll()
-    (d / s"tmlanguages-$sha" / "smtlib2").moveTo(ver.up)
+    bundle.unzipTo(d)
+    (top / "smtlib2").moveTo(ver.up.canon)
+    top.removeAll()
     (ver.up / "test.smt2").removeAll()
-    d.removeAll()
-
     println()
 
     ver.writeOver(sha)
