@@ -446,6 +446,39 @@ import Init._
     }
   }
 
+  def installTmSmt2(): Unit = {
+    val sha = versions.get("org.sireum.version.tmlanguages").get
+    val ver = homeLib / "textmate" / "smt2" / "VER"
+
+    if (ver.exists && ver.read == sha) {
+      return
+    }
+
+    val url = s"https://github.com/sireum/tmlanguages/archive/$sha.zip"
+
+    val bundle = cache / s"tmLanguages-$sha.zip"
+    if (!bundle.exists) {
+      println(s"Please wait while downloading SMT-LIB2 TextMate configuration ...")
+      bundle.downloadFrom(url)
+      println()
+    }
+
+    println("Extracting SMT-LIB2 TextMate configuration ...")
+
+    val d = Os.tempDir()
+    bundle.unzipTo(d)
+    ver.up.removeAll()
+    ver.up.up.mkdirAll()
+    (d / s"tmlanguages-$sha" / "smtlib2").moveTo(ver.up)
+    (ver.up / "test.smt2").removeAll()
+    d.removeAll()
+
+    println()
+
+    ver.writeOver(sha)
+  }
+
+
   @memoize def isIdeaInUserHome: B = {
     return ops.StringOps(home.string).startsWith(Os.home.canon.string)
   }
@@ -1165,6 +1198,7 @@ import Init._
     installZ3()
     installCVC()
     installAltErgoOpen()
+    installTmSmt2()
   }
 
   def deps(): Unit = {
