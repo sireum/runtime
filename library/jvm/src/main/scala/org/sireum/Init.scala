@@ -462,6 +462,12 @@ import Init._
       install.mkdirAll()
       drop.unzipTo(home)
       (home / s"bin-install-$sha").moveOverTo(install)
+
+      if (kind != Os.Kind.Win) {
+        for (p <- Os.Path.walk(install, F, F, (path: Os.Path) => ops.StringOps(path.name).endsWith(".cmd"))) {
+          p.chmod("+x")
+        }
+      }
     }
   }
 
