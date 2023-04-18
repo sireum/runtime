@@ -29,6 +29,7 @@ package org.sireum
 
 object Init {
   @datatype class Plugin(val id: String,
+                         val isCommunity: B,
                          val isDev: B,
                          val isJar: B,
                          val devVer: String,
@@ -74,6 +75,24 @@ import Init._
     }
     r.mkdirAll()
     r
+  }
+
+  val pluginPrefix: String = "org.sireum.version.plugin."
+  val ideaCacheDir: Os.Path = cache / "idea"
+  val pluginsCacheDir: Os.Path = ideaCacheDir / "plugins"
+
+  @memoize def distroPlugins: HashMap[String, Plugin] = {
+    var r = HashMap.empty[String, Plugin]
+    for (key <- versions.keys if ops.StringOps(key).startsWith(pluginPrefix)) {
+      val id = ops.StringOps(key).substring(pluginPrefix.size, key.size)
+      ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
+        case ISZ(isCommunity, isDev, isJar, devVer) =>
+          r = r + id ~> Plugin(id, isCommunity == "true", isDev == "true", isJar == "true", devVer, devVer)
+        case ISZ(isCommunity, isDev, isJar, devVer, ver) =>
+          r = r + id ~> Plugin(id, isCommunity == "true", isDev == "true", isJar == "true", devVer, ver)
+      }
+    }
+    return r
   }
 
   @memoize def scalacPluginVersion: String = {
@@ -502,6 +521,49 @@ import Init._
     return (if (isIdeaInUserHome) (home / ".settings") else Os.home) / s".SireumIVE$devSuffix-sandbox"
   }
 
+  @strictpure def zipName(id: String, version: String): String = s"$id-$version.zip"
+
+  def downloadPlugins(isDev: B, pluginFilter: Plugin => B): Unit = {
+    for (p <- distroPlugins.values if pluginFilter(p)) {
+      val ver = p.version(isDev)
+      val zip = zipName(p.id, ver)
+      if (!(pluginsCacheDir / zip).exists) {
+        val pidOps = ops.StringOps(p.id)
+        val sireumPrefix: String = "sireum-"
+        val cis706Prefix: String = "ksu-cis-706-"
+        val url: String =
+          if (pidOps.startsWith(sireumPrefix)) {
+            val repo = pidOps.substring(sireumPrefix.size, p.id.size)
+            s"https://github.com/sireum/$repo/releases/download/$ver/$repo.zip"
+          } else if (pidOps.startsWith(cis706Prefix)) {
+            val repo = pidOps.substring(cis706Prefix.size, p.id.size)
+            s"https://github.com/ksu-cis-706/$repo/releases/download/$ver/$repo.zip"
+          } else {
+            s"https://plugins.jetbrains.com/plugin/download?pr=idea&updateId=$ver"
+          }
+        print(s"Downloading ${p.id} plugin from $url ... ")
+        (pluginsCacheDir / zip).downloadFrom(url)
+        println("done!")
+      }
+    }
+  }
+
+  def extractPlugins(isDev: B, pluginsDir: Os.Path, pluginFilter: Plugin => B): Unit = {
+    for (p <- distroPlugins.values if pluginFilter(p)) {
+      val zip = zipName(p.id, p.version(isDev))
+      val zipPath = ideaCacheDir / "plugins" / zip
+      if (p.isJar) {
+        print(s"Copying ${p.id} plugin ... ")
+        zipPath.copyOverTo(pluginsDir / s"${p.id}.jar")
+        println("done!")
+      } else {
+        print(s"Extracting ${p.id} plugin from $zipPath ... ")
+        zipPath.unzipTo(pluginsDir)
+        println("done!")
+      }
+    }
+  }
+
   def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
     deps()
     val devSuffix: String = if (isDev) "-dev" else ""
@@ -512,7 +574,6 @@ import Init._
     val ideaDir: Os.Path = ideaDirPath(isUltimate, isServer)
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
     val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools")
-    val pluginPrefix: String = "org.sireum.version.plugin."
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
       "idea-dev.icns",
@@ -540,8 +601,6 @@ import Init._
         "win" ~> ".win.zip" +
         "linux" ~> ".tar.gz" +
         "linux/arm" ~> "-aarch64.tar.gz"
-    val ideaCacheDir = cache / "idea"
-    val pluginsCacheDir = ideaCacheDir / "plugins"
 
     def platform(k: Os.Kind.Type): String = {
       k match {
@@ -551,20 +610,6 @@ import Init._
         case Os.Kind.Win => return "win"
         case _ => halt("Unsupported platform")
       }
-    }
-
-    val plugins: HashMap[String, Plugin] = {
-      var r = HashMap.empty[String, Plugin]
-      for (key <- versions.keys if ops.StringOps(key).startsWith(pluginPrefix)) {
-        val id = ops.StringOps(key).substring(pluginPrefix.size, key.size)
-        ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
-          case ISZ(isDev, isJar, devVer) =>
-            r = r + id ~> Plugin(id, isDev == "true", isJar == "true", devVer, devVer)
-          case ISZ(isDev, isJar, devVer, ver) =>
-            r = r + id ~> Plugin(id, isDev == "true", isJar == "true", devVer, ver)
-        }
-      }
-      r
     }
 
     val distroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
@@ -668,8 +713,6 @@ import Init._
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "lib"
       else ideaDir / "lib"
 
-    @strictpure def zipName(id: String, version: String): String = s"$id-$version.zip"
-
     @pure def devRelVer(key: String): (String, String) = {
       ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
         case ISZ(devVer, ver) =>
@@ -730,48 +773,8 @@ import Init._
       println()
     }
 
+    val pluginFilter = (p: Plugin) => if (isUltimate || isServer) T else p.isCommunity
     pluginsCacheDir.mkdirAll()
-
-    def downloadPlugins(): Unit = {
-      for (p <- plugins.values) {
-        val ver = p.version(isDev)
-        val zip = zipName(p.id, ver)
-        if (!(pluginsCacheDir / zip).exists) {
-          val pidOps = ops.StringOps(p.id)
-          val sireumPrefix: String = "sireum-"
-          val cis706Prefix: String = "ksu-cis-706-"
-          val url: String =
-            if (pidOps.startsWith(sireumPrefix)) {
-              val repo = pidOps.substring(sireumPrefix.size, p.id.size)
-              s"https://github.com/sireum/$repo/releases/download/$ver/$repo.zip"
-            } else if (pidOps.startsWith(cis706Prefix)) {
-              val repo = pidOps.substring(cis706Prefix.size, p.id.size)
-              s"https://github.com/ksu-cis-706/$repo/releases/download/$ver/$repo.zip"
-            } else {
-              s"https://plugins.jetbrains.com/plugin/download?pr=idea&updateId=$ver"
-            }
-          print(s"Downloading ${p.id} plugin from $url ... ")
-          (pluginsCacheDir / zip).downloadFrom(url)
-          println("done!")
-        }
-      }
-    }
-
-    def extractPlugins(): Unit = {
-      for (p <- plugins.values) {
-        val zip = zipName(p.id, p.version(isDev))
-        val zipPath = ideaCacheDir / "plugins" / zip
-        if (p.isJar) {
-          print(s"Copying ${p.id} plugin ... ")
-          zipPath.copyOverTo(pluginsDir / s"${p.id}.jar")
-          println("done!")
-        } else {
-          print(s"Extracting ${p.id} plugin from $zipPath ... ")
-          zipPath.unzipTo(pluginsDir)
-          println("done!")
-        }
-      }
-    }
 
     def patchIdeaProperties(p: Os.Path): Unit = {
       if (isServer) {
@@ -982,7 +985,7 @@ import Init._
       println("done!")
       deleteSources()
       deletePlugins()
-      extractPlugins()
+      extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(F)
       patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "Info.plist")
@@ -1021,7 +1024,7 @@ import Init._
         println("done!")
       }
       deletePlugins()
-      extractPlugins()
+      extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(F)
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
@@ -1043,7 +1046,7 @@ import Init._
       deleteSources()
       println("done!")
       deletePlugins()
-      extractPlugins()
+      extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(T)
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
@@ -1127,7 +1130,7 @@ import Init._
         (ideaCacheDir / filename).downloadFrom(url)
         println("done!")
       }
-      downloadPlugins()
+      downloadPlugins(isDev, pluginFilter)
       if (!isServer) {
         print(s"Extracting $ideaDrop ... ")
       }
