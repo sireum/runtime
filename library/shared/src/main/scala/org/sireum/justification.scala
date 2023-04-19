@@ -33,6 +33,8 @@ object justification {
 
   @just def Auto_*(stepIds: ISZ[StepId]): Unit = $
 
+  @just def Tauto: Unit = $
+
   @just def Smt2(options: String, timeoutInMs: Z, rlimit: Z): Unit = $
 
   @just def Smt2_*(options: String, timeoutInMs: Z, rlimit: Z, stepIds: ISZ[StepId]): Unit = $
