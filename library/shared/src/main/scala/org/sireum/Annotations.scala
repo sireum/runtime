@@ -60,3 +60,5 @@ class imm extends StaticAnnotation
 class mut extends StaticAnnotation
 
 class index extends StaticAnnotation
+
+class l(name: String = "") extends StaticAnnotation
