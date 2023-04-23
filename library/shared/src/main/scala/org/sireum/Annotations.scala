@@ -61,4 +61,4 @@ class mut extends StaticAnnotation
 
 class index extends StaticAnnotation
 
-class l(name: String = "") extends StaticAnnotation
+class l(num: Int = 0) extends StaticAnnotation
