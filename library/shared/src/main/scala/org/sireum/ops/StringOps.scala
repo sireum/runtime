@@ -124,6 +124,10 @@ object StringOps {
     }
     return conversions.String.fromCis(r)
   }
+
+  @ext("StringOps_Ext") object Ext {
+    @pure def sha3(is256: B, s: String): ISZ[U8] = $
+  }
 }
 
 @datatype class StringOps(val s: String) {
@@ -430,5 +434,14 @@ object StringOps {
       }
     }
     return 0
+  }
+
+  @pure def sha3(isNative: B, is256: B): ISZ[U8] = {
+    if (isNative) {
+      return StringOps.Ext.sha3(is256, s)
+    }
+    val sha3: crypto.SHA3 = if (is256) crypto.SHA3.init256 else crypto.SHA3.init512
+    sha3.update(conversions.String.toU8is(s))
+    return sha3.finalise()
   }
 }
