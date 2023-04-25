@@ -257,8 +257,8 @@ object AssocS {
         }
         Deduce(
           //@formatter:off
-          (kv != p) ->: (newEntries ≡ (At(newEntries, 1) :+ kv))                                                 by Premise,
-          !(kv != p) ->: (newEntries ≡ At(newEntries, 1))                                                        by Premise,
+          (kv != p) -->: (newEntries ≡ (At(newEntries, 1) :+ kv))                                                by Premise,
+          !(kv != p) -->: (newEntries ≡ At(newEntries, 1))                                                       by Premise,
           ∀(newEntries.indices)(j => newEntries(j) != p & AssocS.Entries.contain(entries, newEntries(j)))        by Premise,
           ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j)))                by Premise,
           ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1)                                      by Premise,
