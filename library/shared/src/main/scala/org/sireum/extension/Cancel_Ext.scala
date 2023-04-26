@@ -27,12 +27,18 @@ package org.sireum.extension
 import java.nio.channels.ClosedByInterruptException
 
 object Cancel_Ext {
-  def handleCancellable[T](p: () => T): Unit =
+  val isCancellableDebug: Boolean = "true" == System.getProperty("org.sireum.debug.cancellable")
+
+  def handleCancellable[T](p: () => T): Unit = {
     try p()
     catch {
-     case _: InterruptedException =>
-     case _: ClosedByInterruptException =>
+     case e: InterruptedException => if (isCancellableDebug) e.printStackTrace()
+     case e: ClosedByInterruptException => if (isCancellableDebug) e.printStackTrace()
+     case e: Throwable =>
+       if (isCancellableDebug) e.printStackTrace()
+       throw e
     }
+  }
 
   def cancellable[T](p: () => T): T = {
     if (_root_.java.lang.Thread.interrupted()) {
