@@ -79,7 +79,7 @@ object AssocS {
         Ensures(
           entries.size == Res[Keys[K]].size,
           ∀(entries.indices)(i => entries(i)._1 ≡ Res[Keys[K]](i)),
-          SeqUtil.IS.unique(Res),
+          SeqUtil.IS.unique(Res)
         )
       )
       var r = ISZ[K]()
@@ -134,7 +134,7 @@ object AssocS {
           Res[Entries.Type[K, V]].size == entries.size | Res[Entries.Type[K, V]].size == entries.size + 1,
           contain(Res, p),
           ∀(Res[Entries.Type[K, V]].indices)(j => (Res[Entries.Type[K, V]](j) != p) ->: contain(entries, Res[Entries.Type[K, V]](j))),
-          ∀(entries.indices)(j => (entries(j)._1 != p._1) ->: contain(Res[Entries.Type[K, V]], entries(j))),
+          ∀(entries.indices)(j => (entries(j)._1 != p._1) ->: contain(Res[Entries.Type[K, V]], entries(j)))
         )
       )
       val (key, value) = p
@@ -147,7 +147,7 @@ object AssocS {
           contain(r, p)                                                       by Auto,
           uniqueKeys(r)                                                       by Auto,
           ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
-          ∀(entries.indices)(j => contain(r, entries(j)))                     by Auto,
+          ∀(entries.indices)(j => contain(r, entries(j)))                     by Auto
           //@formatter:on
         )
         r
@@ -159,7 +159,7 @@ object AssocS {
           contain(r, p)                                                       by Auto,
           uniqueKeys(r)                                                       by Auto,
           ∀(r.indices)(j => (r(j) != p) ->: contain(entries, r(j)))           by Auto,
-          ∀(entries.indices)(j => (index != j) ->: contain(r, entries(j)))    by Auto,
+          ∀(entries.indices)(j => (index != j) ->: contain(r, entries(j)))    by Auto
           //@formatter:on
         )
         r
@@ -218,7 +218,7 @@ object AssocS {
           uniqueKeys(Res),
           Res[Entries.Type[K, V]].size == entries.size | Res[Entries.Type[K, V]].size == entries.size - 1,
           ∀(Res[Entries.Type[K, V]].indices)(j => Res[Entries.Type[K, V]](j) != p & contain(entries, Res[Entries.Type[K, V]](j))),
-          ∀(entries.indices)(j => (entries(j) != p) ->: contain(Res[Entries.Type[K, V]], entries(j))),
+          ∀(entries.indices)(j => (entries(j) != p) ->: contain(Res[Entries.Type[K, V]], entries(j)))
         )
       )
       var newEntries = ISZ[(K, V)]()
@@ -233,7 +233,7 @@ object AssocS {
           ∃(0 until i)(j => p == entries(j)) ->: (newEntries.size == i - 1),
           ∀(0 until i)(j => p != entries(j)) ->: (newEntries.size == i),
           ∀(0 until i)(j => (p != entries(j)) ->: AssocS.Entries.contain(newEntries, entries(j))),
-          uniqueKeys(newEntries),
+          uniqueKeys(newEntries)
         )
         val kv = entries(i)
         i = i + 1
@@ -283,7 +283,7 @@ object AssocS {
       Ensures(
         entries.size == Res[ISZ[K]].size,
         ∀(entries.indices)(i => entries(i)._1 ≡ Res[ISZ[K]](i)),
-        SeqUtil.IS.unique(Res),
+        SeqUtil.IS.unique(Res)
       )
     )
     return AssocS.Entries.keys(entries)
@@ -315,7 +315,7 @@ object AssocS {
         ∀(AssocS.entriesOf(Res).indices)(j =>
           (AssocS.entriesOf(Res)(j) != p) ->: AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
+          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j)))
       )
     )
     return AssocS(AssocS.Entries.add(entries, p))
@@ -429,7 +429,7 @@ object AssocS {
         ∀(AssocS.entriesOf(Res).indices)(j =>
           AssocS.entriesOf(Res)(j) != p & AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j) != p) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j))),
+          (entries(j) != p) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j)))
       )
     )
     return AssocS(AssocS.Entries.remove(entries, p))

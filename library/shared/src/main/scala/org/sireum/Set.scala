@@ -77,7 +77,7 @@ object Set {
         Set.Elements.contain(r, e)                                                by Auto,
         SeqUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,
-        ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto,
+        ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto
         //@formatter:on
       )
       r
@@ -89,7 +89,7 @@ object Set {
         Set.Elements.contain(r, e)                                                by Auto,
         SeqUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,
-        ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto,
+        ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto
         //@formatter:on
       )
       r
@@ -110,7 +110,7 @@ object Set {
       Ensures(
         Set.elementsOf(Res).size == elements.size | Set.elementsOf(Res).size == elements.size - 1,
         ∀(Set.elementsOf(Res).indices)(j => e != Set.elementsOf(Res)(j) & Set.Elements.contain(elements, Set.elementsOf(Res)(j))),
-        ∀(elements.indices)(j => (elements(j) != e) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j))),
+        ∀(elements.indices)(j => (elements(j) != e) ->: Set.Elements.contain(Set.elementsOf(Res), elements(j)))
       )
     )
     var newElements = ISZ[T]()
@@ -125,7 +125,7 @@ object Set {
         ∃(0 until i)(j => e == elements(j)) ->: (newElements.size == i - 1),
         ∀(0 until i)(j => e != elements(j)) ->: (newElements.size == i),
         ∀(0 until i)(j => (e != elements(j)) ->: Set.Elements.contain(newElements, elements(j))),
-        Set.Elements.unique(newElements),
+        Set.Elements.unique(newElements)
       )
       val kv = elements(i)
       if (kv != e) {
@@ -176,7 +176,7 @@ object Set {
         ∀(elements.size until newElements.size)(j =>
           ∀(i until other.elements.size)(k => newElements(j) != other.elements(k))),
         ∀(0 until i)(j => Set.Elements.contain(newElements, other.elements(j))),
-        Set.Elements.unique(newElements),
+        Set.Elements.unique(newElements)
       )
       val e = other.elements(i)
       if (!contains(e)) {
@@ -299,7 +299,7 @@ object Set {
         ∀(newElements.indices)(j => Set.Elements.contain(elements, newElements(j))),
         ∀(newElements.indices)(j => ∀(i until elements.size)(k => newElements(j) != elements(k))),
         ∀(0 until i)(j => !Set.Elements.contain(other.elements, elements(j)) ->: Set.Elements.contain(newElements, elements(j))),
-        Set.Elements.unique(newElements),
+        Set.Elements.unique(newElements)
       )
       val e = elements(i)
       if (!other.contains(e)) {
@@ -324,7 +324,7 @@ object Set {
         "Equal",
         Requires(
           elements.size == other.elements.size,
-          ∀(elements.indices)(j => Set.Elements.contain(other.elements, elements(j))),
+          ∀(elements.indices)(j => Set.Elements.contain(other.elements, elements(j)))
         ),
         Ensures(Res[B])
       ),
@@ -332,7 +332,7 @@ object Set {
         "Inequal-diff",
         Requires(
           elements.size == other.elements.size,
-          ∃(elements.indices)(j => !Set.Elements.contain(other.elements, elements(j))),
+          ∃(elements.indices)(j => !Set.Elements.contain(other.elements, elements(j)))
         ),
         Ensures(!Res[B])
       ),

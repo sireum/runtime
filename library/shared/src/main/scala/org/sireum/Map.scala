@@ -55,7 +55,7 @@ object Map {
       Ensures(
         entries.size == Res[ISZ[K]].size,
         ∀(entries.indices)(i => entries(i)._1 ≡ Res[ISZ[K]](i)),
-        SeqUtil.IS.unique(Res),
+        SeqUtil.IS.unique(Res)
       )
     )
     return AssocS.Entries.keys(entries)
@@ -87,7 +87,7 @@ object Map {
         ∀(Map.entriesOf(Res).indices)(j =>
           (Map.entriesOf(Res)(j) != p) ->: AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
+          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j)))
       )
     )
     return Map(AssocS.Entries.add(entries, p))
@@ -201,7 +201,7 @@ object Map {
         ∀(Map.entriesOf(Res).indices)(j =>
           Map.entriesOf(Res)(j) != p & AssocS.Entries.contain(entries, Map.entriesOf(Res)(j))),
         ∀(entries.indices)(j =>
-          (entries(j) != p) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j))),
+          (entries(j) != p) ->: AssocS.Entries.contain(Map.entriesOf(Res), entries(j)))
       )
     )
     return Map(AssocS.Entries.remove(entries, p))
@@ -244,7 +244,7 @@ object Map {
         "Equal",
         Requires(
           entries.size == other.entries.size,
-          ∀(entries.indices)(j => AssocS.Entries.contain(other.entries, entries(j))),
+          ∀(entries.indices)(j => AssocS.Entries.contain(other.entries, entries(j)))
         ),
         Ensures(Res[B])
       ),
@@ -252,7 +252,7 @@ object Map {
         "Inequal-diff-key",
         Requires(
           entries.size == other.entries.size,
-          ∃(entries.indices)(j => !AssocS.Entries.containKey(other.entries, entries(j)._1)),
+          ∃(entries.indices)(j => !AssocS.Entries.containKey(other.entries, entries(j)._1))
         ),
         Ensures(!Res[B])
       ),
@@ -260,7 +260,7 @@ object Map {
         "Inequal-diff-value",
         Requires(
           entries.size == other.entries.size,
-          ∃(entries.indices)(j => ∀(other.entries.indices)(k => entries(j) != other.entries(k))),
+          ∃(entries.indices)(j => ∀(other.entries.indices)(k => entries(j) != other.entries(k)))
         ),
         Ensures(!Res[B])
       ),
