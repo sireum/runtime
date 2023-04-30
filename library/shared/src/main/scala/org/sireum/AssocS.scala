@@ -124,6 +124,11 @@ object AssocS {
       return r
     }
 
+    @strictpure def addPost[K, V](entries: Entries.Type[K, V], p: (K, V), res: Entries.Type[K, V]): B =
+      (res.size == entries.size | res.size == entries.size + 1) & contain(res, p) &
+        ∀(res.indices)(j => (res(j) != p) ->: contain(entries, res(j))) &
+        ∀(entries.indices)(j => (entries(j)._1 != p._1) ->: contain(res, entries(j)))
+
     @pure def add[K, V](entries: Entries.Type[K, V], p: (K, V)): Entries.Type[K, V] = {
       Contract(
         Requires(
@@ -131,10 +136,7 @@ object AssocS {
         ),
         Ensures(
           uniqueKeys(Res),
-          Res[Entries.Type[K, V]].size == entries.size | Res[Entries.Type[K, V]].size == entries.size + 1,
-          contain(Res, p),
-          ∀(Res[Entries.Type[K, V]].indices)(j => (Res[Entries.Type[K, V]](j) != p) ->: contain(entries, Res[Entries.Type[K, V]](j))),
-          ∀(entries.indices)(j => (entries(j)._1 != p._1) ->: contain(Res[Entries.Type[K, V]], entries(j)))
+          addPost(entries, p, Res)
         )
       )
       val (key, value) = p
@@ -308,16 +310,7 @@ object AssocS {
   }
 
   @pure def +(p: (K, V)): AssocS[K, V] = {
-    Contract(
-      Ensures(
-        AssocS.entriesOf(Res).size == entries.size | AssocS.entriesOf(Res).size == entries.size + 1,
-        AssocS.Entries.contain(AssocS.entriesOf(Res), p),
-        ∀(AssocS.entriesOf(Res).indices)(j =>
-          (AssocS.entriesOf(Res)(j) != p) ->: AssocS.Entries.contain(entries, AssocS.entriesOf(Res)(j))),
-        ∀(entries.indices)(j =>
-          (entries(j)._1 != p._1) ->: AssocS.Entries.contain(AssocS.entriesOf(Res), entries(j)))
-      )
-    )
+    Contract(Ensures(AssocS.Entries.addPost(entries, p, Res[AssocS[K, V]].entries)))
     return AssocS(AssocS.Entries.add(entries, p))
   }
 
