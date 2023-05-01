@@ -53,7 +53,7 @@ class HashSBagTest extends TestSuite {
 
     * - assert(HashSBag.empty[String].++(ISZ("a", "b")).-("a").-("b").isEmpty)
 
-    * - assert(HashSBag.empty[String].++(ISZ("a", "b")) =~ HashSBag.empty[String].+("b").+("a"))
+    * - assert(HashSBag.empty[String].++(ISZ("a", "b")) =~ HashSBag.empty[String].+("a").+("b"))
 
     * - assert(HashSBag.empty[String].∪(HashSBag.empty[String].+("A")) =~ HashSBag.empty[String].+("A"))
 

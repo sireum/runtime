@@ -56,7 +56,7 @@ class BagTest extends TestSuite {
     * - assert((Bag.empty[String] ++ ISZ("a", "b") - "a" - "b").isEmpty)
 
     * - assert(
-      Bag.empty[String] ++ ISZ("a", "b") =~ Bag.empty[String] + "b" + "a")
+      Bag.empty[String] ++ ISZ("a", "b") =~ Bag.empty[String] + "a" + "b")
 
     * - assert(
       (Bag.empty[String] ∪ Bag.empty[String] + "A") =~ Bag.empty[String] + "A")
