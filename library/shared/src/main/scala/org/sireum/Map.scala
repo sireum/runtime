@@ -235,7 +235,7 @@ object Map {
   }
 
   @pure override def hash: Z = {
-    return entries.size
+    return entries.hash
   }
 
   @pure def isEqual(other: Map[K, T]): B = {

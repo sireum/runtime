@@ -119,7 +119,7 @@ object HashSMap {
   }
 
   @pure override def hash: Z = {
-    return map.hash
+    return entries.hash
   }
 
   @pure def isEqual(other: HashSMap[K, T]): B = {

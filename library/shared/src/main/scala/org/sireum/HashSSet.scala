@@ -98,7 +98,7 @@ object HashSSet {
   }
 
   @pure override def hash: Z = {
-    return map.hash
+    return elements.hash
   }
 
   @pure def isEmpty: B = {
