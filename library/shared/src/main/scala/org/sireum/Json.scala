@@ -175,11 +175,17 @@ object Json {
     }
 
     @pure def printF32(n: F32): ST = {
-      return printNumber(if (n.isNaN) F32.NaN.string else n.string)
+      return printNumber(
+        if (n.isNaN) "NaN"
+        else if (n.isInfinite) if (n < 0f) "-Infinity" else "Infinity"
+        else n.string)
     }
 
     @pure def printF64(n: F64): ST = {
-      return printNumber(if (n.isNaN) F64.NaN.string else n.string)
+      return printNumber(
+        if (n.isNaN) "NaN"
+        else if (n.isInfinite) if (n < 0d) "-Infinity" else "Infinity"
+        else n.string)
     }
 
     @pure def printR(n: R): ST = {
@@ -900,22 +906,34 @@ object Json {
     def parseF32(): F32 = {
       val i = offset
       val s = parseNumber()
-      F32(s) match {
-        case Some(n) => return n
+      s.native match {
+        case "NaN" => return F32.NaN
+        case "Infinity" => return F32.PInf
+        case "-Infinity" => return F32.NInf
         case _ =>
-          parseException(i, s"Expected a F32, but '$s' found.")
-          return 0f
+          F32(s) match {
+            case Some(n) => return n
+            case _ =>
+              parseException(i, s"Expected a F32, but '$s' found.")
+              return 0f
+          }
       }
     }
 
     def parseF64(): F64 = {
       val i = offset
       val s = parseNumber()
-      F64(s) match {
-        case Some(n) => return n
+      s.native match {
+        case "NaN" => return F64.NaN
+        case "Infinity" => return F64.PInf
+        case "-Infinity" => return F64.NInf
         case _ =>
-          parseException(i, s"Expected a F64, but '$s' found.")
-          return 0.0
+          F64(s) match {
+            case Some(n) => return n
+            case _ =>
+              parseException(i, s"Expected a F64, but '$s' found.")
+              return 0.0
+          }
       }
     }
 
@@ -2068,6 +2086,22 @@ object Json {
 
       errorIfEof(offset)
 
+      if (offset + 3 < input.size && at(offset) == 'N' && at(offset + 1) == 'a' && at(offset + 2) == 'N') {
+        incOffset(3)
+        return "NaN"
+      }
+      if (offset + 8 < input.size && at(offset) == 'I' && at(offset + 1) == 'n' && at(offset + 2) == 'f' &&
+        at(offset + 3) == 'i' && at(offset + 4) == 'n' && at(offset + 5) == 'i' && at(offset + 6) == 't' &&
+        at(offset + 7) == 'y') {
+        incOffset(8)
+        return "Infinity"
+      }
+      if (offset + 9 < input.size && at(offset) == '-' && at(offset + 1) == 'I' && at(offset + 2) == 'n' &&
+        at(offset + 3) == 'f' && at(offset + 4) == 'i' && at(offset + 5) == 'n' && at(offset + 6) == 'i' &&
+        at(offset + 7) == 't' && at(offset + 8) == 'y') {
+        incOffset(9)
+        return "-Infinity"
+      }
       var c = at(offset)
       c.native match {
         case '-' =>
