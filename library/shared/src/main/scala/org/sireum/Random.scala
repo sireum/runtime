@@ -37,6 +37,22 @@ import org.sireum.S64._
 
 object Random {
 
+  object Gen {
+
+    @msig trait TestRunner[T] {
+
+      def next(): T
+
+      def toCompactJson(o: T): String
+
+      def fromJson(json: String): T
+
+      def test(o: T): B
+
+    }
+
+  }
+
   @msig trait Gen {
     @spec var seedRep: Z = $
 
