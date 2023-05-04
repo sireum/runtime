@@ -28,17 +28,17 @@ package org.sireum
 
 @datatype class IndexMap[@index K, V](val s: IS[K, V]) {
 
-  @pure def +(p: (K, V)): IndexMap[K, V] = {
+  @strictpure def +(p: (K, V)): IndexMap[K, V] = {
     Contract(
-      Requires(s.isInBound(p._1)),
+      Requires(contains(p._1)),
       Ensures(IndexMap(s(p)) ≡ Res)
     )
-    return IndexMap(s(p))
+    IndexMap(s(p))
   }
 
   @strictpure def contains(k: K): B = s.isInBound(k)
 
-  @strictpure def get(k: K): Option[V] = if (s.isInBound(k)) Some(s(k)) else None()
+  @strictpure def get(k: K): Option[V] = if (contains(k)) Some(s(k)) else None()
 
   @strictpure def size: Z = s.size
 
