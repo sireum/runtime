@@ -27,6 +27,7 @@
 package org.sireum.ops
 
 import org.sireum._
+import org.sireum.U64._
 import org.sireum.message.Reporter
 
 object StringOps {
@@ -443,5 +444,17 @@ object StringOps {
     val sha3: crypto.SHA3 = if (is256) crypto.SHA3.init256 else crypto.SHA3.init512
     sha3.update(conversions.String.toU8is(s))
     return sha3.finalise()
+  }
+
+  @pure def sha3U64(isNative: B, is256: B): U64 = {
+    val digest = sha3(isNative, is256)
+    return (conversions.U8.toU64(digest(0)) & u64"0xFF") << u64"56" |
+      (conversions.U8.toU64(digest(1)) & u64"0xFF") << u64"48" |
+      (conversions.U8.toU64(digest(2)) & u64"0xFF") << u64"40" |
+      (conversions.U8.toU64(digest(3)) & u64"0xFF") << u64"32" |
+      (conversions.U8.toU64(digest(4)) & u64"0xFF") << u64"24" |
+      (conversions.U8.toU64(digest(5)) & u64"0xFF") << u64"16" |
+      (conversions.U8.toU64(digest(6)) & u64"0xFF") << u64"8" |
+      (conversions.U8.toU64(digest(7)) & u64"0xFF")
   }
 }
