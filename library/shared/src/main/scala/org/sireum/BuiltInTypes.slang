@@ -566,3 +566,5 @@ package org.sireum
   def version: String = $
 
 }
+
+@ext trait StepId
