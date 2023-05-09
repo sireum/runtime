@@ -380,12 +380,6 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
 
   def syncImpl(o: c.Tree, arg: c.Tree): c.Tree = if (isJsCheck) arg else q"$o.synchronized { $arg }"
 
-  def sn(args: c.Tree*): c.Tree = {
-    val parts = extractParts
-    if (parts.size != 1) c.abort(c.prefix.tree.pos, "Slang sn\"...\" should not contain $$ arguments.")
-    q"???"
-  }
-
   def st(args: c.Tree*): c.Tree = {
     def processArg(e: c.Tree, sep: c.Tree): c.Tree = {
       val t = e.tpe.dealias

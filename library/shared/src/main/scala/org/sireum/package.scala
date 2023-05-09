@@ -115,8 +115,6 @@ package object sireum extends $internal.PackageTrait with contract {
     final def proc(args: Any*): OsProto.Proc = macro Macro.proc
 
     final def st(args: Any*): ST = macro Macro.st
-
-    final def sn(args: Any*): StepId = macro Macro.sn
   }
 
   final implicit class Any2HashStringEqToZ(val _o: Any) extends AnyVal {
