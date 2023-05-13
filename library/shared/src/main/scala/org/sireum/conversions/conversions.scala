@@ -2526,6 +2526,9 @@ import org.sireum.Z64._
   @pure def toU8is(s: String): IS[Z, U8] = $
 
   @pure def toU8ms(s: String): MS[Z, U8] = $
+
+  @pure def toCisLineStream(s: String): Jen[ISZ[C]] = $
+
 }
 
 @ext object ISB {

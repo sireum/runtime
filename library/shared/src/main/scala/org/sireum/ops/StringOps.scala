@@ -63,6 +63,78 @@ object StringOps {
     return Either.Left(conversions.String.fromCis(r))
   }
 
+  @pure def startsWith(cis: ISZ[C], otherCis: ISZ[C]): B = {
+    if (cis.size < otherCis.size) {
+      return F
+    }
+    for (i <- z"0" until otherCis.size) {
+      if (otherCis(i) != cis(i)) {
+        return F
+      }
+    }
+    return T
+  }
+
+  @pure def endsWith(cis: ISZ[C], otherCis: ISZ[C]): B = {
+    if (cis.size < otherCis.size) {
+      return F
+    }
+    val offset = cis.size - otherCis.size
+    for (i <- otherCis.size - 1 to 0 by -1) {
+      if (otherCis(i) != cis(offset + i)) {
+        return F
+      }
+    }
+    return T
+  }
+
+  @pure def stringIndexOfFrom(cis: ISZ[C], otherCis: ISZ[C], offset: Z): Z = {
+    val size = cis.size
+    val otherSize = otherCis.size
+    if (!(0 <= offset && offset < size)) {
+      return -1
+    }
+    var i = offset
+    while (i + otherSize <= size) {
+      var j = 0
+      var found = T
+      while (j < otherSize && found) {
+        if (cis(i + j) != otherCis(j)) {
+          found = F
+        }
+        j = j + 1
+      }
+      if (found) {
+        return i
+      }
+      i = i + 1
+    }
+    return -1
+  }
+
+  @pure def indexOfFrom(cis: ISZ[C], c: C, offset: Z): Z = {
+    if (!(0 <= offset && offset < cis.size)) {
+      return -1
+    }
+    for (i <- offset until cis.size) {
+      if (cis(i) == c) {
+        return i
+      }
+    }
+    return -1
+  }
+
+  @pure def lastIndexOfFrom(cis: ISZ[C], c: C, offset: Z): Z = {
+    if (!(0 <= offset && offset < cis.size)) {
+      return -1
+    }
+    for (i <- offset to 0 by -1) {
+      if (cis(i) == c) {
+        return i
+      }
+    }
+    return -1
+  }
   @pure def substring(cis: ISZ[C], start: Z, until: Z): String = {
     if (until - start <= 0) {
       return ""
@@ -155,12 +227,7 @@ object StringOps {
     }
     val cis = conversions.String.toCis(s)
     val otherCis = conversions.String.toCis(other)
-    for (i <- z"0" until other.size) {
-      if (otherCis(i) != cis(i)) {
-        return F
-      }
-    }
-    return T
+    return StringOps.startsWith(cis, otherCis)
   }
 
   @pure def endsWith(other: String): B = {
@@ -171,13 +238,7 @@ object StringOps {
     }
     val cis = conversions.String.toCis(s)
     val otherCis = conversions.String.toCis(other)
-    val offset = s.size - other.size
-    for (i <- other.size - 1 to 0 by -1) {
-      if (otherCis(i) != cis(offset + i)) {
-        return F
-      }
-    }
-    return T
+    return StringOps.endsWith(cis, otherCis)
   }
 
   @pure def firstToUpper: String = {
@@ -225,29 +286,12 @@ object StringOps {
   }
 
   @pure def stringIndexOfFrom(other: String, offset: Z): Z = {
-    val size = s.size
-    if (!(0 <= offset && offset < size)) {
+    if (!(0 <= offset && offset < s.size)) {
       return -1
     }
     val cis = conversions.String.toCis(s)
     val otherCis = conversions.String.toCis(other)
-    val otherSize = other.size
-    var i = offset
-    while (i + otherSize <= size) {
-      var j = 0
-      var found = T
-      while (j < otherSize && found) {
-        if (cis(i + j) != otherCis(j)) {
-          found = F
-        }
-        j = j + 1
-      }
-      if (found) {
-        return i
-      }
-      i = i + 1
-    }
-    return -1
+    return StringOps.stringIndexOfFrom(cis, otherCis, offset)
   }
 
   @pure def indexOf(c: C): Z = {
@@ -259,12 +303,7 @@ object StringOps {
       return -1
     }
     val cis = conversions.String.toCis(s)
-    for (i <- offset until s.size) {
-      if (cis(i) == c) {
-        return i
-      }
-    }
-    return -1
+    return StringOps.indexOfFrom(cis, c, offset)
   }
 
   @pure def lastIndexOf(c: C): Z = {
@@ -276,12 +315,7 @@ object StringOps {
       return -1
     }
     val cis = conversions.String.toCis(s)
-    for (i <- offset to 0 by -1) {
-      if (cis(i) == c) {
-        return i
-      }
-    }
-    return -1
+    return StringOps.lastIndexOfFrom(cis, c, offset)
   }
 
   @pure def replaceAllChars(from: C, to: C): String = {
@@ -457,4 +491,6 @@ object StringOps {
       (conversions.U8.toU64(digest(6)) & u64"0xFF") << u64"8" |
       (conversions.U8.toU64(digest(7)) & u64"0xFF")
   }
+
+  @strictpure def cisLineStream: Jen[ISZ[C]] = conversions.String.toCisLineStream(s)
 }

@@ -2212,6 +2212,40 @@ object String_Ext {
 
   @pure def toU8ms(s: String): MS[Z, U8] =
     MS[Z, U8](s.value.getBytes(UTF_8).toIndexedSeq.map(org.sireum.U8(_)): _*)
+
+  @pure def toCisLineStream(s: String): Jen[ISZ[C]] = {
+    return new Jen[ISZ[C]] {
+      override def generate(f: ISZ[C] => Jen.Action): Jen.Action = {
+        val st = new java.util.StringTokenizer(s.value, "\n\r", true)
+        var last = Jen.Continue
+        var seenN = F
+        while (st.hasMoreTokens) {
+          st.nextToken match {
+            case "\n" =>
+              if (seenN) {
+                last = f(ISZ())
+                if (!last) {
+                  return Jen.End
+                }
+                seenN = F
+              } else {
+                seenN = T
+              }
+            case "\r" =>
+            case token =>
+              seenN = F
+              last = f(conversions.String.toCis(token))
+              if (!last) {
+                return Jen.End
+              }
+          }
+        }
+        return last
+      }
+
+      override def string: String = s"Jen[ISZ[C]]($s)"
+    }
+  }
 }
 
 @ext object ISB_Ext {
