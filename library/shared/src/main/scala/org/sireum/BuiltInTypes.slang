@@ -565,6 +565,8 @@ package org.sireum
 
   def version: String = $
 
+  def setOptions(tool: String, options: String): Unit = $
+
 }
 
 @ext trait StepId
