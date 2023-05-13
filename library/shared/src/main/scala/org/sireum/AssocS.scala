@@ -79,7 +79,7 @@ object AssocS {
         Ensures(
           entries.size == Res[Keys[K]].size,
           ∀(entries.indices)(i => entries(i)._1 ≡ Res[Keys[K]](i)),
-          SeqUtil.IS.unique(Res)
+          LibUtil.IS.unique(Res)
         )
       )
       var r = ISZ[K]()
@@ -285,7 +285,7 @@ object AssocS {
       Ensures(
         entries.size == Res[ISZ[K]].size,
         ∀(entries.indices)(i => entries(i)._1 ≡ Res[ISZ[K]](i)),
-        SeqUtil.IS.unique(Res)
+        LibUtil.IS.unique(Res)
       )
     )
     return AssocS.Entries.keys(entries)

@@ -75,7 +75,7 @@ object Set {
         //@formatter:off
         r(r.size - 1) ≡ e                                                         by Auto,
         Set.Elements.contain(r, e)                                                by Auto,
-        SeqUtil.IS.unique(r)                                                      by Auto,
+        LibUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,
         ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto
         //@formatter:on
@@ -87,7 +87,7 @@ object Set {
         //@formatter:off
         r(index) ≡ e                                                              by Auto,
         Set.Elements.contain(r, e)                                                by Auto,
-        SeqUtil.IS.unique(r)                                                      by Auto,
+        LibUtil.IS.unique(r)                                                      by Auto,
         ∀(r.indices)(j => (e != r(j)) ->: Set.Elements.contain(elements, r(j)))   by Auto,
         ∀(elements.indices)(j => Set.Elements.contain(r, elements(j)))            by Auto
         //@formatter:on
