@@ -513,4 +513,5 @@ package object sireum extends $internal.PackageTrait with contract {
 
   def At[T](name: String, n: Z, linesFresh: Z*): T = $
   def At[T](o: T, n: Z, linesFresh: Z*): T = $
+  def setOptions(tool: String, options: String): Unit = macro $internal.Macro.setOptions
 }

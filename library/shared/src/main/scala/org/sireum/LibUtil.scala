@@ -27,6 +27,8 @@ package org.sireum
 
 object LibUtil {
 
+  val setOptions: String = "setOptions"
+
   object IS {
 
     @strictpure def unique[@index I, T](s: IS[I, T]): B = ∀(s.indices)(i => ∀(s.indices)(j => (i != j) ->: (s(i) != s(j))))
