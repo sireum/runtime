@@ -97,4 +97,6 @@ final class String(val value: Predef.String) extends AnyVal with Immutable with 
 
   @inline def =!=(other: String): B = value != other.value
 
+  @inline def stripMargin: String = value.stripMargin
+
 }

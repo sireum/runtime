@@ -343,6 +343,8 @@ package org.sireum
 
   @pure def size: Z
 
+  @pure def stripMargin: String
+
 }
 
 
