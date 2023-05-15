@@ -38,30 +38,30 @@ class OptionsMinerTest extends TestSuite {
     * - check(HashMap.empty,
       s"""// #Sireum
          |
-         |//@logika: --sat
+         |//@Logika: --sat
          |
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "logika" ~> "--sat",
+    * - check(HashMap.empty + "Logika" ~> "--sat",
       s"""// #Sireum
-         |//@logika: --sat
+         |//@Logika: --sat
          |
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "logika" ~> "--interprocedural",
+    * - check(HashMap.empty + "Logika" ~> "--interprocedural",
       s"""// #Sireum
-         |//@logika: --interprocedural
-         |//@logika: --sat
+         |//@Logika: --interprocedural
+         |//@Logika: --sat
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "logika" ~> "--interprocedural --sat" + "infoflow" ~> "",
+    * - check(HashMap.empty + "Logika" ~> "--interprocedural --sat" + "InfoFlow" ~> "",
       s"""// #Sireum
-         |//@logika: --interprocedural \\
+         |//@Logika: --interprocedural \\
          |//@        --sat
-         |//@infoflow: \\
+         |//@InfoFlow: \\
          |import org.sireum._"""
     )
   }
