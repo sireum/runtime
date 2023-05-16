@@ -47,6 +47,10 @@ object justification {
 
   @just def ClaimOf[T](name: T): Unit = $
 
+  @just def Unfold(from: StepId): Unit = $
+
+  @just def Fold(from: StepId): Unit = $
+
   object natded {
 
     object prop {
