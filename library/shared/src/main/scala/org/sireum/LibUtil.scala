@@ -27,6 +27,9 @@ package org.sireum
 
 object LibUtil {
 
+  type OptionMap = HashMap[String, String]
+  type FileOptionMap = HashMap[Option[String], OptionMap]
+
   val setOptions: String = "setOptions"
 
   object IS {
@@ -48,8 +51,8 @@ object LibUtil {
     return r
   }
 
-  @pure def mineOptions(fileContent: String): HashMap[String, String] = {
-    var r = HashMap.empty[String, String]
+  @pure def mineOptions(fileContent: String): OptionMap = {
+    var r: OptionMap = HashMap.empty
     val optPrefix = conversions.String.toCis("//@")
 
     var key: String = ""
