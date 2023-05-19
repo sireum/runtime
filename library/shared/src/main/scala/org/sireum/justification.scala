@@ -51,6 +51,10 @@ object justification {
 
   @just def Fold(from: StepId): Unit = $
 
+  @just def ValI(from: StepId): Unit = $
+
+  @just def ValE(from: StepId): Unit = $
+
   object natded {
 
     object prop {
