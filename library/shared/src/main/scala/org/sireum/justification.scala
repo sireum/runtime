@@ -31,17 +31,9 @@ object justification {
 
   @just def Auto: Unit = $
 
-  @just def Auto_*(stepIds: ISZ[StepId]): Unit = $
-
-  @just def Tauto: Unit = $
-
   @just def SameDiff(from: StepId): Unit = $
 
-  @just def SameDiff_*(from: StepId, stepIds: ISZ[StepId]): Unit = $
-
   @just def Smt2(options: String, timeoutInMs: Z, rlimit: Z): Unit = $
-
-  @just def Smt2_*(options: String, timeoutInMs: Z, rlimit: Z, stepIds: ISZ[StepId]): Unit = $
 
   @just def Lift(app: Unit): Unit = $
 

@@ -344,6 +344,7 @@ trait contract {
 
     trait StepBuilder3 {
       def and(args: StepId*): ProofStep
+      def T: ProofStep
     }
 
     object StepBuilder3 {
