@@ -103,6 +103,10 @@ import Init._
     return versions.get("org.sireum.version.coursier").get
   }
 
+  @memoize def jacocoVersion: String = {
+    return versions.get("org.sireum.version.jacoco").get
+  }
+
   @memoize def scalacPlugin: Os.Path = {
     return homeLib / s"scalac-plugin-$scalacPluginVersion.jar"
   }
@@ -139,14 +143,25 @@ import Init._
     return r
   }
 
-  @memoize def javaHome: Os.Path = {
-    return Os.javaHomeOpt(kind, Some(home)).get
+  @pure def platform(k: Os.Kind.Type): String = {
+    k match {
+      case Os.Kind.Mac => return "mac"
+      case Os.Kind.LinuxArm => return "linux/arm"
+      case Os.Kind.Linux => return "linux"
+      case Os.Kind.Win => return "win"
+      case _ => halt("Unsupported platform")
+    }
+  }
+
+  @memoize def pwd7z: Os.Path = {
+    return homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
   }
 
   def installJava(): Unit = {
     homeBinPlatform.mkdirAll()
 
     if (Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
+      val javaHome = Os.javaHomeOpt(kind, Some(home)).get
       val javaVer = javaHome / "VER"
       if (!javaVer.exists || ops.StringOps(javaVer.read).trim != javaVersion) {
         val dropName: String = kind match {
@@ -244,6 +259,67 @@ import Init._
     drop.copyOverTo(coursierJar)
 
     coursierVer.writeOver(coursierVersion)
+  }
+
+  def installJacoco(): Unit = {
+    homeLib.mkdirAll()
+
+    val jacocoVer = homeLib / "jacoco.ver"
+    if (jacocoVer.exists && ops.StringOps(jacocoVer.read).trim == jacocoVersion) {
+      return
+    }
+
+    val agentDrop = cache / s"jacocoagent-$jacocoVersion.jar"
+    if (!agentDrop.exists) {
+      println(s"Downloading JaCoCo Agent $jacocoVersion ...")
+      val url = s"https://github.com/sireum/rolling/releases/download/jacoco/${agentDrop.name}"
+      agentDrop.downloadFrom(url)
+      println()
+    }
+
+    val agentJar = home / "lib" / "jacocoagent.jar"
+    agentDrop.copyOverTo(agentJar)
+
+    val cliDrop = cache / s"jacococli-$jacocoVersion.jar"
+    if (!cliDrop.exists) {
+      println(s"Downloading JaCoCo CLI $jacocoVersion ...")
+      val url = s"https://github.com/sireum/rolling/releases/download/jacoco/${cliDrop.name}"
+      cliDrop.downloadFrom(url)
+      println()
+    }
+
+    val cliJar = home / "lib" / "jacococli.jar"
+    cliDrop.copyOverTo(cliJar)
+
+    jacocoVer.writeOver(jacocoVersion)
+  }
+
+  def pwd7zUrl: String = {
+    Os.kind match {
+      case Os.Kind.Win =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
+        return s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
+      case Os.Kind.Mac =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
+        return s"https://github.com/sireum/bin-mac/raw/$sha/7za"
+      case Os.Kind.Linux =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        return s"https://github.com/sireum/bin-linux/raw/$sha/7za"
+      case Os.Kind.LinuxArm =>
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        return s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
+      case _ => halt("Infeasible")
+    }
+  }
+
+  def install7z(): Unit = {
+    if (!pwd7z.exists) {
+      pwd7z.up.mkdirAll()
+      println(s"Please wait while downloading ${pwd7z.name} ...")
+      pwd7z.downloadFrom(pwd7zUrl)
+      pwd7z.chmod("+x")
+      println()
+    }
   }
 
   def installZ3(): Unit = {
@@ -575,16 +651,6 @@ import Init._
         "linux" ~> ".tar.gz" +
         "linux/arm" ~> "-aarch64.tar.gz"
 
-    def platform(k: Os.Kind.Type): String = {
-      k match {
-        case Os.Kind.Mac => return "mac"
-        case Os.Kind.LinuxArm => return "linux/arm"
-        case Os.Kind.Linux => return "linux"
-        case Os.Kind.Win => return "win"
-        case _ => halt("Unsupported platform")
-      }
-    }
-
     val distroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
         ISZ("bin", "scala"),
@@ -699,40 +765,7 @@ import Init._
       if (isDev) devVer else ver
     }
 
-    val pwd7z = homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
     val pwd7zsfx = pwd7z.up / s"7z.sfx"
-    var pwd7zUrlOpt = Option.none[String]()
-    def pwd7zUrl: String = {
-      pwd7zUrlOpt match {
-        case Some(url) => return url
-        case _ =>
-          val r: String = Os.kind match {
-            case Os.Kind.Win =>
-              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
-              s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
-            case Os.Kind.Mac =>
-              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
-              s"https://github.com/sireum/bin-mac/raw/$sha/7za"
-            case Os.Kind.Linux =>
-              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
-              s"https://github.com/sireum/bin-linux/raw/$sha/7za"
-            case Os.Kind.LinuxArm =>
-              val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
-              s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
-            case _ => halt("Infeasible")
-          }
-          pwd7zUrlOpt = Some(r)
-          return r
-      }
-    }
-
-    if (!pwd7z.exists) {
-      pwd7z.up.mkdirAll()
-      println(s"Please wait while downloading ${pwd7z.name} ...")
-      pwd7z.downloadFrom(pwd7zUrl)
-      pwd7z.chmod("+x")
-      println()
-    }
 
     if (buildSfx && !pwd7zsfx.exists) {
       println(s"Please wait while downloading ${pwd7zsfx.name} ...")
@@ -1151,6 +1184,7 @@ import Init._
     installJava()
     installScala()
     installScalacPlugin()
+    install7z()
     if (kind == Os.Kind.Win) {
       val sireumScript = homeBin / "sireum.bat"
       if (!sireumScript.exists) {
@@ -1179,6 +1213,10 @@ import Init._
     basicDeps()
     proyekCompileDeps()
     logikaDeps()
+    installJacoco()
+    installMaryTTS()
+    installCheckStack()
+    installScripts()
   }
 
 }
