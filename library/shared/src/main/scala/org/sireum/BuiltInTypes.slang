@@ -174,6 +174,10 @@ package org.sireum
 
   val NaN: F32 = $
 
+  def MaxValue: F32 = Contract.Only(Ensures(Res == f32"3.4028235E38"))
+
+  def MinValue: F32 = Contract.Only(Ensures(Res == f32"-3.4028235E38"))
+
   def random: F32 = $
 
   def randomSeed(seed: Z): F32 = $
@@ -228,6 +232,10 @@ package org.sireum
   val NInf: F64 = $
 
   val NaN: F64 = $
+
+  def MaxValue: F64 = Contract.Only(Ensures(Res == 1.7976931348623157E308d))
+
+  def MinValue: F64 = Contract.Only(Ensures(Res == -1.7976931348623157E308d))
 
   def random: F64 = $
 

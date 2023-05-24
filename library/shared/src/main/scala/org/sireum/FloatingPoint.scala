@@ -67,6 +67,10 @@ object F32 {
 
   val NaN: F32 = Float.NaN
 
+  val MaxValue: F32 = Float.MaxValue
+
+  val MinValue: F32 = Float.MinValue
+
   def apply(s: String): Option[F32] = try Some($String(s.value)) catch {
     case _: Throwable => None[F32]()
   }
@@ -189,6 +193,10 @@ object F64 {
   val NInf: F64 = Double.NegativeInfinity
 
   val NaN: F64 = Double.NaN
+
+  val MaxValue: F64 = Double.MaxValue
+
+  val MinValue: F64 = Double.MinValue
 
   def apply(s: String): Option[F64] = try Some($String(s.value)) catch {
     case _: Throwable => None[F64]()
