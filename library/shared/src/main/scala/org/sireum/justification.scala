@@ -53,8 +53,6 @@ object justification {
 
   @just def Algebra: Unit = $
 
-  @just def Algebra_*(stepIds: ISZ[StepId]): Unit = $
-
   object natded {
 
     object prop {
