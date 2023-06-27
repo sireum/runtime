@@ -47,6 +47,14 @@ object justification {
 
   @just def ValE(from: StepId): Unit = $
 
+  @just def Subst_>(x: StepId, y: StepId): Unit = $
+
+  @just def Subst_<(x: StepId, y: StepId): Unit = $
+
+  @just def Algebra: Unit = $
+
+  @just def Algebra_*(stepIds: ISZ[StepId]): Unit = $
+
   object natded {
 
     object prop {
