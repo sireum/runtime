@@ -866,43 +866,25 @@ import Init._
         case Os.Kind.Mac =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (sireumAppDir / "Contents" / "Resources", "idea-dev.icns", "idea.icns")
           } else {
             (iconsPath / "idea.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (sireumAppDir / "Contents" / "Resources", "idea.icns", "idea.icns")
           }
         case Os.Kind.Win =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (ideaDir / "bin", "idea-dev.ico", "idea.ico")
           } else {
             (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (ideaDir / "bin", "idea_CE.ico", "idea.ico")
           }
         case _ =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (ideaDir / "bin", "idea-dev.png", "idea.png")
           } else {
             (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
-            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
-            }
             (ideaDir / "bin", "idea.png", "idea.png")
           }
       }
@@ -914,7 +896,7 @@ import Init._
       }
     }
 
-    def patchApp(isWin: B): Unit = {
+    def patchApp(): Unit = {
       if (isUltimate) {
         return
       }
@@ -925,7 +907,6 @@ import Init._
       tempDir.mkdirAll()
       print(s"Patching $appJar ... ")
       appJar.unzipTo(tempDir)
-      patchIcon(isWin)
       val entriesToUpdate: ISZ[String] =
         for (f <- ISZ[String](
           "Logo_welcomeScreen.png",
@@ -958,6 +939,15 @@ import Init._
       val d = distroDir / "images" / (if (isDev) "dev" else "release")
       for (e <- ISZ("idea_community_about.png", "idea_community_about@2x.png", "idea_community_logo.png", "idea_community_logo@2x.png", "idea-ce.svg", "idea-ce-eap.svg", "idea-ce_16.png", "idea-ce_16@2x.png")) {
         (d / e).copyOverTo(tempDir / e)
+      }
+      if (isDev) {
+        for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+          (iconsPath / "idea-dev.svg").copyOverTo(tempDir / e)
+        }
+      } else {
+        for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+          (iconsPath / "idea.svg").copyOverTo(tempDir / e)
+        }
       }
       val appTempJar = libDir / "app-temp.jar"
       tempDir.zipTo(appTempJar)
@@ -1000,7 +990,8 @@ import Init._
       deleteSources()
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchApp(F)
+      patchIcon(F)
+      patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "Info.plist")
       patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
       proc"codesign --force --deep --sign - $sireumAppDir".run()
@@ -1038,7 +1029,8 @@ import Init._
       }
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchApp(F)
+      patchIcon(F)
+      patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
       (ideaDir / "bin" / "idea.vmoptions").removeAll()
@@ -1059,7 +1051,8 @@ import Init._
       println("done!")
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchApp(T)
+      patchIcon(T)
+      patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
       (ideaDir / "bin" / "idea.exe").removeAll()
