@@ -866,25 +866,43 @@ import Init._
         case Os.Kind.Mac =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (sireumAppDir / "Contents" / "Resources", "idea-dev.icns", "idea.icns")
           } else {
             (iconsPath / "idea.svg").copyOverTo(sireumAppDir / "Contents" / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (sireumAppDir / "Contents" / "Resources", "idea.icns", "idea.icns")
           }
         case Os.Kind.Win =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (ideaDir / "bin", "idea-dev.ico", "idea.ico")
           } else {
             (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (ideaDir / "bin", "idea_CE.ico", "idea.ico")
           }
         case _ =>
           if (isDev) {
             (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea-dev.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (ideaDir / "bin", "idea-dev.png", "idea.png")
           } else {
             (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / "idea.svg")
+            for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
+              (iconsPath / "idea.svg").copyOverTo(ideaDir / "bin" / e)
+            }
             (ideaDir / "bin", "idea.png", "idea.png")
           }
       }
@@ -936,15 +954,6 @@ import Init._
       }
 
       val distroDir = home / "resources" / "distro"
-      val iai = tempDir / "idea" / "IdeaApplicationInfo.xml"
-      val content = iai.read
-      iai.writeOver(
-        ops.StringOps(ops.StringOps(content).
-          replaceAllLiterally("svg-small=\"/idea-ce_16.svg\"", "svg-small=\"/idea-ce_16.png\"")).
-          replaceAllLiterally("svg-small=\"/idea-ce-eap_16.svg\"", "svg-small=\"/idea-ce_16.png\""))
-      for (e <- ISZ("idea-ce_16.svg", "idea-ce_16@2x.svg", "idea-ce-eap_16.svg", "idea-ce-eap_16@2x.svg")) {
-        (tempDir / e).removeAll()
-      }
       val d = distroDir / "images" / (if (isDev) "dev" else "release")
       for (e <- ISZ("idea_community_about.png", "idea_community_about@2x.png", "idea_community_logo.png", "idea_community_logo@2x.png", "idea-ce.svg", "idea-ce-eap.svg", "idea-ce_16.png", "idea-ce_16@2x.png")) {
         (d / e).copyOverTo(tempDir / e)
