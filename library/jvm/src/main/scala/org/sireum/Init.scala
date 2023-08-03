@@ -914,7 +914,7 @@ import Init._
       }
     }
 
-    def patchApp(): Unit = {
+    def patchApp(isWin: B): Unit = {
       if (isUltimate) {
         return
       }
@@ -925,6 +925,7 @@ import Init._
       tempDir.mkdirAll()
       print(s"Patching $appJar ... ")
       appJar.unzipTo(tempDir)
+      patchIcon(isWin)
       val entriesToUpdate: ISZ[String] =
         for (f <- ISZ[String](
           "Logo_welcomeScreen.png",
@@ -999,8 +1000,7 @@ import Init._
       deleteSources()
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchIcon(F)
-      patchApp()
+      patchApp(F)
       patchIdeaProperties(sireumAppDir / "Contents" / "Info.plist")
       patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
       proc"codesign --force --deep --sign - $sireumAppDir".run()
@@ -1038,8 +1038,7 @@ import Init._
       }
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchIcon(F)
-      patchApp()
+      patchApp(F)
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
       (ideaDir / "bin" / "idea.vmoptions").removeAll()
@@ -1060,14 +1059,12 @@ import Init._
       println("done!")
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
-      patchIcon(T)
-      patchApp()
+      patchApp(T)
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
       (ideaDir / "bin" / "idea.exe").removeAll()
       (ideaDir / "bin" / "idea.exe.vmoptions").removeAll()
       (ideaDir / "bin" / "idea64.exe").moveOverTo(ideaDir / "bin" / "IVE.exe")
-      (ideaDir / "bin" / "idea64.exe.vmoptions").moveOverTo(ideaDir / "bin" / "IVE.exe.vmoptions")
       if (buildSfx) {
         (homeBin / "sireum.jar").copyOverTo(ideaDir / "plugins" / "sireum-intellij-plugin" / "lib" / "sireum.jar")
       }
