@@ -1081,7 +1081,7 @@ object Os_Ext {
             np.closeStdin(false)
           case _ =>
         }
-        val exitCode = np.waitFor(p.timeoutInMillis.toLong, TU.MILLISECONDS)
+        val exitCode = np.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else 0, TU.MILLISECONDS)
         if (exitCode != scala.Int.MinValue) {
           val (pout, perr) = po.fEnd()
           return Os.Proc.Result.Normal(exitCode, pout, perr)
