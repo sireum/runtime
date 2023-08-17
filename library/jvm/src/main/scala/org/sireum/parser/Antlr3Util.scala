@@ -57,7 +57,7 @@ object Antlr3Util {
     override def create(payload: AntlrToken): AnyRef = {
       val t = payload.getType
       val name = if (t == -1) "EOF" else tokenNames(t)
-      val offset = payload.getLine + payload.getCharPositionInLine
+      val offset = docInfo.lineOffsets(org.sireum.Z(payload.getLine - 1)).toZ + org.sireum.Z(payload.getCharPositionInLine)
       val length = payload.getText.length
       val offsetLength = (org.sireum.conversions.Z.toU64(offset) << org.sireum.U64(32)) | org.sireum.U64(length)
       ParseTree.Leaf(payload.getText, name, org.sireum.U32(payload.getType), false,
