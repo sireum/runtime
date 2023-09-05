@@ -138,13 +138,13 @@ object justification {
 
     object pred {
 
-      @just def AllI(assumeAToAllSub: StepId): Unit = $
+      @just def AllI[@mut T](assumeAToAllSub: StepId): Unit = $
 
       @just("allE") def AllE[@mut T](allP: StepId): Unit = $
 
       @just("existsI") def ExistsI[@mut T](PE: StepId): Unit = $
 
-      @just def ExistsE(existsP: StepId, aPaToQSub: StepId): Unit = $
+      @just def ExistsE[@mut T](existsP: StepId, aPaToQSub: StepId): Unit = $
 
       @pure def allE[@mut T](P: T => B@pure, E: T): Unit = {
         Deduce(All { (x: T) => P(x) } |- P(E))
