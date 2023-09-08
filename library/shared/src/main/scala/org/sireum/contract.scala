@@ -344,6 +344,7 @@ trait contract {
 
     trait StepBuilder3 {
       def and(args: StepId*): ProofStep
+      def *(args: StepId*): ProofStep
       def T: ProofStep
     }
 
@@ -1628,6 +1629,8 @@ trait contract {
   implicit def $toStepBuilder(stepNo: Predef.String): Contract.StepBuilder = ???
 
   implicit def $toStepBuilder2(claim: Boolean): Contract.StepBuilder2 = ???
+
+  implicit def $toStepBuilder3(o: Unit): Contract.StepBuilder3 = ???
 
   implicit def $toStepId(stepNo: Int): StepId = ???
 
