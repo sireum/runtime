@@ -1222,6 +1222,34 @@ object Z extends $ZCompanion[Z] {
     return Random.Ext.instance.nextZBetween(min, max)
   }
 
+  def read(): Z = {
+    prompt("Enter an integer: ")
+  }
+
+  def prompt(msg: String): Z = {
+    while (true) {
+      System.out.print(msg.value)
+      System.out.flush()
+      val bs = new java.io.ByteArrayOutputStream
+      var n = System.in.read().toByte
+      while (n != -1 && n != '\n') {
+        bs.write(n)
+        n = System.in.read().toByte
+      }
+      val ba = bs.toByteArray
+      val s = new java.lang.String(ba, 0,
+        if (scala.util.Properties.isWin && ba.nonEmpty && ba.last == '\r') ba.length - 1 else ba.length, "UTF-8")
+      try {
+        return Z.$String(s)
+      } catch {
+        case _: Throwable =>
+          System.err.println(s"Invalid integer format: $s.")
+          System.err.flush()
+      }
+    }
+    Z.MP.zero
+  }
+
   import scala.language.implicitConversions
 
   @inline implicit def apply(n: scala.Int): Z = Int(n)

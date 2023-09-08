@@ -127,6 +127,10 @@ package org.sireum
 
   def randomSeedBetween(seed: Z, min: Z, max: Z): Z = $
 
+  def read(): Z = $
+
+  def prompt(msg: String): Z = $
+
 }
 
 @ext trait Z {
