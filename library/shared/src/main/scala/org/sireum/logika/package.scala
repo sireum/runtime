@@ -473,7 +473,7 @@ package object logika {
     def l(args: scala.Any*): Unit = macro org.sireum.$internal.Macro.lUnit
   }
 
-  final def readInt(msg: String = "Enter an integer: "): Z = org.sireum.promptInt(msg)
+  final def readInt(msg: String = "Enter an integer: "): Z = org.sireum.Z.prompt(msg)
 
   final def println(as: Any*): Unit = org.sireum.println(as: _*)
 
