@@ -60,32 +60,6 @@ trait PackageTrait {
 
   final def seqIndexValidSize[I](size: Z): B = halt("Cannot be used in non-spec/proof context")
 
-  final def promptInt(msg: String): Z = {
-    while (true) {
-      System.out.print(msg.value)
-      System.out.flush()
-      val bs = new java.io.ByteArrayOutputStream
-      var n = System.in.read().toByte
-      while (n != -1 && n != '\n') {
-        bs.write(n)
-        n = System.in.read().toByte
-      }
-      val ba = bs.toByteArray
-      val s = new java.lang.String(ba, 0,
-        if (scala.util.Properties.isWin && ba.nonEmpty && ba.last == '\r') ba.length - 1 else ba.length, "UTF-8")
-      try {
-        return Z.$String(s)
-      } catch {
-        case _: Throwable =>
-          System.err.println(s"Invalid integer format: $s.")
-          System.err.flush()
-      }
-    }
-    Z.MP.zero
-  }
-
-  final def readInt(): Z = promptInt("Enter an integer: ")
-
   def halt(msg: scala.Any): scala.Nothing = helper.halt(msg)
 
   def $[T]: T = macro Macro.$[T]
