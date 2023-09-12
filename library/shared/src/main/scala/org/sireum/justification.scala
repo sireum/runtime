@@ -71,8 +71,6 @@ object justification {
 
       @just def ImplyI(assumePToQSub: StepId): Unit = $
 
-      @just def SImplyI(assumePToQSub: StepId): Unit = $
-
       @just("implyE") def ImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
       @just def NegI(assumePToBottomSub: StepId): Unit = $
@@ -82,6 +80,22 @@ object justification {
       @just def BottomE(bottom: StepId): Unit = $
 
       @just def PbC(assumeNotRToBottom: StepId): Unit = $
+
+      @just("sandI") def SAndI(p: StepId, q: StepId): Unit = $
+
+      @just("sandE1") def SAndE1(pAndQ: StepId): Unit = $
+
+      @just("sandE2") def SAndE2(pAndQ: StepId): Unit = $
+
+      @just("sorI1") def SOrI1(p: StepId): Unit = $
+
+      @just("sorI2") def SOrI2(q: StepId): Unit = $
+
+      @just def SOrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
+
+      @just def SImplyI(assumePToQSub: StepId): Unit = $
+
+      @just("simplyE") def SImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
       @pure def andI(p: B, q: B): Unit = {
         Deduce((p, q) |- (p & q))
