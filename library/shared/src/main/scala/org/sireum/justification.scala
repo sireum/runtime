@@ -29,6 +29,14 @@ object justification {
 
   @just def Premise: Unit = $
 
+  @just def Subst_>(x: StepId, y: StepId): Unit = $
+
+  @just def Subst_<(x: StepId, y: StepId): Unit = $
+
+  @just def Algebra: Unit = $
+
+  @just def ClaimOf[T](name: T): Unit = $
+
   @just def Auto: Unit = $
 
   @just def SameDiff(from: StepId): Unit = $
@@ -36,8 +44,6 @@ object justification {
   @just def Smt2(options: String, timeoutInMs: Z, rlimit: Z): Unit = $
 
   @just def Lift(app: Unit): Unit = $
-
-  @just def ClaimOf[T](name: T): Unit = $
 
   @just def Unfold(from: StepId): Unit = $
 
@@ -47,25 +53,39 @@ object justification {
 
   @just def ValE(from: StepId): Unit = $
 
-  @just def Subst_>(x: StepId, y: StepId): Unit = $
-
-  @just def Subst_<(x: StepId, y: StepId): Unit = $
-
-  @just def Algebra: Unit = $
-
   object natded {
 
     object prop {
 
       @just("andI") def AndI(p: StepId, q: StepId): Unit = $
 
+      @pure def andI(p: B, q: B): Unit = {
+        Deduce((p, q) |- (p & q))
+      }
+
       @just("andE1") def AndE1(pAndQ: StepId): Unit = $
+
+      @pure def andE1(p: B, q: B): Unit = {
+        Deduce((p & q) |- p)
+      }
 
       @just("andE2") def AndE2(pAndQ: StepId): Unit = $
 
+      @pure def andE2(p: B, q: B): Unit = {
+        Deduce((p & q) |- q)
+      }
+
       @just("orI1") def OrI1(p: StepId): Unit = $
 
+      @pure def orI1(p: B, q: B): Unit = {
+        Deduce(p |- (p | q))
+      }
+
       @just("orI2") def OrI2(q: StepId): Unit = $
+
+      @pure def orI2(p: B, q: B): Unit = {
+        Deduce(q |- (p | q))
+      }
 
       @just def OrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
 
@@ -73,9 +93,17 @@ object justification {
 
       @just("implyE") def ImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
+      @pure def implyE(p: B, q: B): Unit = {
+        Deduce((p ->: q, p) |- q)
+      }
+
       @just def NegI(assumePToBottomSub: StepId): Unit = $
 
       @just("negE") def NegE(p: StepId, notP: StepId): Unit = $
+
+      @pure def negE(p: B): Unit = {
+        Deduce((p, !p) |- F)
+      }
 
       @just def BottomE(bottom: StepId): Unit = $
 
@@ -83,13 +111,33 @@ object justification {
 
       @just("sandI") def SAndI(p: StepId, q: StepId): Unit = $
 
+      @pure def sandI(p: B, q: B): Unit = {
+        Deduce((p, q) |- (p && q))
+      }
+
       @just("sandE1") def SAndE1(pAndQ: StepId): Unit = $
+
+      @pure def sandE1(p: B, q: B): Unit = {
+        Deduce((p && q) |- p)
+      }
 
       @just("sandE2") def SAndE2(pAndQ: StepId): Unit = $
 
+      @pure def sandE2(p: B, q: B): Unit = {
+        Deduce((p && q) |- q)
+      }
+
       @just("sorI1") def SOrI1(p: StepId): Unit = $
 
+      @pure def sorI1(p: B, q: B): Unit = {
+        Deduce(p |- (p || q))
+      }
+
       @just("sorI2") def SOrI2(q: StepId): Unit = $
+
+      @pure def sorI2(p: B, q: B): Unit = {
+        Deduce(q |- (p || q))
+      }
 
       @just def SOrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
 
@@ -97,57 +145,10 @@ object justification {
 
       @just("simplyE") def SImplyE(pImplyQ: StepId, q: StepId): Unit = $
 
-      @pure def andI(p: B, q: B): Unit = {
-        Deduce((p, q) |- (p & q))
-      }
-
-      @pure def sandI(p: B, q: B): Unit = {
-        Deduce((p, q) |- (p && q))
-      }
-
-      @pure def andE1(p: B, q: B): Unit = {
-        Deduce((p & q) |- p)
-      }
-
-      @pure def sandE1(p: B, q: B): Unit = {
-        Deduce((p && q) |- p)
-      }
-
-      @pure def andE2(p: B, q: B): Unit = {
-        Deduce((p & q) |- q)
-      }
-
-      @pure def sandE2(p: B, q: B): Unit = {
-        Deduce((p && q) |- q)
-      }
-
-      @pure def orI1(p: B, q: B): Unit = {
-        Deduce(p |- (p | q))
-      }
-
-      @pure def sorI1(p: B, q: B): Unit = {
-        Deduce(p |- (p || q))
-      }
-
-      @pure def orI2(p: B, q: B): Unit = {
-        Deduce(q |- (p | q))
-      }
-
-      @pure def sorI2(p: B, q: B): Unit = {
-        Deduce(q |- (p || q))
-      }
-
-      @pure def implyE(p: B, q: B): Unit = {
-        Deduce((p ->: q, p) |- q)
-      }
-
       @pure def simplyE(p: B, q: B): Unit = {
         Deduce((p -->: q, p) |- q)
       }
 
-      @pure def negE(p: B): Unit = {
-        Deduce((p, !p) |- F)
-      }
     }
 
     object pred {
@@ -156,17 +157,17 @@ object justification {
 
       @just("allE") def AllE[@mut T](allP: StepId): Unit = $
 
-      @just("existsI") def ExistsI[@mut T](PE: StepId): Unit = $
-
-      @just def ExistsE[@mut T](existsP: StepId, aPaToQSub: StepId): Unit = $
-
       @pure def allE[@mut T](P: T => B@pure, E: T): Unit = {
         Deduce(All { (x: T) => P(x) } |- P(E))
       }
 
+      @just("existsI") def ExistsI[@mut T](PE: StepId): Unit = $
+
       @pure def existsI[@mut T](P: T => B@pure, E: T): Unit = {
         Deduce(P(E) |- Exists { (x: T) => P(x) })
       }
+
+      @just def ExistsE[@mut T](existsP: StepId, aPaToQSub: StepId): Unit = $
 
     }
 
