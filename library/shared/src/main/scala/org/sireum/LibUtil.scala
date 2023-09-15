@@ -57,7 +57,8 @@ object LibUtil {
 
     var key: String = ""
     var curr = ISZ[String]()
-    for (line <- ops.StringOps(fileContent).cisLineStream.drop(1).
+    for (line <- ops.StringOps(fileContent).cisLineStream.
+      dropWhile((cis: ISZ[C]) => !ops.StringOps.startsWith(cis, optPrefix)).
       takeWhile((cis: ISZ[C]) => ops.StringOps.startsWith(cis, optPrefix))) {
       val (start, end, continu): (Z, Z, B) = if (key.size == 0) {
         val i = ops.StringOps.indexOfFrom(line, ':', optPrefix.size)
