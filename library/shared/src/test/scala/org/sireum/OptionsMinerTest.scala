@@ -35,7 +35,7 @@ class OptionsMinerTest extends TestSuite {
 
     * - check(HashMap.empty, "// #Sireum")
 
-    * - check(HashMap.empty,
+    * - check(HashMap.empty + "Logika" ~> "--sat",
       s"""// #Sireum
          |
          |//@Logika: --sat
