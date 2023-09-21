@@ -309,6 +309,32 @@ trait contract {
       def #>(cond: Assert): ProofStep
       def #>(cond: Let): ProofStep
       def #>(cond: SubProof): ProofStep
+      def apply(cond: B): StepBuilder2
+      def Assume(cond: B): ProofStep
+      def Assert(cond: B): ProofStep
+      def Let[T](body: T => Contract.SubProof): ProofStep
+      def Let[T1, T2](body: (T1, T2) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3](body: (T1, T2, T3) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4](body: (T1, T2, T3, T4) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5](body: (T1, T2, T3, T4, T5) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6](body: (T1, T2, T3, T4, T5, T6) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7](body: (T1, T2, T3, T4, T5, T6, T7) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8](body: (T1, T2, T3, T4, T5, T6, T7, T8) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): ProofStep
+      def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): ProofStep
+      def SubProof(steps: Contract.ProofStep*): ProofStep
     }
 
     trait StepBuilder2 extends Any {
