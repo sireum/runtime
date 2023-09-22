@@ -46,7 +46,7 @@ package org.sireum
 
   @pure def |^(other: B): B
 
-  @pure def imply_:(other: B): B
+  @pure def __>:(other: B): B
 
   @pure def ->:(other: B): B
 
@@ -58,7 +58,7 @@ package org.sireum
 
   @pure def ||(other: => B): B
 
-  @pure def simply_:(other: => B): B
+  @pure def ___>:(other: => B): B
 
   @pure def -->:(other: => B): B
 

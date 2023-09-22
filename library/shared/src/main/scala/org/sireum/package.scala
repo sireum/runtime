@@ -177,11 +177,11 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def =!=(other: B): B = _value != other.value
 
-    @inline def imply_:(other: B): B = !other.value | _value
+    @inline def __>:(other: B): B = !other.value | _value
 
     @inline def ->:(other: B): B = !other.value | _value
 
-    @inline def simply_:(other: => B): B = !other.value || _value
+    @inline def ___>:(other: => B): B = !other.value || _value
 
     @inline def -->:(other: => B): B = !other.value || _value
 

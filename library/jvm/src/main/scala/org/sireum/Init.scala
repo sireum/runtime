@@ -750,6 +750,10 @@ import Init._
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "lib"
       else ideaDir / "lib"
 
+    val fontsDir: Os.Path =
+      if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "jbr" / "Contents" / "Home" / "lib" / "fonts"
+      else ideaDir / "jbr" / "lib" / "fonts"
+
     @pure def devRelVer(key: String): (String, String) = {
       ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
         case ISZ(devVer, ver) =>
@@ -956,6 +960,26 @@ import Init._
       println("done!")
     }
 
+    def installFonts(): Unit = {
+      val urlPrefix = "https://github.com/sireum/rolling/releases/download/fonts/"
+      val boldName = "SireumMono-Bold.ttf"
+      val regularName = "SireumMono-Regular.ttf"
+
+      print("Installing Sireum Mono fonts ... ")
+
+      val cacheBold = cache / boldName
+      val cacheRegular = cache / regularName
+      if (!cacheBold.exists) {
+        cacheBold.downloadFrom(s"$urlPrefix$boldName")
+      }
+      if (!cacheRegular.exists) {
+        cacheRegular.downloadFrom(s"$urlPrefix$regularName")
+      }
+      cacheBold.copyOverTo(fontsDir / boldName)
+      cacheRegular.copyOverTo(fontsDir / regularName)
+      println("done!")
+    }
+
     def deleteSources(): Unit = {
       for (p <- Os.Path.walk(ideaDir, F, T, (p: Os.Path) => p.ext == "java" || p.ext == "scala")) {
         p.removeAll()
@@ -988,6 +1012,7 @@ import Init._
       proc"hdiutil eject $dirPath".at(home).runCheck()
       println("done!")
       deleteSources()
+      installFonts()
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(F)
@@ -1027,6 +1052,7 @@ import Init._
       if (!isServer) {
         println("done!")
       }
+      installFonts()
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(F)
@@ -1049,6 +1075,7 @@ import Init._
       (ideaDir / "$PLUGINSDIR").removeAll()
       deleteSources()
       println("done!")
+      installFonts()
       deletePlugins()
       extractPlugins(isDev, pluginsDir, pluginFilter)
       patchIcon(T)
