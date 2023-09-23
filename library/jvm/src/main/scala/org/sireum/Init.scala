@@ -961,14 +961,12 @@ import Init._
     }
 
     def installFonts(): Unit = {
-      val boldName = "SireumMono-Bold.ttf"
-      val regularName = "SireumMono-Regular.ttf"
-
       print("Installing Sireum Mono fonts ... ")
 
       val ttf = home / "resources" / "fonts" / "ttf"
-      (ttf / boldName).copyOverTo(fontsDir / boldName)
-      (ttf / regularName).copyOverTo(fontsDir / regularName)
+      for (p <- ttf.list if p.ext == "ttf") {
+        p.copyOverTo(fontsDir / p.name)
+      }
 
       println("done!")
     }
