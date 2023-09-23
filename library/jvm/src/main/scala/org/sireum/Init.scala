@@ -961,22 +961,15 @@ import Init._
     }
 
     def installFonts(): Unit = {
-      val urlPrefix = "https://github.com/sireum/rolling/releases/download/fonts/"
       val boldName = "SireumMono-Bold.ttf"
       val regularName = "SireumMono-Regular.ttf"
 
       print("Installing Sireum Mono fonts ... ")
 
-      val cacheBold = cache / boldName
-      val cacheRegular = cache / regularName
-      if (!cacheBold.exists) {
-        cacheBold.downloadFrom(s"$urlPrefix$boldName")
-      }
-      if (!cacheRegular.exists) {
-        cacheRegular.downloadFrom(s"$urlPrefix$regularName")
-      }
-      cacheBold.copyOverTo(fontsDir / boldName)
-      cacheRegular.copyOverTo(fontsDir / regularName)
+      val ttf = home / "resources" / "fonts" / "ttf"
+      (ttf / boldName).copyOverTo(fontsDir / boldName)
+      (ttf / regularName).copyOverTo(fontsDir / regularName)
+
       println("done!")
     }
 
