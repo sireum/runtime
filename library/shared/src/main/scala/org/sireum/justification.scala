@@ -53,6 +53,8 @@ object justification {
 
   @just def ValE(from: StepId): Unit = $
 
+  @just def Admit: Unit = $
+
   object natded {
 
     object prop {
