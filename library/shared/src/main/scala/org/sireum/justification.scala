@@ -107,7 +107,11 @@ object justification {
         Deduce((p, !p) |- F)
       }
 
-      @just def BottomE(bottom: StepId): Unit = $
+      @just("bottomE") def BottomE(bottom: StepId): Unit = $
+
+      @pure def bottomE(p: B): Unit = {
+        Deduce(F |- p)
+      }
 
       @just def PbC(assumeNotRToBottom: StepId): Unit = $
 
