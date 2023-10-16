@@ -89,8 +89,30 @@ object justification {
         Deduce(q |- (p | q))
       }
 
+      /* OrE Schematic Pattern:
+         N   (P | Q),
+         M1  SubProof(
+               M11  Assume(P),
+               ...,
+               M1K  (R)
+             ),
+         M2  SubProof(
+               M21  Assume(Q),
+               ...,
+               M2L  (R)
+             ),
+         O   (R)                 by OrE(N, M1, M2)
+       */
       @just def OrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
 
+      /* ImplyI Schematic Pattern:
+         N  SubProof(
+              N1  Assume(P),
+              ...,
+              NK  (Q)
+            ),
+         M  (P __>: R)            by ImplyI(N)
+       */
       @just def ImplyI(assumePToQSub: StepId): Unit = $
 
       @just("implyE") def ImplyE(pImplyQ: StepId, q: StepId): Unit = $
@@ -113,6 +135,14 @@ object justification {
         Deduce(F |- p)
       }
 
+      /* ImplyI Schematic Pattern:
+         N  SubProof(
+              N1  Assume(!P),
+              ...,
+              NK  (F)
+            ),
+         M  (P)                 by PbC(N)
+       */
       @just def PbC(assumeNotRToBottom: StepId): Unit = $
 
       @just("sandI") def SAndI(p: StepId, q: StepId): Unit = $
@@ -145,8 +175,30 @@ object justification {
         Deduce(q |- (p || q))
       }
 
+      /* SOrE Schematic Pattern:
+         N   (P || Q),
+         M1  SubProof(
+               M11  Assume(P),
+               ...,
+               M1K  (R)
+             ),
+         M2  SubProof(
+               M21  Assume(Q),
+               ...,
+               M2L  (R)
+             ),
+         O   (R)                 by SOrE(N, M1, M2)
+       */
       @just def SOrE(pOrQ: StepId, pToRSub: StepId, qToRSub: StepId): Unit = $
 
+      /* SImplyI Schematic Pattern:
+         N  SubProof(
+              N1  Assume(P),
+              ...,
+              NK  (Q)
+            ),
+         M  (P ___>: R)            by ImplyI(N)
+       */
       @just def SImplyI(assumePToQSub: StepId): Unit = $
 
       @just("simplyE") def SImplyE(pImplyQ: StepId, q: StepId): Unit = $
@@ -159,6 +211,13 @@ object justification {
 
     object pred {
 
+      /* AllI Schematic Pattern (note: a is a fresh var of some type T):
+         N  Let { (a: T) => SubProof(
+              ...,
+              NK  (P(a))
+            ),
+         M   (∀{(a: T) => P(a)}         by AllI[T](N)
+      */
       @just def AllI[@mut T](assumeAToAllSub: StepId): Unit = $
 
       @just("allE") def AllE[@mut T](allP: StepId): Unit = $
@@ -173,6 +232,15 @@ object justification {
         Deduce(P(E) |- Exists { (x: T) => P(x) })
       }
 
+      /* ExistsE Schematic Pattern (note: for some type T):
+         N  (∃{(x: T) => P(x)})
+         M  Let {(a: T) => SubProof(
+              M1  Assume(P(a))
+              ...,
+              MK  (Q)
+            ),
+         O  (Q)                        by ExistsE[T](N, M)
+      */
       @just def ExistsE[@mut T](existsP: StepId, aPaToQSub: StepId): Unit = $
 
     }
