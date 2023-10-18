@@ -305,10 +305,10 @@ trait contract {
 
     trait StepBuilder {
       def #>(cond: B): StepBuilder2
-      def #>(cond: Assume): ProofStep
-      def #>(cond: Assert): ProofStep
-      def #>(cond: Let): ProofStep
-      def #>(cond: SubProof): ProofStep
+      def #>(assume: Assume): ProofStep
+      def #>(assert: Assert): ProofStep
+      def #>(let: Let): ProofStep
+      def #>(subProof: SubProof): ProofStep
       def apply(cond: B): StepBuilder2
       def Assume(cond: B): ProofStep
       def Assert(cond: B): ProofStep

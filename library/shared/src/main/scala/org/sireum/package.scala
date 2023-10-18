@@ -27,7 +27,7 @@ package org
 
 package object sireum extends $internal.PackageTrait with contract {
 
-  trait StepId
+  trait StepId extends Any
 
   import language.experimental.macros
 
