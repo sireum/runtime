@@ -2201,8 +2201,9 @@ object String_Ext {
     val str = s.value
     val n = str.codePointCount(0, str.length)
     val ms = MSZ.create[C](n, '\u0000')
+    val a = str.codePoints.toArray
     for (i <- 0 until n) {
-      ms(i) = org.sireum.C(str.codePointAt(i))
+      ms(i) = org.sireum.C(a(i))
     }
     ms
   }

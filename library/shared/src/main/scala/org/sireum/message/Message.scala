@@ -247,12 +247,12 @@ object Position {
 object DocInfo {
 
   @pure def create(uriOpt: Option[String], input: String): DocInfo = {
-    val inputOps = ops.StringOps(input)
-    var i = inputOps.indexOf('\n')
+    val cis = conversions.String.toCis(input)
+    var i = ops.StringOps.indexOfFrom(cis, '\n', 0)
     var lineOffsets = ISZ[U32](u32"0")
     while (0 <= i && i < input.size) {
       lineOffsets = lineOffsets :+ conversions.Z.toU32(i + 1)
-      i = inputOps.indexOfFrom('\n', i + 1)
+      i = ops.StringOps.indexOfFrom(cis, '\n', i + 1)
     }
     return DocInfo(uriOpt, lineOffsets)
   }
