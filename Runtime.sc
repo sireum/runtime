@@ -81,11 +81,11 @@ object Module {
 
     final override def artifactName = "test"
 
-    final override def testIvyDeps = Agg(
+    final override def testIvyDeps = Agg.empty
+
+    final override def ivyDeps = Agg(
       ivy"org.scalatest::scalatest::$scalaTestVersion"
     )
-
-    final override def ivyDeps = Agg.empty
 
     final override def testScalacPluginIvyDeps = scalacPluginIvyDeps
 
