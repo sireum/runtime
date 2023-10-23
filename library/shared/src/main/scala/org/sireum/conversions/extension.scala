@@ -2198,14 +2198,28 @@ object String_Ext {
     }
 
   @pure def toCms(s: String): MS[Z, C] = {
-    val str = s.value
-    val n = str.codePointCount(0, str.length)
-    val ms = MSZ.create[C](n, '\u0000')
-    val a = str.codePoints.toArray
-    for (i <- 0 until n) {
-      ms(i) = org.sireum.C(a(i))
+    import $internal.###
+    var r: MS[Z, C] = null
+    ###(!("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess)) {
+      val str = s.value
+      val n = str.codePointCount(0, str.length)
+      val ms = MSZ.create[C](n, '\u0000')
+      for (i <- 0 until n) {
+        ms(i) = org.sireum.C(str.codePointAt(i))
+      }
+      r = ms
     }
-    ms
+    ###("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess) {
+      val str = s.value
+      val a = str.codePoints.toArray
+      val n = a.length
+      val ms = MSZ.create[C](n, '\u0000')
+      for (i <- 0 until n) {
+        ms(i) = org.sireum.C(a(i))
+      }
+      r = ms
+    }
+    r
   }
 
   @pure def toU8is(s: String): IS[Z, U8] =
