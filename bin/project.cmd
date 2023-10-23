@@ -47,7 +47,9 @@ val testShared = moduleSharedPub(
   id = test,
   baseDir = homeDir / test,
   sharedDeps = ISZ(macrosShared.id),
-  sharedIvyDeps = ISZ(),
+  sharedIvyDeps = ISZ(
+    "org.scalatest::scalatest::"
+  ),
   pubOpt = pub(
     desc = "Test Framework for Slang",
     url = "github.com/sireum/runtime",
