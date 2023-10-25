@@ -120,6 +120,7 @@ object Module {
       ivy"org.kohsuke:github-api:$githubVersion",
       ivy"org.ow2.asm:asm:$asmVersion",
       ivy"org.antlr:antlr-runtime:$antlr3Version",
+      ivy"org.antlr:antlr4-runtime:$antlr4Version",
       ivy"org.sireum:automaton:$automatonVersion",
       ivy"org.sireum:presentasi-jfx:$presentasiJfxVersion",
       ivy"org.scalameta::scalafmt-cli:$scalafmtVersion",

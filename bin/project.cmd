@@ -70,6 +70,7 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "org.kohsuke:github-api:",
     "org.ow2.asm:asm:",
     "org.antlr:antlr-runtime:",
+    "org.antlr:antlr4-runtime:",
     "org.sireum:automaton:",
     "org.sireum:presentasi-jfx:",
     "org.scalameta::scalafmt-cli:",
