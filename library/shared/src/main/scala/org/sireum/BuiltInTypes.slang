@@ -577,7 +577,27 @@ package org.sireum
 
   def scalaVer: String = $
 
+  def scalacPluginVer: String = $
+
   def version: String = $
+
+  def commitHash: String = $
+
+  def homePathString: String = $
+
+  def javaHomePathString: String = $
+
+  def scalaHomePathString: String = $
+
+  def commitSha: String = $
+
+  def platform: String = $
+
+  def isNative: B = $
+
+  def scalacPluginJarPathString: String = $
+
+  def sireumJarPathString: String = $
 
 }
 
