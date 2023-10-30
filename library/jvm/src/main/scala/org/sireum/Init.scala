@@ -895,9 +895,9 @@ import Init._
       print(s"Replacing icon ${dirPath / filename} ... ")
       (iconsPath / srcFilename).copyOverTo(dirPath / filename)
       println("done!")
-      if (isWin) {
-        patchExe()
-      }
+//      if (isWin) {
+//        patchExe()
+//      }
     }
 
     def patchApp(): Unit = {
