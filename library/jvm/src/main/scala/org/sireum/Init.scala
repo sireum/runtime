@@ -337,7 +337,7 @@ import Init._
     var filename: String = kind match {
       case Os.Kind.Win => s"z3-$version-x64-win.zip"
       case Os.Kind.Linux => s"z3-$version-x64-glibc-2.31.zip"
-      case Os.Kind.Mac => if (Os.isMacArm) s"z3-$version-arm64-osx-11.0.zip" else s"z3-$version-x64-osx-10.16.zip"
+      case Os.Kind.Mac => if (Os.isMacArm) s"z3-$version-arm64-osx-11.0.zip" else s"z3-$version-x64-osx-11.7.10.zip"
       case _ => return
     }
     var url: String = s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
