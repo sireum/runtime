@@ -337,6 +337,7 @@ import Init._
     kind match {
       case Os.Kind.Win =>
       case Os.Kind.Linux =>
+      case Os.Kind.LinuxArm =>
       case Os.Kind.Mac =>
       case _ => return
     }
@@ -349,6 +350,7 @@ import Init._
           val desc: String = kind match {
             case Os.Kind.Win => "x64-win"
             case Os.Kind.Linux => "x64-glibc"
+            case Os.Kind.LinuxArm => "arm64-glibc"
             case Os.Kind.Mac => if (Os.isMacArm) "arm64-osx" else "x64-osx"
             case _ => halt("Infeasible")
           }
@@ -372,7 +374,7 @@ import Init._
     if (!bundle.exists) {
       println(s"Please wait while downloading Z3 $version ...")
       bundle.up.mkdirAll()
-      val r = bundle.downloadFrom(url)
+      bundle.downloadFrom(url)
       println()
     }
 
@@ -384,10 +386,8 @@ import Init._
       p.moveTo(dir)
     }
 
-    kind match {
-      case Os.Kind.Linux => (dir / "bin" / "z3").chmod("+x")
-      case Os.Kind.Mac => (dir / "bin" / "z3").chmod("+x")
-      case _ =>
+    if (!Os.isWin) {
+      (dir / "bin" / "z3").chmod("+x")
     }
     println()
 
