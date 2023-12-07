@@ -334,13 +334,13 @@ import Init._
     }
 
     val releaseName = s"z3-$version"
-    var filename: String = kind match {
-      case Os.Kind.Win => s"z3-$version-x64-win.zip"
-      case Os.Kind.Linux => s"z3-$version-x64-glibc-2.31.zip"
-      case Os.Kind.Mac => if (Os.isMacArm) s"z3-$version-arm64-osx-11.0.zip" else s"z3-$version-x64-osx-10.16.zip"
+    kind match {
+      case Os.Kind.Win =>
+      case Os.Kind.Linux =>
+      case Os.Kind.Mac =>
       case _ => return
     }
-    var url: String = s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
+    var filename: String = ""
 
     def updateFilenameUrl(): Unit = {
       GitHub.repo("Z3Prover", "z3").releases.
@@ -355,31 +355,25 @@ import Init._
           r.assets.find((asset: GitHub.Asset) => ops.StringOps(asset.name).endsWith(".zip") &&
             ops.StringOps(asset.name).contains(desc)) match {
             case Some(asset) =>
-              url = asset.url
-              filename = asset.name
+              if (filename.size == 0 || filename > asset.name) {
+                filename = asset.name
+              }
             case _ => halt(s"Could not find Z3 v$version for $kind")
           }
         case _ => halt(s"Could not find Z3 v$version")
       }
     }
 
-    var bundle = cache / filename
+    updateFilenameUrl()
 
-    def tryDownload(): B = {
-      if (!bundle.exists) {
-        println(s"Please wait while downloading Z3 $version ...")
-        bundle.up.mkdirAll()
-        val r = bundle.downloadFrom(url)
-        println()
-        return r
-      }
-      return T
-    }
+    val url: String = s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
+    val bundle = cache / filename
 
-    if (!tryDownload()) {
-      updateFilenameUrl()
-      bundle = cache / filename
-      tryDownload()
+    if (!bundle.exists) {
+      println(s"Please wait while downloading Z3 $version ...")
+      bundle.up.mkdirAll()
+      val r = bundle.downloadFrom(url)
+      println()
     }
 
     println("Extracting Z3 ...")
