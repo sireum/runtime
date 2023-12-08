@@ -453,40 +453,6 @@ import Init._
     }
   }
 
-  def installAltErgoOpen(): Unit = {
-    homeBinPlatform.mkdirAll()
-
-    val version = versions.get("org.sireum.version.alt-ergo-open").get
-    val dir = homeBinPlatform
-    val exe = dir / "alt-ergo-open"
-    val ver = dir / ".alt-ergo-open.ver"
-
-    if (ver.exists && ver.read == version) {
-      return
-    }
-
-    val filename: String = kind match {
-      case Os.Kind.Linux => s"alt-ergo-open-$version-linux"
-      case Os.Kind.Mac => s"alt-ergo-open-$version-mac"
-      case _ => return
-    }
-
-    val drop = cache / filename
-
-    if (!drop.exists) {
-      println(s"Please wait while downloading Alt-Ergo $version (Apache 2.0 Licence) ...")
-      drop.up.mkdirAll()
-      drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/alt-ergo-open/$filename")
-      println()
-    }
-
-    drop.copyOverTo(exe)
-
-    exe.chmod("+x")
-
-    ver.writeOver(version)
-  }
-
   def installMaryTTS(): Unit = {
     if (!maryTtsJar.exists) {
       val cacheJar = cache / maryTtsJar.name
@@ -676,7 +642,6 @@ import Init._
         ISZ("bin", "linux", "z3"),
         ISZ("bin", "linux", "7za"),
         ISZ("bin", "linux", "cvc"),
-        ISZ("bin", "linux", "alt-ergo-open"),
         ISZ("bin", "install", "acl2.cmd"),
         ISZ("bin", "install", "alt-ergo.cmd"),
         ISZ("bin", "install", "antlrworks.cmd"),
@@ -726,7 +691,6 @@ import Init._
         ISZ("bin", "mac", "z3"),
         ISZ("bin", "mac", "7za"),
         ISZ("bin", "mac", "cvc"),
-        ISZ("bin", "mac", "alt-ergo-open"),
         ISZ("bin", "install", "alt-ergo.cmd"),
         ISZ("bin", "install", "antlrworks.cmd"),
         ISZ("bin", "install", "clion.cmd"),
@@ -1236,7 +1200,6 @@ import Init._
   def logikaDeps(): Unit = {
     installZ3()
     installCVC()
-    installAltErgoOpen()
   }
 
   def deps(): Unit = {
