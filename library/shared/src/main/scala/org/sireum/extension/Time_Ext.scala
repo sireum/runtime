@@ -28,4 +28,5 @@ import org.sireum._
 
 object Time_Ext {
   def currentMillis: Z = System.currentTimeMillis()
+  def currentNanos: Z = System.nanoTime()
 }

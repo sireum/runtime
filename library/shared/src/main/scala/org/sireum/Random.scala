@@ -543,7 +543,7 @@ object Random {
     // Adapted from: https://prng.di.unimi.it/splitmix64.c
     object SplitMix64 {
       def create: SplitMix64 = {
-        return SplitMix64(U64.fromZ(extension.Time.currentMillis))
+        return SplitMix64(U64.fromZ(extension.Time.currentNanos))
       }
     }
 
@@ -590,7 +590,7 @@ object Random {
       def ss(): U64 = {
         val result = rotl64(seed1 * u64"5", u64"7") * u64"9"
         update()
-        return result;
+        return result
       }
 
       // Adapted from: https://prng.di.unimi.it/xoshiro256plus.c

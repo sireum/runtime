@@ -29,4 +29,5 @@ import org.sireum._
 
 @ext object Time {
   def currentMillis: Z = $
+  def currentNanos: Z = $
 }
