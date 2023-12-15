@@ -744,10 +744,15 @@ import Init._
 
     if (buildSfx && !pwd7zsfx.exists) {
       println(s"Please wait while downloading ${pwd7zsfx.name} ...")
-      pwd7zsfx.downloadFrom(
-        if (Os.isWin) ops.StringOps(pwd7zUrl).replaceAllLiterally("7za.exe", "7z.sfx")
-        else ops.StringOps(pwd7zUrl).replaceAllLiterally("7za", "7z.sfx")
-      )
+      val baseUrl = "https://github.com/sireum/rolling/releases/download/7z.sfx"
+      val url: String = Os.kind match {
+        case Os.Kind.Mac => s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx"
+        case Os.Kind.Linux => s"$baseUrl/7z-mac-amd64.sfx"
+        case Os.Kind.LinuxArm => s"$baseUrl/7z-linux-arm64.sfx"
+        case Os.Kind.Win => s"$baseUrl/7z-win-amd64.sfx"
+        case _ => halt("Infeasible")
+      }
+      pwd7zsfx.downloadFrom(url)
       pwd7zsfx.chmod("+x")
       println()
     }
