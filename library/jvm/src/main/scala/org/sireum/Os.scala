@@ -74,6 +74,10 @@ object Os {
     return isMac && prop("os.arch").get == "aarch64"
   }
 
+  def isWinArm: B = {
+    return isWin && env("PROCESSOR_ARCHITECTURE") == Some("ARM64")
+  }
+
   @pure def isWin: B = {
     return kind == Kind.Win
   }

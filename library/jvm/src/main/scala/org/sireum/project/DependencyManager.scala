@@ -37,8 +37,7 @@ object DependencyManager {
                       val sourcesOpt: Option[String],
                       val javadocOpt: Option[String])
 
-  val javaKey: String = "org.sireum.version.zulu"
-  val jbrKey: String = "org.sireum.version.jbr"
+  val javaKey: String = "org.sireum.version.java"
   val scalacPluginKey: String = "org.sireum::scalac-plugin:"
   val scalaKey: String = "org.scala-lang:scala-library:"
   val scalaJsKey: String = "org.scala-js::scalajs-library:"

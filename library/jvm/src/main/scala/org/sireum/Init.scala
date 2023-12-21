@@ -136,11 +136,7 @@ import Init._
   }
 
   @memoize def javaVersion: String = {
-    var r = versions.get("org.sireum.version.zulu").get
-    if (Os.kind == Os.Kind.LinuxArm) {
-      r = ops.StringOps(r).replaceAllLiterally("-ca-fx-jdk", "-ca-jdk")
-    }
-    return r
+    return versions.get("org.sireum.version.java").get
   }
 
   @pure def platform(k: Os.Kind.Type): String = {
@@ -166,21 +162,23 @@ import Init._
       if (!javaVer.exists || ops.StringOps(javaVer.read).trim != javaVersion) {
         val dropName: String = kind match {
           case Os.Kind.Mac =>
-            if (Os.isMacArm) s"zulu$javaVersion-macosx_aarch64.tar.gz"
-            else s"zulu$javaVersion-macosx_x64.tar.gz"
-          case Os.Kind.Linux => s"zulu$javaVersion-linux_x64.tar.gz"
-          case Os.Kind.LinuxArm => s"zulu$javaVersion-linux_aarch64.tar.gz"
-          case Os.Kind.Win => s"zulu$javaVersion-win_x64.zip"
+            if (Os.isMacArm) s"bellsoft-jdk$javaVersion-macos-aarch64-full.tar.gz"
+            else s"bellsoft-jdk$javaVersion-macos-amd64-full.tar.gz"
+          case Os.Kind.Linux => s"bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
+          case Os.Kind.LinuxArm => s"bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
+          case Os.Kind.Win =>
+            if (Os.isWinArm) s"bellsoft-jdk$javaVersion-windows-aarch64-full.zip"
+            else s"bellsoft-jdk$javaVersion-windows-amd64-full.zip"
           case Os.Kind.Unsupported => return
         }
-        val url = s"https://cdn.azul.com/zulu/bin/$dropName"
+        val url = s"https://download.bell-sw.com/java/$javaVersion/$dropName"
         val drop = cache / dropName
         if (!drop.exists) {
-          println(s"Please wait while downloading Zulu JDK $javaVersion ...")
+          println(s"Please wait while downloading JDK $javaVersion ...")
           drop.downloadFrom(url)
           println()
         }
-        println(s"Extracting Zulu JDK $javaVersion ...")
+        println(s"Extracting JDK $javaVersion ...")
         javaHome.removeAll()
         if (Os.isWin) {
           drop.unzipTo(homeBinPlatform)
@@ -188,7 +186,7 @@ import Init._
           drop.unTarGzTo(homeBinPlatform)
         }
         println()
-        for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("zulu")) {
+        for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("jdk-")) {
           d.moveTo(javaHome)
         }
         javaVer.writeOver(javaVersion)
