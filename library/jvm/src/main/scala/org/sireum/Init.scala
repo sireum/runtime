@@ -747,21 +747,21 @@ import Init._
       if (isDev) devVer else ver
     }
 
-    val pwd7zsfx = pwd7z.up / s"7z.sfx"
+    val pwd7zsfx = pwd7z.up / "7z.sfx"
 
     if (buildSfx && !pwd7zsfx.exists) {
       println(s"Please wait while downloading ${pwd7zsfx.name} ...")
       def downloadSfx(kind: Os.Kind.Type): Unit = {
         val baseUrl = "https://github.com/sireum/rolling/releases/download/7z.sfx"
-        val url: String = kind match {
-          case Os.Kind.Mac => s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx"
-          case Os.Kind.Linux => s"$baseUrl/7z-mac-amd64.sfx"
-          case Os.Kind.LinuxArm => s"$baseUrl/7z-linux-arm64.sfx"
-          case Os.Kind.Win => s"$baseUrl/7z-win-${if (Os.isWinArm) "arm" else "amd"}64.sfx"
+        val (f, url): (Os.Path, String) = kind match {
+          case Os.Kind.Mac => (homeBin / "mac" / pwd7zsfx.name, s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx")
+          case Os.Kind.Linux => (homeBin / "linux" / pwd7zsfx.name, s"$baseUrl/7z-mac-amd64.sfx")
+          case Os.Kind.LinuxArm => (homeBin / "linux" / "arm" / pwd7zsfx.name, s"$baseUrl/7z-linux-arm64.sfx")
+          case Os.Kind.Win => (homeBin / "win" / pwd7zsfx.name, s"$baseUrl/7z-win-${if (Os.isWinArm) "arm" else "amd"}64.sfx")
           case _ => halt("Infeasible")
         }
-        pwd7zsfx.downloadFrom(url)
-        pwd7zsfx.chmod("+x")
+        f.downloadFrom(url)
+        f.chmod("+x")
       }
       for (kind <- Os.Kind.elements if kind != Os.Kind.Unsupported) {
         downloadSfx(kind)
