@@ -757,7 +757,7 @@ import Init._
           case Os.Kind.Mac => s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx"
           case Os.Kind.Linux => s"$baseUrl/7z-mac-amd64.sfx"
           case Os.Kind.LinuxArm => s"$baseUrl/7z-linux-arm64.sfx"
-          case Os.Kind.Win => s"$baseUrl/7z-win-amd64.sfx"
+          case Os.Kind.Win => s"$baseUrl/7z-win-${if (Os.isWinArm) "arm" else "amd"}64.sfx"
           case _ => halt("Infeasible")
         }
         pwd7zsfx.downloadFrom(url)
