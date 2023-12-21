@@ -1051,7 +1051,7 @@ import Init._
     def setupWin(ideaDrop: Os.Path): Unit = {
       ideaDir.mkdirAll()
       if (Os.isWinArm) {
-        proc"${homeBin / "win" / "7z.exe"} x $ideaDrop".at(ideaDir).runCheck()
+        proc"${homeBin / "win" / "7z" / "7z.exe"} x $ideaDrop".at(ideaDir).runCheck()
       } else {
         ideaDrop.unzipTo(ideaDir)
       }
