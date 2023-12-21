@@ -317,7 +317,9 @@ object Os_Ext {
       val rel = relativize(fParent, target)
       val bat = Os.path(fParent) / ".symlink.bat"
       bat.writeOver(s"mklink $mklinkOption${f.getName} $rel")
-      proc"cmd /C ${bat.name}".at(bat.up).runCheck()
+      if (!proc"cmd /C ${bat.name}".at(bat.up).run().ok) {
+        copy(target, path, T)
+      }
       bat.removeOnExit()
     } else {
       JFiles.createSymbolicLink(toNIO(path), toNIO(relativize(fParent, target)))
