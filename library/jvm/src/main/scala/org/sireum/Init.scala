@@ -313,10 +313,20 @@ import Init._
   def install7z(): Unit = {
     if (!pwd7z.exists) {
       pwd7z.up.mkdirAll()
-      println(s"Please wait while downloading ${pwd7z.name} ...")
+      println(s"Please wait while downloading 7z ...")
       pwd7z.downloadFrom(pwd7zUrl)
       pwd7z.chmod("+x")
       println()
+    }
+    if (Os.isWinArm) {
+      val d = homeBin / "win" / "7z"
+      if (!d.exists) {
+        val bundle = d.up.canon / "7z-win-arm64.zip"
+        val url = s"https://github.com/sireum/rolling/releases/download/7z/${bundle.name}"
+        bundle.removeAll()
+        bundle.downloadFrom(url)
+        bundle.unzipTo(d)
+      }
     }
   }
 
@@ -504,7 +514,6 @@ import Init._
       }
     }
   }
-
 
   @memoize def isIdeaInUserHome: B = {
     return ops.StringOps(home.string).startsWith(Os.home.canon.string)
@@ -1041,7 +1050,11 @@ import Init._
 
     def setupWin(ideaDrop: Os.Path): Unit = {
       ideaDir.mkdirAll()
-      ideaDrop.unzipTo(ideaDir)
+      if (Os.isWinArm) {
+        proc"${homeBin / "win" / "7z.exe"} x $ideaDrop".at(ideaDir).runCheck()
+      } else {
+        ideaDrop.unzipTo(ideaDir)
+      }
       (ideaDir / "$PLUGINSDIR").removeAll()
       deleteSources()
       println("done!")
@@ -1105,6 +1118,7 @@ import Init._
       println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
       val suffix: String =
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
+        else if (Os.isWinArm) "aarch64.exe"
         else ideaExtMap.get(platform(kind)).get
       val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
       val urlOps = ops.StringOps(url)
