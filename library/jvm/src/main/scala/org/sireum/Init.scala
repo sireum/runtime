@@ -1118,7 +1118,7 @@ import Init._
       println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
       val suffix: String =
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
-        else if (Os.isWinArm) "aarch64.exe"
+        else if (Os.isWinArm) "-aarch64.exe"
         else ideaExtMap.get(platform(kind)).get
       val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
       val urlOps = ops.StringOps(url)
