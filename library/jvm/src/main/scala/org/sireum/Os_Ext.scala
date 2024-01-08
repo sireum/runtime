@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2023, Robby, Kansas State University
+ Copyright (c) 2017-2024, Robby, Kansas State University
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -706,7 +706,7 @@ object Os_Ext {
       new GzipCompressorInputStream(
         new java.io.BufferedInputStream(JFiles.newInputStream(toNIO(path)))))
     try {
-      var tae: TarArchiveEntry = tais.getNextTarEntry
+      var tae: TarArchiveEntry = tais.getNextEntry
       while (tae != null) {
         val outPath = targetPath.resolve(tae.getName)
         val out = fromUri(outPath.toUri.toASCIIString).value
@@ -721,7 +721,7 @@ object Os_Ext {
             JFiles.setPosixFilePermissions(outPath, posixPermissionsFromMode(tae.getMode))
           }
         }
-        tae = tais.getNextTarEntry
+        tae = tais.getNextEntry
       }
     } finally tais.close()
   }
