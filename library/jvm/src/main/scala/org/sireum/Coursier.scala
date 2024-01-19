@@ -107,7 +107,7 @@ object Coursier {
 
     val fetchLines = ops.StringOps(Os.proc(fetchCommands).runCheck().out).split((c: C) => c == '\n' || c == '\r')
     for (line <- fetchLines) {
-      val path = Os.path(ops.StringOps(line).trim)
+      val path = Os.path(ops.StringOps(ops.StringOps(line).trim).replaceAllLiterally("%2B", "+"))
       val pOps = ops.StringOps(path.toUri)
       val i = pOps.lastIndexOf('/') + 1
       val moduleVersion: String = if (pOps.endsWith("-sources.jar")) {
@@ -117,7 +117,10 @@ object Coursier {
       } else {
         pOps.substring(i, pOps.size - string".jar".size)
       }
-      val orgMap = moduleVersionOrgMap.get(moduleVersion).get
+      val orgMap: HashMap[String, String] = moduleVersionOrgMap.get(moduleVersion) match {
+        case Some(m) => m
+        case _ => halt(s"Could not find $moduleVersion in $moduleVersionOrgMap")
+      }
       for (p <- orgMap.entries) {
         val (org, version) = p
         val versionSuffix: String = s"-$version"
