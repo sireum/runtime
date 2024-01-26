@@ -437,10 +437,14 @@ import Init._
         println()
       }
 
-      val d = Os.tempDir()
-      drop.unzipTo(d)
-      (d / ops.StringOps(filename).substring(0, filename.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
-      d.removeAll()
+      if (gen == "5") {
+        val d = Os.tempDir()
+        drop.unzipTo(d)
+        (d / ops.StringOps(filename).substring(0, filename.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+        d.removeAll()
+      } else {
+        drop.copyOverTo(exe)
+      }
 
       kind match {
         case Os.Kind.Linux => exe.chmod("+x")
