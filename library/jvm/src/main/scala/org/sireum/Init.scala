@@ -417,11 +417,11 @@ import Init._
       }
 
       val (sub, filename, dropname): (String, String, String) = (gen, kind) match {
-        case (string"5", Os.Kind.Win) => (s"cvc$gen-$version", s"cvc$gen-Win64.exe", s"cvc$gen-$version-Win64.exe")
-        case (string"5", Os.Kind.Linux) => (s"cvc$gen-$version", s"cvc$gen-Linux", s"cvc$gen-$version-Linux")
+        case (string"5", Os.Kind.Win) => (s"cvc$gen-$version", s"cvc$gen-Win64-static.zip", s"cvc$gen-$version-Win64-static.zip")
+        case (string"5", Os.Kind.Linux) => (s"cvc$gen-$version", s"cvc$gen-Linux-static.zip", s"cvc$gen-$version-Linux-static.zip")
         case (string"5", Os.Kind.Mac) =>
-          if (Os.isMacArm) (s"cvc$gen-$version", s"cvc$gen-macOS-arm64", s"cvc$gen-$version-macOS-arm64")
-          else (s"cvc$gen-$version", s"cvc$gen-macOS", s"cvc$gen-$version-macOS")
+          if (Os.isMacArm) (s"cvc$gen-$version", s"cvc$gen-macOS-arm64-static.zip", s"cvc$gen-$version-macOS-arm64-static.zip")
+          else (s"cvc$gen-$version", s"cvc$gen-macOS-static.zip", s"cvc$gen-$version-macOS-static.zip")
         case (string"4", Os.Kind.Win) => (version, s"cvc$gen-$version-win64-opt.exe", s"cvc$gen-$version-win64-opt.exe")
         case (string"4", Os.Kind.Linux) => (version, s"cvc$gen-$version-x86_64-linux-opt", s"cvc$gen-$version-x86_64-linux-opt")
         case (string"4", Os.Kind.Mac) => (version, s"cvc$gen-$version-macos-opt", s"cvc$gen-$version-macos-opt")
@@ -437,7 +437,10 @@ import Init._
         println()
       }
 
-      drop.copyOverTo(exe)
+      val d = Os.tempDir()
+      drop.unzipTo(d)
+      (d / ops.StringOps(filename).substring(0, filename.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+      d.removeAll()
 
       kind match {
         case Os.Kind.Linux => exe.chmod("+x")
