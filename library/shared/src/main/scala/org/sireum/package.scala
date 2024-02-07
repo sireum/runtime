@@ -27,6 +27,8 @@ package org
 
 package object sireum extends $internal.PackageTrait with contract {
 
+  type tailrec = scala.annotation.tailrec
+
   trait StepId extends Any
 
   import language.experimental.macros
