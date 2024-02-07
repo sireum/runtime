@@ -62,3 +62,7 @@ class mut extends StaticAnnotation
 class index extends StaticAnnotation
 
 class l(num: Int = 0) extends StaticAnnotation
+
+class rw extends StaticAnnotation
+
+class abs extends StaticAnnotation
