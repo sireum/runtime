@@ -602,3 +602,5 @@ package org.sireum
 }
 
 @ext trait StepId
+
+@ext trait RSElement

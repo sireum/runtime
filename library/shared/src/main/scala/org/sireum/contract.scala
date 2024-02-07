@@ -512,6 +512,8 @@ trait contract {
 
   def Lemma(desc: String, claim: B, proof: Contract.Proof): Contract.Lemma = ???
 
+  def Theorem(claim: B): Contract.Theorem = ???
+
   def Theorem(claim: B, proof: Contract.Proof): Contract.Theorem = ???
 
   def Theorem(desc: String, claim: B, proof: Contract.Proof): Contract.Theorem = ???
@@ -561,6 +563,7 @@ trait contract {
 
   def In[T](v: T): T = ???
   def Old[T](v: T): T = ???
+  def RS(refs: RSElement*): RS = ???
 
   def Res[T]: T = ???
 
