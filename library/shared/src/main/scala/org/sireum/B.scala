@@ -183,6 +183,8 @@ final class B(val value: Boolean) extends AnyVal with Immutable with $internal.H
 
   @inline def ___>:(other: => B): B = this -->: other
 
+  @inline def =>:(other: B): B = this ->: other
+
   @inline def unary_! : B = !value
 
   @inline def unary_~ : B = !value

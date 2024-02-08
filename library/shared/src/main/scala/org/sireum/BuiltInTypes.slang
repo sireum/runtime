@@ -62,6 +62,8 @@ package org.sireum
 
   @pure def -->:(other: => B): B
 
+  @pure def =>:(other: B): B
+
   @pure def unary_! : B
 
   @pure def unary_~ : B
