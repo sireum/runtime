@@ -563,7 +563,6 @@ trait contract {
 
   def In[T](v: T): T = ???
   def Old[T](v: T): T = ???
-  def RS(refs: RSElement*): RS = ???
 
   def Res[T]: T = ???
 

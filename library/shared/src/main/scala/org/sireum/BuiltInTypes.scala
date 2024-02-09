@@ -108,3 +108,14 @@ trait RecordSig extends MSigTrait with RecordMarker {
 
   override def string: String = halt("Infeasible")
 }
+
+trait RS {
+  def unary_~ : RS = halt("Can only be used in spec context")
+  def +(other: RS): RS = halt("Can only be used in spec context")
+  def -(other: RS): RS = halt("Can only be used in spec context")
+}
+
+object RS {
+  type Element = Any
+  def apply(names: Element*): RS = halt("Can only be used in spec context")
+}

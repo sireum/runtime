@@ -605,4 +605,7 @@ package org.sireum
 
 @ext trait StepId
 
-@ext trait RSElement
+@ext trait RS {
+  @pure def +(other: RS): RS
+  @pure def -(other: RS): RS
+}

@@ -55,6 +55,8 @@ object justification {
 
   @just def Admit: Unit = $
 
+  @just def Rewrite(rs: RS): Unit = $
+
   object natded {
 
     object prop {

@@ -29,10 +29,6 @@ package object sireum extends $internal.PackageTrait with contract {
 
   type tailrec = scala.annotation.tailrec
 
-  type RSElement = Any
-
-  type RS = HashSSet[RSElement]
-
   trait StepId extends Any
 
   import language.experimental.macros
