@@ -1670,6 +1670,7 @@ trait contract {
 
   implicit def $toB(state: Contract.StateCont): B = ???
 
+  implicit def $toSequent(b: Boolean): Contract.SequentBuilder = ???
   implicit def $toSequent(bs: (B, B)): Contract.SequentBuilder = ???
   implicit def $toSequent(bs: (B, B, B)): Contract.SequentBuilder = ???
   implicit def $toSequent(bs: (B, B, B, B)): Contract.SequentBuilder = ???

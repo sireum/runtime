@@ -55,7 +55,7 @@ object justification {
 
   @just def Admit: Unit = $
 
-  @just def Rewrite(rs: RS): Unit = $
+  @just def Rewrite(rs: RS, from: StepId): Unit = $
 
   object natded {
 
