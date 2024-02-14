@@ -73,12 +73,12 @@ object HashMap {
     return r
   }
 
-  @pure def keySet: Set[K] = {
-    return Set.empty[K] ++ keys
+  @pure def keySet: HashSet[K] = {
+    return HashSet.empty[K] ++ keys
   }
 
-  @pure def valueSet: Set[T] = {
-    return Set.empty[T] ++ values
+  @pure def valueSet: HashSet[T] = {
+    return HashSet.empty[T] ++ values
   }
 
   @pure def +(p: (K, T)): HashMap[K, T] = {

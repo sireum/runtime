@@ -53,12 +53,12 @@ object HashSMap {
     return for (k <- keys) yield map.get(k).get
   }
 
-  @pure def keySet: ISZ[K] = {
-    return keys
+  @pure def keySet: HashSSet[K] = {
+    return HashSSet.empty[K] ++ keys
   }
 
-  @pure def valueSet: Set[T] = {
-    return Set.empty[T] ++ values
+  @pure def valueSet: HashSSet[T] = {
+    return HashSSet.empty[T] ++ values
   }
 
   @pure def +(p: (K, T)): HashSMap[K, T] = {
