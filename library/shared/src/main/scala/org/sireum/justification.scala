@@ -57,6 +57,8 @@ object justification {
 
   @just def Rewrite(rs: RS, from: StepId): Unit = $
 
+  @just def RSimpl(rs: RS): Unit = $
+
   @just def Eval(from: StepId): Unit = $
 
   @just def Simpl: Unit = $
