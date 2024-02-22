@@ -335,6 +335,28 @@ trait contract {
       def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Contract.SubProof): ProofStep
       def Let[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](body: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Contract.SubProof): ProofStep
       def SubProof(steps: Contract.ProofStep*): ProofStep
+      def SubProof[T](let: T => Any): ProofStep
+      def SubProof[T1, T2](let: (T1, T2) => Any): ProofStep
+      def SubProof[T1, T2, T3](let: (T1, T2, T3) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4](let: (T1, T2, T3, T4) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5](let: (T1, T2, T3, T4, T5) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6](let: (T1, T2, T3, T4, T5, T6) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7](let: (T1, T2, T3, T4, T5, T6, T7) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8](let: (T1, T2, T3, T4, T5, T6, T7, T8) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) => Any): ProofStep
+      def SubProof[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](let: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) => Any): ProofStep
     }
 
     trait StepBuilder2 extends Any {
