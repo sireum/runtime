@@ -326,6 +326,7 @@ import Init._
         bundle.removeAll()
         bundle.downloadFrom(url)
         bundle.unzipTo(d)
+        bundle.removeAll()
       }
     }
   }
