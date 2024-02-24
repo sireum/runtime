@@ -1080,8 +1080,7 @@ import Init._
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
       (ideaDir / "bin" / "idea.exe").removeAll()
       (ideaDir / "bin" / "idea.exe.vmoptions").removeAll()
-      (ideaDir / "bin" / "idea64.exe").moveOverTo(ideaDir / "bin" / "IVE.exe")
-      (ideaDir / "bin" / "idea64.exe.vmoptions").moveOverTo(ideaDir / "bin" / "IVE.exe.vmoptions")
+      (ideaDir / "bin" / "IVE.exe").downloadFrom("https://github.com/sireum/rolling/releases/download/ive_launcher_win/IVE.exe")
       if (buildSfx) {
         (homeBin / "sireum.jar").copyOverTo(ideaDir / "plugins" / "sireum-intellij-plugin" / "lib" / "sireum.jar")
       }
