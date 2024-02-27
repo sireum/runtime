@@ -558,8 +558,6 @@ trait contract {
 
   def Assert(claim: B, subProof: Contract.SubProof): Contract.Assert = ???
 
-  def StructuralInduction(subProof: Contract.SubProof): Contract.Justification = ???
-
   def Let[T](body: T => Contract.SubProof): Contract.Let = ???
   def Let[T1, T2](body: (T1, T2) => Contract.SubProof): Contract.Let = ???
   def Let[T1, T2, T3](body: (T1, T2, T3) => Contract.SubProof): Contract.Let = ???
