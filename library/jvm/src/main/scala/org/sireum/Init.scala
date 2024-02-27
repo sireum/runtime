@@ -424,8 +424,8 @@ import Init._
           if (Os.isMacArm) s"cvc$gen-$version-macOS-arm64-static.zip"
           else s"cvc$gen-$version-macOS-static.zip"
         case (string"4", Os.Kind.Win) => s"cvc$gen-$version-win64-opt.exe"
-        case (string"4", Os.Kind.Linux) => s"cvc$gen-$version-x86_64-linux-opt"
-        case (string"4", Os.Kind.Mac) => s"cvc$gen-$version-macos-opt"
+        case (string"4", Os.Kind.Linux) => s"cvc$gen-$version-x86_64-linux-opt.8-linux"
+        case (string"4", Os.Kind.Mac) => s"cvc$gen-$version-macos-opt.8-mac"
         case _ => return
       }
 
@@ -441,7 +441,9 @@ import Init._
       if (gen == "5") {
         val d = Os.tempDir()
         drop.unzipTo(d)
-        (d / ops.StringOps(dropname).substring(0, dropname.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+        (d / ops.StringOps(ops.StringOps(dropname).substring(0, dropname.size - 4)).
+          replaceAllLiterally(s"-$version", "") / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).
+          copyOverTo(exe)
         d.removeAll()
       } else {
         drop.copyOverTo(exe)
