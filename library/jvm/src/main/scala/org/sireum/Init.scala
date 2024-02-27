@@ -417,15 +417,15 @@ import Init._
         return
       }
 
-      val (sub, filename, dropname): (String, String, String) = (gen, kind) match {
-        case (string"5", Os.Kind.Win) => (s"cvc$gen-$version", s"cvc$gen-Win64-static.zip", s"cvc$gen-$version-Win64-static.zip")
-        case (string"5", Os.Kind.Linux) => (s"cvc$gen-$version", s"cvc$gen-Linux-static.zip", s"cvc$gen-$version-Linux-static.zip")
+      val dropname: String = (gen, kind) match {
+        case (string"5", Os.Kind.Win) => s"cvc$gen-$version-Win64-static.zip"
+        case (string"5", Os.Kind.Linux) => s"cvc$gen-$version-Linux-static.zip"
         case (string"5", Os.Kind.Mac) =>
-          if (Os.isMacArm) (s"cvc$gen-$version", s"cvc$gen-macOS-arm64-static.zip", s"cvc$gen-$version-macOS-arm64-static.zip")
-          else (s"cvc$gen-$version", s"cvc$gen-macOS-static.zip", s"cvc$gen-$version-macOS-static.zip")
-        case (string"4", Os.Kind.Win) => (version, s"cvc$gen-$version-win64-opt.exe", s"cvc$gen-$version-win64-opt.exe")
-        case (string"4", Os.Kind.Linux) => (version, s"cvc$gen-$version-x86_64-linux-opt", s"cvc$gen-$version-x86_64-linux-opt")
-        case (string"4", Os.Kind.Mac) => (version, s"cvc$gen-$version-macos-opt", s"cvc$gen-$version-macos-opt")
+          if (Os.isMacArm) s"cvc$gen-$version-macOS-arm64-static.zip"
+          else s"cvc$gen-$version-macOS-static.zip"
+        case (string"4", Os.Kind.Win) => s"cvc$gen-$version-win64-opt.exe"
+        case (string"4", Os.Kind.Linux) => s"cvc$gen-$version-x86_64-linux-opt"
+        case (string"4", Os.Kind.Mac) => s"cvc$gen-$version-macos-opt"
         case _ => return
       }
 
@@ -434,14 +434,14 @@ import Init._
       if (!drop.exists) {
         println(s"Please wait while downloading CVC$gen $version ...")
         drop.up.mkdirAll()
-        drop.downloadFrom(s"https://github.com/cvc5/cvc5/releases/download/$sub/$filename")
+        drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/cvc$gen/$dropname")
         println()
       }
 
       if (gen == "5") {
         val d = Os.tempDir()
         drop.unzipTo(d)
-        (d / ops.StringOps(filename).substring(0, filename.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+        (d / ops.StringOps(dropname).substring(0, dropname.size - 4) / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
         d.removeAll()
       } else {
         drop.copyOverTo(exe)
