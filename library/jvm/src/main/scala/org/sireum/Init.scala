@@ -1079,6 +1079,7 @@ import Init._
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
       (ideaDir / "bin" / "idea.exe").removeAll()
+      (ideaDir / "bin" / "idea64.exe").removeAll()
       (ideaDir / "bin" / "idea.exe.vmoptions").removeAll()
       (ideaDir / "bin" / "IVE.exe").downloadFrom("https://github.com/sireum/rolling/releases/download/ive_launcher_win/IVE.exe")
       if (buildSfx) {
