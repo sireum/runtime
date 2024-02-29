@@ -141,7 +141,7 @@ class BitsTest extends TestSuite {
       def rand(): Byte = random.nextInt.toByte
 
       * - {
-        for ((op, op1, op2) <- List[(Predef.String,
+        for ((op, op1, op2) <- scala.List[(Predef.String,
                                      S8 => S8 => S8,
                                      Byte => Byte => Int)](("+", _.+, _.+),
                                                            ("-", _.-, _.-),
@@ -159,7 +159,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     S8 => S8 => S8,
                                     Byte => Int => Int)]((">>", _.>>, _.>>),
                                                          (">>>", _.>>>, _.>>>),
@@ -175,7 +175,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     S8 => S8 => B,
                                     Byte => Byte => scala.Boolean)](
                (">", _.>, _.>),
@@ -262,7 +262,7 @@ class BitsTest extends TestSuite {
 
       /*
       * - {
-        for ((op, op1, op2) <- List[(Predef.String,
+        for ((op, op1, op2) <- scala.List[(Predef.String,
                                      U16 => U16 => U16,
                                      UShort => UShort => UShort)](
                ("+", _.+, _.+),
@@ -282,7 +282,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     U16 => U16 => U16,
                                     UShort => Int => UShort)](
                (">>>", _.>>>, _.>>>),
@@ -298,7 +298,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     U16 => U16 => B,
                                     UShort => UShort => scala.Boolean)](
                (">", _.>, _.>),
@@ -396,7 +396,7 @@ class BitsTest extends TestSuite {
       def rand(): Short = (random.nextInt(16 + 3) - 2).toShort
 
       * - {
-        for ((op, op1, op2) <- List[(Predef.String,
+        for ((op, op1, op2) <- scala.List[(Predef.String,
                                      S16_m2 => S16_m2 => S16_m2,
                                      Short => Short => Int)](("+", _.+, _.+),
                                                              ("-", _.-, _.-),
@@ -419,7 +419,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     S16_m2 => S16_m2 => S16_m2,
                                     Short => Int => Int)]((">>", _.>>, _.>>),
                                                           (">>>", _.>>>, _.>>>),
@@ -439,7 +439,7 @@ class BitsTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     S16_m2 => S16_m2 => B,
                                     Short => Short => scala.Boolean)](
                (">", _.>, _.>),

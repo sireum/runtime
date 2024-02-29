@@ -128,8 +128,8 @@ object ST {
       }
     }
 
-    def splitNlChars(s: Predef.String): List[Predef.String] = {
-      var l = List[Predef.String]()
+    def splitNlChars(s: Predef.String): scala.List[Predef.String] = {
+      var l = scala.List[Predef.String]()
       var i = 0
       val sz = s.length
       val sb = new _root_.java.lang.StringBuilder(sz)

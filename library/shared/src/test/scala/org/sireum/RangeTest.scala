@@ -118,7 +118,7 @@ class RangeTest extends TestSuite {
       def rand(): Int = random.nextInt(10) + 1
 
       * - {
-        for ((op, op1, op2) <- List[(Predef.String,
+        for ((op, op1, op2) <- scala.List[(Predef.String,
                                      One10i => One10i => One10i,
                                      Int => Int => Int)](("+", _.+, _.+),
                                                          ("-", _.-, _.-),
@@ -141,7 +141,7 @@ class RangeTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     One10i => One10i => B,
                                     Int => Int => scala.Boolean)](
                (">", _.>, _.>),
@@ -222,7 +222,7 @@ class RangeTest extends TestSuite {
       def rand(): Int = random.nextInt(18) - 1
 
       * - {
-        for ((op, op1, op2) <- List[(Predef.String,
+        for ((op, op1, op2) <- scala.List[(Predef.String,
                                      M1_16 => M1_16 => M1_16,
                                      Int => Int => Int)](("+", _.+, _.+),
                                                          ("-", _.-, _.-),
@@ -244,7 +244,7 @@ class RangeTest extends TestSuite {
       }
 
       * - {
-        for ((_, op1, op2) <- List[(Predef.String,
+        for ((_, op1, op2) <- scala.List[(Predef.String,
                                     M1_16 => M1_16 => B,
                                     Int => Int => scala.Boolean)](
                (">", _.>, _.>),

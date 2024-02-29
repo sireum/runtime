@@ -64,7 +64,7 @@ class ZTest extends TestSuite {
     def rand(): scala.BigInt = Z.random.toBigInt
 
     * - {
-      for ((op, op1, op2) <- List[
+      for ((op, op1, op2) <- scala.List[
              (Predef.String,
               Z => Z => Z,
               scala.BigInt => scala.BigInt => scala.BigInt)](("+", _.+, _.+),
@@ -82,7 +82,7 @@ class ZTest extends TestSuite {
     }
 
     * - {
-      for ((_, op1, op2) <- List[
+      for ((_, op1, op2) <- scala.List[
              (Predef.String,
               Z => Z => B,
               scala.BigInt => scala.BigInt => scala.Boolean)](
