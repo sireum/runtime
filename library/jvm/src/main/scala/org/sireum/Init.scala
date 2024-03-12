@@ -357,7 +357,7 @@ import Init._
         find((r: GitHub.Release) => r.name == releaseName) match {
         case Some(r) =>
           val desc: String = kind match {
-            case Os.Kind.Win => "x64-win"
+            case Os.Kind.Win => if (Os.isWinArm) "arm64-win" else "x64-win"
             case Os.Kind.Linux => "x64-glibc"
             case Os.Kind.LinuxArm => "arm64-glibc"
             case Os.Kind.Mac => if (Os.isMacArm) "arm64-osx" else "x64-osx"
