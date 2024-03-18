@@ -66,3 +66,5 @@ class l(num: Int = 0) extends StaticAnnotation
 class rw extends StaticAnnotation
 
 class abs extends StaticAnnotation
+
+class induct extends StaticAnnotation
