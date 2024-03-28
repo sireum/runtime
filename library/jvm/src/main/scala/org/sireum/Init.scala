@@ -240,22 +240,33 @@ import Init._
   def installCoursier(): Unit = {
     homeLib.mkdirAll()
 
-    val coursierVer = homeLib / "coursier.jar.ver"
+    val coursierVer: Os.Path = if (Os.isWin) homeBinPlatform / "cs.exe.ver" else homeLib / "coursier.jar.ver"
     if (coursierVer.exists && ops.StringOps(coursierVer.read).trim == coursierVersion) {
       return
     }
 
-    val drop = cache / s"coursier-$coursierVersion.jar"
-    if (!drop.exists) {
-      println(s"Downloading Coursier $coursierVersion ...")
-      val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/coursier.jar"
-      drop.downloadFrom(url)
-      println()
+    if (Os.isWin) {
+      val drop = cache / s"cs-$coursierVersion-x86_64-pc-win32.zip"
+      if (!drop.exists) {
+        println(s"Downloading Coursier $coursierVersion ...")
+        val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/cs-x86_64-pc-win32.zip"
+        drop.downloadFrom(url)
+        println()
+      }
+      drop.unzipTo(homeBinPlatform)
+      (homeBinPlatform / "cs-x86_64-pc-win32.exe").moveTo(homeBinPlatform / "cs.exe")
+    } else {
+      val drop = cache / s"coursier-$coursierVersion.jar"
+      if (!drop.exists) {
+        println(s"Downloading Coursier $coursierVersion ...")
+        val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/coursier.jar"
+        drop.downloadFrom(url)
+        println()
+      }
+
+      val coursierJar = home / "lib" / "coursier.jar"
+      drop.copyOverTo(coursierJar)
     }
-
-    val coursierJar = home / "lib" / "coursier.jar"
-    drop.copyOverTo(coursierJar)
-
     coursierVer.writeOver(coursierVersion)
   }
 
