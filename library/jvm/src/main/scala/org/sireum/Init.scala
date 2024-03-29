@@ -647,6 +647,7 @@ import Init._
         ISZ("bin", "win", "z3"),
         ISZ("bin", "win", "7za.exe"),
         ISZ("bin", "win", "cvc.exe"),
+        ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "install", "antlrworks.cmd"),
         ISZ("bin", "install", "clion.cmd"),
         ISZ("bin", "install", "fmide.cmd"),
