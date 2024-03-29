@@ -65,20 +65,9 @@ if (Os.cliArgs.isEmpty) {
 val homeBin = Os.slashDir
 val home = homeBin.up
 val sireumJar = homeBin / "sireum.jar"
-val mill = homeBin / "mill.bat"
 var didTipe = F
 var didCompile = F
 var didM2 = F
-
-
-def downloadMill(): Unit = {
-  if (!mill.exists) {
-    println("Downloading mill ...")
-    mill.downloadFrom("https://github.com/sireum/rolling/releases/download/mill/standalone")
-    mill.chmod("+x")
-    println()
-  }
-}
 
 
 def tipe(): Unit = {
@@ -101,8 +90,7 @@ def compile(): Unit = {
     }
     tipe()
     println("Compiling ...")
-    mill.call(ISZ("all", "runtime.library.jvm.tests.compile",
-      "runtime.library.js.tests.compile")).at(home).console.runCheck()
+    proc"java -jar $sireumJar proyek compile $home".console.echo.runCheck()
     println()
   }
 }
@@ -110,84 +98,16 @@ def compile(): Unit = {
 
 def test(): Unit = {
   compile()
-  println("Running shared tests ...")
-  mill.call(ISZ("runtime.library.shared.tests")).at(home).console.runCheck()
-  println()
-
-  println("Running jvm tests ...")
-  mill.call(ISZ("runtime.library.jvm.tests")).at(home).console.runCheck()
+  println("Running tests ...")
+  proc"java -jar $sireumJar proyek test $home org.sireum".console.echo.runCheck()
   println()
 }
 
-
-def testJs(): Unit = {
-  println("Running js tests ...")
-  mill.call(ISZ("runtime.library.js.tests")).at(home).console.runCheck()
-  println()
-}
-
-
-def jitpack(): Unit = {
-  println("Triggering jitpack ...")
-  val r = mill.call(ISZ("jitPack", "--owner", "sireum", "--repo", "runtime", "--lib", "library")).
-    at(home).console.run()
-  r match {
-    case r: Os.Proc.Result.Normal =>
-      println(r.out)
-      println(r.err)
-      if (!r.ok) {
-        eprintln(s"Exit code: ${r.exitCode}")
-      }
-    case r: Os.Proc.Result.Exception =>
-      eprintln(s"Exception: ${r.err}")
-    case _: Os.Proc.Result.Timeout =>
-      eprintln("Timeout")
-      eprintln()
-  }
-  println()
-}
-
-
-def m2(): Unit = {
-  didM2 = T
-  didCompile = F
-
-  val m2s: ISZ[ISZ[String]] =
-    for (pkg <- ISZ("macros", "library", "test"); plat <- ISZ("shared", "jvm", "js"))
-      yield ISZ("runtime", pkg, plat, "m2")
-
-  val m2Paths: ISZ[Os.Path] =
-    for (cd <- for (m2 <- m2s) yield st"${(m2, Os.fileSep)}".render) yield  home / "out" / cd
-
-  for (m2p <- m2Paths) {
-    m2p.removeAll()
-  }
-
-  (home / "out").removeAll()
-
-  Os.proc(ISZ[String](mill.string, "all") ++ (for (m2 <- m2s) yield st"${(m2, ".")}".render)).
-    at(home).env(ISZ("SIREUM_SOURCE_BUILD" ~> "false")).console.runCheck()
-
-  val repository = Os.home / ".m2" / "repository"
-
-  println()
-  println("Artifacts")
-  for (m2p <- m2Paths; p <- (m2p / "dest").overlayMove(repository, F, F, _ => T, T).values) {
-    println(s"* $p")
-  }
-  println()
-}
-
-
-downloadMill()
 
 for (i <- 0 until Os.cliArgs.size) {
   Os.cliArgs(i) match {
     case string"compile" => compile()
     case string"test" => test()
-    case string"test-js" => testJs()
-    case string"m2" => m2()
-    case string"jitpack" => jitpack()
     case cmd =>
       usage()
       eprintln(s"Unrecognized command: $cmd")
