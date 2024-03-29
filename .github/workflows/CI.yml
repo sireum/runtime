@@ -36,7 +36,7 @@ jobs:
         run: |
           export COURSIER_CACHE=$GITHUB_WORKSPACE/cache/coursier
           cd $GITHUB_WORKSPACE
-          bin/build.cmd test test-js
+          bin/build.cmd test
 
   build-mac:
     runs-on: macOS-latest
@@ -70,7 +70,7 @@ jobs:
         run: |
           export COURSIER_CACHE=$GITHUB_WORKSPACE/cache/coursier
           cd $GITHUB_WORKSPACE
-          bin/build.cmd test test-js
+          bin/build.cmd test
 
   build-windows:
     runs-on: windows-latest
@@ -105,4 +105,4 @@ jobs:
         run: |
           set COURSIER_CACHE=%GITHUB_WORKSPACE%\cache\coursier
           cd /d %GITHUB_WORKSPACE%
-          call bin\build.cmd test test-js
+          call bin\build.cmd test
