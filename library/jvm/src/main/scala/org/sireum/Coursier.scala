@@ -45,8 +45,14 @@ object Coursier {
 
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
     val sireumHome = Os.sireumHomeOpt.get
-    val javaExe = Os.javaExe(Some(sireumHome))
-    val coursierJar = sireumHome / "lib" / "coursier.jar"
+    val csPrefix: ISZ[String] = if (Os.isWin) {
+      val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
+      ISZ(coursierExe.string)
+    } else {
+      val javaExe = Os.javaExe(Some(sireumHome))
+      val coursierJar = sireumHome / "lib" / "coursier.jar"
+      ISZ[String](javaExe.string, "-jar", coursierJar.string)
+    }
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)
       case _ =>
@@ -57,7 +63,7 @@ object Coursier {
     for (url <- mavenRepoUrls) {
       repos = repos ++ ISZ("-r", url)
     }
-    return ISZ[String](javaExe.string, "-jar", coursierJar.string, if (isResolve) "resolve" else "fetch", "--quiet",
+    return csPrefix ++ ISZ[String](if (isResolve) "resolve" else "fetch", "--quiet",
       "--scala", scalaVersion) ++ cache ++ repos
   }
 
@@ -69,9 +75,9 @@ object Coursier {
     var moduleVersionOrgMap = HashMap.empty[String, HashMap[String, String]]
 
     if (printTree) {
-      Os.proc(resolveCommands).console.runCheck()
+      Os.proc(resolveCommands).console.env(ISZ("JAVA_HOME" ~> Os.javaHomeOpt(Os.kind, Os.sireumHomeOpt).get.string)).runCheck()
     } else {
-      val resolveLines = ops.StringOps(Os.proc(resolveCommands).runCheck().out).split((c: C) => c == '\n' || c == '\r')
+      val resolveLines = ops.StringOps(Os.proc(resolveCommands).env(ISZ("JAVA_HOME" ~> Os.javaHomeOpt(Os.kind, Os.sireumHomeOpt).get.string)).runCheck().out).split((c: C) => c == '\n' || c == '\r')
       for (line <- resolveLines) {
         val ISZ(org, module, version, _*) = ops.StringOps(line).split((c: C) => c == ':').map((s: String) => ops.StringOps(s).trim)
         val moduleVersion = s"$module-$version"
@@ -105,7 +111,7 @@ object Coursier {
 
     var cifs = ISZ[CoursierFileInfo]()
 
-    val fetchLines = ops.StringOps(Os.proc(fetchCommands).runCheck().out).split((c: C) => c == '\n' || c == '\r')
+    val fetchLines = ops.StringOps(Os.proc(fetchCommands).env(ISZ("JAVA_HOME" ~> Os.javaHomeOpt(Os.kind, Os.sireumHomeOpt).get.string)).runCheck().out).split((c: C) => c == '\n' || c == '\r')
     for (line <- fetchLines) {
       val path = Os.path(ops.StringOps(ops.StringOps(line).trim).replaceAllLiterally("%2B", "+"))
       val pOps = ops.StringOps(path.toUri)
