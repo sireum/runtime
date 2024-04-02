@@ -30,13 +30,8 @@ package org.sireum
 object Init {
   @datatype class Plugin(val id: String,
                          val isCommunity: B,
-                         val isDev: B,
                          val isJar: B,
-                         val devVer: String,
-                         val ver: String) {
-    @strictpure def version(isDev: B): String =
-      if (isDev) devVer else ver
-  }
+                         val version: String)
 }
 
 import Init._
@@ -86,10 +81,8 @@ import Init._
     for (key <- versions.keys if ops.StringOps(key).startsWith(pluginPrefix)) {
       val id = ops.StringOps(key).substring(pluginPrefix.size, key.size)
       ops.StringOps(versions.get(key).get).split((c: C) => c == ',') match {
-        case ISZ(isCommunity, isDev, isJar, devVer) =>
-          r = r + id ~> Plugin(id, isCommunity == "true", isDev == "true", isJar == "true", devVer, devVer)
-        case ISZ(isCommunity, isDev, isJar, devVer, ver) =>
-          r = r + id ~> Plugin(id, isCommunity == "true", isDev == "true", isJar == "true", devVer, ver)
+        case ISZ(isCommunity, isJar, ver) =>
+          r = r + id ~> Plugin(id, isCommunity == "true", isJar == "true", ver)
       }
     }
     return r
@@ -562,7 +555,7 @@ import Init._
 
   def downloadPlugins(isDev: B, pluginFilter: Plugin => B): Unit = {
     for (p <- distroPlugins.values if pluginFilter(p)) {
-      val ver = p.version(isDev)
+      val ver = p.version
       val zip = zipName(p.id, ver)
       if (!(pluginsCacheDir / zip).exists) {
         val pidOps = ops.StringOps(p.id)
@@ -587,7 +580,7 @@ import Init._
 
   def extractPlugins(isDev: B, pluginsDir: Os.Path, pluginFilter: Plugin => B): Unit = {
     for (p <- distroPlugins.values if pluginFilter(p)) {
-      val zip = zipName(p.id, p.version(isDev))
+      val zip = zipName(p.id, p.version)
       val zipPath = ideaCacheDir / "plugins" / zip
       if (p.isJar) {
         print(s"Copying ${p.id} plugin ... ")
