@@ -546,6 +546,10 @@ import Init._
     return config
   }
 
+  def ideaPlugins(isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
+    return (ideaConfig(isDev, isUltimate, projectPathOpt).up / "plugins").canon
+  }
+
   def ideaSandbox(isDev: B): Os.Path = {
     val devSuffix: String = if (isDev) "-dev" else ""
     return (if (isIdeaInUserHome) home / ".settings" else Os.home) / s".SireumIVE$devSuffix-sandbox"
@@ -578,7 +582,8 @@ import Init._
     }
   }
 
-  def extractPlugins(isDev: B, pluginsDir: Os.Path, pluginFilter: Plugin => B): Unit = {
+  def extractPlugins(pluginsDir: Os.Path, pluginFilter: Plugin => B): Unit = {
+    val temp = Os.tempDir()
     for (p <- distroPlugins.values if pluginFilter(p)) {
       val zip = zipName(p.id, p.version)
       val zipPath = ideaCacheDir / "plugins" / zip
@@ -588,7 +593,12 @@ import Init._
         println("done!")
       } else {
         print(s"Extracting ${p.id} plugin from $zipPath ... ")
-        zipPath.unzipTo(pluginsDir)
+        zipPath.unzipTo(temp)
+        for (p <- temp.list) {
+          val target = pluginsDir / p.name
+          target.removeAll()
+          p.moveTo(target)
+        }
         println("done!")
       }
     }
@@ -738,6 +748,8 @@ import Init._
     val pluginsDir: Os.Path =
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "plugins"
       else ideaDir / "plugins"
+
+    val settingsPluginDir = ideaPlugins(isDev, isUltimate, None())
 
     val libDir: Os.Path =
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "lib"
@@ -1012,7 +1024,7 @@ import Init._
       deleteSources()
       installFonts()
       deletePlugins()
-      extractPlugins(isDev, pluginsDir, pluginFilter)
+      extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon(F)
       patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "Info.plist")
@@ -1053,7 +1065,7 @@ import Init._
       }
       installFonts()
       deletePlugins()
-      extractPlugins(isDev, pluginsDir, pluginFilter)
+      extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon(F)
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
@@ -1080,7 +1092,7 @@ import Init._
       println("done!")
       installFonts()
       deletePlugins()
-      extractPlugins(isDev, pluginsDir, pluginFilter)
+      extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon(T)
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
@@ -1175,12 +1187,9 @@ import Init._
         case Os.Kind.Win => setupWin(ideaDrop)
         case _ => setupLinux(ideaDrop)
       }
-      val sireumJar = pluginsDir / "sireum-intellij-plugin" / "lib" / "sireum.jar"
+      val sireumJar = settingsPluginDir / "sireum-intellij-plugin" / "lib" / "sireum.jar"
       val homeBinSireumJar = homeBin / "sireum.jar"
       sireumJar.removeAll()
-      val nailgunJar = pluginsDir / "Scala" / "lib" / "jps" / "nailgun.jar"
-      print(s"Patching $nailgunJar ... ")
-      Asm.rewriteSetSecurityManager(nailgunJar)
       println()
       if (buildSfx) {
         homeBinSireumJar.copyTo(sireumJar)
