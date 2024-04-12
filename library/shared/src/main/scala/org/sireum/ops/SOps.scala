@@ -162,9 +162,9 @@ import org.sireum._
 
 @ext object ISZOpsUtil {
 
-  @pure def invokeAny[R](fs: ISZ[() => Option[R] @pure], default: () => R @pure, isSequential: B): R = $
+  @pure def invokeAny[R](fs: ISZ[() => Option[R] @pure], default: () => R @pure, isSequential: B): (R, Z) = $
 
-  @pure def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): Either[R, ISZ[S]] = $
+  @pure def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): (Either[R, ISZ[S]], Z) = $
 
   @pure def parMap[V, U](s: IS[Z, V], f: V => U @pure): IS[Z, U] = $
 

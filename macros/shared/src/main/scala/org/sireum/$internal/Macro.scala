@@ -33,9 +33,9 @@ object Macro {
   def parMap[T, U](poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef],
                    cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
 
-  def any[R](fs: _root_.scala.Seq[() => _root_.scala.Option[R]], default: () => R, isSequential: Boolean): R = macro Macro.anyImpl
+  def any[R](fs: _root_.scala.Seq[() => _root_.scala.Option[R]], default: () => R, isSequential: Boolean): (R, _root_.scala.Long) = macro Macro.anyImpl
 
-  def anyEither[R, S](fs: _root_.scala.Seq[() => _root_.scala.Either[R, S]], isSequential: Boolean): _root_.scala.Either[R, _root_.scala.Seq[S]] = macro Macro.anyEitherImpl
+  def anyEither[R, S](fs: _root_.scala.Seq[() => _root_.scala.Either[R, S]], isSequential: Boolean): (_root_.scala.Either[R, _root_.scala.Seq[S]], _root_.scala.Long) = macro Macro.anyEitherImpl
 
   def sync[T](o: AnyRef, arg: T): T = macro Macro.syncImpl
 
@@ -240,7 +240,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def anyImpl(fs: c.Tree, default: c.Tree, isSequential: c.Tree): c.Tree =
     if (isJsCheck)
       q"""{
-  def anySeq(): R = {
+  def anySeq(): (R, _root_.scala.Long) = {
     for (f <- $fs) {
       f() match {
         case _root_.scala.Some(r) => return r
@@ -249,22 +249,26 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     }
     return $default()
   }
-  anySeq()
+  val start = _root_.java.lang.System.currentTimeMillis
+  val r = anySeq()
+  (r, _root_.java.lang.System.currentTimeMillis - start)
 }"""
     else
       q"""{
-  def anySeq(): R = {
+  def anySeq(): (R, _root_.scala.Long) = {
+    val start = _root_.java.lang.System.currentTimeMillis
     for (f <- $fs) {
       f() match {
-        case _root_.scala.Some(r) => return r
+        case _root_.scala.Some(r) => return (r, _root_.java.lang.System.currentTimeMillis - start)
         case _ =>
       }
     }
-    return $default()
+    return ($default(), _root_.java.lang.System.currentTimeMillis - start)
   }
 
-  def anyPar(): R = {
+  def anyPar(): (R, _root_.scala.Long) = {
     val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
+    val time = new _root_.java.util.concurrent.atomic.AtomicLong(0)
     var r: R = null.asInstanceOf[R]
     try {
       val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
@@ -272,10 +276,13 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       for (f <- $fs) {
         a.add(new _root_.java.util.concurrent.Callable[R] {
           override def call(): R = {
+            val start = _root_.java.lang.System.currentTimeMillis
             val frOpt = f()
             count.incrementAndGet()
             frOpt match {
-              case _root_.scala.Some(fr) => return fr
+              case _root_.scala.Some(fr) =>
+                time.addAndGet(_root_.java.lang.System.currentTimeMillis - start)
+                return fr
               case _ =>
                 while (count.get() < a.size) {
                   try {
@@ -284,6 +291,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
                     case _: Exception =>
                   }
                 }
+                time.addAndGet(_root_.java.lang.System.currentTimeMillis - start)
                 throw new RuntimeException()
             }
           }
@@ -294,7 +302,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     } catch {
       case _: Exception =>
     }
-    return if (r == null) $default() else r
+    return (if (r == null) $default() else r, time.get)
   }
 
   if ($isSequential) anySeq() else anyPar()
@@ -304,32 +312,36 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def anyEitherImpl(fs: c.Tree, isSequential: c.Tree): c.Tree =
     if (isJsCheck)
       q"""{
-  def anySeq(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+  def anySeq(): (_root_.scala.Either[R, _root_.scala.Seq[S]], _root_.scala.Long) = {
     var ss = _root_.scala.Vector[S]()
     for (f <- $fs) {
       f() match {
-        case _root_.scala.Left(r) => return _root_.scala.Left(r)
+        case _root_.scala.Left(r) => return (_root_.scala.Left(r), _root_.java.lang.System.currentTimeMillis - start)
         case _root_.scala.Right(r) => ss = ss :+ r
       }
     }
     return _root_.scala.Right(ss)
   }
-  anySeq()
+  val start = _root_.java.lang.System.currentTimeMillis
+  val r = anySeq()
+  (r, _root_.java.lang.System.currentTimeMillis - start)
 }"""
     else
       q"""{
-  def anySeq(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+  def anySeq(): (_root_.scala.Either[R, _root_.scala.Seq[S]], _root_.scala.Long) = {
+    val start = _root_.java.lang.System.currentTimeMillis
     var ss = _root_.scala.Vector[S]()
     for (f <- $fs) {
       f() match {
-        case _root_.scala.Left(r) => return _root_.scala.Left(r)
+        case _root_.scala.Left(r) => return (_root_.scala.Left(r), _root_.java.lang.System.currentTimeMillis - start)
         case _root_.scala.Right(r) => ss = ss :+ r
       }
     }
-    return _root_.scala.Right(ss)
+    return (_root_.scala.Right(ss), _root_.java.lang.System.currentTimeMillis - start)
   }
-  def anyPar(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
+  def anyPar(): (_root_.scala.Either[R, _root_.scala.Seq[S]], _root_.scala.Long) = {
     val pool = new _root_.java.util.concurrent.ForkJoinPool(sz)
+    val time = new _root_.java.util.concurrent.atomic.AtomicLong(0)
     var r = null.asInstanceOf[R]
     try {
       val a = new _root_.java.util.ArrayList[_root_.java.util.concurrent.Callable[R]](sz)
@@ -337,10 +349,13 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
       for (f <- $fs) {
         a.add(new _root_.java.util.concurrent.Callable[R] {
           override def call(): R = {
+            val start = _root_.java.lang.System.currentTimeMillis
             val frEither = f()
             count.incrementAndGet()
             frEither match {
-              case _root_.scala.Left(fr) => return fr
+              case _root_.scala.Left(fr) =>
+                time.addAndGet(_root_.java.lang.System.currentTimeMillis - start)
+                return fr
               case _root_.scala.Right(fr) =>
                 addS(fr)
                 while (count.get() < a.size) {
@@ -350,6 +365,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
                     case _: Exception =>
                   }
                 }
+                time.addAndGet(_root_.java.lang.System.currentTimeMillis - start)
                 throw new RuntimeException()
             }
           }
@@ -360,7 +376,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     } catch {
       case _: Exception =>
     }
-    return if (r == null) _root_.scala.Right(ss) else _root_.scala.Left(r)
+    return (if (r == null) _root_.scala.Right(ss) else _root_.scala.Left(r), time.get)
   }
 
   if ($isSequential) anySeq() else anyPar()

@@ -31,11 +31,12 @@ object ISOps_Ext {
   val MinimumParallelThreshold: Int = 2
   val poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef] = new _root_.java.util.concurrent.atomic.AtomicReference(null)
 
-  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = {
+  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): (R, Z) = {
     val sz = fs.size.toInt
     if (sz == 1) {
+      val start = extension.Time.currentMillis
       fs(0)() match {
-        case Some(r) => return r
+        case Some(r) => return (r, extension.Time.currentMillis - start)
         case _ => default()
       }
     }
@@ -43,15 +44,17 @@ object ISOps_Ext {
       case Some(x) => scala.Some(x)
       case _ => scala.None
     }
-    $internal.Macro.any(sfs, default, isSequential)
+    val (r, t) = $internal.Macro.any(sfs, default, isSequential)
+    (r, t)
   }
 
-  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): Either[R, ISZ[S]] = {
+  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): (Either[R, ISZ[S]], Z) = {
     val sz = fs.size.toInt
     if (sz == 1) {
+      val start = extension.Time.currentMillis
       fs(0)() match {
-        case Either.Left(r) => return Either.Left(r)
-        case Either.Right(r) => return Either.Right(ISZ(r))
+        case Either.Left(r) => return (Either.Left(r), extension.Time.currentMillis - start)
+        case Either.Right(r) => return (Either.Right(ISZ(r)), extension.Time.currentMillis - start)
       }
     }
     val sfs = for (f <- fs.elements) yield () => f() match {
@@ -61,8 +64,8 @@ object ISOps_Ext {
     var ss = _root_.scala.Vector[S]()
     def addS(s: S): Unit = this.synchronized { ss = ss :+ s }
     $internal.Macro.anyEither(sfs, isSequential) match {
-      case scala.Left(x) => Either.Left(x)
-      case scala.Right(x) => Either.Right(ISZ(x: _*))
+      case (scala.Left(x), t) => (Either.Left(x), t)
+      case (scala.Right(x), t) => (Either.Right(ISZ(x: _*)), t)
     }
   }
 
@@ -94,9 +97,9 @@ object ISOps_Ext {
 }
 
 object ISZOpsUtil_Ext {
-  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): R = ISOps_Ext.invokeAny(fs, default, isSequential)
+  def invokeAny[R](fs: ISZ[() => Option[R]], default: () => R, isSequential: B): (R, Z) = ISOps_Ext.invokeAny(fs, default, isSequential)
 
-  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): Either[R, ISZ[S]] = ISOps_Ext.invokeAnyEither(fs, isSequential)
+  def invokeAnyEither[R, S](fs: ISZ[() => Either[R, S] @pure], isSequential: B): (Either[R, ISZ[S]], Z) = ISOps_Ext.invokeAnyEither(fs, isSequential)
 
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
 
