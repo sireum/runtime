@@ -240,7 +240,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def anyImpl(fs: c.Tree, default: c.Tree, isSequential: c.Tree): c.Tree =
     if (isJsCheck)
       q"""{
-  def anySeq(): (R, _root_.scala.Long) = {
+  def anySeq(): R = {
     for (f <- $fs) {
       f() match {
         case _root_.scala.Some(r) => return r
@@ -312,11 +312,11 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def anyEitherImpl(fs: c.Tree, isSequential: c.Tree): c.Tree =
     if (isJsCheck)
       q"""{
-  def anySeq(): (_root_.scala.Either[R, _root_.scala.Seq[S]], _root_.scala.Long) = {
+  def anySeq(): _root_.scala.Either[R, _root_.scala.Seq[S]] = {
     var ss = _root_.scala.Vector[S]()
     for (f <- $fs) {
       f() match {
-        case _root_.scala.Left(r) => return (_root_.scala.Left(r), _root_.java.lang.System.currentTimeMillis - start)
+        case _root_.scala.Left(r) => return _root_.scala.Left(r)
         case _root_.scala.Right(r) => ss = ss :+ r
       }
     }
