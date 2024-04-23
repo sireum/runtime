@@ -597,7 +597,7 @@ import Init._
         for (p <- temp.list) {
           val target = pluginsDir / p.name
           target.removeAll()
-          p.moveTo(target)
+          p.moveOverTo(target)
         }
         println("done!")
       }
