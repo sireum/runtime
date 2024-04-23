@@ -293,7 +293,9 @@ object Os_Ext {
         if (Os.isWin) {
           JFiles.move(p, t)
         } else {
-          JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
+          try JFiles.move(p, t, SCO.COPY_ATTRIBUTES) catch {
+            case _: Exception => JFiles.move(p, t)
+          }
         }
     }
   }
