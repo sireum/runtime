@@ -290,12 +290,16 @@ object Os_Ext {
       JFiles.move(p, t, SCO.ATOMIC_MOVE)
     } catch {
       case _: AtomicMoveNotSupportedException =>
-        if (Os.isWin) {
-          JFiles.move(p, t)
-        } else {
-          try JFiles.move(p, t, SCO.COPY_ATTRIBUTES) catch {
-            case _: Exception => JFiles.move(p, t)
+        try {
+          if (Os.isWin) {
+            JFiles.move(p, t)
+          } else {
+            JFiles.move(p, t, SCO.COPY_ATTRIBUTES)
           }
+        } catch {
+          case _: Exception =>
+            copy(path, target, F)
+            removeAll(path)
         }
     }
   }
