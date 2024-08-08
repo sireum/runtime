@@ -423,6 +423,7 @@ import Init._
 
       val dropname: String = (gen, kind) match {
         case (string"5", Os.Kind.Win) => s"cvc$gen-$version-Win64-static.zip"
+        case (string"5", Os.Kind.LinuxArm) => s"cvc$gen-$version-Linux-arm64-static.zip"
         case (string"5", Os.Kind.Linux) => s"cvc$gen-$version-Linux-static.zip"
         case (string"5", Os.Kind.Mac) =>
           if (Os.isMacArm) s"cvc$gen-$version-macOS-arm64-static.zip"
@@ -436,18 +437,19 @@ import Init._
       val drop = cache / dropname
 
       if (!drop.exists) {
+        val url = s"https://github.com/sireum/rolling/releases/download/cvc$gen/$dropname"
         println(s"Please wait while downloading CVC$gen $version ...")
         drop.up.mkdirAll()
-        drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/cvc$gen/$dropname")
+        drop.downloadFrom(url)
         println()
       }
 
       if (gen == "5") {
         val d = Os.tempDir()
         drop.unzipTo(d)
-        (d / ops.StringOps(ops.StringOps(dropname).substring(0, dropname.size - 4)).
-          replaceAllLiterally(s"-$version", "") / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).
-          copyOverTo(exe)
+        for (p <- d.list if ops.StringOps(p.name).startsWith(s"cvc5-")) {
+          (d / p.name / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+        }
         d.removeAll()
       } else {
         drop.copyOverTo(exe)
