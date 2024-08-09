@@ -1065,9 +1065,14 @@ import Init._
       if (!isServer) {
         val ideash = ideaDir / "bin" / "idea.sh"
         val ivesh = ideaDir / "bin" / "IVE.sh"
+        val idea = ideaDir / "bin" / "idea"
+        val ive = ideaDir / "bin" / "IVE"
         ideash.moveOverTo(ivesh)
+        idea.moveOverTo(ive)
         ivesh.chmod("+x")
+        ive.chmod("+x")
         ideash.mklink(ivesh)
+        idea.mklink(ive)
       }
     }
 
