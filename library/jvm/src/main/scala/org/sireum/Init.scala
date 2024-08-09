@@ -535,20 +535,24 @@ import Init._
     return ops.StringOps(home.string).startsWith(Os.home.canon.string)
   }
 
-  def ideaConfig(isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
+  def ideaConfig(isSetup: B, isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
     val devSuffix: String = if (isDev) "-dev" else ""
     val ult: String = if (isUltimate) "-ult" else ""
     val config: Os.Path = projectPathOpt match {
       case Some(projectPath) => Os.home / ".config" / "JetBrains" / "RemoteDev-IU" /
         ops.StringOps(projectPath.string).replaceAllLiterally(Os.fileSep, "_")
       case _ =>
-        home / ".settings" / s".SireumIVE$ult$devSuffix" / "config"
+        if (isSetup || isIdeaInUserHome) {
+          home / ".settings" / s".SireumIVE$ult$devSuffix" / "config"
+        } else {
+          Os.home / s".SireumIVE$ult$devSuffix" / "config"
+        }
     }
     return config
   }
 
   def ideaPlugins(isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
-    return (ideaConfig(isDev, isUltimate, projectPathOpt).up / "plugins").canon
+    return (ideaConfig(T, isDev, isUltimate, projectPathOpt).up / "plugins").canon
   }
 
   def ideaSandbox(isDev: B): Os.Path = {
@@ -806,7 +810,7 @@ import Init._
       }
       print(s"Patching $p ... ")
       val content = p.read
-      val config = ideaConfig(isDev, isUltimate, None())
+      val config = ideaConfig(T, isDev, isUltimate, None())
       var settings = config.up.canon.string
       val ult: String = if (isUltimate) "-ult" else ""
       val newContent: String = kind match {
