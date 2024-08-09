@@ -808,12 +808,21 @@ import Init._
       val content = p.read
       val config = ideaConfig(isDev, isUltimate, None())
       var settings = config.up.canon.string
+      val ult: String = if (isUltimate) "-ult" else ""
       val newContent: String = kind match {
         case Os.Kind.Win =>
           settings = ops.StringOps(settings).replaceAllChars('\\', '/')
-          s"idea.config.path=$settings/config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
+          if (isIdeaInUserHome) {
+            s"idea.config.path=$settings/config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
+          } else {
+            s"idea.config.path=$${user.home}/.SireumIVE$ult$devSuffix/config\r\nidea.system.path=$${user.home}/.SireumIVE$ult$devSuffix/system\r\nidea.log.path=$${user.home}/.SireumIVE$ult$devSuffix/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
+          }
         case _ =>
-          s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
+          if (isIdeaInUserHome) {
+            s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
+          } else {
+            s"idea.config.path=$${user.home}/.SireumIVE$ult$devSuffix/config\nidea.system.path=$${user.home}/.SireumIVE$ult$devSuffix/system\nidea.log.path=$${user.home}/.SireumIVE$ult$devSuffix/log\nidea.plugins.path=$settings/plugins\n$content"
+          }
       }
       p.writeOver(newContent)
       println("done!")
