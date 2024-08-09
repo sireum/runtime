@@ -542,8 +542,7 @@ import Init._
       case Some(projectPath) => Os.home / ".config" / "JetBrains" / "RemoteDev-IU" /
         ops.StringOps(projectPath.string).replaceAllLiterally(Os.fileSep, "_")
       case _ =>
-        if (isIdeaInUserHome) home / ".settings" / s".SireumIVE$ult$devSuffix" / "config"
-        else Os.path(Os.prop("user.home").get).canon / s".SireumIVE$ult$devSuffix" / "config"
+        home / ".settings" / s".SireumIVE$ult$devSuffix" / "config"
     }
     return config
   }
