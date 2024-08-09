@@ -239,6 +239,12 @@ object Os_Ext {
 
   def isSymLink(path: String): B = JFiles.isSymbolicLink(toNIO(path))
 
+  def isExecutable(path: String): B = toIO(path).canExecute
+
+  def isReadable(path: String): B = toIO(path).canRead
+
+  def isWritable(path: String): B = toIO(path).canWrite
+
   def kind(path: String): Os.Path.Kind.Type = {
     val p = toNIO(path)
     if (JFiles.isSymbolicLink(p)) Os.Path.Kind.SymLink

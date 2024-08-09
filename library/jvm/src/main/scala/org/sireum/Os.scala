@@ -574,6 +574,18 @@ object Os {
       return Ext.isSymLink(value)
     }
 
+    def isExecutable: B = {
+      return Ext.isExecutable(value)
+    }
+
+    def isReadable: B = {
+      return Ext.isReadable(value)
+    }
+
+    def isWritable: B = {
+      return Ext.isWritable(value)
+    }
+
     def kind: Path.Kind.Type = {
       return Ext.kind(value)
     }
@@ -933,6 +945,12 @@ object Os {
     def isFile(path: String): B = $
 
     def isSymLink(path: String): B = $
+
+    def isExecutable(path: String): B = $
+
+    def isReadable(path: String): B = $
+
+    def isWritable(path: String): B = $
 
     def kind(path: String): Path.Kind.Type = $
 
