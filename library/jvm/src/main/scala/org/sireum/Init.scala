@@ -810,25 +810,20 @@ import Init._
       }
       print(s"Patching $p ... ")
       val content = p.read
-      val config = ideaConfig(T, isDev, isUltimate, None())
-      var settings = config.up.canon.string
       val ult: String = if (isUltimate) "-ult" else ""
-      val newContent: String = kind match {
-        case Os.Kind.Win =>
-          settings = ops.StringOps(settings).replaceAllChars('\\', '/')
-          if (isIdeaInUserHome) {
-            s"idea.config.path=$settings/config\r\nidea.system.path=$settings/system\r\nidea.log.path=$settings/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
-          } else {
-            s"idea.config.path=$${user.home}/.SireumIVE$ult$devSuffix/config\r\nidea.system.path=$${user.home}/.SireumIVE$ult$devSuffix/system\r\nidea.log.path=$${user.home}/.SireumIVE$ult$devSuffix/log\r\nidea.plugins.path=$settings/plugins\r\n$content"
-          }
-        case _ =>
-          if (isIdeaInUserHome) {
-            s"idea.config.path=$config\nidea.system.path=$settings/system\nidea.log.path=$settings/log\nidea.plugins.path=$settings/plugins\n$content"
-          } else {
-            s"idea.config.path=$${user.home}/.SireumIVE$ult$devSuffix/config\nidea.system.path=$${user.home}/.SireumIVE$ult$devSuffix/system\nidea.log.path=$${user.home}/.SireumIVE$ult$devSuffix/log\nidea.plugins.path=$settings/plugins\n$content"
-          }
+      val suffix = s".SireumIVE$ult$devSuffix"
+      val pluginPrefix: String = kind match {
+        case Os.Kind.Mac => s"$${idea.home.path}/../../../../../.settings/$suffix"
+        case Os.Kind.LinuxArm => s"$${idea.home.path}/../../../../.settings/$suffix"
+        case _ => s"$${idea.home.path}/../../../.settings/$suffix"
       }
-      p.writeOver(newContent)
+      val homePrefix: String = if (isIdeaInUserHome) {
+        s"$${user.home}/$suffix"
+      } else {
+        pluginPrefix
+      }
+      val lineSep: String = if (kind == Os.Kind.Win) "\r\n" else "\n"
+      p.writeOver(s"idea.config.path=$homePrefix/config${lineSep}idea.system.path=$homePrefix/system${lineSep}idea.log.path=$homePrefix/log${lineSep}idea.plugins.path=$pluginPrefix/plugins$lineSep$content")
       println("done!")
     }
 
