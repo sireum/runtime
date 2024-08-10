@@ -817,11 +817,7 @@ import Init._
         case Os.Kind.LinuxArm => s"$${idea.home.path}/../../../../.settings/$suffix"
         case _ => s"$${idea.home.path}/../../../.settings/$suffix"
       }
-      val homePrefix: String = if (isIdeaInUserHome) {
-        s"$${user.home}/$suffix"
-      } else {
-        pluginPrefix
-      }
+      val homePrefix: String = if (isIdeaInUserHome) pluginPrefix else s"$${user.home}/$suffix"
       val lineSep: String = if (kind == Os.Kind.Win) "\r\n" else "\n"
       p.writeOver(s"idea.config.path=$homePrefix/config${lineSep}idea.system.path=$homePrefix/system${lineSep}idea.log.path=$homePrefix/log${lineSep}idea.plugins.path=$pluginPrefix/plugins$lineSep$content")
       println("done!")
