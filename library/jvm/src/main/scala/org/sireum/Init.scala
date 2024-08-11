@@ -143,7 +143,7 @@ import Init._
   }
 
   @memoize def pwd7z: Os.Path = {
-    return homeBin / platform(Os.kind) / (if (Os.isWin) "7za.exe" else "7za")
+    return homeBin / platform(Os.kind) / (if (kind == Os.Kind.Win) "7za.exe" else "7za")
   }
 
   def installJava(): Unit = {
@@ -160,7 +160,7 @@ import Init._
           case Os.Kind.Linux => s"bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
           case Os.Kind.LinuxArm => s"bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
           case Os.Kind.Win =>
-            if (Os.isWinArm) s"bellsoft-jdk$javaVersion-windows-aarch64-full.zip"
+            if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) s"bellsoft-jdk$javaVersion-windows-aarch64-full.zip"
             else s"bellsoft-jdk$javaVersion-windows-amd64-full.zip"
           case Os.Kind.Unsupported => return
         }
@@ -173,7 +173,7 @@ import Init._
         }
         println(s"Extracting JDK $javaVersion ...")
         javaHome.removeAll()
-        if (Os.isWin) {
+        if (kind == Os.Kind.Win) {
           drop.unzipTo(homeBinPlatform)
         } else {
           drop.unTarGzTo(homeBinPlatform)
@@ -233,12 +233,12 @@ import Init._
   def installCoursier(): Unit = {
     homeLib.mkdirAll()
 
-    val coursierVer: Os.Path = if (Os.isWin) homeBinPlatform / "cs.exe.ver" else homeLib / "coursier.jar.ver"
+    val coursierVer: Os.Path = if (kind == Os.Kind.Win) homeBinPlatform / "cs.exe.ver" else homeLib / "coursier.jar.ver"
     if (coursierVer.exists && ops.StringOps(coursierVer.read).trim == coursierVersion) {
       return
     }
 
-    if (Os.isWin) {
+    if (kind == Os.Kind.Win) {
       val drop = cache / s"cs-$coursierVersion-x86_64-pc-win32.zip"
       if (!drop.exists) {
         println(s"Downloading Coursier $coursierVersion ...")
@@ -322,7 +322,7 @@ import Init._
       pwd7z.chmod("+x")
       println()
     }
-    if (Os.isWinArm) {
+    if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) {
       val d = homeBin / "win" / "7z"
       if (!d.exists) {
         val bundle = d.up.canon / "7z-win-arm64.zip"
@@ -361,7 +361,7 @@ import Init._
         find((r: GitHub.Release) => r.name == releaseName) match {
         case Some(r) =>
           val desc: String = kind match {
-            case Os.Kind.Win => if (Os.isWinArm) "arm64-win" else "x64-win"
+            case Os.Kind.Win => if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "arm64-win" else "x64-win"
             case Os.Kind.Linux => "x64-glibc"
             case Os.Kind.LinuxArm => "arm64-glibc"
             case Os.Kind.Mac => if (Os.isMacArm) "arm64-osx" else "x64-osx"
@@ -399,7 +399,7 @@ import Init._
       p.moveTo(dir)
     }
 
-    if (!Os.isWin) {
+    if (kind != Os.Kind.Win) {
       (dir / "bin" / "z3").chmod("+x")
     }
     println()
@@ -789,7 +789,7 @@ import Init._
           case Os.Kind.Mac => (homeBin / "mac" / pwd7zsfx.name, s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx")
           case Os.Kind.Linux => (homeBin / "linux" / pwd7zsfx.name, s"$baseUrl/7z-mac-amd64.sfx")
           case Os.Kind.LinuxArm => (homeBin / "linux" / "arm" / pwd7zsfx.name, s"$baseUrl/7z-linux-arm64.sfx")
-          case Os.Kind.Win => (homeBin / "win" / pwd7zsfx.name, s"$baseUrl/7z-win-${if (Os.isWinArm) "arm" else "amd"}64.sfx")
+          case Os.Kind.Win => (homeBin / "win" / pwd7zsfx.name, s"$baseUrl/7z-win-${if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "arm" else "amd"}64.sfx")
           case _ => halt("Infeasible")
         }
         f.downloadFrom(url)
@@ -843,7 +843,7 @@ import Init._
       print(s"Patching $p ... ")
       val content = ops.StringOps(p.read).trim
       val newContent: String =
-        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
+        if (kind == Os.Kind.Win) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
         else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n"
       p.writeOver(newContent)
       println("done!")
@@ -1044,7 +1044,7 @@ import Init._
 
     def setupWin(ideaDrop: Os.Path): Unit = {
       ideaDir.mkdirAll()
-      if (Os.isWinArm) {
+      if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) {
         proc"${homeBin / "win" / "7z" / "7z.exe"} x $ideaDrop".at(ideaDir).runCheck()
       } else {
         ideaDrop.unzipTo(ideaDir)
@@ -1112,7 +1112,7 @@ import Init._
       println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
       val suffix: String =
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
-        else if (Os.isWinArm) "-aarch64.exe"
+        else if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "-aarch64.exe"
         else ideaExtMap.get(platform(kind)).get
       val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
       val urlOps = ops.StringOps(url)
