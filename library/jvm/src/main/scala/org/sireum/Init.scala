@@ -812,14 +812,30 @@ import Init._
       val content = p.read
       val ult: String = if (isUltimate) "-ult" else ""
       val suffix = s".SireumIVE$ult$devSuffix"
-      val pluginPrefix: String = kind match {
-        case Os.Kind.Mac => s"$${idea.home.path}/../../../../../.settings/$suffix"
-        case Os.Kind.LinuxArm => s"$${idea.home.path}/../../../../.settings/$suffix"
-        case _ => s"$${idea.home.path}/../../../.settings/$suffix"
+      val sireumHome: String = kind match {
+        case Os.Kind.Mac => s"$${idea.home.path}/../../../../.."
+        case Os.Kind.LinuxArm => s"$${idea.home.path}/../../../.."
+        case _ => s"$${idea.home.path}/../../.."
       }
-      val homePrefix: String = if (isIdeaInUserHome) pluginPrefix else s"$${user.home}/$suffix"
+      val settings = s"$sireumHome/.settings/$suffix"
+      val homePrefix: String = if (isIdeaInUserHome) settings else s"$${user.home}/$suffix"
       val lineSep: String = if (kind == Os.Kind.Win) "\r\n" else "\n"
-      p.writeOver(s"idea.config.path=$homePrefix/config${lineSep}idea.system.path=$homePrefix/system${lineSep}idea.log.path=$homePrefix/log${lineSep}idea.plugins.path=$pluginPrefix/plugins$lineSep$content")
+      p.writeOver(s"org.sireum.home=$sireumHome${lineSep}idea.config.path=$homePrefix/config${lineSep}idea.system.path=$homePrefix/system${lineSep}idea.log.path=$homePrefix/log${lineSep}idea.plugins.path=$settings/plugins$lineSep$content")
+      println("done!")
+    }
+
+    def patchInfoPlist(p: Os.Path): Unit = {
+      print(s"Patching $p ... ")
+      val contentOps = ops.StringOps(p.read)
+      p.writeOver(contentOps.replaceAllLiterally("<key>CFBundleDevelopmentRegion</key>",
+        st"""<key>LSEnvironment</key>
+            |    <dict>
+            |         <key>JAVA_HOME</key>
+            |         <string></string>
+            |         <key>SIREUM_HOME</key>
+            |         <string>${if (isIdeaInUserHome) home.string else ""}</string>
+            |    </dict>
+            |    <key>CFBundleDevelopmentRegion</key>""".render))
       println("done!")
     }
 
@@ -827,51 +843,9 @@ import Init._
       print(s"Patching $p ... ")
       val content = ops.StringOps(p.read).trim
       val newContent: String =
-        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n-Dorg.sireum.home=$home\r\n"
-        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n-Dorg.sireum.home=$home\n"
+        if (Os.isWin) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
+        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n"
       p.writeOver(newContent)
-      println("done!")
-    }
-
-    def patchExe(): Unit = {
-      if (isUltimate) {
-        return
-      }
-      val rhExe = "ResourceHacker.exe"
-      val rhDir = home / "resources" / "rh"
-      val dcExe = "delcert.exe"
-      val dcDir = home / "resources" / "dc"
-      def downloadTools(): Unit = {
-        rhDir.mkdirAll()
-        if (!(rhDir / rhExe).exists) {
-          print("Downloading ResourceHacker ... ")
-          val drop = rhDir / "rh.zip"
-          drop.downloadFrom("http://angusj.com/resourcehacker/resource_hacker.zip")
-          drop.unzipTo(rhDir)
-          drop.removeAll()
-          println("done!")
-        }
-        dcDir.mkdirAll()
-        if (!(dcDir / dcExe).exists) {
-          print("Downloading delcert ... ")
-          val drop = dcDir / "delcert.zip"
-          drop.downloadFrom("https://github.com/sireum/rolling/releases/download/delcert/delcert.zip")
-          drop.unzipTo(dcDir)
-          drop.removeAll()
-          println("done!")
-        }
-      }
-      val binDir = ideaDir / "bin"
-      val idea64Exe = binDir / "idea64.exe"
-      downloadTools()
-      print(s"Patching $idea64Exe ... ")
-      if (Os.isWin) {
-        proc"${dcDir / dcExe} .\\${idea64Exe.name}".at(binDir).run()
-        proc"${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
-      } else {
-        proc"wine ${dcDir / dcExe} .\\${idea64Exe.name}".at(binDir).run()
-        proc"wine ${rhDir / rhExe} -open .\\${idea64Exe.name} -save .\\${idea64Exe.name} -action addoverwrite -res .\\idea.ico -mask ICONGROUP,2000,1033".at(binDir).runCheck()
-      }
       println("done!")
     }
 
@@ -909,9 +883,6 @@ import Init._
       print(s"Replacing icon ${dirPath / filename} ... ")
       (iconsPath / srcFilename).copyOverTo(dirPath / filename)
       println("done!")
-//      if (isWin) {
-//        patchExe()
-//      }
     }
 
     def patchApp(): Unit = {
@@ -1024,6 +995,7 @@ import Init._
       patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "bin" / "idea.properties")
       patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
+      patchInfoPlist(sireumAppDir / "Contents" / "Info.plist")
       proc"codesign --force --deep --sign - $sireumAppDir".run()
     }
 
