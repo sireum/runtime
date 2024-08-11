@@ -1037,18 +1037,9 @@ import Init._
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
       (ideaDir / "bin" / "idea.vmoptions").removeAll()
-      if (!isServer) {
-        val ideash = ideaDir / "bin" / "idea.sh"
-        val ivesh = ideaDir / "bin" / "IVE.sh"
-        val idea = ideaDir / "bin" / "idea"
-        val ive = ideaDir / "bin" / "IVE"
-        ideash.moveOverTo(ivesh)
-        idea.moveOverTo(ive)
-        ivesh.chmod("+x")
-        ive.chmod("+x")
-        ideash.mklink(ivesh)
-        idea.mklink(ive)
-      }
+      val ivesh = ideaDir / "bin" / "IVE.sh"
+      ivesh.downloadFrom(s"https://github.com/sireum/rolling/releases/download/ive_launcher_win/IVE${if (ideaDir.up.canon.name == "arm") "-arm" else ""}.sh")
+      ivesh.chmod("+x")
     }
 
     def setupWin(ideaDrop: Os.Path): Unit = {
