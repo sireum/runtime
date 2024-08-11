@@ -191,7 +191,7 @@ object Os {
 
   def sireumHomeOpt: Option[Os.Path] = {
     Os.env("SIREUM_HOME") match {
-      case Some(d) => return Some(Os.path(d).canon)
+      case Some(d) if d.size > 0 => return Some(Os.path(d).canon)
       case _ => Os.prop("org.sireum.home") match {
         case Some(d) => return Some(Os.path(d).canon)
         case _ => return Ext.detectSireumHome
