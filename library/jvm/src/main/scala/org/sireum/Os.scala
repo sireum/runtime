@@ -275,6 +275,10 @@ object Os {
       }
     }
 
+    def fromUri(uri: String): Os.Path = {
+      Os.path(Os.Ext.fromUri(uri))
+    }
+
     def overlay(isMove: B, path: Os.Path, target: Os.Path, includeDir: B, followLink: B,
                 pred: Os.Path => B @pure, report: B): HashSMap[Os.Path, Os.Path] = {
       var r = HashSMap.empty[Os.Path, Os.Path]
