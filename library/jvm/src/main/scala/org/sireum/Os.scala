@@ -276,7 +276,7 @@ object Os {
     }
 
     def fromUri(uri: String): Os.Path = {
-      Os.path(Os.Ext.fromUri(uri))
+      return Os.path(Os.Ext.fromUri(uri))
     }
 
     def overlay(isMove: B, path: Os.Path, target: Os.Path, includeDir: B, followLink: B,
