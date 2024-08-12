@@ -649,6 +649,7 @@ import Init._
 
     val distroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
+        ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "win", "idea"),
         ISZ("bin", "win", "java"),
@@ -673,6 +674,7 @@ import Init._
         ISZ("..", "setup.bat")
       ) +
       Os.Kind.Linux ~> ISZ(
+        ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "idea"),
         ISZ("bin", "linux", "java"),
@@ -702,6 +704,7 @@ import Init._
         ISZ("..", "setup")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
+        ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "arm", "idea"),
         ISZ("bin", "linux", "arm", "java"),
@@ -722,6 +725,7 @@ import Init._
         ISZ("..", "setup")
       ) +
       Os.Kind.Mac ~> ISZ(
+        ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "mac", "idea"),
         ISZ("bin", "mac", "java"),
