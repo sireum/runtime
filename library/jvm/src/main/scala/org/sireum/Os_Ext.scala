@@ -1025,11 +1025,15 @@ object Os_Ext {
         spawn(cwd = _root_.os.Path(toIO(p.wd.value).getCanonicalPath),
           env = m.toMap, stdin = stdin, stdout = pOut, stderr = pErr,
           mergeErrIntoOut = p.isErrAsOut, propagateEnv = false)
-      var term: Boolean = false
-      term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
-      if (term) {
-        val (pout, perr) = po.fEnd()
-        return Os.Proc.Result.Normal(sp.exitCode(), pout, perr)
+      try {
+        var term: Boolean = false
+        term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
+        if (term) {
+          val (pout, perr) = po.fEnd()
+          return Os.Proc.Result.Normal(sp.exitCode(), pout, perr)
+        }
+      } catch {
+        case _: InterruptedException =>
       }
       if (sp.isAlive()) {
         try {
@@ -1095,10 +1099,14 @@ object Os_Ext {
             np.closeStdin(false)
           case _ =>
         }
-        val exitCode = np.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else 0, TU.MILLISECONDS)
-        if (exitCode != scala.Int.MinValue) {
-          val (pout, perr) = po.fEnd()
-          return Os.Proc.Result.Normal(exitCode, pout, perr)
+        try {
+          val exitCode = np.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else 0, TU.MILLISECONDS)
+          if (exitCode != scala.Int.MinValue) {
+            val (pout, perr) = po.fEnd()
+            return Os.Proc.Result.Normal(exitCode, pout, perr)
+          }
+        } catch {
+          case _: InterruptedException =>
         }
         if (np.isRunning) try {
           np.destroy(false)
