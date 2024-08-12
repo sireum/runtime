@@ -791,7 +791,7 @@ import Init._
         val baseUrl = "https://github.com/sireum/rolling/releases/download/7z.sfx"
         val (f, url): (Os.Path, String) = kind match {
           case Os.Kind.Mac => (homeBin / "mac" / pwd7zsfx.name, s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx")
-          case Os.Kind.Linux => (homeBin / "linux" / pwd7zsfx.name, s"$baseUrl/7z-mac-amd64.sfx")
+          case Os.Kind.Linux => (homeBin / "linux" / pwd7zsfx.name, s"$baseUrl/7z-linux-amd64.sfx")
           case Os.Kind.LinuxArm => (homeBin / "linux" / "arm" / pwd7zsfx.name, s"$baseUrl/7z-linux-arm64.sfx")
           case Os.Kind.Win => (homeBin / "win" / pwd7zsfx.name, s"$baseUrl/7z-win-${if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "arm" else "amd"}64.sfx")
           case _ => halt("Infeasible")
