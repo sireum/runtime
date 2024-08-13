@@ -27,7 +27,7 @@ package org.sireum
 
 object LibUtil {
 
-  type OptionMap = HashMap[String, String]
+  type OptionMap = HashMap[String, ISZ[String]]
   type FileOptionMap = HashMap[Option[String], OptionMap]
 
   val setOptions: String = "setOptions"
@@ -53,13 +53,14 @@ object LibUtil {
 
   @pure def mineOptions(fileContent: String): OptionMap = {
     var r: OptionMap = HashMap.empty
+    val lineCommentPrefix = conversions.String.toCis("//")
     val optPrefix = conversions.String.toCis("//@")
 
     var key: String = ""
     var curr = ISZ[String]()
     for (line <- ops.StringOps(fileContent).cisLineStream.
-      dropWhile((cis: ISZ[C]) => !ops.StringOps.startsWith(cis, optPrefix)).
-      takeWhile((cis: ISZ[C]) => ops.StringOps.startsWith(cis, optPrefix))) {
+      dropWhile((cis: ISZ[C]) => !ops.StringOps.startsWith(cis, lineCommentPrefix)).
+      takeWhile((cis: ISZ[C]) => ops.StringOps.startsWith(cis, lineCommentPrefix)) if ops.StringOps.startsWith(line, optPrefix)) {
       val (start, end, continu): (Z, Z, B) = if (key.size == 0) {
         val i = ops.StringOps.indexOfFrom(line, ':', optPrefix.size)
         if (i < 0) {
@@ -82,15 +83,14 @@ object LibUtil {
         curr = curr :+ ops.StringOps(ops.StringOps.substring(line, start, end)).trim
       } else {
         curr = curr :+ ops.StringOps(ops.StringOps.substring(line, start, end)).trim
-        if (!r.contains(key)) {
-          r = r + key ~> st"${(curr, " ")}".render
-        }
+        r = r + key ~> (r.get(key).getOrElse(ISZ()) :+ st"${(curr, " ")}".render)
         key = ""
         curr = ISZ()
       }
     }
-    if (key.size != 0 && curr.nonEmpty && !r.contains(key)) {
-      r = r + key ~> st"${(curr, " ")}".render
+
+    if (key.size != 0 && curr.nonEmpty) {
+      r = r + key ~> (r.get(key).getOrElse(ISZ()) :+ st"${(curr, " ")}".render)
     }
     return r
   }
