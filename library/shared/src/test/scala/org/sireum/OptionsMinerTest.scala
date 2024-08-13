@@ -35,29 +35,29 @@ class OptionsMinerTest extends TestSuite {
 
     * - check(HashMap.empty, "// #Sireum")
 
-    * - check(HashMap.empty + "Logika" ~> "--sat",
+    * - check(HashMap.empty + "Logika" ~> ISZ[String]("--sat"),
       s"""// #Sireum
-         |
+         |//
          |//@Logika: --sat
          |
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "Logika" ~> "--sat",
+    * - check(HashMap.empty + "Logika" ~> ISZ[String]("--sat"),
       s"""// #Sireum
          |//@Logika: --sat
          |
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "Logika" ~> "--interprocedural",
+    * - check(HashMap.empty + "Logika" ~> ISZ[String]("--interprocedural", "--sat"),
       s"""// #Sireum
          |//@Logika: --interprocedural
          |//@Logika: --sat
          |import org.sireum._"""
     )
 
-    * - check(HashMap.empty + "Logika" ~> "--interprocedural --sat" + "InfoFlow" ~> "",
+    * - check(HashMap.empty + "Logika" ~> ISZ[String]("--interprocedural --sat") + "InfoFlow" ~> ISZ[String](""),
       s"""// #Sireum
          |//@Logika: --interprocedural \\
          |//@        --sat
@@ -66,7 +66,7 @@ class OptionsMinerTest extends TestSuite {
     )
   }
 
-  def check(expected: HashMap[String, String], text: Predef.String): Unit = {
+  def check(expected: HashMap[String, ISZ[String]], text: Predef.String): Unit = {
     assert(LibUtil.mineOptions(text.stripMargin) == expected)
   }
 
