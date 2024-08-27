@@ -177,14 +177,14 @@ object Os_Ext {
       java.net.CookieHandler.setDefault(cookieManager)
 
       def fetch(loc: Predef.String): java.net.HttpURLConnection = {
-        val c = new java.net.URL(loc).openConnection().asInstanceOf[java.net.HttpURLConnection]
+        val c = new java.net.URI(loc).toURL.openConnection().asInstanceOf[java.net.HttpURLConnection]
         c.setInstanceFollowRedirects(false)
         c.setUseCaches(false)
         val responseCode = c.getResponseCode
         if (301 <= responseCode && responseCode <= 303 || responseCode == 307 || responseCode == 308) {
           var newLoc = c.getHeaderField("Location")
           if (newLoc.startsWith("/")) {
-            val locUrl = new java.net.URL(loc)
+            val locUrl = new java.net.URI(loc).toURL
             newLoc = s"${locUrl.getProtocol}://${locUrl.getHost}$newLoc"
           }
           fetch(newLoc)
@@ -541,7 +541,7 @@ object Os_Ext {
 
   def readIndexableCPath(path: String): Indexable.Pos[C] with AutoCloseable = readIndexableC(Some(toUri(path)), new FR(path.value))
 
-  def readIndexableCUrl(url: String): Indexable.Pos[C] with AutoCloseable = readIndexableC(Some(url), new ISR(new java.net.URL(url.value).openStream()))
+  def readIndexableCUrl(url: String): Indexable.Pos[C] with AutoCloseable = readIndexableC(Some(url), new ISR(new java.net.URI(url.value).toURL.openStream()))
 
   def readIndexableC(uriOpt: Option[String], reader: java.io.Reader): Indexable.Pos[C] with AutoCloseable = new Indexable.Pos[C] with AutoCloseable {
     import org.sireum.U32._
