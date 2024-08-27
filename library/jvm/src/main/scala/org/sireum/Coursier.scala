@@ -45,14 +45,25 @@ object Coursier {
 
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
     val sireumHome = Os.sireumHomeOpt.get
-    val csPrefix: ISZ[String] = if (Os.isWin) {
-      val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
-      ISZ(coursierExe.string)
-    } else {
-      val javaExe = Os.javaExe(Some(sireumHome))
-      val coursierJar = sireumHome / "lib" / "coursier.jar"
-      ISZ[String](javaExe.string, "-jar", coursierJar.string)
+    val csPrefix: ISZ[String] = Os.kind match {
+      case Os.Kind.Win =>
+        val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
+        ISZ(coursierExe.string)
+      case Os.Kind.Linux =>
+        val coursierExe = sireumHome / "bin" / "linux" / "cs"
+        ISZ(coursierExe.string)
+      case Os.Kind.LinuxArm =>
+        val coursierExe = sireumHome / "bin" / "linux" / "arm" / "cs"
+        ISZ(coursierExe.string)
+      case Os.Kind.Mac =>
+        val coursierExe = sireumHome / "bin" / "mac" / "cs"
+        ISZ(coursierExe.string)
+      case _ =>
+        val javaExe = Os.javaExe(Some(sireumHome))
+        val coursierJar = sireumHome / "lib" / "coursier.jar"
+        ISZ[String](javaExe.string, "-jar", coursierJar.string)
     }
+
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)
       case _ =>
