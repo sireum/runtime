@@ -142,6 +142,24 @@ object Os {
     return Path.Impl(Ext.norm(value))
   }
 
+  def printParseableMessages(reporter: message.Reporter): Unit = {
+    for (m <- reporter.messages) {
+      val severity: String = m.level match {
+        case message.Level.Info => "info"
+        case message.Level.Warning => "warning"
+        case _ => "error"
+      }
+      var text = ops.StringOps(m.text).replaceAllLiterally("\r\n", " ")
+      text = ops.StringOps(text).replaceAllLiterally("\n", " ")
+      m.posOpt match {
+        case Some(pos) if pos.uriOpt.nonEmpty =>
+          println(s"${Os.Path.fromUri(pos.uriOpt.get)}:${pos.beginLine}:${pos.beginColumn}: $severity: $text")
+        case _ =>
+          println(s":1:1:$severity:$text")
+      }
+    }
+  }
+
   @pure def proc(commands: ISZ[String]): Proc = {
     return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F, F, None(), None())
   }

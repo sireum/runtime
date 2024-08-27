@@ -127,24 +127,6 @@ object Reporter {
     return r
   }
 
-  def printParseableMessages(): Unit = {
-    for (m <- messages) {
-      val severity: String = m.level match {
-        case Level.Info => "info"
-        case Level.Warning => "warning"
-        case _ => "error"
-      }
-      var text = ops.StringOps(m.text).replaceAllLiterally("\r\n", " ")
-      text = ops.StringOps(text).replaceAllLiterally("\n", " ")
-      m.posOpt match {
-        case Some(pos) if pos.uriOpt.nonEmpty =>
-          println(s"${pos.uriOpt.get}:${pos.beginLine}:${pos.beginColumn}:$severity:$text")
-        case _ =>
-          println(s":1:1:$severity:$text")
-      }
-    }
-  }
-
   def printMessages(): Unit = {
     @pure def sortMessages(ms: ISZ[Message]): ISZ[Message] = {
       return ops
