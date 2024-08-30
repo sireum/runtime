@@ -601,6 +601,8 @@ package org.sireum
 
   def sireumJarPathString: String = $
 
+  def nativ: Unit = $
+
 }
 
 @ext trait StepId
