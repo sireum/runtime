@@ -155,7 +155,7 @@ object Os {
         case Some(pos) if pos.uriOpt.nonEmpty =>
           println(s"${Os.Path.fromUri(pos.uriOpt.get)}:${pos.beginLine}:${pos.beginColumn}:${pos.endLine}:${pos.endColumn}: $severity: $text")
         case _ =>
-          println(s":1:1:1:1: $severity: $text")
+          println(s"$severity: $text")
       }
     }
   }
