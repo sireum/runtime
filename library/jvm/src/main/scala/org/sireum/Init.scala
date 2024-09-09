@@ -422,7 +422,10 @@ import Init._
 
     updateFilenameUrl()
 
-    val url: String = s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
+    val url: String =
+      if (kind == Os.Kind.LinuxArm && version == "4.13.0")
+        s"https://github.com/sireum/rolling/releases/download/z3/$filename"
+      else s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
     val bundle = cache / filename
 
     if (!bundle.exists) {
