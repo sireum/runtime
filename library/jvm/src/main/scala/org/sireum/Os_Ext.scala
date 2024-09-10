@@ -367,10 +367,20 @@ object Os_Ext {
   }
 
   def readSymLink(path: String): Option[String] = {
-    try Some(JFiles.readSymbolicLink(toNIO(path)).toFile.getCanonicalPath)
-    catch {
-      case _: Throwable => None()
+    try {
+      var p = JFiles.readSymbolicLink(toNIO(path)).toFile
+      if (p.exists()) {
+        return Some(p.getCanonicalPath)
+      }
+      p = toNIO(path).toRealPath().toFile
+      if (p.exists()) {
+        return Some(p.getCanonicalPath)
+      }
     }
+    catch {
+      case _: Throwable =>
+    }
+    return None()
   }
 
   def relativize(path: String, other: String): String = {
