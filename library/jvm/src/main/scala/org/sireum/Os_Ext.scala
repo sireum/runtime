@@ -710,7 +710,7 @@ object Os_Ext {
   def unTarGz(path: String, target: String): Unit = {
     if (hasTar) {
       mkdir(target, T)
-      proc"tar xfz $path".at(Os.path(target)).runCheck()
+      proc"tar xfz ${Os.path(path)}".at(Os.path(target)).runCheck()
       return
     }
     def posixPermissionsFromMode(mode: Int): java.util.Set[PosixFilePermission] = {
@@ -751,7 +751,7 @@ object Os_Ext {
   def zip(path: String, target: String): Unit = {
     exe7zaOpt match {
       case Some(p) =>
-        proc"$p a -r $target .".at(Os.path(path)).runCheck()
+        proc"${p.name} a -r ${Os.path(target)} .".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
         return
       case _ =>
     }
@@ -780,7 +780,7 @@ object Os_Ext {
       case Some(p) =>
         val t = Os.path(target)
         t.mkdirAll()
-        proc"$p x -aoa $path".at(t).runCheck()
+        proc"${p.name} x -aoa ${Os.path(path)}".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
         return
       case _ =>
     }
