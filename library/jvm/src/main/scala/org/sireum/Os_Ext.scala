@@ -751,7 +751,7 @@ object Os_Ext {
   def zip(path: String, target: String): Unit = {
     exe7zaOpt match {
       case Some(p) =>
-        proc"${p.name} a -r ${Os.path(target)} .".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
+        proc"${if (Os.isWin) "cmd /C " else ""}${p.name} a -r ${Os.path(target)} .".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
         return
       case _ =>
     }
@@ -780,7 +780,7 @@ object Os_Ext {
       case Some(p) =>
         val t = Os.path(target)
         t.mkdirAll()
-        proc"${p.name} x -aoa ${Os.path(path)}".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
+        proc"${if (Os.isWin) "cmd /C " else ""}${p.name} x -aoa ${Os.path(path)}".env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
         return
       case _ =>
     }
