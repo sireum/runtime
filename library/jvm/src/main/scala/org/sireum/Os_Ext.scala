@@ -752,8 +752,8 @@ object Os_Ext {
     exe7zaOpt match {
       case Some(p) =>
         Os.proc((
-          if (Os.isWin) ISZ[String]("cmd", "/C")
-          else ISZ[String]("bash", "-c")) ++ ISZ[String](s"${p.name} a -r \"$target\" .")).
+            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "a", "-r", target, ".")
+            else ISZ[String]("bash", "-c", s"${p.name} a -r \"$target\" ."))).
           env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
         return
       case _ =>
@@ -784,9 +784,8 @@ object Os_Ext {
         val t = Os.path(target)
         t.mkdirAll()
         Os.proc((
-          if (Os.isWin) ISZ[String]("cmd", "/C")
-          else ISZ[String]("bash", "-c")) ++
-          ISZ[String](s"${p.name} x -aoa \"$path\"")).
+            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
+            else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\""))).
           env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
         return
       case _ =>
