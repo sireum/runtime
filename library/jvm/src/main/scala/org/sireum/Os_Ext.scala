@@ -162,16 +162,17 @@ object Os_Ext {
   }
 
   def download(path: String, url: String): B = {
-    def nativ(): Unit = {
+    def nativ(): B = {
       if (downloadCommand.nonEmpty) {
         if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
-          return
+          return T
         }
       }
       if (Os.isWin) {
         val p = path.value.replace(' ', '␣')
-        proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok
+        return proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok
       }
+      return F
     }
     def jvm(): Unit = {
       val cookieManager = new java.net.CookieManager()
@@ -200,8 +201,7 @@ object Os_Ext {
         java.net.CookieHandler.setDefault(default)
       }
     }
-    nativ()
-    if (!exists(path)) {
+    if (!nativ()) {
       try {
         jvm()
         T
