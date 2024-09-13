@@ -170,9 +170,9 @@ object Os_Ext {
   }
 
   def download(path: String, url: String): B = {
-    removeAll(path)
     def nativ(): B = {
       for (downloadCommand <- downloadCommands) {
+        removeAll(path)
         if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
           return T
         }
