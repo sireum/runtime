@@ -221,7 +221,7 @@ object Os_Ext {
         jvm()
         T
       } catch {
-        case _: UnsatisfiedLinkError =>
+        case _: Throwable =>
           removeAll(path)
           F
       }
