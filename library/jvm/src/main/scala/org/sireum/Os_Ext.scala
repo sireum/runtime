@@ -70,10 +70,18 @@ object Os_Ext {
 
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)).toIndexedSeq: _*)
 
-  lazy val downloadCommand: ISZ[String] =
-    if (proc"curl --version".run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
-    else if (proc"wget --version".run().ok) ISZ("wget", "--no-check-certificate", "-qO")
-    else ISZ()
+  lazy val downloadCommands: ISZ[ISZ[String]] = {
+    var r = ISZ[ISZ[String]]()
+    if (proc"curl --version".run().ok) {
+      r = r :+ ISZ("curl", "-c", "/dev/null", "-JLso")
+      r = r :+ ISZ("curl", "-c", "/dev/null", "-JLkso")
+    }
+    if (proc"wget --version".run().ok) {
+      r = r :+ ISZ("wget", "-qO")
+      r = r :+ ISZ("wget", "--no-check-certificate", "-qO")
+    }
+    r
+  }
 
   lazy val osKind: Os.Kind.Type = {
     val r = if (scala.util.Properties.isMac) Os.Kind.Mac
@@ -164,7 +172,7 @@ object Os_Ext {
   def download(path: String, url: String): B = {
     removeAll(path)
     def nativ(): B = {
-      if (downloadCommand.nonEmpty) {
+      for (downloadCommand <- downloadCommands) {
         if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
           return T
         } else {
