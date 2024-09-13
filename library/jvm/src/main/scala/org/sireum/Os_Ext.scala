@@ -164,7 +164,7 @@ object Os_Ext {
   def download(path: String, url: String): B = {
     def nativ(): Unit = {
       if (downloadCommand.nonEmpty) {
-        if (Os.proc(downloadCommand :+ path :+ url).echo.console.run().ok) {
+        if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
           return
         }
       }
