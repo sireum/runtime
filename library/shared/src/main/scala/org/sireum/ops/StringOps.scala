@@ -31,6 +31,28 @@ import org.sireum.U64._
 import org.sireum.message.Reporter
 
 object StringOps {
+  @pure def trim(cis: ISZ[C]): String = {
+    var i = 0
+    val size = cis.size
+    while (i < size && cis(i).isWhitespace) {
+      i = i + 1
+    }
+    var j = size - 1
+    while (j >= 0 && cis(j).isWhitespace) {
+      j = j - 1
+    }
+    return if (i <= j) StringOps.substring(cis, i, j + 1) else ""
+  }
+
+  @pure def trimTrailing(cis: ISZ[C]): String = {
+    val size = cis.size
+    var j = size - 1
+    while (j >= 0 && cis(j).isWhitespace) {
+      j = j - 1
+    }
+    return if (0 <= j) StringOps.substring(cis, 0, j + 1) else ""
+  }
+
   @pure def replace(content: ISZ[C], offsetOldNewStringMap: HashMap[Z, (String, String)]): Either[String, String] = {
     if (offsetOldNewStringMap.isEmpty) {
       return Either.Left(conversions.String.fromCis(content))
@@ -357,27 +379,11 @@ object StringOps {
   }
 
   @pure def trim: String = {
-    var i = 0
-    val size = s.size
-    val cis = conversions.String.toCis(s)
-    while (i < size && cis(i).isWhitespace) {
-      i = i + 1
-    }
-    var j = size - 1
-    while (j >= 0 && cis(j).isWhitespace) {
-      j = j - 1
-    }
-    return if (i <= j) StringOps.substring(cis, i, j + 1) else ""
+    return StringOps.trim(conversions.String.toCis(s))
   }
 
   @pure def trimTrailing: String = {
-    val size = s.size
-    val cis = conversions.String.toCis(s)
-    var j = size - 1
-    while (j >= 0 && cis(j).isWhitespace) {
-      j = j - 1
-    }
-    return if (0 <= j) StringOps.substring(cis, 0, j + 1) else ""
+    return StringOps.trimTrailing(conversions.String.toCis(s))
   }
 
   @pure def size: Z = {
