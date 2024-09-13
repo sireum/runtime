@@ -175,21 +175,18 @@ object Os_Ext {
       for (downloadCommand <- downloadCommands) {
         if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
           return T
-        } else {
-          removeAll(path)
         }
       }
       if (Os.isWin) {
         val p = path.value.replace(' ', '␣')
         if (proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok) {
           return T
-        } else {
-          removeAll(path)
         }
       }
       return F
     }
     def jvm(): Unit = {
+      removeAll(path)
       val cookieManager = new java.net.CookieManager()
       val default = java.net.CookieHandler.getDefault
       java.net.CookieHandler.setDefault(cookieManager)
