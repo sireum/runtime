@@ -162,15 +162,22 @@ object Os_Ext {
   }
 
   def download(path: String, url: String): B = {
+    removeAll(path)
     def nativ(): B = {
       if (downloadCommand.nonEmpty) {
         if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
           return T
+        } else {
+          removeAll(path)
         }
       }
       if (Os.isWin) {
         val p = path.value.replace(' ', '␣')
-        return proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok
+        if (proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok) {
+          return T
+        } else {
+          removeAll(path)
+        }
       }
       return F
     }
@@ -206,7 +213,9 @@ object Os_Ext {
         jvm()
         T
       } catch {
-        case _: UnsatisfiedLinkError => F
+        case _: UnsatisfiedLinkError =>
+          removeAll(path)
+          F
       }
     } else {
       T
