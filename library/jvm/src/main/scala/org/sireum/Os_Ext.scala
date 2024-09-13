@@ -71,8 +71,8 @@ object Os_Ext {
   lazy val roots: ISZ[String] = ISZ((for (f <- java.io.File.listRoots) yield String(f.getCanonicalPath)).toIndexedSeq: _*)
 
   lazy val downloadCommand: ISZ[String] =
-    if (proc"curl --version".run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
-    else if (proc"wget --version".run().ok) ISZ("wget", "-qO")
+    if (proc"wget --version".run().ok) ISZ("wget", "-qO")
+    else if (proc"curl --version".run().ok) ISZ("curl", "-c", "/dev/null", "-JLso")
     else ISZ()
 
   lazy val osKind: Os.Kind.Type = {
@@ -162,13 +162,17 @@ object Os_Ext {
   }
 
   def download(path: String, url: String): B = {
-    def nativ(): Unit = {
+    def nativ(): B = {
+      if (downloadCommand.nonEmpty) {
+        if (Os.proc(downloadCommand :+ path :+ url).run().ok) {
+          return T
+        }
+      }
       if (Os.isWin) {
         val p = path.value.replace(' ', '␣')
-        proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".runCheck()
+        return proc"""powershell.exe -Command Invoke-WebRequest -Uri "$url" -OutFile "$p"""".run().ok
       } else {
-        if (downloadCommand.nonEmpty) Os.proc(downloadCommand :+ path :+ url).runCheck()
-        else halt("Either curl or wget is required")
+        return F
       }
     }
     def jvm(): Unit = {
@@ -198,19 +202,15 @@ object Os_Ext {
         java.net.CookieHandler.setDefault(default)
       }
     }
-    try {
-      if (isNative) {
-        nativ()
-      } else {
-        try {
-          jvm()
-        } catch {
-          case _: UnsatisfiedLinkError => nativ()
-        }
-      }
+    if (nativ()) {
       T
-    } catch {
-      case _: Throwable => F
+    } else {
+      try {
+        jvm()
+        T
+      } catch {
+        case _: UnsatisfiedLinkError => F
+      }
     }
   }
 
