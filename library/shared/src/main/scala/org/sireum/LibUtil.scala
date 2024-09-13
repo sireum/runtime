@@ -52,15 +52,20 @@ object LibUtil {
   }
 
   @pure def mineOptions(fileContent: String): OptionMap = {
+    return mineOptionsWithPrefix("//", fileContent)
+  }
+
+  @pure def mineOptionsWithPrefix(prefix: String, fileContent: String): OptionMap = {
     var r: OptionMap = HashMap.empty
-    val lineCommentPrefix = conversions.String.toCis("//")
-    val optPrefix = conversions.String.toCis("//@")
+    val lineCommentPrefix = conversions.String.toCis(prefix)
+    val optPrefix = conversions.String.toCis(s"$prefix@")
 
     var key: String = ""
     var curr = ISZ[String]()
     for (line <- ops.StringOps(fileContent).cisLineStream.
       dropWhile((cis: ISZ[C]) => !ops.StringOps.startsWith(cis, lineCommentPrefix)).
-      takeWhile((cis: ISZ[C]) => ops.StringOps.startsWith(cis, lineCommentPrefix)) if ops.StringOps.startsWith(line, optPrefix)) {
+      takeWhile((cis: ISZ[C]) => ops.StringOps.startsWith(cis, lineCommentPrefix) ||
+        ops.StringOps.trim(cis).size == 0) if ops.StringOps.startsWith(line, optPrefix)) {
       val (start, end, continu): (Z, Z, B) = if (key.size == 0) {
         val i = ops.StringOps.indexOfFrom(line, ':', optPrefix.size)
         if (i < 0) {
