@@ -26,6 +26,7 @@
 
 package org.sireum
 
+import org.sireum.U8._
 
 object Init {
   @datatype class Plugin(val id: String,
@@ -547,6 +548,96 @@ import Init._
       ver.writeOver(checkstackVersion)
       println()
     }
+  }
+
+  def installMill(): Unit = {
+    def patchMill(mill: Os.Path): Unit = {
+      val content = mill.readU8s
+      mill.removeAll()
+      val size = content.size
+      val newContent = MSZ.create(content.size + 1024, u8"0")
+      val newSize = newContent.size
+      @strictpure def at(i: Z): C = if (0 <= i & i < size) conversions.U32.toC(conversions.U8.toU32(content(i))) else '\u0000'
+      @pure def isAt(s: String, i: Z): B = {
+        val cis = conversions.String.toCis(s)
+        var j = 0
+        while (j < cis.size) {
+          if (cis(j) != at(i + j)) {
+            return F
+          }
+          j = j + 1
+        }
+        return T
+      }
+      def put(j: Z, c: C): B = {
+        if (0 <= j & j < newSize) {
+          val b = conversions.U32.toU8(conversions.C.toU32(c))
+          newContent(j) = b
+          return T
+        }
+        return F
+      }
+      def putString(s: String, i: Z): Z = {
+        val cis = conversions.String.toCis(s)
+        var j = 0
+        while (j < cis.size) {
+          if (put(i + j, cis(j))) {
+            j = j + 1
+          } else {
+            return i + j
+          }
+        }
+        return i + j
+      }
+      var i: Z = 0
+      var j: Z = 0
+      var stop = F
+      val javaPrefix: String = "=\"java\""
+      val javaExePrefix: String = "=java.exe\""
+      while (i < size) {
+        if (!stop) {
+          if (isAt("%*", i) || isAt("\"$@\"", i)) {
+            j = putString("-i ", j)
+          } else if (isAt(javaPrefix, i)) {
+            val platform: String = Os.kind match {
+              case Os.Kind.Win => "win"
+              case Os.Kind.Mac => "mac"
+              case Os.Kind.Linux => "linux"
+              case Os.Kind.LinuxArm => "linux/arm"
+              case _ => ""
+            }
+            if (platform.size > 0) {
+              j = putString(s"=\"$$SIREUM_HOME/bin/$platform/java/bin/java\"", j)
+              i = i + javaPrefix.size
+            }
+          } else if (isAt(javaExePrefix, i)) {
+            j = putString(s"=%SIREUM_HOME%\\bin\\win\\java\\bin\\java.exe\"", j)
+            i = i + javaExePrefix.size
+          } else if (isAt("exit /B %errorlevel%", i)) {
+            stop = T
+          }
+        }
+        put(j, at(i))
+        j = j + 1
+        i = i + 1
+      }
+      mill.writeU8Partms(newContent, 0, j)
+      mill.chmod("+x")
+    }
+    val millVersion = versions.get("org.sireum.version.mill").get
+    val ver = home / "bin" / "mill.ver"
+    if (ver.exists && ver.read == millVersion) {
+      return
+    }
+    val url = s"https://github.com/com-lihaoyi/mill/releases/download/$millVersion/$millVersion-assembly"
+    val mill: Os.Path = (home / "bin" / (if (Os.isWin) "mill.bat" else "mill")).canon
+    println(s"Downloading mill $millVersion ...")
+    mill.downloadFrom(url)
+    println()
+    println(s"Patching $mill ...")
+    patchMill(mill)
+    println()
+    ver.writeOver(millVersion)
   }
 
   @pure def ideaDirPath(isUltimate: B, isServer: B): Os.Path = {
