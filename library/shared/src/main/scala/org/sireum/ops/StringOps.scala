@@ -31,6 +31,25 @@ import org.sireum.U64._
 import org.sireum.message.Reporter
 
 object StringOps {
+  @pure def isJavaId(cis: ISZ[C]): B = {
+    @strictpure def isDigit(c: C): B = '0' <= c && c <= '9'
+    @strictpure def isLetter(c: C): B = 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
+    if (cis.isEmpty) {
+      return F
+    }
+    val first = cis(0)
+    if (!(isLetter(first) || first == '_' || first == '$')) {
+      return F
+    }
+    for (i <- 1 until cis.size) {
+      val c = cis(i)
+      if (!(isLetter(c) || isDigit(c) || c == '_' || c == '$')) {
+        return F
+      }
+    }
+    return T
+  }
+
   @pure def trim(cis: ISZ[C]): String = {
     var i = 0
     val size = cis.size
@@ -499,4 +518,8 @@ object StringOps {
   }
 
   @strictpure def cisLineStream: Jen[ISZ[C]] = conversions.String.toCisLineStream(s)
+
+  @pure def isJavaId: B = {
+    return StringOps.isJavaId(conversions.String.toCis(s))
+  }
 }
