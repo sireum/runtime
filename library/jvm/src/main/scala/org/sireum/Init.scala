@@ -550,7 +550,7 @@ import Init._
     }
   }
 
-  def installMill(): Unit = {
+  def installMill(verbose: B): Unit = {
     def patchMill(mill: Os.Path): Unit = {
       val content = mill.readU8s
       mill.removeAll()
@@ -631,12 +631,18 @@ import Init._
     }
     val url = s"https://github.com/com-lihaoyi/mill/releases/download/$millVersion/$millVersion-assembly"
     val mill: Os.Path = (home / "bin" / (if (Os.isWin) "mill.bat" else "mill")).canon
-    println(s"Downloading mill $millVersion ...")
+    if (verbose) {
+      println(s"Downloading mill $millVersion ...")
+    }
     mill.downloadFrom(url)
-    println()
-    println(s"Patching $mill ...")
+    if (verbose) {
+      println()
+      println(s"Patching $mill ...")
+    }
     patchMill(mill)
-    println()
+    if (verbose) {
+      println()
+    }
     ver.writeOver(millVersion)
   }
 
