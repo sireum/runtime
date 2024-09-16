@@ -43,6 +43,21 @@ package org.sireum
 
 object Coursier {
 
+  @memoize def defaultCacheDir: Os.Path = {
+    Os.env("COURSIER_CACHE") match {
+      case Some(p) =>
+        val r = Os.path(p)
+        if (!r.exists) {
+          r.mkdirAll()
+        }
+        if (r.exists) {
+          return r
+        }
+      case _ =>
+    }
+    return Os.sireumHomeOpt.get / "lib" / "cache"
+  }
+
   def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
     val sireumHome = Os.sireumHomeOpt.get
     val csPrefix: ISZ[String] = Os.kind match {
@@ -67,7 +82,7 @@ object Coursier {
     val cache: ISZ[String] = cacheOpt match {
       case Some(c) => ISZ("--cache", c.string)
       case _ =>
-        val c = sireumHome / "lib" / "cache"
+        val c = defaultCacheDir
         if (ops.StringOps(c.string).startsWith(Os.home.string)) ISZ("--cache", c.string) else ISZ()
     }
     var repos = ISZ[String]("-r", "sonatype:release", "-r", "jitpack", "-r", (Os.home / ".m2" / "repository").toUri)
