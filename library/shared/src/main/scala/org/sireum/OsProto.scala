@@ -68,9 +68,9 @@ object OsProto {
 
     @pure def script: Proc
 
-    @pure def outLineAction(f: String => B): Proc
+    @pure def outLineAction(f: String => B @pure): Proc
 
-    @pure def errLineAction(f: String => B): Proc
+    @pure def errLineAction(f: String => B @pure): Proc
 
     @pure def shouldPrintCommands: B
 

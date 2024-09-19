@@ -986,7 +986,7 @@ object Os_Ext {
             val ss = s.split('\n')
             for (i <- 0 until ss.length - 1) {
               val line = ss(i)
-              if (la(line).asInstanceOf[B]) {
+              if (la.filter(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -999,7 +999,7 @@ object Os_Ext {
             baosLine.reset()
             baos.write(line.getBytes(SC.UTF_8))
             if (bytes(n - 1) == newLine) {
-              if (la(line).asInstanceOf[B]) {
+              if (la.filter(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -1031,7 +1031,7 @@ object Os_Ext {
           m(key) = value
         }
       }
-      for ((k, v) <- p.envMap.entries.elements) {
+      for ((k, v) <- p.envMap) {
         m(k.value) = v.value
       }
       if (p.shouldPrintEnv) {
@@ -1088,7 +1088,7 @@ object Os_Ext {
           m(key) = value
         }
       }
-      for ((k, v) <- p.envMap.entries.elements) {
+      for ((k, v) <- p.envMap) {
         val key = k.toString
         val value = v.toString
         m(key) = value

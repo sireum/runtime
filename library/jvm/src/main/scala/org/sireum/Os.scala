@@ -161,7 +161,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, Map.empty, T, None(), F, F, F, F, F, 0, F, F, None(), None())
+    return Proc(commands, cwd, ISZ(), T, None(), F, F, F, F, F, 0, F, F, None(), None())
   }
 
   @pure def procs(commands: String): Proc = {
@@ -374,6 +374,16 @@ object Os {
 
   object Proc {
 
+    @sig trait LineFilter {
+      def filter(line: String): B
+    }
+
+    @datatype class FunLineFilter(val f: String => B @pure) extends LineFilter {
+      def filter(line: String): B = {
+        return f(line)
+      }
+    }
+
     @sig sealed trait Result extends OsProto.Proc.Result
 
     object Result {
@@ -400,7 +410,7 @@ object Os {
 
   @datatype class Proc(val cmds: ISZ[String],
                        val wd: Path,
-                       val envMap: Map[String, String],
+                       val envMap: ISZ[(String, String)],
                        val shouldAddEnv: B,
                        val in: Option[String],
                        val isErrAsOut: B,
@@ -411,8 +421,8 @@ object Os {
                        val timeoutInMillis: Z,
                        val shouldUseStandardLib: B,
                        val isScript: B,
-                       val outLineActionOpt: Option[String => B],
-                       val errLineActionOpt: Option[String => B]) extends OsProto.Proc {
+                       val outLineActionOpt: Option[Proc.LineFilter],
+                       val errLineActionOpt: Option[Proc.LineFilter]) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       val thisL = this
@@ -426,7 +436,7 @@ object Os {
 
     @pure def env(m: ISZ[(String, String)]): Proc = {
       val thisL = this
-      return thisL(envMap = this.envMap ++ m)
+      return thisL(envMap = (Map.empty[String, String] ++ this.envMap ++ m).entries)
     }
 
     @pure def input(content: String): Proc = {
@@ -479,14 +489,14 @@ object Os {
       return thisL(isScript = T)
     }
 
-    @pure def outLineAction(f: String => B): Proc = {
+    @pure def outLineAction(f: String => B @pure): Proc = {
       val thisL = this
-      return thisL(outLineActionOpt = Some(f))
+      return thisL(outLineActionOpt = Some(Proc.FunLineFilter(f)))
     }
 
-    @pure def errLineAction(f: String => B): Proc = {
+    @pure def errLineAction(f: String => B @pure): Proc = {
       val thisL = this
-      return thisL(errLineActionOpt = Some(f))
+      return thisL(errLineActionOpt = Some(Proc.FunLineFilter(f)))
     }
 
     def run(): Proc.Result = {
