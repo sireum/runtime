@@ -147,45 +147,76 @@ import Init._
     return homeBin / platform(Os.kind) / (if (kind == Os.Kind.Win) "7za.exe" else "7za")
   }
 
-  def installJava(): Unit = {
+  def installJava(vs: Map[String, String]): B = {
     homeBinPlatform.mkdirAll()
 
     if (Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
       val javaHome = Os.javaHomeOpt(kind, Some(home)).get
+      val javaVersion = vs.get("org.sireum.version.java").get
+      val nikVersion = vs.get("org.sireum.version.nik").get
+      val nikJavaVersion = ops.StringOps(s"$nikVersion-$javaVersion").replaceAllLiterally("+", "%2B")
+      var isNik = T
+      var javaUrl: String = ""
+      kind match {
+        case Os.Kind.LinuxArm =>
+          isNik = F
+          javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
+        case Os.Kind.Linux =>
+          javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-linux-amd64.tar.gz"
+        case Os.Kind.Win =>
+          if (Os.isWinArm) {
+            isNik = F
+            javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$nikVersion-windows-aarch64-full.zip"
+          } else {
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-windows-amd64.zip"
+          }
+        case Os.Kind.Mac =>
+          if (Os.isMacArm) {
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-aarch64.tar.gz"
+          } else {
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-amd64.tar.gz"
+          }
+        case _ =>
+          return F
+      }
+
+      val VER: String = if (isNik) s"$javaVersion-$nikVersion" else javaVersion
       val javaVer = javaHome / "VER"
-      if (!javaVer.exists || ops.StringOps(javaVer.read).trim != javaVersion) {
-        val dropName: String = kind match {
-          case Os.Kind.Mac =>
-            if (Os.isMacArm) s"bellsoft-jdk$javaVersion-macos-aarch64-full.tar.gz"
-            else s"bellsoft-jdk$javaVersion-macos-amd64-full.tar.gz"
-          case Os.Kind.Linux => s"bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
-          case Os.Kind.LinuxArm => s"bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
-          case Os.Kind.Win =>
-            if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) s"bellsoft-jdk$javaVersion-windows-aarch64-full.zip"
-            else s"bellsoft-jdk$javaVersion-windows-amd64-full.zip"
-          case Os.Kind.Unsupported => return
-        }
-        val url = s"https://download.bell-sw.com/java/$javaVersion/$dropName"
-        val drop = cache / dropName
+
+      def diffVersion: B = {
+        val content = ops.StringOps(javaVer.read).trim
+        return content != VER && content != javaVersion
+      }
+
+      if (!javaVer.exists || diffVersion) {
+        val drop = cache / ops.StringOps(javaUrl).substring(ops.StringOps(javaUrl).lastIndexOf('/') + 1, javaUrl.size)
         if (!drop.exists) {
-          println(s"Please wait while downloading JDK $javaVersion ...")
-          drop.downloadFrom(url)
+          println(s"Please wait while downloading ${if (isNik) s"Liberica Native Image Kit JDK Full $javaVersion-$nikVersion" else s"Liberica JDK Full $javaVersion"} ...")
+          drop.downloadFrom(javaUrl)
           println()
         }
-        println(s"Extracting JDK $javaVersion ...")
-        javaHome.removeAll()
-        if (kind == Os.Kind.Win) {
-          drop.unzipTo(homeBinPlatform)
+
+        println(s"Extracting JDK $VER ...")
+        val d = Os.tempDir()
+        if (Os.isWin) {
+          drop.unzipTo(d)
         } else {
-          drop.unTarGzTo(homeBinPlatform)
+          drop.unTarGzTo(d)
         }
+        javaHome.removeAll()
+        if (Os.isMac) {
+          (d.list(0) / "Contents" / "Home").moveTo(javaHome)
+        } else {
+          d.list(0).moveTo(javaHome)
+        }
+        d.removeAll()
+
         println()
-        for (d <- homeBinPlatform.list if d.isDir && ops.StringOps(d.name).startsWith("jdk-")) {
-          d.moveTo(javaHome)
-        }
-        javaVer.writeOver(javaVersion)
+
+        javaVer.writeOver(VER)
       }
     }
+    return T
   }
 
   def installScala(): Unit = {
@@ -557,7 +588,9 @@ import Init._
       val size = content.size
       val newContent = MSZ.create(content.size + 1024, u8"0")
       val newSize = newContent.size
+
       @strictpure def at(i: Z): C = if (0 <= i & i < size) conversions.U32.toC(conversions.U8.toU32(content(i))) else '\u0000'
+
       @pure def isAt(s: String, i: Z): B = {
         val cis = conversions.String.toCis(s)
         var j = 0
@@ -569,6 +602,7 @@ import Init._
         }
         return T
       }
+
       def put(j: Z, c: C): B = {
         if (0 <= j & j < newSize) {
           val b = conversions.U32.toU8(conversions.C.toU32(c))
@@ -577,6 +611,7 @@ import Init._
         }
         return F
       }
+
       def putString(s: String, i: Z): Z = {
         val cis = conversions.String.toCis(s)
         var j = 0
@@ -589,6 +624,7 @@ import Init._
         }
         return i + j
       }
+
       var i: Z = 0
       var j: Z = 0
       var stop = F
@@ -624,6 +660,7 @@ import Init._
       mill.writeU8Partms(newContent, 0, j)
       mill.chmod("+x")
     }
+
     val millVersion = versions.get("org.sireum.version.mill").get
     val ver = home / "bin" / "mill.ver"
     if (ver.exists && ver.read == millVersion) {
@@ -943,6 +980,7 @@ import Init._
 
     if (buildSfx && !pwd7zsfx.exists) {
       println(s"Please wait while downloading ${pwd7zsfx.name} ...")
+
       def downloadSfx(kind: Os.Kind.Type): Unit = {
         val baseUrl = "https://github.com/sireum/rolling/releases/download/7z.sfx"
         val (f, url): (Os.Path, String) = kind match {
@@ -955,6 +993,7 @@ import Init._
         f.downloadFrom(url)
         f.chmod("+x")
       }
+
       for (kind <- Os.Kind.elements if kind != Os.Kind.Unsupported) {
         downloadSfx(kind)
       }
@@ -1343,7 +1382,7 @@ import Init._
 
 
   def basicDeps(): Unit = {
-    installJava()
+    installJava(versions)
     installScala()
     installScalacPlugin()
     install7z()
@@ -1378,6 +1417,63 @@ import Init._
     installMaryTTS()
     installCheckStack()
     installScripts()
+  }
+
+  def init(): B = {
+    if (!home.exists) {
+      home.mkdirAll()
+    }
+
+    val sireumV: String = Os.env("SIREUM_V") match {
+      case Some(v) => v
+      case _ => "master"
+    }
+
+    val sireumInitV: String = Os.env("SIREUM_INIT_V") match {
+      case Some(v) => v
+      case _ => if (sireumV == "master") "latest" else sireumV
+    }
+
+    val cache: Os.Path = Os.env("SIREUM_CACHE") match {
+      case Some(path) =>
+        val p = Os.path(path)
+        p.mkdirAll()
+        p
+      case _ =>
+        val p = Os.home / "Downloads" / "sireum"
+        p.mkdirAll()
+        p
+    }
+
+    val sireumJar = home / "bin" / "sireum.jar"
+    if (!sireumJar.exists) {
+      println("Please wait while downloading Sireum ...")
+      sireumJar.downloadFrom(s"https://github.com/sireum/init/releases/download/$sireumInitV/sireum.jar")
+      println()
+    }
+
+    val sireum = home / "bin" / (if (Os.isWin) "sireum.bat" else "sireum")
+    if (!sireum.exists) {
+      sireum.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/${sireum.name}")
+    }
+
+    val versionsPath = home / "versions.properties"
+    if (!versionsPath.exists) {
+      versionsPath.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/versions.properties")
+    }
+
+    val versions = versionsPath.properties
+    if (!installJava(versions)) {
+      eprintln("Unsupported platform")
+      return F
+    }
+
+    if (!(home / "bin" / "build.cmd").exists && Os.env("SIREUM_NO_SETUP") != Some("true")) {
+      val java = home.relativize(homeBinPlatform) / "java" / "bin" / (if (Os.isWin) "java.exe" else "java")
+      val jar = home.relativize(sireumJar)
+      proc"$java -jar $jar --setup".at(home).runCheck()
+    }
+    return T
   }
 
 }
