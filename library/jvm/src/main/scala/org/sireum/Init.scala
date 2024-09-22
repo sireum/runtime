@@ -1462,6 +1462,16 @@ import Init._
       versionsPath.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/versions.properties")
     }
 
+    val licensePath = home / "license.txt"
+    if (!licensePath.exists) {
+      licensePath.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/license.txt")
+    }
+
+    val readme = home / "readme.md"
+    if (!readme.exists) {
+      readme.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/readme.md")
+    }
+
     val versions = versionsPath.properties
     if (!installJava(versions)) {
       eprintln("Unsupported platform")
@@ -1471,7 +1481,7 @@ import Init._
     if (!(home / "bin" / "build.cmd").exists && Os.env("SIREUM_NO_SETUP") != Some("true")) {
       val java = home.relativize(homeBinPlatform) / "java" / "bin" / (if (Os.isWin) "java.exe" else "java")
       val jar = home.relativize(sireumJar)
-      proc"$java -jar $jar --setup".at(home).runCheck()
+      proc"$java -jar $jar --setup".console.env(ISZ("SIREUM_HOME" ~> home.string)).at(home).runCheck()
     }
     return T
   }
