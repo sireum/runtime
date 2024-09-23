@@ -80,7 +80,8 @@ import DependencyManager._
                                 val javaHome: Os.Path,
                                 val scalaHome: Os.Path,
                                 val sireumHome: Os.Path,
-                                val cacheOpt: Option[Os.Path]) {
+                                val cacheOpt: Option[Os.Path],
+                                val proxy: Coursier.Proxy) {
 
   val sireumJar: Os.Path = sireumHome / "bin" / "sireum.jar"
 
@@ -280,7 +281,7 @@ import DependencyManager._
     fetchedDeps.get(key) match {
       case Some(r) => return r
       case _ =>
-        val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers)
+        val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers, proxy)
         fetchedDeps = fetchedDeps + key ~> r
         return r
     }

@@ -27,9 +27,9 @@ package org.sireum
 
 
 @enum object CoursierClassifier {
-  'Default
-  'Javadoc
-  'Sources
+  "Default"
+  "Javadoc"
+  "Sources"
 }
 
 @datatype class CoursierFileInfo(val org: String,
@@ -42,6 +42,17 @@ package org.sireum
 }
 
 object Coursier {
+
+  @datatype class Proxy(val hostOpt: Option[String],
+                        val nonHostsOpt: Option[String],
+                        val portOpt: Option[String],
+                        val protocolOpt: Option[String],
+                        val protocolUserEnvKeyOpt: Option[String],
+                        val protocolPasswordEnvKeyOpt: Option[String])
+
+  object Proxy {
+    @strictpure def empty: Proxy = Proxy(None(), None(), None(), None(), None(), None())
+  }
 
   @memoize def defaultCacheDir: Os.Path = {
     Os.env("COURSIER_CACHE") match {
@@ -58,25 +69,49 @@ object Coursier {
     return Os.sireumHomeOpt.get / "lib" / "cache"
   }
 
-  def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String]): ISZ[String] = {
+  def commandPrefix(isResolve: B, scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], proxy: Proxy): ISZ[String] = {
     val sireumHome = Os.sireumHomeOpt.get
+    var proxyOptions = ISZ[String]()
+    def updateProxyOption(key: String, opt: Option[String], isEnv: B): Unit = {
+      opt match {
+        case Some(v) =>
+          var value = v
+          if (isEnv) {
+            Os.env(value) match {
+              case Some(value2) => value = value2
+              case _ =>
+                eprintln(s"Environment variable $value is not defined; skipping setting $key option")
+                return
+            }
+          }
+          proxyOptions = proxyOptions :+ s"-J-D$key=$value"
+        case _ =>
+      }
+    }
+    updateProxyOption("https.proxyProtocol", proxy.protocolOpt, F)
+    updateProxyOption("https.proxyHost", proxy.hostOpt, F)
+    updateProxyOption("https.proxyPort", proxy.portOpt, F)
+    updateProxyOption("https.proxyNonHosts", proxy.nonHostsOpt, F)
+    updateProxyOption("https.proxyUser", proxy.protocolUserEnvKeyOpt, T)
+    updateProxyOption("https.proxyPassword", proxy.protocolPasswordEnvKeyOpt, T)
     val csPrefix: ISZ[String] = Os.kind match {
       case Os.Kind.Win =>
         val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
-        ISZ(coursierExe.string)
+        coursierExe.string +: proxyOptions
       case Os.Kind.Linux =>
         val coursierExe = sireumHome / "bin" / "linux" / "cs"
-        ISZ(coursierExe.string)
+        coursierExe.string +: proxyOptions
       case Os.Kind.LinuxArm =>
         val coursierExe = sireumHome / "bin" / "linux" / "arm" / "cs"
-        ISZ(coursierExe.string)
+        coursierExe.string +: proxyOptions
       case Os.Kind.Mac =>
         val coursierExe = sireumHome / "bin" / "mac" / "cs"
-        ISZ(coursierExe.string)
+        coursierExe.string +: proxyOptions
       case _ =>
         val javaExe = Os.javaExe(Some(sireumHome))
         val coursierJar = sireumHome / "lib" / "coursier.jar"
-        ISZ[String](javaExe.string, "-jar", coursierJar.string)
+        ISZ[String](javaExe.string, "-jar", coursierJar.string) ++
+          (for (opt <- proxyOptions) yield ops.StringOps(opt).substring(2, opt.size))
     }
 
     val cache: ISZ[String] = cacheOpt match {
@@ -94,8 +129,8 @@ object Coursier {
   }
 
   def resolve(scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
-              printTree: B): HashMap[String, HashMap[String, String]] = {
-    val resolveCommands = commandPrefix(T, scalaVersion, cacheOpt, mavenRepoUrls) ++
+              printTree: B, proxy: Proxy): HashMap[String, HashMap[String, String]] = {
+    val resolveCommands = commandPrefix(T, scalaVersion, cacheOpt, mavenRepoUrls, proxy) ++
       (if (printTree) ISZ[String]("--tree") else ISZ[String]()) ++ deps
 
     var moduleVersionOrgMap = HashMap.empty[String, HashMap[String, String]]
@@ -114,14 +149,14 @@ object Coursier {
     return moduleVersionOrgMap
   }
 
-  def fetch(scalaVersion: String, deps: ISZ[String]): ISZ[CoursierFileInfo] = {
-    return fetchClassifiers(scalaVersion, None(), ISZ(), deps, ISZ(CoursierClassifier.Default))
+  def fetch(scalaVersion: String, deps: ISZ[String], proxy: Proxy): ISZ[CoursierFileInfo] = {
+    return fetchClassifiers(scalaVersion, None(), ISZ(), deps, ISZ(CoursierClassifier.Default), proxy)
   }
 
   def fetchClassifiers(scalaVersion: String, cacheOpt: Option[Os.Path], mavenRepoUrls: ISZ[String], deps: ISZ[String],
-                       cls: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
+                       cls: ISZ[CoursierClassifier.Type], proxy: Proxy): ISZ[CoursierFileInfo] = {
 
-    val moduleVersionOrgMap = resolve(scalaVersion, cacheOpt, mavenRepoUrls, deps, F)
+    val moduleVersionOrgMap = resolve(scalaVersion, cacheOpt, mavenRepoUrls, deps, F, proxy)
 
     var classifiers = ISZ[String]()
     for (cl <- cls) {
@@ -133,7 +168,7 @@ object Coursier {
       }
     }
 
-    val fetchCommands = commandPrefix(F, scalaVersion, cacheOpt, mavenRepoUrls) ++ classifiers ++ deps
+    val fetchCommands = commandPrefix(F, scalaVersion, cacheOpt, mavenRepoUrls, proxy) ++ classifiers ++ deps
 
     var cifs = ISZ[CoursierFileInfo]()
 
