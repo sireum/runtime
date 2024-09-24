@@ -1382,7 +1382,9 @@ import Init._
 
 
   def basicDeps(): Unit = {
-    installJava(versions)
+    if (!init()) {
+      return
+    }
     installScala()
     installScalacPlugin()
     install7z()
@@ -1424,10 +1426,7 @@ import Init._
       home.mkdirAll()
     }
 
-    val sireumV: String = Os.env("SIREUM_V") match {
-      case Some(v) => v
-      case _ => "master"
-    }
+    val sireumV: String = commit
 
     val sireumInitV: String = Os.env("SIREUM_INIT_V") match {
       case Some(v) => v
