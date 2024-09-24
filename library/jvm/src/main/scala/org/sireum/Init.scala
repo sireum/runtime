@@ -710,7 +710,7 @@ import Init._
   }
 
   @memoize def isIdeaInUserHome: B = {
-    return ops.StringOps(home.string).startsWith(Os.home.canon.string)
+    return Os.env("GITHUB_ACTION").isEmpty && ops.StringOps(home.string).startsWith(Os.home.canon.string)
   }
 
   def ideaConfig(isSetup: B, isDev: B, isUltimate: B, projectPathOpt: Option[Os.Path]): Os.Path = {
@@ -1431,24 +1431,13 @@ import Init._
 
     val sireumInitV: String = Os.env("SIREUM_INIT_V") match {
       case Some(v) => v
-      case _ => if (sireumV == "master") "latest" else sireumV
-    }
-
-    val cache: Os.Path = Os.env("SIREUM_CACHE") match {
-      case Some(path) =>
-        val p = Os.path(path)
-        p.mkdirAll()
-        p
-      case _ =>
-        val p = Os.home / "Downloads" / "sireum"
-        p.mkdirAll()
-        p
+      case _ => if (sireumV == "master") "dev" else sireumV
     }
 
     val sireumJar = home / "bin" / "sireum.jar"
     if (!sireumJar.exists) {
       println("Please wait while downloading Sireum ...")
-      sireumJar.downloadFrom(s"https://github.com/sireum/init/releases/download/$sireumInitV/sireum.jar")
+      sireumJar.downloadFrom(s"https://github.com/sireum/kekinian/releases/download/$sireumInitV/sireum.jar")
       println()
     }
 
