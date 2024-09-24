@@ -110,8 +110,8 @@ object Coursier {
       case _ =>
         val javaExe = Os.javaExe(Some(sireumHome))
         val coursierJar = sireumHome / "lib" / "coursier.jar"
-        ISZ[String](javaExe.string, "-jar", coursierJar.string) ++
-          (for (opt <- proxyOptions) yield ops.StringOps(opt).substring(2, opt.size))
+        (javaExe.string +: (for (opt <- proxyOptions) yield ops.StringOps(opt).substring(2, opt.size))) ++
+          ISZ[String]("-jar", coursierJar.string)
     }
 
     val cache: ISZ[String] = cacheOpt match {
