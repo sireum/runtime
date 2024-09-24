@@ -41,7 +41,7 @@ import Init._
                      val kind: Os.Kind.Type,
                      val versions: Map[String, String]) {
 
-  val commit: String = Os.env("SIREUM_V") match {
+  val sireumV: String = Os.env("SIREUM_V") match {
     case Some(tip) => tip
     case _ => "master"
   }
@@ -372,16 +372,16 @@ import Init._
   def pwd7zUrl: String = {
     Os.kind match {
       case Os.Kind.Win =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", commit)
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", sireumV)
         return s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
       case Os.Kind.Mac =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", commit)
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", sireumV)
         return s"https://github.com/sireum/bin-mac/raw/$sha/7za"
       case Os.Kind.Linux =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", sireumV)
         return s"https://github.com/sireum/bin-linux/raw/$sha/7za"
       case Os.Kind.LinuxArm =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", commit)
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", sireumV)
         return s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
       case _ => halt("Infeasible")
     }
@@ -690,7 +690,7 @@ import Init._
   def installScripts(): Unit = {
     val install = homeBin / "install"
     if (!install.exists) {
-      val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/install", commit)
+      val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/install", sireumV)
       val drop = cache / s"install-$sha.zip"
       if (!drop.exists) {
         println("Please wait while downloading additional installation scripts ...")
@@ -788,7 +788,6 @@ import Init._
   }
 
   def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
-    deps()
     val devSuffix: String = if (isDev) "-dev" else ""
     if (isServer && Os.kind != Os.Kind.Linux) {
       eprintln(s"Server setup is only available in Linux")
@@ -1048,7 +1047,7 @@ import Init._
       println("done!")
     }
 
-    def patchIcon(isWin: B): Unit = {
+    def patchIcon(): Unit = {
       if (isUltimate) {
         return
       }
@@ -1190,7 +1189,7 @@ import Init._
       installFonts()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
-      patchIcon(F)
+      patchIcon()
       patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "bin" / "idea.properties")
       patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
@@ -1231,7 +1230,7 @@ import Init._
       installFonts()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
-      patchIcon(F)
+      patchIcon()
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
@@ -1254,7 +1253,7 @@ import Init._
       installFonts()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
-      patchIcon(T)
+      patchIcon()
       patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
@@ -1321,7 +1320,7 @@ import Init._
       val resources = home / "resources"
       val noResources = !resources.exists
       if (noResources) {
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("resources", commit)
+        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("resources", sireumV)
         val drop = cache / s"resources-$sha.zip"
         if (!drop.exists) {
           println("Please wait while downloading resources ...")
@@ -1369,12 +1368,12 @@ import Init._
     if (kind == Os.Kind.Win) {
       val slangRunScript = homeBin / "slang-run.bat"
       if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.bat")
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/slang-run.bat")
       }
     } else {
       val slangRunScript = homeBin / "slang-run.sh"
       if (!slangRunScript.exists) {
-        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/slang-run.sh")
+        slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/slang-run.sh")
         slangRunScript.chmod("+x")
       }
     }
@@ -1382,7 +1381,7 @@ import Init._
 
 
   def basicDeps(): Unit = {
-    if (!init()) {
+    if (!init(F)) {
       return
     }
     installScala()
@@ -1391,12 +1390,12 @@ import Init._
     if (kind == Os.Kind.Win) {
       val sireumScript = homeBin / "sireum.bat"
       if (!sireumScript.exists) {
-        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum.bat")
+        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum.bat")
       }
     } else {
       val sireumScript = homeBin / "sireum"
       if (!sireumScript.exists) {
-        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$commit/bin/sireum")
+        sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum")
         sireumScript.chmod("+x")
       }
     }
@@ -1421,12 +1420,10 @@ import Init._
     installScripts()
   }
 
-  def init(): B = {
+  def init(setup: B): B = {
     if (!home.exists) {
       home.mkdirAll()
     }
-
-    val sireumV: String = commit
 
     val sireumInitV: String = Os.env("SIREUM_INIT_V") match {
       case Some(v) => v
@@ -1460,16 +1457,14 @@ import Init._
       readme.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/readme.md")
     }
 
-    val versions = versionsPath.properties
-    if (!installJava(versions)) {
+    val vs: Map[String, String] = if (versions.isEmpty) versionsPath.properties else versions
+    if (!installJava(vs)) {
       eprintln("Unsupported platform")
       return F
     }
 
-    if (!(home / "bin" / "build.cmd").exists && Os.env("SIREUM_NO_SETUP") != Some("true")) {
-      val java = home.relativize(homeBinPlatform) / "java" / "bin" / (if (Os.isWin) "java.exe" else "java")
-      val jar = home.relativize(sireumJar)
-      proc"$java -jar $jar --setup".console.env(ISZ("SIREUM_HOME" ~> home.string)).at(home).runCheck()
+    if (setup && Os.env("SIREUM_NO_SETUP") != Some("true")) {
+      distro(F, F, F, F)
     }
     return T
   }
