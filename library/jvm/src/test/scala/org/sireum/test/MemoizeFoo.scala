@@ -1,3 +1,4 @@
+// #Sireum
 /*
  * Copyright (c) 2017-2024, Robby, Kansas State University
  * All rights reserved.
@@ -23,25 +24,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.test
 
-import org.sireum.test._
+import org.sireum._
 
-object NFoo_Ext {
-  type NA = String
-
-  def x: Z = 5
-
-  def y: NA = "abc"
-
-  def foo[T](x: Z): T = Z(2).asInstanceOf[T]
-}
-
-class ExtTest extends TestSuite {
-
-  val tests = Tests {
-    * - assert(NFoo.x =~ Z(5))
-
-    * - assert(NFoo.foo[Z](4) =~ Z(2))
+object MemoizeFoo {
+  @memoize def foo(x: Z, @hidden f: () => Unit): Z = {
+    f()
+    return x + 1
   }
 }

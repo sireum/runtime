@@ -601,7 +601,7 @@ package org.sireum
 
   def sireumJarPathString: String = $
 
-  def nativ: Unit = $
+  def nativ(): Unit = $
 
 }
 
