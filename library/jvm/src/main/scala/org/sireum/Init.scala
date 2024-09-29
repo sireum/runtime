@@ -419,47 +419,19 @@ import Init._
       return
     }
 
-    val releaseName = s"z3-$version"
-    kind match {
+    val filename: String = kind match {
       case Os.Kind.Win =>
-      case Os.Kind.Linux =>
-      case Os.Kind.LinuxArm =>
+        if (Os.isWinArm) s"z3-$version-win-arm64.zip"
+        else s"z3-$version-win-amd64.zip"
       case Os.Kind.Mac =>
+        if (Os.isMacArm) s"z3-$version-mac-arm64.zip"
+        else s"z3-$version-mac-amd64.zip"
+      case Os.Kind.Linux => s"z3-$version-linux-amd64.zip"
+      case Os.Kind.LinuxArm => s"z3-$version-linux-arm64.zip"
       case _ => return
     }
-    var filename: String = ""
-
-    def updateFilenameUrl(): Unit = {
-      GitHub.repo("Z3Prover", "z3").releases.
-        find((r: GitHub.Release) => r.name == releaseName) match {
-        case Some(r) =>
-          val desc: String = kind match {
-            case Os.Kind.Win => if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "arm64-win" else "x64-win"
-            case Os.Kind.Linux => "x64-glibc"
-            case Os.Kind.LinuxArm => "arm64-glibc"
-            case Os.Kind.Mac => if (Os.isMacArm) "arm64-osx" else "x64-osx"
-            case _ => halt("Infeasible")
-          }
-          r.assets.find((asset: GitHub.Asset) => ops.StringOps(asset.name).endsWith(".zip") &&
-            ops.StringOps(asset.name).contains(desc)) match {
-            case Some(asset) =>
-              if (filename.size == 0 || filename > asset.name) {
-                filename = asset.name
-              }
-            case _ => halt(s"Could not find Z3 v$version for $kind")
-          }
-        case _ => halt(s"Could not find Z3 v$version")
-      }
-    }
-
-    updateFilenameUrl()
-
-    val url: String =
-      if (kind == Os.Kind.LinuxArm && version == "4.13.0")
-        s"https://github.com/sireum/rolling/releases/download/z3/$filename"
-      else s"https://github.com/Z3Prover/z3/releases/download/z3-$version/$filename"
+    val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
     val bundle = cache / filename
-
     if (!bundle.exists) {
       println(s"Please wait while downloading Z3 $version ...")
       bundle.up.mkdirAll()
