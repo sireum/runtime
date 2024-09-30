@@ -81,12 +81,19 @@ object Reflection {
       conversions.U8.toU64(a(6)) << u64"8" | conversions.U8.toU64(a(7))
   }
 
+  @pure def find(reflections: ISZ[Reflection], name: ISZ[String]): Option[Reflection] = {
+    val n = st"${(name, ".")}".render
+    for (r <- reflections if r.info(n).nonEmpty) {
+      return Some(r)
+    }
+    return None()
+  }
 }
 
 import Reflection._
 
 @sig trait Reflection {
-  def kind(name: String): Option[Info] = {
+  def info(name: String): Option[Info] = {
     return None()
   }
   def invoke0[T, R](owner: String, name: String, receiverOpt: Option[T]): R = {
