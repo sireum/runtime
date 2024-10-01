@@ -2432,7 +2432,7 @@ object Json {
           return Printer.printObject(for (p <- binding.fromObject(o)) yield (p._1, printValue(p._2)))
         case ValueKind.Array =>
           val es = binding.fromArray(o)
-          return Printer.printIS(ISZOps(es).forall(isSimple), es.map(printValue _))
+          return Printer.printIS(ISZOps(es).forall(isSimple _), es.map(printValue _))
         case ValueKind.True => return Printer.trueSt
         case ValueKind.False => return Printer.falseSt
         case ValueKind.Null => return Printer.nullSt
