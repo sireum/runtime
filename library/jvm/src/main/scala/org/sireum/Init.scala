@@ -1690,12 +1690,12 @@ import Init._
         case _ => halt("Infeasible")
       }
       rname = ops.StringOps(rname).toLower
-      val cmd: ISZ[String] = kind match {
-        case Os.Kind.Win => ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files
-        case Os.Kind.Mac => ISZ[String]("tar", "--options", "gzip:compression-level=9", "-cfz", rname) ++ files
-        case _ => ISZ[String]("tar", "-I", "gzip -9", "-cfz", rname) ++ files
+      val proc: Os.Proc = kind match {
+        case Os.Kind.Win => Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files)
+        case Os.Kind.Mac => Os.proc(ISZ[String]("tar", "cfz", rname) ++ files).env(ISZ("GZIP" ~> "-9"))
+        case _ => Os.proc(ISZ[String]("tar", "-I", "gzip -9", "-cfz", rname) ++ files)
       }
-      Os.proc(cmd).at(home.up.canon).runCheck()
+      proc.at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
