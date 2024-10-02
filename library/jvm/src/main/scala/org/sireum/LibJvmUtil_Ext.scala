@@ -3756,7 +3756,7 @@ class LibJvmUtil_Ext extends Reflection {
   }
 
   private lazy val method3Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](145)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](146)
     r.put(0x6FDEC8AB0C968E16L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.keyIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "keyIndexOfFrom").value
     r.put(0x52BB07D48F688896L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.valueIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "valueIndexOfFrom").value
     r.put(0x228EEDE99FBBA817L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.indexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "indexOfFrom").value
@@ -3886,6 +3886,7 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x851B1A8A32CFFEC4L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.ObjPrinter](r).printUnionFind(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.ObjPrinter", "printUnionFind").value
     r.put(0xC24A2E235997D748L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.GitHub.Repository.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.GitHub.Repository", "apply").value
     r.put(0xDA6C2AA0F5002E98L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.Init.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.Init", "apply").value
+    r.put(0x3A7F5D7D5E0081EDL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Init](r).installVSCodium(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Init", "installVSCodium").value
     r.put(0xCE6EED424CD35C08L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Init](r).ideaPlugins(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Init", "ideaPlugins").value
     r.put(0x5B2DF5DFB4F876F2L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Impl](r).writeU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeU8Parts").value
     r.put(0x69E527D13D6CA649L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Impl](r).writeOverU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeOverU8Parts").value
@@ -3906,7 +3907,7 @@ class LibJvmUtil_Ext extends Reflection {
   }
 
   private lazy val method4Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](18)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](17)
     r.put(0x06CE4C1C6299A4B7L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.isEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "isEqualExcept2").value
     r.put(0x462192823D0C380DL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.msEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "msEqualExcept2").value
     r.put(0x42524DE40C4B0149L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Graph.Internal.addDataEdge(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Graph.Internal", "addDataEdge").value
@@ -3924,7 +3925,6 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x2671667D67ADD78FL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.CoursierFileInfo.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.CoursierFileInfo", "apply").value
     r.put(0x0AC204F233E5D49EL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Init.Plugin.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Init.Plugin", "apply").value
     r.put(0x02E547788D981E95L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).ideaConfig(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "ideaConfig").value
-    r.put(0x05BE5790F8372819L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).distro(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "distro").value
     r
   }
 
@@ -3948,12 +3948,13 @@ class LibJvmUtil_Ext extends Reflection {
   }
 
   private lazy val method6Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any](5)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any](6)
     r.put(0x4FA7CB1E41AEA038L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.resolve(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier", "resolve").value
     r.put(0x953C464460D14B29L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.fetchClassifiers(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier", "fetchClassifiers").value
     r.put(0x0A7E12ED73F8644FL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Graph.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Graph", "apply").value
     r.put(0xE8EF57F0E31EDDF8L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.MBox6.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.MBox6", "apply").value
     r.put(0xF6A1101DA2660EB3L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.Proxy.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier.Proxy", "apply").value
+    r.put(0x05BE5790F8372819L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => X[org.sireum.Init](r).distro(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(F, "org.sireum.Init", "distro").value
     r
   }
 
@@ -8069,6 +8070,7 @@ class LibJvmUtil_Ext extends Reflection {
       Method(isInObject = false, isByName = F, name = "installMill", params = ISZ("verbose")),
       Method(isInObject = false, isByName = F, name = "ideaDirPath", params = ISZ("isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "installScripts", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "installVSCodium", params = ISZ("existingInstallOpt", "extensionsDirOpt", "extensions")),
       Method(isInObject = false, isByName = T, name = "isIdeaInUserHome", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "ideaConfig", params = ISZ("isSetup", "isDev", "isUltimate", "projectPathOpt")),
       Method(isInObject = false, isByName = F, name = "ideaPlugins", params = ISZ("isDev", "isUltimate", "projectPathOpt")),
@@ -8076,7 +8078,7 @@ class LibJvmUtil_Ext extends Reflection {
       Method(isInObject = false, isByName = F, name = "zipName", params = ISZ("id", "version")),
       Method(isInObject = false, isByName = F, name = "downloadPlugins", params = ISZ("isDev", "pluginFilter")),
       Method(isInObject = false, isByName = F, name = "extractPlugins", params = ISZ("pluginsDir", "pluginFilter")),
-      Method(isInObject = false, isByName = F, name = "distro", params = ISZ("isDev", "buildSfx", "isUltimate", "isServer")),
+      Method(isInObject = false, isByName = F, name = "distro", params = ISZ("isDev", "buildSfx", "buildIve", "buildHamrPackage", "isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "basicDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "proyekCompileDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "logikaDeps", params = ISZ()),

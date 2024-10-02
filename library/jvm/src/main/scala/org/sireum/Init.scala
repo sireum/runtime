@@ -1079,7 +1079,8 @@ import Init._
     }
   }
 
-  def distro(isDev: B, buildSfx: B, isUltimate: B, isServer: B): Unit = {
+  def distro(isDev: B, buildSfx: B, buildIve: B, buildHamrPackage: B, isUltimate: B, isServer: B): Unit = {
+    assert(buildIve | buildHamrPackage)
     val devSuffix: String = if (isDev) "-dev" else ""
     if (isServer && Os.kind != Os.Kind.Linux) {
       eprintln(s"Server setup is only available in Linux")
@@ -1116,16 +1117,11 @@ import Init._
         "linux" ~> ".tar.gz" +
         "linux/arm" ~> "-aarch64.tar.gz"
 
-    val distroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
+    val hamrDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
-        ISZ(".settings"),
-        ISZ("bin", "scala"),
         ISZ("bin", "win", "7za.exe"),
-        ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
-        ISZ("bin", "win", "idea"),
-        ISZ("bin", "win", "java"),
         ISZ("bin", "win", "sireum.exe"),
         ISZ("bin", "win", "vscodium"),
         ISZ("bin", "win", "z3"),
@@ -1138,25 +1134,15 @@ import Init._
         ISZ("bin", "install", "isabelle.cmd"),
         ISZ("bin", "install", "rust.cmd"),
         ISZ("bin", "install", "rustrover.cmd"),
-        ISZ("bin", "install", "vscodium.cmd"),
         ISZ("bin", "sireum.bat"),
-        ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.bat"),
-        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
-        ISZ("versions.properties"),
-        ISZ("..", "setup.bat")
+        ISZ("versions.properties")
       ) +
       Os.Kind.Linux ~> ISZ(
-        ISZ(".settings"),
-        ISZ("bin", "scala"),
         ISZ("bin", "linux", "7za"),
-        ISZ("bin", "linux", "cs"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
-        ISZ("bin", "linux", "idea"),
-        ISZ("bin", "linux", "java"),
         ISZ("bin", "linux", "sireum"),
         ISZ("bin", "linux", "vscodium"),
         ISZ("bin", "linux", "z3"),
@@ -1175,25 +1161,15 @@ import Init._
         ISZ("bin", "install", "opam.cmd"),
         ISZ("bin", "install", "rust.cmd"),
         ISZ("bin", "install", "rustrover.cmd"),
-        ISZ("bin", "install", "vscodium.cmd"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.sh"),
-        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
-        ISZ("versions.properties"),
-        ISZ("..", "setup")
+        ISZ("versions.properties")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
-        ISZ(".settings"),
-        ISZ("bin", "scala"),
         ISZ("bin", "linux", "arm", "7za"),
-        ISZ("bin", "linux", "arm", "cs"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
-        ISZ("bin", "linux", "arm", "idea"),
-        ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
         ISZ("bin", "linux", "arm", "z3"),
@@ -1205,26 +1181,16 @@ import Init._
         ISZ("bin", "install", "isabelle.cmd"),
         ISZ("bin", "install", "rust.cmd"),
         ISZ("bin", "install", "rustrover.cmd"),
-        ISZ("bin", "install", "vscodium.cmd"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.sh"),
-        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
-        ISZ("versions.properties"),
-        ISZ("..", "setup")
+        ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
-        ISZ(".settings"),
-        ISZ("bin", "scala"),
         ISZ("bin", "mac", "7za"),
         ISZ("bin", "mac", "codium-portable-data"),
-        ISZ("bin", "mac", "cs"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
-        ISZ("bin", "mac", "idea"),
-        ISZ("bin", "mac", "java"),
         ISZ("bin", "mac", "sireum"),
         ISZ("bin", "mac", "VSCodium.app"),
         ISZ("bin", "mac", "z3"),
@@ -1241,16 +1207,58 @@ import Init._
         ISZ("bin", "install", "menhir.cmd"),
         ISZ("bin", "install", "opam.cmd"),
         ISZ("bin", "install", "rust.cmd"),
-        ISZ("bin", "install", "vscodium.cmd"),
+        ISZ("bin", "install", "rustrover.cmd"),
         ISZ("bin", "sireum"),
+        ISZ("license.txt"),
+        ISZ("readme.md"),
+        ISZ("versions.properties")
+      )
+
+    val distroMap = hamrDistroMap +
+      Os.Kind.Win ~> (hamrDistroMap.get(Os.Kind.Win).get ++ ISZ(
+        ISZ(".settings"),
+        ISZ("bin", "scala"),
+        ISZ("bin", "win", "cs.exe"),
+        ISZ("bin", "win", "idea"),
+        ISZ("bin", "win", "java"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.bat"),
+        ISZ("lib"),
+        ISZ("..", "setup.bat")
+      )) +
+      Os.Kind.Linux ~> (hamrDistroMap.get(Os.Kind.Linux).get ++ ISZ(
+        ISZ(".settings"),
+        ISZ("bin", "scala"),
+        ISZ("bin", "linux", "cs"),
+        ISZ("bin", "linux", "idea"),
+        ISZ("bin", "linux", "java"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
         ISZ("lib"),
-        ISZ("license.txt"),
-        ISZ("readme.md"),
-        ISZ("versions.properties"),
         ISZ("..", "setup")
-      )
+      )) +
+      Os.Kind.LinuxArm ~> (hamrDistroMap.get(Os.Kind.LinuxArm).get ++ ISZ(
+        ISZ(".settings"),
+        ISZ("bin", "scala"),
+        ISZ("bin", "linux", "arm", "cs"),
+        ISZ("bin", "linux", "arm", "idea"),
+        ISZ("bin", "linux", "arm", "java"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.sh"),
+        ISZ("lib"),
+        ISZ("..", "setup")
+      )) +
+      Os.Kind.Mac ~> (hamrDistroMap.get(Os.Kind.Mac).get ++ ISZ(
+        ISZ(".settings"),
+        ISZ("bin", "scala"),
+        ISZ("bin", "mac", "cs"),
+        ISZ("bin", "mac", "idea"),
+        ISZ("bin", "mac", "java"),
+        ISZ("bin", "sireum.jar"),
+        ISZ("bin", "slang-run.sh"),
+        ISZ("lib"),
+        ISZ("..", "setup")
+      ))
 
     val pluginsDir: Os.Path =
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "plugins"
@@ -1598,7 +1606,7 @@ import Init._
       val sfx = repoDir / "distro" / s"$plat$devSuffix$sfxSuffix"
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
-      val cmd = ISZ[String](pwd7z.string, "a", distro7z) ++ files
+      val cmd = ISZ[String](pwd7z.string, "a", "-mx9", "-mmt4", distro7z) ++ files
 
       Os.proc(cmd).at(distroDir.up).runCheck()
       kind match {
@@ -1612,7 +1620,7 @@ import Init._
       distroDir.removeAll()
     }
 
-    def build(): Unit = {
+    def ive(): Unit = {
       println(s"Setting up Sireum$devSuffix IVE $kind in $ideaDir ...")
       val suffix: String =
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
@@ -1669,7 +1677,27 @@ import Init._
       println("Done!")
     }
 
-    build()
+    def hamr(): Unit = {
+      val sireumName = home.name
+      val files: ISZ[String] =
+        for (p <- hamrDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
+      val hamrName = "hamr-sysmlv2"
+      var rname: String = kind match {
+        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$hamrName-mac-arm64.tar.gz" else s"$sireumName-$hamrName-mac-amd64.tar.gz"
+        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$hamrName-win-arm64.zip" else s"$sireumName-$hamrName-win-amd64.zip"
+        case Os.Kind.Linux => s"$sireumName-$hamrName-linux-amd64.tar.gz"
+        case Os.Kind.LinuxArm => s"$sireumName-$hamrName-linux-arm64.tar.gz"
+        case _ => halt("Infeasible")
+      }
+      rname = ops.StringOps(rname).toLower
+      kind match {
+        case Os.Kind.Win =>
+          Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files).at(home.up.canon).runCheck()
+        case _ =>
+          Os.proc(ISZ[String]("tar", "cfz", rname) ++ files).env(ISZ("GZIP" ~> "9")).at(home.up.canon).runCheck()
+      }
+      (home.up.canon / rname).moveOverTo(home / "distro" / rname)
+    }
 
     if (kind == Os.Kind.Win) {
       val slangRunScript = homeBin / "slang-run.bat"
@@ -1682,6 +1710,13 @@ import Init._
         slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/slang-run.sh")
         slangRunScript.chmod("+x")
       }
+    }
+
+    if (buildHamrPackage) {
+      hamr()
+    }
+    if (buildIve) {
+      ive()
     }
   }
 
@@ -1770,7 +1805,7 @@ import Init._
     }
 
     if (setup && Os.env("SIREUM_NO_SETUP") != Some("true")) {
-      distro(F, F, F, F)
+      distro(isDev = F, buildSfx = F, buildIve = F, buildHamrPackage = F, isUltimate = F, isServer = F)
     }
     return T
   }
