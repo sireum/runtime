@@ -1690,13 +1690,13 @@ import Init._
         case _ => halt("Infeasible")
       }
       rname = ops.StringOps(rname).toLower
+      (home.up.canon / rname).removeAll()
       kind match {
         case Os.Kind.Win =>
-          (home.up / rname).removeAll()
           Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files).at(home.up.canon).runCheck()
         case _ =>
           val rnameGz = s"$rname.gz"
-          (home.up / rnameGz).removeAll()
+          (home.up.canon / rnameGz).removeAll()
           Os.proc(ISZ[String]("tar", "cf", rname) ++ files).at(home.up.canon).runCheck()
           Os.proc(ISZ[String]("gzip", "-9", rname)).at(home.up.canon).runCheck()
           rname = rnameGz
