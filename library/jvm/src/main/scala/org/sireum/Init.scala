@@ -1683,19 +1683,20 @@ import Init._
         for (p <- hamrDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
       val hamrName = "hamr-sysmlv2"
       var rname: String = kind match {
-        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$hamrName-mac-arm64.tar.gz" else s"$sireumName-$hamrName-mac-amd64.tar.gz"
+        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$hamrName-mac-arm64.tar" else s"$sireumName-$hamrName-mac-amd64.tar"
         case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$hamrName-win-arm64.zip" else s"$sireumName-$hamrName-win-amd64.zip"
-        case Os.Kind.Linux => s"$sireumName-$hamrName-linux-amd64.tar.gz"
-        case Os.Kind.LinuxArm => s"$sireumName-$hamrName-linux-arm64.tar.gz"
+        case Os.Kind.Linux => s"$sireumName-$hamrName-linux-amd64.tar"
+        case Os.Kind.LinuxArm => s"$sireumName-$hamrName-linux-arm64.tar"
         case _ => halt("Infeasible")
       }
       rname = ops.StringOps(rname).toLower
-      val proc: Os.Proc = kind match {
-        case Os.Kind.Win => Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files)
-        case Os.Kind.Mac => Os.proc(ISZ[String]("tar", "cfz", rname) ++ files).env(ISZ("GZIP" ~> "-9"))
-        case _ => Os.proc(ISZ[String]("tar", "-I", "gzip -9", "-cfz", rname) ++ files)
+      kind match {
+        case Os.Kind.Win => Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files).at(home.up.canon).runCheck()
+        case _ =>
+          Os.proc(ISZ[String]("tar", "cfz", rname) ++ files).at(home.up.canon).runCheck()
+          Os.proc(ISZ[String]("gzip", "-9", rname)).at(home.up.canon).runCheck()
+          rname = s"$rname.gz"
       }
-      proc.at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
