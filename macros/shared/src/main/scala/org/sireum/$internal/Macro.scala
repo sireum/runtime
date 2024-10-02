@@ -148,7 +148,7 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
     else q"_root_.java.lang.Double.doubleToRawLongBits($n)"
   }
 
-  def isNativeImpl(n: c.Tree): c.Tree = {
+  def isNativeImpl: c.Tree = {
     if (isJsCheck) q"false"
     else q"_root_.org.sireum.NativeUtil.isNative"
   }
