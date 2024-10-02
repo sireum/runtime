@@ -681,6 +681,326 @@ import Init._
     }
   }
 
+  def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
+    val isInUserHome = ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
+    val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
+    val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
+    val sysIdeVersion = versions.get("org.sireum.version.vscodium.extension.syside").get
+    val es = extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion"
+    val urlPrefix = s"https://github.com/VSCodium/vscodium/releases/download/$vscodiumVersion"
+    val sireumExtUrl = s"https://github.com/sireum/vscode-extension/releases/download/$sireumExtVersion/sireum-vscode-extension.vsix"
+    val sireumExtDrop = s"sireum-vscode-extension-$sireumExtVersion.vsix"
+    var vsCodiumOpt = Option.none[Os.Path]()
+    var extDirOpt = Option.none[Os.Path]()
+
+    def gumboTokens(existingKeywords: HashSet[String]): ISZ[String] = {
+      val f = Os.tempFix("GUMBO", ".tokens")
+      f.removeAll()
+      f.downloadFrom("https://raw.githubusercontent.com/sireum/hamr-sysml-parser/master/src/org/sireum/hamr/sysml/parser/GUMBO.tokens")
+      var r = ISZ[String]()
+      for (key <- f.properties.keys) {
+        val cis = conversions.String.toCis(key)
+        if (cis(0) == '\'' && cis(cis.size - 1) == '\'' && ops.ISZOps(
+          for (i <- 1 until cis.size - 1) yield
+            ('a' <= cis(i) && cis(i) <= 'z') || ('A' <= cis(i) && cis(i) <= 'Z')).forall((b: B) => b)) {
+          ops.StringOps.substring(cis, 1, cis.size - 1) match {
+            case string"T" =>
+            case string"F" =>
+            case string"" =>
+            case keyword if !existingKeywords.contains(keyword) => r = r :+ keyword
+            case _ =>
+          }
+        }
+      }
+      return r
+    }
+
+    def patchSysIDE(d: Os.Path): Unit = {
+      val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
+      var content = tmlf.read
+      val contentOps = ops.StringOps(content)
+      if (contentOps.stringIndexOf(""""/\\*\\*/"""") >= 0) {
+        return
+      }
+      def patchTml(): Unit = {
+        val existingKeywords: HashSet[String] = {
+          val i = contentOps.stringIndexOf("\\\\b(about|")
+          val j = contentOps.stringIndexOfFrom(")\\\\b", i)
+          HashSet ++ ops.StringOps(contentOps.substring(i, j)).split((c: C) => c == '|') + "about"
+        }
+        content = {
+          val patterns: String = """"patterns": ["""
+          val i = contentOps.stringIndexOf(patterns) + patterns.size
+          val ins =
+            st"""    {
+                |      "match": "/\\*\\*/",
+                |      "name": "string.quoted.other.sysml"
+                |    },"""
+          s"${contentOps.substring(0, i)}${Os.lineSep}${ins.render}${contentOps.substring(i, content.size)}"
+        }
+        content = ops.StringOps(content).replaceAllLiterally("\\\\b(about|", st"\\\\b(${(gumboTokens(existingKeywords), "|")}|about|".render)
+        content = ops.StringOps(content).replaceAllLiterally("\"/\\\\*\"", "\"/\\\\*[^{]\"")
+        tmlf.writeOver(content)
+      }
+      def patchJs(f: Os.Path): Unit = {
+        def patchPrefix(text: String, prefix: String): String = {
+          val cis = conversions.String.toCis(text)
+          var i = ops.StringOps.stringIndexOfFrom(cis, conversions.String.toCis(prefix), 0)
+          i = ops.StringOps.indexOfFrom(cis, '{', i + 1) + 1
+          val j = ops.StringOps.indexOfFrom(cis, '}', i) + 3
+          if (cis(j - 1) != ',') {
+            return text
+          }
+          val s = ops.StringOps.substring(cis, i, j)
+          if (!ops.StringOps(s).contains(".SysMLSemanticTokenTypes.annotationBody")) {
+            return text
+          }
+          return conversions.String.fromCis(ops.ISZOps(cis).slice(0, i) ++ ops.ISZOps(cis).slice(j, cis.size))
+        }
+        f.writeOver(patchPrefix(patchPrefix(f.read, "comment("), "textualRep("))
+      }
+      println("Patching SysIDE ...")
+      patchTml()
+      for (f <- Os.Path.walk(d / "dist", F, F, (p: Os.Path) => p.ext == "js")) {
+        patchJs(f)
+      }
+      println()
+    }
+
+    def downloadVSCodium(drop: Os.Path): Unit = {
+      val url = s"$urlPrefix/${drop.name}"
+      if (!drop.exists) {
+        println(s"Downloading VSCodium ...")
+        drop.downloadFrom(url)
+        println()
+      }
+    }
+
+    def installExtensions(codium: Os.Path, extensionsDir: Os.Path): String = {
+      val extDirArg: String = if (isInUserHome) "" else s" --extensions-dir $extensionsDir"
+      val drop = cache / sireumExtDrop
+      if (!drop.exists) {
+        println("Downloading Sireum VSCode Extension ...")
+        drop.downloadFrom(sireumExtUrl)
+        println()
+      }
+      for (ext <- es) {
+        proc"$codium --force$extDirArg --install-extension $ext".console.runCheck()
+        println()
+      }
+      proc"$codium --force$extDirArg --install-extension $drop".console.runCheck()
+      println()
+      for (f <- extensionsDir.list if ops.StringOps(f.name).startsWith("sensmetry.sysml-")) {
+        patchSysIDE(f)
+      }
+      return extDirArg
+    }
+
+    def patchCodium(codium: Os.Path, anchor: String, sireumHome: String, isWin: B): Unit = {
+      var codiumContent = codium.read
+      val cis = conversions.String.toCis(codiumContent)
+      if (ops.StringOps.stringIndexOfFrom(cis, conversions.String.toCis("SIREUM_HOME"), 0) >= 0) {
+        return
+      }
+      println(s"Patching $codium ...")
+      val i = ops.StringOps.stringIndexOfFrom(cis, conversions.String.toCis(anchor), 0)
+      val set: String = if (isWin) "set" else "export"
+      val javaHomeOpt: String = Os.kind match {
+        case Os.Kind.Mac => s"$set JAVA_HOME=$$SIREUM_HOME/bin/mac/java${Os.lineSep}"
+        case Os.Kind.Linux => s"$set JAVA_HOME=$$SIREUM_HOME/bin/linux/java${Os.lineSep}"
+        case Os.Kind.LinuxArm => s"$set JAVA_HOME=$$SIREUM_HOME/bin/linux/arm/java${Os.lineSep}"
+        case Os.Kind.Win => s"$set JAVA_HOME=%SIREUM_HOME%\\bin\\win\\java${Os.lineSep}"
+        case _ => ""
+      }
+      codiumContent = s"${ops.StringOps.substring(cis, 0, i)}$set SIREUM_HOME=$sireumHome${Os.lineSep}$javaHomeOpt${ops.StringOps.substring(cis, i, cis.size)}"
+      codium.writeOver(codiumContent)
+      if (!isWin) {
+        codium.chmod("+x")
+      }
+      println()
+    }
+
+    def mac(): Unit = {
+      val drop = cache / s"VSCodium-darwin-${if (Os.isMacArm) "arm64" else "x64"}-$vscodiumVersion.zip"
+      val platform = homeBin / "mac"
+      var vscodium = platform / "VSCodium.app"
+      val ver = vscodium / "Contents" / "VER"
+      var updated = F
+      val codium: Os.Path = vsCodiumOpt match {
+        case Some(p) =>
+          vscodium = p.up.up.up.up.up.canon
+          p
+        case _ =>
+          val c = vscodium / "Contents"/ "Resources" / "app" / "bin" / "codium"
+          if (!ver.exists || ver.read != vscodiumVersion) {
+            downloadVSCodium(drop)
+            vscodium.removeAll()
+            println("Extracting VSCodium ...")
+            drop.unzipTo(platform)
+            ver.write(vscodiumVersion)
+            println()
+            updated = T
+          }
+          c
+      }
+      patchCodium(codium, "ELECTRON_RUN_AS_NODE=", "$(readlink -f `dirname $0`/../../../../../../..)", F)
+      proc"xattr -rd com.apple.quarantine $vscodium".run()
+      proc"codesign --force --deep --sign - $vscodium".run()
+      val extensionsDir: Os.Path = extDirOpt match {
+        case Some(ed) => ed
+        case _ =>
+          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+            val d = platform / "codium-portable-data" / "extensions"
+            d.mkdirAll()
+            d
+          } else {
+            val d = vscodium.up.canon / "VSCodium-extensions"
+            d.mkdirAll()
+            d
+          }
+      }
+      val extDirArg = installExtensions(codium, extensionsDir)
+      if (updated) {
+        if (isInUserHome) {
+          println(s"To launch VSCodium: open $vscodium")
+        } else {
+          println(s"To launch VSCodium: $codium$extDirArg")
+        }
+      }
+    }
+
+    def linux(isArm: B): Unit = {
+      val drop = cache / s"VSCodium-linux-${if (isArm) "arm64" else "x64"}-$vscodiumVersion.tar.gz"
+      val platform: Os.Path = if (isArm) homeBin / "linux" / "arm" else homeBin / "linux"
+      var vscodium = platform / "vscodium"
+      val ver = vscodium / "VER"
+      var updated = F
+      val codium: Os.Path = vsCodiumOpt match {
+        case Some(p) =>
+          vscodium = p.up.up.canon
+          p
+        case _ =>
+          val c = vscodium / "bin" / "codium"
+          if (!ver.exists || ver.read != vscodiumVersion) {
+            downloadVSCodium(drop)
+            println("Extracting VSCodium ...")
+            val vscodiumNew = platform / "vscodium.new"
+            drop.unTarGzTo(vscodiumNew)
+            if ((vscodium / "data").exists) {
+              (vscodium / "data").moveTo(vscodiumNew / "data")
+            }
+            vscodium.removeAll()
+            vscodiumNew.moveTo(vscodium)
+            ver.write(vscodiumVersion)
+            println()
+            updated = T
+          }
+          c
+      }
+      patchCodium(codium, "ELECTRON_RUN_AS_NODE=",
+        s"$$(readlink -f `dirname $$0`/../../../..${if (isArm) "/.." else ""})", F)
+      val extensionsDir: Os.Path = extDirOpt match {
+        case Some(ed) => ed
+        case _ =>
+          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+            val d = vscodium / "data" / "extensions"
+            d.mkdirAll()
+            d
+          } else {
+            val d = vscodium / "extensions"
+            d.mkdirAll()
+            d
+          }
+      }
+      val extDirArg = installExtensions(codium, extensionsDir)
+      if (updated) {
+        println(s"To launch VSCodium: $codium$extDirArg")
+      }
+    }
+
+    def win(): Unit = {
+      val drop = cache / s"VSCodium-win32-${if (Os.isWinArm) "arm64" else "x64"}-$vscodiumVersion.zip"
+      val platform = homeBin / "win"
+      var vscodium = platform / "vscodium"
+      val ver = vscodium / "VER"
+      var updated = F
+      val codium: Os.Path = vsCodiumOpt match {
+        case Some(p) =>
+          vscodium = p.up.up.canon
+          p
+        case _ =>
+          val c =  vscodium / "bin" / "codium.cmd"
+          if (!ver.exists || ver.read != vscodiumVersion) {
+            downloadVSCodium(drop)
+            val vscodiumNew = platform / "vscodium.new"
+            println("Extracting VSCodium ...")
+            drop.unzipTo(vscodiumNew)
+            if ((vscodium / "data").exists) {
+              (vscodium / "data").moveTo(vscodiumNew / "data")
+            }
+            vscodium.removeAll()
+            vscodiumNew.moveTo(vscodium)
+            ver.write(vscodiumVersion)
+            println()
+            updated = T
+          }
+          c
+      }
+      patchCodium(codium, "\"%~dp0..",
+        s""""%~dp0..\\..\\..\\..${Os.lineSep}pushd %SIREUM_HOME%${Os.lineSep}set SIREUM_HOME=%CD%${Os.lineSep}popd""".stripMargin, T)
+      val extensionsDir: Os.Path = extDirOpt match {
+        case Some(ed) => ed
+        case _ =>
+          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+            val d = vscodium / "data" / "extensions"
+            d.mkdirAll()
+            d
+          } else {
+            val d = vscodium / "extensions"
+            d.mkdirAll()
+            d
+          }
+      }
+      val extDirArg = installExtensions(codium, extensionsDir)
+      if (updated) {
+        println(s"To launch VSCodium: $codium$extDirArg")
+      }
+    }
+
+    vsCodiumOpt match {
+      case Some(p) =>
+        if (!p.exists) {
+          eprintln(s"$p does not exist")
+          Os.exit(-1)
+        }
+        val scripts: HashSSet[String] = HashSSet ++ (if (Os.isWin) ISZ[String]("code.cmd", "codium.cmd") else ISZ[String]("code", "codium"))
+        for (codium <- Os.Path.walk(p, F, F, (f: Os.Path) => scripts.contains(f.name)) if vsCodiumOpt.isEmpty) {
+          vsCodiumOpt = Some(codium)
+          extDirOpt = Some(Os.home / (if (ops.StringOps(codium.name).startsWith("code")) ".vscode" else ".vscode-oss") / "extensions")
+        }
+        if (vsCodiumOpt.isEmpty) {
+          eprintln(st"Could not find ${(scripts, "/")} in $p".render)
+          Os.exit(-2)
+        }
+      case _ =>
+    }
+    extensionsDirOpt match {
+      case Some(ped) =>
+        ped.mkdirAll()
+        extDirOpt = Some(ped)
+      case _ =>
+    }
+    Os.kind match {
+      case Os.Kind.Mac => mac()
+      case Os.Kind.Linux => linux(F)
+      case Os.Kind.LinuxArm => linux(T)
+      case Os.Kind.Win => win()
+      case _ =>
+        eprintln("Unsupported platform")
+        Os.exit(-1)
+    }
+  }
+
   @memoize def isIdeaInUserHome: B = {
     return Os.env("GITHUB_ACTION").isEmpty && ops.StringOps(home.string).startsWith(Os.home.canon.string)
   }
