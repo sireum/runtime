@@ -49,6 +49,8 @@ object Macro {
 
   def f64Bit(n: Double): Long = macro Macro.f64BitImpl
 
+  def isNative: Boolean = macro Macro.isNativeImpl
+
   def eval[T](c: scala.reflect.macros.blackbox.Context)(
     t: Any, n: Int = 6): T = { // HACK: eval may non-deterministically fail, so try n times!
     val tree = t.asInstanceOf[c.Tree]
@@ -144,6 +146,11 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   def f64BitImpl(n: c.Tree): c.Tree = {
     if (isJsCheck) q"_root_.java.lang.Double.doubleToLongBits($n)"
     else q"_root_.java.lang.Double.doubleToRawLongBits($n)"
+  }
+
+  def isNativeImpl(n: c.Tree): c.Tree = {
+    if (isJsCheck) q"false"
+    else q"_root_.org.sireum.NativeUtil.isNative"
   }
 
   def f64Apply(args: c.Tree*): c.Tree = {
