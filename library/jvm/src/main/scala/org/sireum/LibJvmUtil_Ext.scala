@@ -35,7 +35,7 @@ object LibJvmUtil_Ext {
 
 import LibJvmUtil_Ext._
 
-class LibJvmUtil_Ext extends Reflection {
+class LibJvmUtil_Ext extends Reflection_Ext {
 
   private lazy val nameMap: Int2ObjectOpenHashMap[Reflection.Info] = {
     val r = new Int2ObjectOpenHashMap[Info](176)
@@ -1590,8 +1590,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x5B7D21E947D83182L, _ => (o1: Any) => org.sireum.Os.Ext.proc(X(o1))) // methodKey(T, "org.sireum.Os.Ext", "proc").value
     r.put(0x89C0705BC7C1FC1EL, _ => (o1: Any) => org.sireum.AssocS.apply(X(o1))) // methodKey(T, "org.sireum.AssocS", "apply").value
     r.put(0x5705C5608F220805L, _ => (o1: Any) => org.sireum.AssocS.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.AssocS", "unapply").value
     r.put(0x3DF6BE21C08E7781L, r => (o1: Any) => X[org.sireum.AssocS[_, _]](r).`+`(X(o1))) // methodKey(F, "org.sireum.AssocS", "+").value
     r.put(0x5E46A971AA573A6BL, r => (o1: Any) => X[org.sireum.AssocS[_, _]](r).`++`(X(o1))) // methodKey(F, "org.sireum.AssocS", "++").value
@@ -1603,8 +1603,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x9F000E1C8F7C2A63L, r => (o1: Any) => X[org.sireum.AssocS[_, _]](r).contains(X(o1))) // methodKey(F, "org.sireum.AssocS", "contains").value
     r.put(0x6E3C1FD5354E803FL, _ => (o1: Any) => org.sireum.Bag.apply(X(o1))) // methodKey(T, "org.sireum.Bag", "apply").value
     r.put(0x1F8E6A9BB348E56AL, _ => (o1: Any) => org.sireum.Bag.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Bag", "unapply").value
     r.put(0x930BDFEE70F7A00FL, r => (o1: Any) => X[org.sireum.Bag[_]](r).count(X(o1))) // methodKey(F, "org.sireum.Bag", "count").value
     r.put(0xF7853EF7AE515EF3L, r => (o1: Any) => X[org.sireum.Bag[_]](r).contains(X(o1))) // methodKey(F, "org.sireum.Bag", "contains").value
@@ -1621,24 +1621,24 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x7AE9E2879FF2D3E0L, r => (o1: Any) => X[org.sireum.Bag[_]](r).`\u2229`(X(o1))) // methodKey(F, "org.sireum.Bag", "\u2229").value
     r.put(0xBF1FB262FB0491C8L, r => (o1: Any) => X[org.sireum.CircularQueue[_]](r).enqueue(X(o1))) // methodKey(F, "org.sireum.CircularQueue", "enqueue").value
     r.put(0xAE128494C0056022L, _ => (o1: Any) => org.sireum.CircularQueue.NoDrop.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => Some((o0, o1, o2, o3, o4, o5, o6))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => MSome((o0, o1, o2, o3, o4, o5, o6))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.CircularQueue.NoDrop", "unapply").value
     r.put(0x0637E1CED50B78D2L, r => (o1: Any) => X[org.sireum.CircularQueue.NoDrop[_]](r).`front_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.NoDrop", "front_=").value
     r.put(0x72F696238F3CEA25L, r => (o1: Any) => X[org.sireum.CircularQueue.NoDrop[_]](r).`rear_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.NoDrop", "rear_=").value
     r.put(0x23B1E5E0EDDDEBA4L, r => (o1: Any) => X[org.sireum.CircularQueue.NoDrop[_]](r).`numOfElements_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.NoDrop", "numOfElements_=").value
     r.put(0xE158CA4F8D2867D4L, r => (o1: Any) => X[org.sireum.CircularQueue.NoDrop[_]](r).enqueue(X(o1))) // methodKey(F, "org.sireum.CircularQueue.NoDrop", "enqueue").value
     r.put(0x7A3ED9FFA1E5A875L, _ => (o1: Any) => org.sireum.CircularQueue.DropFront.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => Some((o0, o1, o2, o3, o4, o5, o6))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => MSome((o0, o1, o2, o3, o4, o5, o6))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.CircularQueue.DropFront", "unapply").value
     r.put(0x01A268220BF9BB1BL, r => (o1: Any) => X[org.sireum.CircularQueue.DropFront[_]](r).`front_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropFront", "front_=").value
     r.put(0xB494DD50755C8A73L, r => (o1: Any) => X[org.sireum.CircularQueue.DropFront[_]](r).`rear_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropFront", "rear_=").value
     r.put(0xA061C74E1B8659E8L, r => (o1: Any) => X[org.sireum.CircularQueue.DropFront[_]](r).`numOfElements_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropFront", "numOfElements_=").value
     r.put(0xD63CEAFA17735F45L, r => (o1: Any) => X[org.sireum.CircularQueue.DropFront[_]](r).enqueue(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropFront", "enqueue").value
     r.put(0x6F602304F71FA26BL, _ => (o1: Any) => org.sireum.CircularQueue.DropRear.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => Some((o0, o1, o2, o3, o4, o5, o6))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => MSome((o0, o1, o2, o3, o4, o5, o6))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.CircularQueue.DropRear", "unapply").value
     r.put(0x28D3C7D36C9E7201L, r => (o1: Any) => X[org.sireum.CircularQueue.DropRear[_]](r).`front_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropRear", "front_=").value
     r.put(0xEDA0AE85B2946AECL, r => (o1: Any) => X[org.sireum.CircularQueue.DropRear[_]](r).`rear_=`(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropRear", "rear_=").value
@@ -1646,23 +1646,23 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x2807B6FF24535695L, r => (o1: Any) => X[org.sireum.CircularQueue.DropRear[_]](r).enqueue(X(o1))) // methodKey(F, "org.sireum.CircularQueue.DropRear", "enqueue").value
     r.put(0x2A145156F47E6E4FL, _ => (o1: Any) => org.sireum.Either.Left.apply(X(o1))) // methodKey(T, "org.sireum.Either.Left", "apply").value
     r.put(0xDB1661F19775E39EL, _ => (o1: Any) => org.sireum.Either.Left.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Either.Left", "unapply").value
     r.put(0x8E115A84FCF61952L, _ => (o1: Any) => org.sireum.Either.Right.apply(X(o1))) // methodKey(T, "org.sireum.Either.Right", "apply").value
     r.put(0x1F04F661E5DD82C3L, _ => (o1: Any) => org.sireum.Either.Right.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Either.Right", "unapply").value
     r.put(0xB9883FCCD850BFC2L, r => (o1: Any) => X[org.sireum.Graph.Edge[_, _]](r).toInternal(X(o1))) // methodKey(F, "org.sireum.Graph.Edge", "toInternal").value
     r.put(0x44C00D57780B7A3CL, _ => (o1: Any) => org.sireum.Graph.Edge.Plain.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Edge.Plain", "unapply").value
     r.put(0x616B0AAC7C4CB469L, r => (o1: Any) => X[org.sireum.Graph.Edge.Plain[_, _]](r).toInternal(X(o1))) // methodKey(F, "org.sireum.Graph.Edge.Plain", "toInternal").value
     r.put(0xAFC6C8E24E139EE9L, _ => (o1: Any) => org.sireum.Graph.Edge.Data.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Edge.Data", "unapply").value
     r.put(0x7344932FA132ABC6L, r => (o1: Any) => X[org.sireum.Graph.Edge.Data[_, _]](r).toInternal(X(o1))) // methodKey(F, "org.sireum.Graph.Edge.Data", "toInternal").value
     r.put(0x5EF1FD5DA4CC3C4BL, r => (o1: Any) => X[org.sireum.Graph.Internal.Edge[_]](r).toEdge(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edge", "toEdge").value
@@ -1671,33 +1671,33 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x7EBD9AE009AD01E3L, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges[_]](r).`-#`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges", "-#").value
     r.put(0x9F2109BB5D2F78F7L, _ => (o1: Any) => org.sireum.Graph.Internal.Edges.Set.apply(X(o1))) // methodKey(T, "org.sireum.Graph.Internal.Edges.Set", "apply").value
     r.put(0x70B14E29F21A904FL, _ => (o1: Any) => org.sireum.Graph.Internal.Edges.Set.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Internal.Edges.Set", "unapply").value
     r.put(0x10A3A0EB5A4B2E20L, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Set[_]](r).`+`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Set", "+").value
     r.put(0x1A135CE0356CD55DL, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Set[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Set", "++").value
     r.put(0x6F5FBD17F756AC87L, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Set[_]](r).`-#`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Set", "-#").value
     r.put(0xBFB6233E4680DCB4L, _ => (o1: Any) => org.sireum.Graph.Internal.Edges.Bag.apply(X(o1))) // methodKey(T, "org.sireum.Graph.Internal.Edges.Bag", "apply").value
     r.put(0xD31E0D2E5F3B4CACL, _ => (o1: Any) => org.sireum.Graph.Internal.Edges.Bag.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Internal.Edges.Bag", "unapply").value
     r.put(0xFE9D6760AFB3005AL, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Bag[_]](r).`+`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Bag", "+").value
     r.put(0x365FD0277AF6836EL, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Bag[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Bag", "++").value
     r.put(0x03C3086DC88A19AFL, r => (o1: Any) => X[org.sireum.Graph.Internal.Edges.Bag[_]](r).`-#`(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edges.Bag", "-#").value
     r.put(0x650413D1EB377875L, _ => (o1: Any) => org.sireum.Graph.Internal.Edge.Plain.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Internal.Edge.Plain", "unapply").value
     r.put(0x8480B0D35D747F55L, r => (o1: Any) => X[org.sireum.Graph.Internal.Edge.Plain[_]](r).toEdge(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edge.Plain", "toEdge").value
     r.put(0x86BE8B8C300FF258L, _ => (o1: Any) => org.sireum.Graph.Internal.Edge.Data.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph.Internal.Edge.Data", "unapply").value
     r.put(0xCE3348EBA7737064L, r => (o1: Any) => X[org.sireum.Graph.Internal.Edge.Data[_]](r).toEdge(X(o1))) // methodKey(F, "org.sireum.Graph.Internal.Edge.Data", "toEdge").value
     r.put(0x46B747C8682AA910L, _ => (o1: Any) => org.sireum.Graph.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5)) => Some((o0, o1, o2, o3, o4, o5))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5)) => MSome((o0, o1, o2, o3, o4, o5))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Graph", "unapply").value
     r.put(0x13569C20BEAF68B7L, r => (o1: Any) => X[org.sireum.Graph[_, _]](r).`*`(X(o1))) // methodKey(F, "org.sireum.Graph", "*").value
     r.put(0xBAE20750141FD137L, r => (o1: Any) => X[org.sireum.Graph[_, _]](r).`--*`(X(o1))) // methodKey(F, "org.sireum.Graph", "--*").value
@@ -1712,8 +1712,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xE4014371D0E22051L, r => (o1: Any) => X[org.sireum.Graph[_, _]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.Graph", "isEqual").value
     r.put(0xF8A739D900A5B52DL, _ => (o1: Any) => org.sireum.HashBag.apply(X(o1))) // methodKey(T, "org.sireum.HashBag", "apply").value
     r.put(0x8592A189C44ADEAEL, _ => (o1: Any) => org.sireum.HashBag.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashBag", "unapply").value
     r.put(0x14FE0A08F57C9F53L, r => (o1: Any) => X[org.sireum.HashBag[_]](r).count(X(o1))) // methodKey(F, "org.sireum.HashBag", "count").value
     r.put(0x12C3654428000C69L, r => (o1: Any) => X[org.sireum.HashBag[_]](r).contains(X(o1))) // methodKey(F, "org.sireum.HashBag", "contains").value
@@ -1729,8 +1729,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xAAD5EB7F8B09EDF5L, r => (o1: Any) => X[org.sireum.HashBag[_]](r).intersect(X(o1))) // methodKey(F, "org.sireum.HashBag", "intersect").value
     r.put(0xB6E99A870EF6F830L, r => (o1: Any) => X[org.sireum.HashBag[_]](r).`\u2229`(X(o1))) // methodKey(F, "org.sireum.HashBag", "\u2229").value
     r.put(0x3D9F6BDE8FB0A203L, _ => (o1: Any) => org.sireum.HashMap.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashMap", "unapply").value
     r.put(0xD577D5020B803994L, r => (o1: Any) => X[org.sireum.HashMap[_, _]](r).`+`(X(o1))) // methodKey(F, "org.sireum.HashMap", "+").value
     r.put(0x6AB1E10BDBB27AE5L, r => (o1: Any) => X[org.sireum.HashMap[_, _]](r).`++`(X(o1))) // methodKey(F, "org.sireum.HashMap", "++").value
@@ -1744,8 +1744,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x5F99C17253B17CDDL, r => (o1: Any) => X[org.sireum.HashMap[_, _]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.HashMap", "isEqual").value
     r.put(0x8CFFAA3ABB9175CDL, _ => (o1: Any) => org.sireum.HashSBag.apply(X(o1))) // methodKey(T, "org.sireum.HashSBag", "apply").value
     r.put(0xE5EF1CD507E500A8L, _ => (o1: Any) => org.sireum.HashSBag.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashSBag", "unapply").value
     r.put(0xC4B83CC78D888E6EL, r => (o1: Any) => X[org.sireum.HashSBag[_]](r).count(X(o1))) // methodKey(F, "org.sireum.HashSBag", "count").value
     r.put(0x361844EC960DF41BL, r => (o1: Any) => X[org.sireum.HashSBag[_]](r).contains(X(o1))) // methodKey(F, "org.sireum.HashSBag", "contains").value
@@ -1761,8 +1761,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x819E13266DD1FEE7L, r => (o1: Any) => X[org.sireum.HashSBag[_]](r).intersect(X(o1))) // methodKey(F, "org.sireum.HashSBag", "intersect").value
     r.put(0x165909AF5127E816L, r => (o1: Any) => X[org.sireum.HashSBag[_]](r).`\u2229`(X(o1))) // methodKey(F, "org.sireum.HashSBag", "\u2229").value
     r.put(0x8A303DF7682517E6L, _ => (o1: Any) => org.sireum.HashSMap.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashSMap", "unapply").value
     r.put(0x67ECF5672213A3B8L, r => (o1: Any) => X[org.sireum.HashSMap[_, _]](r).`+`(X(o1))) // methodKey(F, "org.sireum.HashSMap", "+").value
     r.put(0xAB543E66DC36082BL, r => (o1: Any) => X[org.sireum.HashSMap[_, _]](r).`++`(X(o1))) // methodKey(F, "org.sireum.HashSMap", "++").value
@@ -1774,8 +1774,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x0C988672729CD106L, r => (o1: Any) => X[org.sireum.HashSMap[_, _]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.HashSMap", "isEqual").value
     r.put(0xE5CE52FF3AE85B25L, _ => (o1: Any) => org.sireum.HashSSet.apply(X(o1))) // methodKey(T, "org.sireum.HashSSet", "apply").value
     r.put(0x8F87C7AE7CCE3C1FL, _ => (o1: Any) => org.sireum.HashSSet.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashSSet", "unapply").value
     r.put(0x5968249A649B012BL, r => (o1: Any) => X[org.sireum.HashSSet[_]](r).`+`(X(o1))) // methodKey(F, "org.sireum.HashSSet", "+").value
     r.put(0x7FE4A180BA29371AL, r => (o1: Any) => X[org.sireum.HashSSet[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.HashSSet", "++").value
@@ -1790,8 +1790,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x12247002D3440BC1L, r => (o1: Any) => X[org.sireum.HashSSet[_]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.HashSSet", "isEqual").value
     r.put(0x5E6195818F2A4DD4L, _ => (o1: Any) => org.sireum.HashSet.apply(X(o1))) // methodKey(T, "org.sireum.HashSet", "apply").value
     r.put(0x98C1596D7FD76D41L, _ => (o1: Any) => org.sireum.HashSet.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.HashSet", "unapply").value
     r.put(0x959DA8AEBD379681L, r => (o1: Any) => X[org.sireum.HashSet[_]](r).`+`(X(o1))) // methodKey(F, "org.sireum.HashSet", "+").value
     r.put(0xAFF5FFF07FF06147L, r => (o1: Any) => X[org.sireum.HashSet[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.HashSet", "++").value
@@ -1806,8 +1806,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x406E00366E215560L, r => (o1: Any) => X[org.sireum.HashSet[_]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.HashSet", "isEqual").value
     r.put(0x82CEE009EB5FFEA0L, _ => (o1: Any) => org.sireum.IndexMap.apply(X(o1))) // methodKey(T, "org.sireum.IndexMap", "apply").value
     r.put(0xA4969954EA3D5585L, _ => (o1: Any) => org.sireum.IndexMap.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.IndexMap", "unapply").value
     r.put(0x900B060FEFCCEDFFL, r => (o1: Any) => X[org.sireum.IndexMap[_, _]](r).`+`(X(o1))) // methodKey(F, "org.sireum.IndexMap", "+").value
     r.put(0x8800DAEDDA0889E2L, r => (o1: Any) => X[org.sireum.IndexMap[_, _]](r).contains(X(o1))) // methodKey(F, "org.sireum.IndexMap", "contains").value
@@ -1818,14 +1818,14 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xE8DEE8204B6975D8L, r => (o1: Any) => X[org.sireum.Indexable.Pos[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.Pos", "has").value
     r.put(0x86024C81261236BFL, _ => (o1: Any) => org.sireum.Indexable.Isz.apply(X(o1))) // methodKey(T, "org.sireum.Indexable.Isz", "apply").value
     r.put(0x56D67B232E75303CL, _ => (o1: Any) => org.sireum.Indexable.Isz.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Indexable.Isz", "unapply").value
     r.put(0x1B2C4D0447C26BC6L, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "at").value
     r.put(0x0CC1D563A132AAABL, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "has").value
     r.put(0x5AB9FB1645CDDF4CL, _ => (o1: Any) => org.sireum.Indexable.IszDocInfo.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Indexable.IszDocInfo", "unapply").value
     r.put(0x7BA930D8E6F0AAAEL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "at").value
     r.put(0xA33A566D3398C70DL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "has").value
@@ -1855,8 +1855,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x783C95FA2234ADF5L, r => (o1: Any) => X[org.sireum.Jen[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen", "mkString").value
     r.put(0xC218D3440F9C4305L, _ => (o1: Any) => org.sireum.Jen.Internal.ISImpl.apply(X(o1))) // methodKey(T, "org.sireum.Jen.Internal.ISImpl", "apply").value
     r.put(0xE64547F736B456DBL, _ => (o1: Any) => org.sireum.Jen.Internal.ISImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.ISImpl", "unapply").value
     r.put(0x59243DFE59C50986L, r => (o1: Any) => X[org.sireum.Jen.Internal.ISImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ISImpl", "generate").value
     r.put(0x3BE45166C1041A74L, r => (o1: Any) => X[org.sireum.Jen.Internal.ISImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ISImpl", "foreach").value
@@ -1884,8 +1884,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x6F5EFB41710F7C4EL, r => (o1: Any) => X[org.sireum.Jen.Internal.ISImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ISImpl", "mkString").value
     r.put(0x637A2B3806FF723CL, _ => (o1: Any) => org.sireum.Jen.Internal.MapImpl.apply(X(o1))) // methodKey(T, "org.sireum.Jen.Internal.MapImpl", "apply").value
     r.put(0xA772BC42ED3CA7CFL, _ => (o1: Any) => org.sireum.Jen.Internal.MapImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.MapImpl", "unapply").value
     r.put(0x2D3FDF824A52FD76L, r => (o1: Any) => X[org.sireum.Jen.Internal.MapImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.MapImpl", "generate").value
     r.put(0xCBB288F4C4F9AD86L, r => (o1: Any) => X[org.sireum.Jen.Internal.MapImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.MapImpl", "foreach").value
@@ -1913,8 +1913,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x9A58E5B573CA4713L, r => (o1: Any) => X[org.sireum.Jen.Internal.MapImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.MapImpl", "mkString").value
     r.put(0x660AEC3EEA0C9D90L, _ => (o1: Any) => org.sireum.Jen.Internal.HashMapImpl.apply(X(o1))) // methodKey(T, "org.sireum.Jen.Internal.HashMapImpl", "apply").value
     r.put(0x0F952A110D0B81C7L, _ => (o1: Any) => org.sireum.Jen.Internal.HashMapImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.HashMapImpl", "unapply").value
     r.put(0x99AEEE6BBE77854DL, r => (o1: Any) => X[org.sireum.Jen.Internal.HashMapImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.HashMapImpl", "generate").value
     r.put(0x86280BC4DCFACCAFL, r => (o1: Any) => X[org.sireum.Jen.Internal.HashMapImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.HashMapImpl", "foreach").value
@@ -1941,8 +1941,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xD6C33A68D82BE896L, r => (o1: Any) => X[org.sireum.Jen.Internal.HashMapImpl[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.HashMapImpl", "toMS").value
     r.put(0x7D1755F1B26D68F0L, r => (o1: Any) => X[org.sireum.Jen.Internal.HashMapImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.HashMapImpl", "mkString").value
     r.put(0x6E2C5C63EF656547L, _ => (o1: Any) => org.sireum.Jen.Internal.Filtered.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Filtered", "unapply").value
     r.put(0x8E8A2A6712AC66E0L, r => (o1: Any) => X[org.sireum.Jen.Internal.Filtered[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Filtered", "generate").value
     r.put(0x440550A4E1856327L, r => (o1: Any) => X[org.sireum.Jen.Internal.Filtered[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Filtered", "foreach").value
@@ -1969,8 +1969,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x979D6DB62113685BL, r => (o1: Any) => X[org.sireum.Jen.Internal.Filtered[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Filtered", "toMS").value
     r.put(0x50B16868C6334E68L, r => (o1: Any) => X[org.sireum.Jen.Internal.Filtered[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Filtered", "mkString").value
     r.put(0x2A5B2E6E018C1E33L, _ => (o1: Any) => org.sireum.Jen.Internal.Mapped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Mapped", "unapply").value
     r.put(0xB534F6C2FC7592EFL, r => (o1: Any) => X[org.sireum.Jen.Internal.Mapped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Mapped", "generate").value
     r.put(0x5C74DD9336D1A3D8L, r => (o1: Any) => X[org.sireum.Jen.Internal.Mapped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Mapped", "foreach").value
@@ -1997,8 +1997,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xEA1B4B643BA25439L, r => (o1: Any) => X[org.sireum.Jen.Internal.Mapped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Mapped", "toMS").value
     r.put(0x7E9282B8A2C7CDCBL, r => (o1: Any) => X[org.sireum.Jen.Internal.Mapped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Mapped", "mkString").value
     r.put(0xA8C036FF8C109F32L, _ => (o1: Any) => org.sireum.Jen.Internal.FlatMapped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.FlatMapped", "unapply").value
     r.put(0xFBD94D3EFECEEED9L, r => (o1: Any) => X[org.sireum.Jen.Internal.FlatMapped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.FlatMapped", "generate").value
     r.put(0x02A662DF626C1D3AL, r => (o1: Any) => X[org.sireum.Jen.Internal.FlatMapped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.FlatMapped", "foreach").value
@@ -2025,8 +2025,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x2656A0F32157E4FCL, r => (o1: Any) => X[org.sireum.Jen.Internal.FlatMapped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.FlatMapped", "toMS").value
     r.put(0x45C525AE595F4296L, r => (o1: Any) => X[org.sireum.Jen.Internal.FlatMapped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.FlatMapped", "mkString").value
     r.put(0x82E349E3FEAAD511L, _ => (o1: Any) => org.sireum.Jen.Internal.Sliced.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Sliced", "unapply").value
     r.put(0x153F96BFDDE97355L, r => (o1: Any) => X[org.sireum.Jen.Internal.Sliced[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Sliced", "generate").value
     r.put(0x80E39F1C072CF7F6L, r => (o1: Any) => X[org.sireum.Jen.Internal.Sliced[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Sliced", "foreach").value
@@ -2053,8 +2053,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x13F5222944843B17L, r => (o1: Any) => X[org.sireum.Jen.Internal.Sliced[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Sliced", "toMS").value
     r.put(0x3A2C64FEDF811FA3L, r => (o1: Any) => X[org.sireum.Jen.Internal.Sliced[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Sliced", "mkString").value
     r.put(0xA87B3DE2919D6FC9L, _ => (o1: Any) => org.sireum.Jen.Internal.TakeWhile.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.TakeWhile", "unapply").value
     r.put(0x84C9A233D46F1C96L, r => (o1: Any) => X[org.sireum.Jen.Internal.TakeWhile[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.TakeWhile", "generate").value
     r.put(0xD55279C0FD5A01BAL, r => (o1: Any) => X[org.sireum.Jen.Internal.TakeWhile[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.TakeWhile", "foreach").value
@@ -2081,8 +2081,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x4128ACD75B3156EBL, r => (o1: Any) => X[org.sireum.Jen.Internal.TakeWhile[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.TakeWhile", "toMS").value
     r.put(0x62132A1BED6EC37EL, r => (o1: Any) => X[org.sireum.Jen.Internal.TakeWhile[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.TakeWhile", "mkString").value
     r.put(0x15286882C909AED2L, _ => (o1: Any) => org.sireum.Jen.Internal.DropWhile.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.DropWhile", "unapply").value
     r.put(0xF813C1B074DB24D7L, r => (o1: Any) => X[org.sireum.Jen.Internal.DropWhile[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.DropWhile", "generate").value
     r.put(0xB3A27F84403A4B62L, r => (o1: Any) => X[org.sireum.Jen.Internal.DropWhile[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.DropWhile", "foreach").value
@@ -2110,8 +2110,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xFDA10A97EE3FD99CL, r => (o1: Any) => X[org.sireum.Jen.Internal.DropWhile[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.DropWhile", "mkString").value
     r.put(0x87AE6F7EB1B57247L, _ => (o1: Any) => org.sireum.Jen.Internal.ZipWithIndexed.apply(X(o1))) // methodKey(T, "org.sireum.Jen.Internal.ZipWithIndexed", "apply").value
     r.put(0x0361FB9B511A7D5AL, _ => (o1: Any) => org.sireum.Jen.Internal.ZipWithIndexed.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.ZipWithIndexed", "unapply").value
     r.put(0x2C86FE836F05CB27L, r => (o1: Any) => X[org.sireum.Jen.Internal.ZipWithIndexed[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ZipWithIndexed", "generate").value
     r.put(0xDAD82D3C1550A2FAL, r => (o1: Any) => X[org.sireum.Jen.Internal.ZipWithIndexed[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ZipWithIndexed", "foreach").value
@@ -2138,8 +2138,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xD7B222919E9BB0F6L, r => (o1: Any) => X[org.sireum.Jen.Internal.ZipWithIndexed[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ZipWithIndexed", "toMS").value
     r.put(0x0BF72FEBA43B67D2L, r => (o1: Any) => X[org.sireum.Jen.Internal.ZipWithIndexed[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.ZipWithIndexed", "mkString").value
     r.put(0x9FA34680DEAFF91DL, _ => (o1: Any) => org.sireum.Jen.Internal.Zipped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Zipped", "unapply").value
     r.put(0x8EB223876C49ACFCL, r => (o1: Any) => X[org.sireum.Jen.Internal.Zipped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Zipped", "generate").value
     r.put(0x5B132FE14C56C805L, r => (o1: Any) => X[org.sireum.Jen.Internal.Zipped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Zipped", "foreach").value
@@ -2166,8 +2166,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x5A136BA39A1740F7L, r => (o1: Any) => X[org.sireum.Jen.Internal.Zipped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Zipped", "toMS").value
     r.put(0x29DD6E61F97D725AL, r => (o1: Any) => X[org.sireum.Jen.Internal.Zipped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Zipped", "mkString").value
     r.put(0x0940D60810E8C100L, _ => (o1: Any) => org.sireum.Jen.Internal.Concat.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Concat", "unapply").value
     r.put(0x098653871134C443L, r => (o1: Any) => X[org.sireum.Jen.Internal.Concat[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Concat", "generate").value
     r.put(0x97B0AF10BA9C0766L, r => (o1: Any) => X[org.sireum.Jen.Internal.Concat[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Concat", "foreach").value
@@ -2194,8 +2194,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x751CFFB6094E1A3AL, r => (o1: Any) => X[org.sireum.Jen.Internal.Concat[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Concat", "toMS").value
     r.put(0xB98780F96B57FCABL, r => (o1: Any) => X[org.sireum.Jen.Internal.Concat[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Concat", "mkString").value
     r.put(0xF52D015D607A591AL, _ => (o1: Any) => org.sireum.Jen.Internal.Product.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Jen.Internal.Product", "unapply").value
     r.put(0x3E88062635BE5EDBL, r => (o1: Any) => X[org.sireum.Jen.Internal.Product[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Product", "generate").value
     r.put(0x495C6BDE892E1ED4L, r => (o1: Any) => X[org.sireum.Jen.Internal.Product[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen.Internal.Product", "foreach").value
@@ -2233,12 +2233,12 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xCC279B8E91A5B907L, r => (o1: Any) => X[org.sireum.Json.JsonAstBinding[_]](r).fromString(X(o1))) // methodKey(F, "org.sireum.Json.JsonAstBinding", "fromString").value
     r.put(0x73AB0161DB5580E4L, r => (o1: Any) => X[org.sireum.Json.JsonAstBinding[_]](r).fromBoolean(X(o1))) // methodKey(F, "org.sireum.Json.JsonAstBinding", "fromBoolean").value
     r.put(0xCA5E0875B932CD5DL, _ => (o1: Any) => org.sireum.Json.ErrorMsg.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Json.ErrorMsg", "unapply").value
     r.put(0x56E26D563BF315E2L, _ => (o1: Any) => org.sireum.Json.Parser.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Json.Parser", "unapply").value
     r.put(0x4E19C2F7ADD81171L, r => (o1: Any) => X[org.sireum.Json.Parser](r).`offset_=`(X(o1))) // methodKey(F, "org.sireum.Json.Parser", "offset_=").value
     r.put(0xAD39E620EF798E20L, r => (o1: Any) => X[org.sireum.Json.Parser](r).`errorOpt_=`(X(o1))) // methodKey(F, "org.sireum.Json.Parser", "errorOpt_=").value
@@ -2302,34 +2302,34 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x9A2DE6EFE68F6D4EL, r => (o1: Any) => X[org.sireum.Json.Parser](r).isWhitespace(X(o1))) // methodKey(F, "org.sireum.Json.Parser", "isWhitespace").value
     r.put(0x10E6FED5D7EC3F59L, _ => (o1: Any) => org.sireum.MBox.apply(X(o1))) // methodKey(T, "org.sireum.MBox", "apply").value
     r.put(0xDF42214D89E9FB2DL, _ => (o1: Any) => org.sireum.MBox.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox", "unapply").value
     r.put(0x3F9E049682FE132CL, r => (o1: Any) => X[org.sireum.MBox[_]](r).`value_=`(X(o1))) // methodKey(F, "org.sireum.MBox", "value_=").value
     r.put(0x4380B1DC3E6004A2L, _ => (o1: Any) => org.sireum.MBox2.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox2", "unapply").value
     r.put(0x366206617A5D71D4L, r => (o1: Any) => X[org.sireum.MBox2[_, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox2", "value1_=").value
     r.put(0xB5B9B6C0175F4325L, r => (o1: Any) => X[org.sireum.MBox2[_, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox2", "value2_=").value
     r.put(0xB597FF5FACEECF68L, _ => (o1: Any) => org.sireum.MBox3.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox3", "unapply").value
     r.put(0x839E76F1B157869BL, r => (o1: Any) => X[org.sireum.MBox3[_, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox3", "value1_=").value
     r.put(0x2B8BB11A7C5A2878L, r => (o1: Any) => X[org.sireum.MBox3[_, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox3", "value2_=").value
     r.put(0xA1A1D81DE2521BB0L, r => (o1: Any) => X[org.sireum.MBox3[_, _, _]](r).`value3_=`(X(o1))) // methodKey(F, "org.sireum.MBox3", "value3_=").value
     r.put(0x638006497E6C44E9L, _ => (o1: Any) => org.sireum.MBox4.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox4", "unapply").value
     r.put(0x3C563B50B7F54C1BL, r => (o1: Any) => X[org.sireum.MBox4[_, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox4", "value1_=").value
     r.put(0x3A60A48132B59A79L, r => (o1: Any) => X[org.sireum.MBox4[_, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox4", "value2_=").value
     r.put(0xB281B56867FE432BL, r => (o1: Any) => X[org.sireum.MBox4[_, _, _, _]](r).`value3_=`(X(o1))) // methodKey(F, "org.sireum.MBox4", "value3_=").value
     r.put(0x7722203028CFDDD6L, r => (o1: Any) => X[org.sireum.MBox4[_, _, _, _]](r).`value4_=`(X(o1))) // methodKey(F, "org.sireum.MBox4", "value4_=").value
     r.put(0x84A18D41CBFC5490L, _ => (o1: Any) => org.sireum.MBox5.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4)) => Some((o0, o1, o2, o3, o4))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4)) => MSome((o0, o1, o2, o3, o4))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox5", "unapply").value
     r.put(0x192785A9481E7992L, r => (o1: Any) => X[org.sireum.MBox5[_, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox5", "value1_=").value
     r.put(0xE9045E4E664417BAL, r => (o1: Any) => X[org.sireum.MBox5[_, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox5", "value2_=").value
@@ -2337,8 +2337,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x3928933399F50528L, r => (o1: Any) => X[org.sireum.MBox5[_, _, _, _, _]](r).`value4_=`(X(o1))) // methodKey(F, "org.sireum.MBox5", "value4_=").value
     r.put(0x8DA5CB7D6FB6AA85L, r => (o1: Any) => X[org.sireum.MBox5[_, _, _, _, _]](r).`value5_=`(X(o1))) // methodKey(F, "org.sireum.MBox5", "value5_=").value
     r.put(0xC45CE302317197E9L, _ => (o1: Any) => org.sireum.MBox6.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5)) => Some((o0, o1, o2, o3, o4, o5))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5)) => MSome((o0, o1, o2, o3, o4, o5))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox6", "unapply").value
     r.put(0x52013BF83AC0B4C5L, r => (o1: Any) => X[org.sireum.MBox6[_, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox6", "value1_=").value
     r.put(0x3B092D9A0FDDD126L, r => (o1: Any) => X[org.sireum.MBox6[_, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox6", "value2_=").value
@@ -2347,8 +2347,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x2EFA8BB7BCE82330L, r => (o1: Any) => X[org.sireum.MBox6[_, _, _, _, _, _]](r).`value5_=`(X(o1))) // methodKey(F, "org.sireum.MBox6", "value5_=").value
     r.put(0x49270AD9AEE2633FL, r => (o1: Any) => X[org.sireum.MBox6[_, _, _, _, _, _]](r).`value6_=`(X(o1))) // methodKey(F, "org.sireum.MBox6", "value6_=").value
     r.put(0x6BC644A5DAA7B5A5L, _ => (o1: Any) => org.sireum.MBox7.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => Some((o0, o1, o2, o3, o4, o5, o6))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => MSome((o0, o1, o2, o3, o4, o5, o6))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox7", "unapply").value
     r.put(0x1D779094B9018851L, r => (o1: Any) => X[org.sireum.MBox7[_, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox7", "value1_=").value
     r.put(0xB2C17AEFE8EC4AC3L, r => (o1: Any) => X[org.sireum.MBox7[_, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox7", "value2_=").value
@@ -2358,8 +2358,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x784E80ACD4B494CEL, r => (o1: Any) => X[org.sireum.MBox7[_, _, _, _, _, _, _]](r).`value6_=`(X(o1))) // methodKey(F, "org.sireum.MBox7", "value6_=").value
     r.put(0xF4DD3CA2FB52C8C9L, r => (o1: Any) => X[org.sireum.MBox7[_, _, _, _, _, _, _]](r).`value7_=`(X(o1))) // methodKey(F, "org.sireum.MBox7", "value7_=").value
     r.put(0xF60FA9D4F630A710L, _ => (o1: Any) => org.sireum.MBox8.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7)) => Some((o0, o1, o2, o3, o4, o5, o6, o7))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox8", "unapply").value
     r.put(0xAEAFCACB1308B779L, r => (o1: Any) => X[org.sireum.MBox8[_, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox8", "value1_=").value
     r.put(0x8005A76695C49443L, r => (o1: Any) => X[org.sireum.MBox8[_, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox8", "value2_=").value
@@ -2370,8 +2370,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xDF40F69AF135E066L, r => (o1: Any) => X[org.sireum.MBox8[_, _, _, _, _, _, _, _]](r).`value7_=`(X(o1))) // methodKey(F, "org.sireum.MBox8", "value7_=").value
     r.put(0xBE8AFFCB5DFDEA3AL, r => (o1: Any) => X[org.sireum.MBox8[_, _, _, _, _, _, _, _]](r).`value8_=`(X(o1))) // methodKey(F, "org.sireum.MBox8", "value8_=").value
     r.put(0x9D418F4104DC2A6AL, _ => (o1: Any) => org.sireum.MBox9.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox9", "unapply").value
     r.put(0x0BEB3DB7481AE745L, r => (o1: Any) => X[org.sireum.MBox9[_, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox9", "value1_=").value
     r.put(0x97DCAC8CDB0D06CFL, r => (o1: Any) => X[org.sireum.MBox9[_, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox9", "value2_=").value
@@ -2383,8 +2383,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x09488CD659FA787DL, r => (o1: Any) => X[org.sireum.MBox9[_, _, _, _, _, _, _, _, _]](r).`value8_=`(X(o1))) // methodKey(F, "org.sireum.MBox9", "value8_=").value
     r.put(0x619768351FB9F112L, r => (o1: Any) => X[org.sireum.MBox9[_, _, _, _, _, _, _, _, _]](r).`value9_=`(X(o1))) // methodKey(F, "org.sireum.MBox9", "value9_=").value
     r.put(0xE15C4A615F1B3B18L, _ => (o1: Any) => org.sireum.MBox10.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox10", "unapply").value
     r.put(0xD7B06E3794AAA725L, r => (o1: Any) => X[org.sireum.MBox10[_, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox10", "value1_=").value
     r.put(0xAC70B3F9A9FB97FCL, r => (o1: Any) => X[org.sireum.MBox10[_, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox10", "value2_=").value
@@ -2397,8 +2397,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xC9A2FA0FD54EAD4DL, r => (o1: Any) => X[org.sireum.MBox10[_, _, _, _, _, _, _, _, _, _]](r).`value9_=`(X(o1))) // methodKey(F, "org.sireum.MBox10", "value9_=").value
     r.put(0x25ECBFC29DF2C129L, r => (o1: Any) => X[org.sireum.MBox10[_, _, _, _, _, _, _, _, _, _]](r).`value10_=`(X(o1))) // methodKey(F, "org.sireum.MBox10", "value10_=").value
     r.put(0x3D6ECE8ED082B7BEL, _ => (o1: Any) => org.sireum.MBox11.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox11", "unapply").value
     r.put(0x7353679A1F00F4DBL, r => (o1: Any) => X[org.sireum.MBox11[_, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox11", "value1_=").value
     r.put(0x2617A92B0D621456L, r => (o1: Any) => X[org.sireum.MBox11[_, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox11", "value2_=").value
@@ -2412,8 +2412,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xABA79404FA2C7468L, r => (o1: Any) => X[org.sireum.MBox11[_, _, _, _, _, _, _, _, _, _, _]](r).`value10_=`(X(o1))) // methodKey(F, "org.sireum.MBox11", "value10_=").value
     r.put(0x2A7A0258ED200267L, r => (o1: Any) => X[org.sireum.MBox11[_, _, _, _, _, _, _, _, _, _, _]](r).`value11_=`(X(o1))) // methodKey(F, "org.sireum.MBox11", "value11_=").value
     r.put(0xC933C8C370DD2374L, _ => (o1: Any) => org.sireum.MBox12.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox12", "unapply").value
     r.put(0x9DDE92E3C01299E0L, r => (o1: Any) => X[org.sireum.MBox12[_, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox12", "value1_=").value
     r.put(0x266FAC60AC7E6D98L, r => (o1: Any) => X[org.sireum.MBox12[_, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox12", "value2_=").value
@@ -2428,8 +2428,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x3E51F8CADCC77F53L, r => (o1: Any) => X[org.sireum.MBox12[_, _, _, _, _, _, _, _, _, _, _, _]](r).`value11_=`(X(o1))) // methodKey(F, "org.sireum.MBox12", "value11_=").value
     r.put(0x3205AB5C9C943143L, r => (o1: Any) => X[org.sireum.MBox12[_, _, _, _, _, _, _, _, _, _, _, _]](r).`value12_=`(X(o1))) // methodKey(F, "org.sireum.MBox12", "value12_=").value
     r.put(0x2D384C7B89C9692FL, _ => (o1: Any) => org.sireum.MBox13.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox13", "unapply").value
     r.put(0x3F16FD8A12B00569L, r => (o1: Any) => X[org.sireum.MBox13[_, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox13", "value1_=").value
     r.put(0x661BDC686EF85B97L, r => (o1: Any) => X[org.sireum.MBox13[_, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox13", "value2_=").value
@@ -2445,8 +2445,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xF8C3F4FDD8F635A2L, r => (o1: Any) => X[org.sireum.MBox13[_, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value12_=`(X(o1))) // methodKey(F, "org.sireum.MBox13", "value12_=").value
     r.put(0x329A0DDD19FA331BL, r => (o1: Any) => X[org.sireum.MBox13[_, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value13_=`(X(o1))) // methodKey(F, "org.sireum.MBox13", "value13_=").value
     r.put(0x32D444222F52CDCFL, _ => (o1: Any) => org.sireum.MBox14.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox14", "unapply").value
     r.put(0x6D43230182921729L, r => (o1: Any) => X[org.sireum.MBox14[_, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox14", "value1_=").value
     r.put(0x6D9BA241BF0B17C0L, r => (o1: Any) => X[org.sireum.MBox14[_, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox14", "value2_=").value
@@ -2463,8 +2463,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x436FDC6099043842L, r => (o1: Any) => X[org.sireum.MBox14[_, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value13_=`(X(o1))) // methodKey(F, "org.sireum.MBox14", "value13_=").value
     r.put(0x01B01BEFCC891DB3L, r => (o1: Any) => X[org.sireum.MBox14[_, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value14_=`(X(o1))) // methodKey(F, "org.sireum.MBox14", "value14_=").value
     r.put(0xCE24E34145C0C273L, _ => (o1: Any) => org.sireum.MBox15.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox15", "unapply").value
     r.put(0x7CCD5169B560D961L, r => (o1: Any) => X[org.sireum.MBox15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox15", "value1_=").value
     r.put(0x85397E3143B4F8E7L, r => (o1: Any) => X[org.sireum.MBox15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox15", "value2_=").value
@@ -2482,8 +2482,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x5915E21AA6DCDFC9L, r => (o1: Any) => X[org.sireum.MBox15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value14_=`(X(o1))) // methodKey(F, "org.sireum.MBox15", "value14_=").value
     r.put(0xCAC72EEBD6BED640L, r => (o1: Any) => X[org.sireum.MBox15[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value15_=`(X(o1))) // methodKey(F, "org.sireum.MBox15", "value15_=").value
     r.put(0x8032B7C9EAB0DD2CL, _ => (o1: Any) => org.sireum.MBox16.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox16", "unapply").value
     r.put(0xFA150D13F2C94D58L, r => (o1: Any) => X[org.sireum.MBox16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox16", "value1_=").value
     r.put(0x6EE5CFB8CD4736F9L, r => (o1: Any) => X[org.sireum.MBox16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox16", "value2_=").value
@@ -2502,8 +2502,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x32F936B47473496AL, r => (o1: Any) => X[org.sireum.MBox16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value15_=`(X(o1))) // methodKey(F, "org.sireum.MBox16", "value15_=").value
     r.put(0x5F385A6D3C0A8322L, r => (o1: Any) => X[org.sireum.MBox16[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value16_=`(X(o1))) // methodKey(F, "org.sireum.MBox16", "value16_=").value
     r.put(0xB4530560FFA83DF7L, _ => (o1: Any) => org.sireum.MBox17.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox17", "unapply").value
     r.put(0xA7E9365FA9C3EBB2L, r => (o1: Any) => X[org.sireum.MBox17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox17", "value1_=").value
     r.put(0xFA2E2A3D273514E9L, r => (o1: Any) => X[org.sireum.MBox17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox17", "value2_=").value
@@ -2523,8 +2523,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x9B1DEE62974E527EL, r => (o1: Any) => X[org.sireum.MBox17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value16_=`(X(o1))) // methodKey(F, "org.sireum.MBox17", "value16_=").value
     r.put(0x39E9D8F5059A64DCL, r => (o1: Any) => X[org.sireum.MBox17[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value17_=`(X(o1))) // methodKey(F, "org.sireum.MBox17", "value17_=").value
     r.put(0xAD859AD1EFA30E47L, _ => (o1: Any) => org.sireum.MBox18.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox18", "unapply").value
     r.put(0x090D7781C005C3A9L, r => (o1: Any) => X[org.sireum.MBox18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox18", "value1_=").value
     r.put(0x0F5E5D06B40F96FAL, r => (o1: Any) => X[org.sireum.MBox18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox18", "value2_=").value
@@ -2545,8 +2545,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xF041528747472440L, r => (o1: Any) => X[org.sireum.MBox18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value17_=`(X(o1))) // methodKey(F, "org.sireum.MBox18", "value17_=").value
     r.put(0xC44C8FE951FB79CCL, r => (o1: Any) => X[org.sireum.MBox18[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value18_=`(X(o1))) // methodKey(F, "org.sireum.MBox18", "value18_=").value
     r.put(0xE7CBCACEACB00E4CL, _ => (o1: Any) => org.sireum.MBox19.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox19", "unapply").value
     r.put(0x0F8FA3C9A8B12AF7L, r => (o1: Any) => X[org.sireum.MBox19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox19", "value1_=").value
     r.put(0x5653F40D3506D8B4L, r => (o1: Any) => X[org.sireum.MBox19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox19", "value2_=").value
@@ -2568,8 +2568,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xDB99F2E3693E02ADL, r => (o1: Any) => X[org.sireum.MBox19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value18_=`(X(o1))) // methodKey(F, "org.sireum.MBox19", "value18_=").value
     r.put(0x438BA5580CFCDF54L, r => (o1: Any) => X[org.sireum.MBox19[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value19_=`(X(o1))) // methodKey(F, "org.sireum.MBox19", "value19_=").value
     r.put(0xC3C512383AA9AF6BL, _ => (o1: Any) => org.sireum.MBox20.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox20", "unapply").value
     r.put(0xE8019935B589C7D8L, r => (o1: Any) => X[org.sireum.MBox20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox20", "value1_=").value
     r.put(0x541D332CDBBD6118L, r => (o1: Any) => X[org.sireum.MBox20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox20", "value2_=").value
@@ -2592,8 +2592,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xF9303072FB7E7F3DL, r => (o1: Any) => X[org.sireum.MBox20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value19_=`(X(o1))) // methodKey(F, "org.sireum.MBox20", "value19_=").value
     r.put(0x1DA6142576743FFEL, r => (o1: Any) => X[org.sireum.MBox20[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value20_=`(X(o1))) // methodKey(F, "org.sireum.MBox20", "value20_=").value
     r.put(0x04FBFBCEC1BAAA1DL, _ => (o1: Any) => org.sireum.MBox21.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox21", "unapply").value
     r.put(0x9CDBD87ED22F242CL, r => (o1: Any) => X[org.sireum.MBox21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox21", "value1_=").value
     r.put(0x9E4B9F2E7037AE36L, r => (o1: Any) => X[org.sireum.MBox21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox21", "value2_=").value
@@ -2617,8 +2617,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x37C95BE61C5BA9A8L, r => (o1: Any) => X[org.sireum.MBox21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value20_=`(X(o1))) // methodKey(F, "org.sireum.MBox21", "value20_=").value
     r.put(0xA636C9E7303A26E5L, r => (o1: Any) => X[org.sireum.MBox21[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value21_=`(X(o1))) // methodKey(F, "org.sireum.MBox21", "value21_=").value
     r.put(0x12DBC75AFD510AB1L, _ => (o1: Any) => org.sireum.MBox22.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20, o21)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20, o21))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20, o21)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14, o15, o16, o17, o18, o19, o20, o21))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MBox22", "unapply").value
     r.put(0xFF903F4250F295C7L, r => (o1: Any) => X[org.sireum.MBox22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value1_=`(X(o1))) // methodKey(F, "org.sireum.MBox22", "value1_=").value
     r.put(0x0D9F5D3CFABC4DB3L, r => (o1: Any) => X[org.sireum.MBox22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value2_=`(X(o1))) // methodKey(F, "org.sireum.MBox22", "value2_=").value
@@ -2644,13 +2644,13 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x44C002E249EC24A4L, r => (o1: Any) => X[org.sireum.MBox22[_, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _]](r).`value22_=`(X(o1))) // methodKey(F, "org.sireum.MBox22", "value22_=").value
     r.put(0xAE1BDA7620D87456L, _ => (o1: Any) => org.sireum.MEither.Left.apply(X(o1))) // methodKey(T, "org.sireum.MEither.Left", "apply").value
     r.put(0xE9B3AF3490A7C8D6L, _ => (o1: Any) => org.sireum.MEither.Left.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MEither.Left", "unapply").value
     r.put(0x07293F91A03D569BL, _ => (o1: Any) => org.sireum.MEither.Right.apply(X(o1))) // methodKey(T, "org.sireum.MEither.Right", "apply").value
     r.put(0x4BFDB2677A12F1AFL, _ => (o1: Any) => org.sireum.MEither.Right.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MEither.Right", "unapply").value
     r.put(0x1D68AB3DDC2149F9L, r => (o1: Any) => X[org.sireum.MJen[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen", "generate").value
     r.put(0x5757E3A8229B845BL, r => (o1: Any) => X[org.sireum.MJen[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen", "foreach").value
@@ -2677,8 +2677,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xF8ECA94EC0BC2578L, r => (o1: Any) => X[org.sireum.MJen[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen", "mkString").value
     r.put(0x05589D4775A6D726L, _ => (o1: Any) => org.sireum.MJen.Internal.ISImpl.apply(X(o1))) // methodKey(T, "org.sireum.MJen.Internal.ISImpl", "apply").value
     r.put(0xF909F2169D6F94BEL, _ => (o1: Any) => org.sireum.MJen.Internal.ISImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.ISImpl", "unapply").value
     r.put(0x032CE3BEA77AB9B0L, r => (o1: Any) => X[org.sireum.MJen.Internal.ISImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ISImpl", "generate").value
     r.put(0x6B6AB8B334D09E9CL, r => (o1: Any) => X[org.sireum.MJen.Internal.ISImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ISImpl", "foreach").value
@@ -2705,8 +2705,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x99A67283CFBE0E27L, r => (o1: Any) => X[org.sireum.MJen.Internal.ISImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ISImpl", "mkString").value
     r.put(0x84F6AE1C7EDA1E97L, _ => (o1: Any) => org.sireum.MJen.Internal.MSImpl.apply(X(o1))) // methodKey(T, "org.sireum.MJen.Internal.MSImpl", "apply").value
     r.put(0x37DAD371250A2160L, _ => (o1: Any) => org.sireum.MJen.Internal.MSImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.MSImpl", "unapply").value
     r.put(0x45B56324A199F666L, r => (o1: Any) => X[org.sireum.MJen.Internal.MSImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MSImpl", "generate").value
     r.put(0xAE29242A44EE39B8L, r => (o1: Any) => X[org.sireum.MJen.Internal.MSImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MSImpl", "foreach").value
@@ -2733,8 +2733,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xDE133E7AACCBBDFEL, r => (o1: Any) => X[org.sireum.MJen.Internal.MSImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MSImpl", "mkString").value
     r.put(0xF69DE3F744017E3AL, _ => (o1: Any) => org.sireum.MJen.Internal.MapImpl.apply(X(o1))) // methodKey(T, "org.sireum.MJen.Internal.MapImpl", "apply").value
     r.put(0xF95969283346BCBAL, _ => (o1: Any) => org.sireum.MJen.Internal.MapImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.MapImpl", "unapply").value
     r.put(0xD68CC0DE13291756L, r => (o1: Any) => X[org.sireum.MJen.Internal.MapImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MapImpl", "generate").value
     r.put(0x8C406ABCB4C8F9CDL, r => (o1: Any) => X[org.sireum.MJen.Internal.MapImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MapImpl", "foreach").value
@@ -2761,8 +2761,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xE0E57FE1584F4BC9L, r => (o1: Any) => X[org.sireum.MJen.Internal.MapImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.MapImpl", "mkString").value
     r.put(0x53158A8A7AC69B71L, _ => (o1: Any) => org.sireum.MJen.Internal.HashMapImpl.apply(X(o1))) // methodKey(T, "org.sireum.MJen.Internal.HashMapImpl", "apply").value
     r.put(0x247118E2F2C9C499L, _ => (o1: Any) => org.sireum.MJen.Internal.HashMapImpl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.HashMapImpl", "unapply").value
     r.put(0xA88174ABC846EA80L, r => (o1: Any) => X[org.sireum.MJen.Internal.HashMapImpl[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.HashMapImpl", "generate").value
     r.put(0x8C7216D49BDCA9FCL, r => (o1: Any) => X[org.sireum.MJen.Internal.HashMapImpl[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.HashMapImpl", "foreach").value
@@ -2788,8 +2788,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xADDA902D459832D0L, r => (o1: Any) => X[org.sireum.MJen.Internal.HashMapImpl[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.HashMapImpl", "toMS").value
     r.put(0xAAE8DA7199A48B11L, r => (o1: Any) => X[org.sireum.MJen.Internal.HashMapImpl[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.HashMapImpl", "mkString").value
     r.put(0x3EA3C633194E993BL, _ => (o1: Any) => org.sireum.MJen.Internal.Filtered.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Filtered", "unapply").value
     r.put(0xCEBA0C174E8108E3L, r => (o1: Any) => X[org.sireum.MJen.Internal.Filtered[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Filtered", "generate").value
     r.put(0x5B16126D8999FF81L, r => (o1: Any) => X[org.sireum.MJen.Internal.Filtered[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Filtered", "foreach").value
@@ -2815,8 +2815,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x1F5E0D52912E8FB8L, r => (o1: Any) => X[org.sireum.MJen.Internal.Filtered[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Filtered", "toMS").value
     r.put(0xFF13F00BB7F2E722L, r => (o1: Any) => X[org.sireum.MJen.Internal.Filtered[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Filtered", "mkString").value
     r.put(0x46D2B9309B670192L, _ => (o1: Any) => org.sireum.MJen.Internal.Mapped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Mapped", "unapply").value
     r.put(0xB727537692A5C708L, r => (o1: Any) => X[org.sireum.MJen.Internal.Mapped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Mapped", "generate").value
     r.put(0x951C1485C09334D5L, r => (o1: Any) => X[org.sireum.MJen.Internal.Mapped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Mapped", "foreach").value
@@ -2842,8 +2842,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x9C4376AAF2FE2976L, r => (o1: Any) => X[org.sireum.MJen.Internal.Mapped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Mapped", "toMS").value
     r.put(0x19CA23FDF439F84EL, r => (o1: Any) => X[org.sireum.MJen.Internal.Mapped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Mapped", "mkString").value
     r.put(0x1AB6CE14DD5BD0FBL, _ => (o1: Any) => org.sireum.MJen.Internal.FlatMapped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.FlatMapped", "unapply").value
     r.put(0xA5836E52FE39A747L, r => (o1: Any) => X[org.sireum.MJen.Internal.FlatMapped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.FlatMapped", "generate").value
     r.put(0x4CBFC777EB905C17L, r => (o1: Any) => X[org.sireum.MJen.Internal.FlatMapped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.FlatMapped", "foreach").value
@@ -2869,8 +2869,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x418919F736BA8F89L, r => (o1: Any) => X[org.sireum.MJen.Internal.FlatMapped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.FlatMapped", "toMS").value
     r.put(0x094D29E0E7C8CEDDL, r => (o1: Any) => X[org.sireum.MJen.Internal.FlatMapped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.FlatMapped", "mkString").value
     r.put(0xC01F40AF5C8E4E72L, _ => (o1: Any) => org.sireum.MJen.Internal.Sliced.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Sliced", "unapply").value
     r.put(0x9C89C731FC80A7FDL, r => (o1: Any) => X[org.sireum.MJen.Internal.Sliced[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Sliced", "generate").value
     r.put(0x90E52F056A570C17L, r => (o1: Any) => X[org.sireum.MJen.Internal.Sliced[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Sliced", "foreach").value
@@ -2896,8 +2896,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x1BA3FDD7DB8A9F9FL, r => (o1: Any) => X[org.sireum.MJen.Internal.Sliced[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Sliced", "toMS").value
     r.put(0x8CFA2E8911E546D9L, r => (o1: Any) => X[org.sireum.MJen.Internal.Sliced[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Sliced", "mkString").value
     r.put(0x03F0895E774A6B1FL, _ => (o1: Any) => org.sireum.MJen.Internal.TakeWhile.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.TakeWhile", "unapply").value
     r.put(0x506B61EB25789625L, r => (o1: Any) => X[org.sireum.MJen.Internal.TakeWhile[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.TakeWhile", "generate").value
     r.put(0x61DE0175AC1EB7BAL, r => (o1: Any) => X[org.sireum.MJen.Internal.TakeWhile[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.TakeWhile", "foreach").value
@@ -2923,8 +2923,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x288E64F501B8DFF7L, r => (o1: Any) => X[org.sireum.MJen.Internal.TakeWhile[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.TakeWhile", "toMS").value
     r.put(0xF446CEE9672EC329L, r => (o1: Any) => X[org.sireum.MJen.Internal.TakeWhile[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.TakeWhile", "mkString").value
     r.put(0x4214D7BD7A92B593L, _ => (o1: Any) => org.sireum.MJen.Internal.DropWhile.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.DropWhile", "unapply").value
     r.put(0x90E03A8561991A81L, r => (o1: Any) => X[org.sireum.MJen.Internal.DropWhile[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.DropWhile", "generate").value
     r.put(0x6A119623DEB06CA7L, r => (o1: Any) => X[org.sireum.MJen.Internal.DropWhile[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.DropWhile", "foreach").value
@@ -2951,8 +2951,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x8022DEDA87C4BEC8L, r => (o1: Any) => X[org.sireum.MJen.Internal.DropWhile[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.DropWhile", "mkString").value
     r.put(0x619FFF6FCC290B35L, _ => (o1: Any) => org.sireum.MJen.Internal.ZipWithIndexed.apply(X(o1))) // methodKey(T, "org.sireum.MJen.Internal.ZipWithIndexed", "apply").value
     r.put(0x1926C09AD919F5E9L, _ => (o1: Any) => org.sireum.MJen.Internal.ZipWithIndexed.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.ZipWithIndexed", "unapply").value
     r.put(0xBB468AB194D617A6L, r => (o1: Any) => X[org.sireum.MJen.Internal.ZipWithIndexed[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ZipWithIndexed", "generate").value
     r.put(0x377624A3A4911036L, r => (o1: Any) => X[org.sireum.MJen.Internal.ZipWithIndexed[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ZipWithIndexed", "foreach").value
@@ -2978,8 +2978,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xBA492886985987ACL, r => (o1: Any) => X[org.sireum.MJen.Internal.ZipWithIndexed[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ZipWithIndexed", "toMS").value
     r.put(0xD86C1507F2DB4E35L, r => (o1: Any) => X[org.sireum.MJen.Internal.ZipWithIndexed[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.ZipWithIndexed", "mkString").value
     r.put(0x43C71D655547DE8AL, _ => (o1: Any) => org.sireum.MJen.Internal.Zipped.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Zipped", "unapply").value
     r.put(0x7018654D62541CBEL, r => (o1: Any) => X[org.sireum.MJen.Internal.Zipped[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Zipped", "generate").value
     r.put(0x27D22B74F64F021EL, r => (o1: Any) => X[org.sireum.MJen.Internal.Zipped[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Zipped", "foreach").value
@@ -3005,8 +3005,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x7DAC448A5283C9E3L, r => (o1: Any) => X[org.sireum.MJen.Internal.Zipped[_, _]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Zipped", "toMS").value
     r.put(0xD317ED7C1DDCCDBFL, r => (o1: Any) => X[org.sireum.MJen.Internal.Zipped[_, _]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Zipped", "mkString").value
     r.put(0x115E3F9A95B3A6D6L, _ => (o1: Any) => org.sireum.MJen.Internal.Concat.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Concat", "unapply").value
     r.put(0x5A0063942B613B50L, r => (o1: Any) => X[org.sireum.MJen.Internal.Concat[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Concat", "generate").value
     r.put(0x7343F5A08E1458AEL, r => (o1: Any) => X[org.sireum.MJen.Internal.Concat[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Concat", "foreach").value
@@ -3032,8 +3032,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x2D6A2A638CECC918L, r => (o1: Any) => X[org.sireum.MJen.Internal.Concat[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Concat", "toMS").value
     r.put(0x6AF424D58F210E7FL, r => (o1: Any) => X[org.sireum.MJen.Internal.Concat[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Concat", "mkString").value
     r.put(0xD80C64B05A3A7AF2L, _ => (o1: Any) => org.sireum.MJen.Internal.Product.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MJen.Internal.Product", "unapply").value
     r.put(0x1289BDDB0AAE82B4L, r => (o1: Any) => X[org.sireum.MJen.Internal.Product[_, _]](r).generate(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Product", "generate").value
     r.put(0xC4A7776E8D70DDCAL, r => (o1: Any) => X[org.sireum.MJen.Internal.Product[_, _]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MJen.Internal.Product", "foreach").value
@@ -3065,7 +3065,7 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xC95D4FEBFC0EAFD9L, r => (o1: Any) => X[org.sireum.MOption[_]](r).getOrElse(X(X[(() => _)](o1)()))) // methodKey(F, "org.sireum.MOption", "getOrElse").value
     r.put(0x69B3F1A1FF988069L, r => (o1: Any) => X[org.sireum.MOption[_]](r).getOrElseEager(X(o1))) // methodKey(F, "org.sireum.MOption", "getOrElseEager").value
     r.put(0xBC0A35C7EFCA97E2L, r => (o1: Any) => X[org.sireum.MOption[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MOption", "foreach").value
-    r.put(0xCB6F5E1D3EEB301DL, _ => (o1: Any) => if (org.sireum.MNone.unapply(X(o1))) Some(T) else None()) // methodKey(T, "org.sireum.MNone", "unapply").value
+    r.put(0xCB6F5E1D3EEB301DL, _ => (o1: Any) => if (org.sireum.MNone.unapply(X(o1))) MSome(T) else MNone()) // methodKey(T, "org.sireum.MNone", "unapply").value
     r.put(0x92C215D5382AB3B1L, r => (o1: Any) => X[org.sireum.MNone[_]](r).map(X(o1))) // methodKey(F, "org.sireum.MNone", "map").value
     r.put(0x640A2B089CB5821EL, r => (o1: Any) => X[org.sireum.MNone[_]](r).flatMap(X(o1))) // methodKey(F, "org.sireum.MNone", "flatMap").value
     r.put(0x352CEC78F096724BL, r => (o1: Any) => X[org.sireum.MNone[_]](r).forall(X(o1))) // methodKey(F, "org.sireum.MNone", "forall").value
@@ -3075,8 +3075,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xE300858ECDE1EEAEL, r => (o1: Any) => X[org.sireum.MNone[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MNone", "foreach").value
     r.put(0xA1B9D317BCABEA11L, _ => (o1: Any) => org.sireum.MSome.apply(X(o1))) // methodKey(T, "org.sireum.MSome", "apply").value
     r.put(0xC21F31D858242B47L, _ => (o1: Any) => org.sireum.MSome.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.MSome", "unapply").value
     r.put(0xBF196EBAA11ACE26L, r => (o1: Any) => X[org.sireum.MSome[_]](r).map(X(o1))) // methodKey(F, "org.sireum.MSome", "map").value
     r.put(0x0B709DA7585A2A16L, r => (o1: Any) => X[org.sireum.MSome[_]](r).flatMap(X(o1))) // methodKey(F, "org.sireum.MSome", "flatMap").value
@@ -3087,8 +3087,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x5A733A62DE4FE625L, r => (o1: Any) => X[org.sireum.MSome[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MSome", "foreach").value
     r.put(0x468370A0081F2479L, _ => (o1: Any) => org.sireum.Map.apply(X(o1))) // methodKey(T, "org.sireum.Map", "apply").value
     r.put(0x7A38FE2715A3348AL, _ => (o1: Any) => org.sireum.Map.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Map", "unapply").value
     r.put(0x26F2C27D1303CD41L, r => (o1: Any) => X[org.sireum.Map[_, _]](r).`+`(X(o1))) // methodKey(F, "org.sireum.Map", "+").value
     r.put(0x7C52AFE6925BE5A8L, r => (o1: Any) => X[org.sireum.Map[_, _]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Map", "++").value
@@ -3110,7 +3110,7 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x18CE0DE7F2ECB384L, r => (o1: Any) => X[org.sireum.Option[_]](r).getOrElse(X(X[(() => _)](o1)()))) // methodKey(F, "org.sireum.Option", "getOrElse").value
     r.put(0xA05EE525056BE57FL, r => (o1: Any) => X[org.sireum.Option[_]](r).getOrElseEager(X(o1))) // methodKey(F, "org.sireum.Option", "getOrElseEager").value
     r.put(0xFDA69505F916490BL, r => (o1: Any) => X[org.sireum.Option[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Option", "foreach").value
-    r.put(0xC86ADFE866BFED41L, _ => (o1: Any) => if (org.sireum.None.unapply(X(o1))) Some(T) else None()) // methodKey(T, "org.sireum.None", "unapply").value
+    r.put(0xC86ADFE866BFED41L, _ => (o1: Any) => if (org.sireum.None.unapply(X(o1))) MSome(T) else MNone()) // methodKey(T, "org.sireum.None", "unapply").value
     r.put(0x1FB380EA28D14879L, r => (o1: Any) => X[org.sireum.None[_]](r).map(X(o1))) // methodKey(F, "org.sireum.None", "map").value
     r.put(0x46F8397E30915E21L, r => (o1: Any) => X[org.sireum.None[_]](r).flatMap(X(o1))) // methodKey(F, "org.sireum.None", "flatMap").value
     r.put(0x0A617B941A326281L, r => (o1: Any) => X[org.sireum.None[_]](r).forall(X(o1))) // methodKey(F, "org.sireum.None", "forall").value
@@ -3120,8 +3120,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x689452DE36656F3FL, r => (o1: Any) => X[org.sireum.None[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.None", "foreach").value
     r.put(0xBD9F34035158E169L, _ => (o1: Any) => org.sireum.Some.apply(X(o1))) // methodKey(T, "org.sireum.Some", "apply").value
     r.put(0x98AD011FFEFD9B75L, _ => (o1: Any) => org.sireum.Some.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Some", "unapply").value
     r.put(0x0B5B8E5079082393L, r => (o1: Any) => X[org.sireum.Some[_]](r).map(X(o1))) // methodKey(F, "org.sireum.Some", "map").value
     r.put(0xEC0EEDC4D5E4B4F3L, r => (o1: Any) => X[org.sireum.Some[_]](r).flatMap(X(o1))) // methodKey(F, "org.sireum.Some", "flatMap").value
@@ -3138,8 +3138,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x7FB1808CC2FD0113L, r => (o1: Any) => X[org.sireum.OsProto.Proc](r).outLineAction(X(o1))) // methodKey(F, "org.sireum.OsProto.Proc", "outLineAction").value
     r.put(0x4D46231C2DA56C66L, r => (o1: Any) => X[org.sireum.OsProto.Proc](r).errLineAction(X(o1))) // methodKey(F, "org.sireum.OsProto.Proc", "errLineAction").value
     r.put(0x3DFB281C9AF3EC49L, _ => (o1: Any) => org.sireum.Poset.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Poset", "unapply").value
     r.put(0xE3FA837A659F98A5L, r => (o1: Any) => X[org.sireum.Poset[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Poset", "++").value
     r.put(0x03D45CAF69E30029L, r => (o1: Any) => X[org.sireum.Poset[_]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.Poset", "isEqual").value
@@ -3156,26 +3156,26 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x14138F285F620224L, r => (o1: Any) => X[org.sireum.Random.Gen.TestRunner[_]](r).test(X(o1))) // methodKey(F, "org.sireum.Random.Gen.TestRunner", "test").value
     r.put(0x9E14DD15AA6DD391L, _ => (o1: Any) => org.sireum.Random.Gen64Impl.apply(X(o1))) // methodKey(T, "org.sireum.Random.Gen64Impl", "apply").value
     r.put(0x782B3A1B2A51D090L, _ => (o1: Any) => org.sireum.Random.Gen64Impl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Random.Gen64Impl", "unapply").value
     r.put(0xF62718D24F94901CL, _ => (o1: Any) => org.sireum.Random.Impl.SplitMix64.apply(X(o1))) // methodKey(T, "org.sireum.Random.Impl.SplitMix64", "apply").value
     r.put(0xA09F873F77C65EA1L, _ => (o1: Any) => org.sireum.Random.Impl.SplitMix64.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Random.Impl.SplitMix64", "unapply").value
     r.put(0xC4C231B4E94FF71BL, r => (o1: Any) => X[org.sireum.Random.Impl.SplitMix64](r).`seed_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.SplitMix64", "seed_=").value
     r.put(0x304020669424EEFDL, _ => (o1: Any) => org.sireum.Random.Impl.Xoshiro256.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Random.Impl.Xoshiro256", "unapply").value
     r.put(0xF8D3FB64DAF5AD87L, r => (o1: Any) => X[org.sireum.Random.Impl.Xoshiro256](r).`seed0_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoshiro256", "seed0_=").value
     r.put(0x07D1D9A90EA2D934L, r => (o1: Any) => X[org.sireum.Random.Impl.Xoshiro256](r).`seed1_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoshiro256", "seed1_=").value
     r.put(0x28A7527EDD2F9BE9L, r => (o1: Any) => X[org.sireum.Random.Impl.Xoshiro256](r).`seed2_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoshiro256", "seed2_=").value
     r.put(0xB5670D87C026461CL, r => (o1: Any) => X[org.sireum.Random.Impl.Xoshiro256](r).`seed3_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoshiro256", "seed3_=").value
     r.put(0xD381A35FD1EB9321L, _ => (o1: Any) => org.sireum.Random.Impl.Xoroshiro128.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Random.Impl.Xoroshiro128", "unapply").value
     r.put(0x655DAF2C48EC4800L, r => (o1: Any) => X[org.sireum.Random.Impl.Xoroshiro128](r).`seed0_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoroshiro128", "seed0_=").value
     r.put(0xCB599029CD09925BL, r => (o1: Any) => X[org.sireum.Random.Impl.Xoroshiro128](r).`seed1_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoroshiro128", "seed1_=").value
@@ -3183,8 +3183,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xD96CC7FD73F4FD99L, r => (o1: Any) => X[org.sireum.Random.Impl.Xoroshiro128](r).`seed3_=`(X(o1))) // methodKey(F, "org.sireum.Random.Impl.Xoroshiro128", "seed3_=").value
     r.put(0x816E386F7EF2AA76L, _ => (o1: Any) => org.sireum.Set.apply(X(o1))) // methodKey(T, "org.sireum.Set", "apply").value
     r.put(0xD9FFB62902606651L, _ => (o1: Any) => org.sireum.Set.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Set", "unapply").value
     r.put(0x9F9D5CAFC37A2F2DL, r => (o1: Any) => X[org.sireum.Set[_]](r).`+`(X(o1))) // methodKey(F, "org.sireum.Set", "+").value
     r.put(0x810EBF5FEFAADACBL, r => (o1: Any) => X[org.sireum.Set[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Set", "++").value
@@ -3200,45 +3200,45 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0x7E2652B8DCC3DF6DL, r => (o1: Any) => X[org.sireum.Set[_]](r).indexOf(X(o1))) // methodKey(F, "org.sireum.Set", "indexOf").value
     r.put(0x3BC0F29752B98FFDL, _ => (o1: Any) => org.sireum.Stack.apply(X(o1))) // methodKey(T, "org.sireum.Stack", "apply").value
     r.put(0x3B6DF5F952207A60L, _ => (o1: Any) => org.sireum.Stack.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Stack", "unapply").value
     r.put(0x1EB542E68906C468L, r => (o1: Any) => X[org.sireum.Stack[_]](r).push(X(o1))) // methodKey(F, "org.sireum.Stack", "push").value
     r.put(0xC9663614762AE5E9L, _ => (o1: Any) => org.sireum.UnionFind.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.UnionFind", "unapply").value
     r.put(0x607484EA4698172FL, r => (o1: Any) => X[org.sireum.UnionFind[_]](r).isEqual(X(o1))) // methodKey(F, "org.sireum.UnionFind", "isEqual").value
     r.put(0x5FE84FDCB63A310BL, r => (o1: Any) => X[org.sireum.UnionFind[_]](r).find(X(o1))) // methodKey(F, "org.sireum.UnionFind", "find").value
     r.put(0x4E66F5FB9A61B820L, r => (o1: Any) => X[org.sireum.UnionFind[_]](r).findCompress(X(o1))) // methodKey(F, "org.sireum.UnionFind", "findCompress").value
     r.put(0xEE5BE955EDEEF8CDL, r => (o1: Any) => X[org.sireum.UnionFind[_]](r).toST(X(o1))) // methodKey(F, "org.sireum.UnionFind", "toST").value
     r.put(0x3807C91400AA6467L, _ => (o1: Any) => org.sireum.CoursierFileInfo.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.CoursierFileInfo", "unapply").value
     r.put(0x566D579F4EE7C313L, _ => (o1: Any) => org.sireum.Coursier.Proxy.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5)) => Some((o0, o1, o2, o3, o4, o5))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5)) => MSome((o0, o1, o2, o3, o4, o5))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Coursier.Proxy", "unapply").value
     r.put(0x23189B2D18BDD3F8L, _ => (o1: Any) => org.sireum.GitHub.Repository.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.GitHub.Repository", "unapply").value
     r.put(0x7540A8A77D21168AL, _ => (o1: Any) => org.sireum.GitHub.Release.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.GitHub.Release", "unapply").value
     r.put(0x92B4F78506AB8A3AL, _ => (o1: Any) => org.sireum.GitHub.Asset.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.GitHub.Asset", "unapply").value
     r.put(0x6834726706939AF3L, _ => (o1: Any) => org.sireum.Init.Plugin.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3)) => Some((o0, o1, o2, o3))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Init.Plugin", "unapply").value
     r.put(0xD893E6662D1AC24FL, _ => (o1: Any) => org.sireum.Init.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Init", "unapply").value
     r.put(0x394D50D66209F24FL, r => (o1: Any) => X[org.sireum.Init](r).platform(X(o1))) // methodKey(F, "org.sireum.Init", "platform").value
     r.put(0x820EB4449968AFCDL, r => (o1: Any) => X[org.sireum.Init](r).installJava(X(o1))) // methodKey(F, "org.sireum.Init", "installJava").value
@@ -3247,8 +3247,8 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xB42ABE770C9ECC42L, r => (o1: Any) => X[org.sireum.Init](r).init(X(o1))) // methodKey(F, "org.sireum.Init", "init").value
     r.put(0xE9DC95EFDFAF94C7L, _ => (o1: Any) => org.sireum.Os.Path.Impl.apply(X(o1))) // methodKey(T, "org.sireum.Os.Path.Impl", "apply").value
     r.put(0x16BF72C5C67B6932L, _ => (o1: Any) => org.sireum.Os.Path.Impl.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Path.Impl", "unapply").value
     r.put(0xB6C51877F05C73AAL, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).`/`(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "/").value
     r.put(0x13D04B1E09D02C80L, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).`/+`(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "/+").value
@@ -3346,26 +3346,26 @@ class LibJvmUtil_Ext extends Reflection {
     r.put(0xB3693C2306B12ED9L, r => (o1: Any) => X[org.sireum.Os.Proc.LineFilter](r).filter(X(o1))) // methodKey(F, "org.sireum.Os.Proc.LineFilter", "filter").value
     r.put(0x25D4185D3171F924L, _ => (o1: Any) => org.sireum.Os.Proc.FunLineFilter.apply(X(o1))) // methodKey(T, "org.sireum.Os.Proc.FunLineFilter", "apply").value
     r.put(0x439C9310C9507110L, _ => (o1: Any) => org.sireum.Os.Proc.FunLineFilter.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Proc.FunLineFilter", "unapply").value
     r.put(0xF02501562FEAFBC4L, r => (o1: Any) => X[org.sireum.Os.Proc.FunLineFilter](r).filter(X(o1))) // methodKey(F, "org.sireum.Os.Proc.FunLineFilter", "filter").value
     r.put(0x95307A2A007D1C02L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Normal.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => Some((o0, o1, o2))
-      case _ => None()
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Proc.Result.Normal", "unapply").value
     r.put(0x3CDCC31B5CF13A37L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Exception.apply(X(o1))) // methodKey(T, "org.sireum.Os.Proc.Result.Exception", "apply").value
     r.put(0xBC87FE5BCA7D4999L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Exception.unapply(X(o1)) match {
-      case scala.Some(o) => Some(o)
-      case _ => None()
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Proc.Result.Exception", "unapply").value
     r.put(0x09CC8A8CF8586482L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Timeout.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => Some((o0, o1))
-      case _ => None()
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Proc.Result.Timeout", "unapply").value
     r.put(0xF48724F667564882L, _ => (o1: Any) => org.sireum.Os.Proc.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14)) => Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14))
-      case _ => None()
+      case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14))
+      case _ => MNone()
     }) // methodKey(T, "org.sireum.Os.Proc", "unapply").value
     r.put(0x22AE762A24FDA146L, r => (o1: Any) => X[org.sireum.Os.Proc](r).commands(X(o1))) // methodKey(F, "org.sireum.Os.Proc", "commands").value
     r.put(0xF7D890943AB6E6E0L, r => (o1: Any) => X[org.sireum.Os.Proc](r).at(X(o1))) // methodKey(F, "org.sireum.Os.Proc", "at").value
@@ -4069,278 +4069,301 @@ class LibJvmUtil_Ext extends Reflection {
     if (r == null) None() else Some(r)
   }
 
-  override def invoke0[T, R](owner: String, name: String, rOpt: Option[T]): R = {
-    val f = method0Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke0[T, R](owner: String, name: String, receiver: T): R = {
+    val isInObject = receiver == null
+    val f = method0Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt)))
+    val r: R = X(f(X(receiver)))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke1[T, T1, R](owner: String, name: String, rOpt: Option[T], o1: T1): R = {
-    val f = method1Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke1[T, T1, R](owner: String, name: String, receiver: T, o1: T1): R = {
+    val isInObject = receiver == null
+    val f = method1Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1))
+    val r: R = X(f(X(receiver))(o1))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke2[T, T1, T2, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2): R = {
-    val f = method2Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke2[T, T1, T2, R](owner: String, name: String, receiver: T, o1: T1, o2: T2): R = {
+    val isInObject = receiver == null
+    val f = method2Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2))
+    val r: R = X(f(X(receiver))(o1)(o2))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke3[T, T1, T2, T3, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3): R = {
-    val f = method3Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke3[T, T1, T2, T3, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3): R = {
+    val isInObject = receiver == null
+    val f = method3Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke4[T, T1, T2, T3, T4, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4): R = {
-    val f = method4Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke4[T, T1, T2, T3, T4, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4): R = {
+    val isInObject = receiver == null
+    val f = method4Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke5[T, T1, T2, T3, T4, T5, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5): R = {
-    val f = method5Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke5[T, T1, T2, T3, T4, T5, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5): R = {
+    val isInObject = receiver == null
+    val f = method5Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke6[T, T1, T2, T3, T4, T5, T6, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6): R = {
-    val f = method6Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke6[T, T1, T2, T3, T4, T5, T6, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6): R = {
+    val isInObject = receiver == null
+    val f = method6Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke7[T, T1, T2, T3, T4, T5, T6, T7, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7): R = {
-    val f = method7Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke7[T, T1, T2, T3, T4, T5, T6, T7, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7): R = {
+    val isInObject = receiver == null
+    val f = method7Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke8[T, T1, T2, T3, T4, T5, T6, T7, T8, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8): R = {
-    val f = method8Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke8[T, T1, T2, T3, T4, T5, T6, T7, T8, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8): R = {
+    val isInObject = receiver == null
+    val f = method8Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke9[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9): R = {
-    val f = method9Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke9[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9): R = {
+    val isInObject = receiver == null
+    val f = method9Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke10[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10): R = {
-    val f = method10Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke10[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10): R = {
+    val isInObject = receiver == null
+    val f = method10Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke11[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11): R = {
-    val f = method11Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke11[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11): R = {
+    val isInObject = receiver == null
+    val f = method11Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke12[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12): R = {
-    val f = method12Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke12[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12): R = {
+    val isInObject = receiver == null
+    val f = method12Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke13[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13): R = {
-    val f = method13Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke13[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13): R = {
+    val isInObject = receiver == null
+    val f = method13Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke14[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14): R = {
-    val f = method14Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke14[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14): R = {
+    val isInObject = receiver == null
+    val f = method14Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke15[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15): R = {
-    val f = method15Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke15[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15): R = {
+    val isInObject = receiver == null
+    val f = method15Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke16[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16): R = {
-    val f = method16Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke16[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16): R = {
+    val isInObject = receiver == null
+    val f = method16Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke17[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17): R = {
-    val f = method17Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke17[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17): R = {
+    val isInObject = receiver == null
+    val f = method17Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke18[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18): R = {
-    val f = method18Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke18[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18): R = {
+    val isInObject = receiver == null
+    val f = method18Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke19[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19): R = {
-    val f = method19Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke19[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19): R = {
+    val isInObject = receiver == null
+    val f = method19Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke20[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20): R = {
-    val f = method20Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke20[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20): R = {
+    val isInObject = receiver == null
+    val f = method20Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke21[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20, o21: T21): R = {
-    val f = method21Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke21[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20, o21: T21): R = {
+    val isInObject = receiver == null
+    val f = method21Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20)(o21))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20)(o21))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
 
-  override def invoke22[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](owner: String, name: String, rOpt: Option[T], o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20, o21: T21, o22: T22): R = {
-    val f = method22Map.get(methodKey(rOpt.isEmpty, owner, name).value)
+  override def invoke22[T, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22, R](owner: String, name: String, receiver: T, o1: T1, o2: T2, o3: T3, o4: T4, o5: T5, o6: T6, o7: T7, o8: T8, o9: T9, o10: T10, o11: T11, o12: T12, o13: T13, o14: T14, o15: T15, o16: T16, o17: T17, o18: T18, o19: T19, o20: T20, o21: T21, o22: T22): R = {
+    val isInObject = receiver == null
+    val f = method22Map.get(methodKey(isInObject, owner, name).value)
     if (f == null) {
-      illegalReflection("Unavailable", rOpt.isEmpty, owner, name)
+      illegalReflection("Unavailable", isInObject, owner, name)
     }
-    val r: R = X(f(X(rOpt))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20)(o21)(o22))
+    val r: R = X(f(X(receiver))(o1)(o2)(o3)(o4)(o5)(o6)(o7)(o8)(o9)(o10)(o11)(o12)(o13)(o14)(o15)(o16)(o17)(o18)(o19)(o20)(o21)(o22))
     if (r == null) {
-      illegalReflection("Invalid", rOpt.isEmpty, owner, name)
+      illegalReflection("Invalid", isInObject, owner, name)
     }
     r
   }
@@ -8483,8 +8506,6 @@ class LibJvmUtil_Ext extends Reflection {
   )
 
   @inline def X[T](o: Any): T = o.asInstanceOf[T]
-
-  @inline def X[T](o: Option[_]): T = o.get.asInstanceOf[T]
 
   override def string: String = "LibJvmUtil_Ext"
 }
