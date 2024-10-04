@@ -383,7 +383,7 @@ object ProjectUtil {
           if (Os.isWin) ISZ[String]("cmd", "/C", cmdFile.name, "json")
           else ISZ[String]("bash", "-c", s""""${cmdFile.canon.string}" json""")
         val pr = Os.proc(cmds).at(cmdFile.up.canon).env(ISZ("SIREUM_HOME" ~> Os.sireumHomeOpt.get.string)).
-          console.outLineAction((s: String) => project.ProjectUtil.projectJsonLine(s).isEmpty).redirectErr.run()
+          console.outLineAction((s: String) => project.ProjectUtil.projectJsonLine(s).isEmpty).run()
         if (pr.ok) {
           projectJsonLine(pr.out) match {
             case Some(line) => JSON.toProject(line) match {
