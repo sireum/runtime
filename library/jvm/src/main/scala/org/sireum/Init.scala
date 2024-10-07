@@ -702,7 +702,7 @@ import Init._
         val cis = conversions.String.toCis(key)
         if (cis(0) == '\'' && cis(cis.size - 1) == '\'' && ops.ISZOps(
           for (i <- 1 until cis.size - 1) yield
-            ('a' <= cis(i) && cis(i) <= 'z') || ('A' <= cis(i) && cis(i) <= 'Z')).forall((b: B) => b)) {
+            ('a' <= cis(i) && cis(i) <= 'z') || ('A' <= cis(i) && cis(i) <= 'Z') || cis(i) == '_').forall((b: B) => b)) {
           ops.StringOps.substring(cis, 1, cis.size - 1) match {
             case string"T" =>
             case string"F" =>
