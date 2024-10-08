@@ -36,6 +36,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.sireum.$internal.CollectionCompat
 import org.sireum.$internal.CollectionCompat.Converters._
 import org.sireum.message.{FlatPos, Position}
+import os.SubProcess
 
 import java.nio.file.attribute.PosixFilePermission
 
@@ -929,6 +930,29 @@ object Os_Ext {
     return p
   }
 
+  final class ProcessOutput(sink: (Array[Byte], Int) => Unit) extends _root_.os.ProcessOutput {
+
+    override def redirectTo: ProcessBuilder.Redirect = ProcessBuilder.Redirect.PIPE
+
+    override def processOutput(src: => SubProcess.OutputStream): scala.Option[Runnable] = scala.Some(
+      () => try {
+        val buffer = new Array[Byte](8192)
+        var r = 0
+        while (r != -1) {
+          r = src.read(buffer)
+          if (r != -1) sink(buffer, r)
+        }
+      } catch {
+        case _: Throwable =>
+      } finally {
+        try src.close() catch {
+          case _: Throwable =>
+        }
+      }
+    )
+
+  }
+
   final class ProcOutput(p: Os.Proc) {
     val out = new java.io.ByteArrayOutputStream()
     val err = new java.io.ByteArrayOutputStream()
@@ -1043,9 +1067,8 @@ object Os_Ext {
         println(p.cmds.elements.mkString(" "))
       }
       val po = new ProcOutput(p)
-      val pOut = _root_.os.ProcessOutput(po.fOut)
-      def pErr: _root_.os.ProcessOutput =
-        if (p.isErrAsOut) pOut else _root_.os.ProcessOutput(po.fErr)
+      val pOut = new ProcessOutput(po.fOut)
+      def pErr = if (p.isErrAsOut) pOut else new ProcessOutput(po.fErr)
       val stdin: _root_.os.ProcessInput = p.in match {
         case Some(s) => s.value
         case _ => _root_.os.Inherit
