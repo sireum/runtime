@@ -1492,7 +1492,7 @@ import Init._
       println("done!")
     }
 
-    def installFonts(): Unit = {
+    def installFontsJbr(): Unit = {
       print("Installing Sireum Mono fonts ... ")
 
       val ttf = home / "resources" / "fonts" / "ttf"
@@ -1535,7 +1535,7 @@ import Init._
       proc"hdiutil eject $dirPath".at(home).runCheck()
       println("done!")
       deleteSources()
-      installFonts()
+      installFontsJbr()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
@@ -1576,7 +1576,7 @@ import Init._
       if (!isServer) {
         println("done!")
       }
-      installFonts()
+      installFontsJbr()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
@@ -1599,7 +1599,7 @@ import Init._
       (ideaDir / "$PLUGINSDIR").removeAll()
       deleteSources()
       println("done!")
-      installFonts()
+      installFontsJbr()
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
