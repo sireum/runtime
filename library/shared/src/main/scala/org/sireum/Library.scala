@@ -29,6 +29,10 @@ package org.sireum
 
   def sharedFiles: ISZ[(Option[String], String)] = $
 
+  def jvmFiles: ISZ[(Option[String], String)] = $
+
+  def fontFiles: ISZ[(Option[String], String)] = $
+
   def files: ISZ[(Option[String], String)] = $
 
 }

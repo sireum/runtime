@@ -50,6 +50,10 @@ object Library_Ext {
     } else false
   }
 
+  def fontMap: scala.collection.SortedMap[scala.Vector[Predef.String], Predef.String] = RC.base64(Vector("../../../../../../../../resources/fonts/ttf")) { (p, f) =>
+    p.last.endsWith(".ttf")
+  }
+
   def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(sharedMap ++ jvmMap)
 
   def sharedFiles: ISZ[(Option[String], String)] =
@@ -58,6 +62,10 @@ object Library_Ext {
 
   def jvmFiles: ISZ[(Option[String], String)] =
     ISZ(jvmMap.toSeq.
+      map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
+
+  def fontFiles: ISZ[(Option[String], String)] =
+    ISZ(fontMap.toSeq.
       map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
 
   def files: ISZ[(Option[String], String)] = sharedFiles ++ jvmFiles
