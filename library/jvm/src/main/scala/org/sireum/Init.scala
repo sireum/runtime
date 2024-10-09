@@ -681,6 +681,41 @@ import Init._
     }
   }
 
+  def installFonts(force: B): Unit = {
+    val d: Os.Path = kind match {
+      case Os.Kind.Mac => Os.home / "Library" / "Fonts"
+      case Os.Kind.Win => Os.path(Os.env("LOCALAPPDATA").get) / "Microsoft" / "Windows" / "Fonts"
+      case _ => Os.home / ".local" / "share" / "fonts"
+    }
+    d.mkdirAll()
+    var map = Map.empty[String, String]
+    for (p <- Library.fontFiles if !ops.StringOps(p._1.get).endsWith("-Bold.ttf")) {
+      val filename = p._1.get
+      val f = d / filename
+      if (!force && f.exists) {
+        return
+      }
+      val fontName: String = filename match {
+        case string"SireumMono-Regular.ttf" => "Sireum Mono"
+        case string"SireumMonoPlus-Regular.ttf" => "Sireum Mono Plus"
+        case _ => ""
+      }
+      if (fontName.size > 0) {
+        map = map + filename ~> f.canon.string
+        f.writeU8s(conversions.String.fromBase64(p._2).left)
+      }
+    }
+    kind match {
+      case Os.Kind.Mac =>
+      case Os.Kind.Win =>
+        for (p <- map.entries) {
+          val (fontName, fontPath) = p
+          Os.proc(ISZ[String]("powershell", "-noprofile", "-executionpolicy", "bypass", "-command", s"New-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -Name \"$fontName\" -Type String -Value \"$fontPath\"")).run()
+        }
+      case _ => proc"fc-cache -f".run()
+    }
+  }
+
   def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
     val isInUserHome = ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
@@ -967,7 +1002,7 @@ import Init._
       }
     }
 
-    vsCodiumOpt match {
+    existingInstallOpt match {
       case Some(p) =>
         if (!p.exists) {
           eprintln(s"$p does not exist")
