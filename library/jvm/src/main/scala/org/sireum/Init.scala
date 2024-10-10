@@ -684,7 +684,7 @@ import Init._
   def installFonts(force: B): Unit = {
     val d: Os.Path = kind match {
       case Os.Kind.Mac => Os.home / "Library" / "Fonts"
-      case Os.Kind.Win => Os.path(Os.env("LOCALAPPDATA").get) / "Microsoft" / "Windows" / "Fonts"
+      case Os.Kind.Win => Os.tempDir()
       case _ => Os.home / ".local" / "share" / "fonts"
     }
     d.mkdirAll()
@@ -692,8 +692,16 @@ import Init._
     for (p <- Library.fontFiles if !ops.StringOps(p._1.get).endsWith("-Bold.ttf")) {
       val filename = p._1.get
       val f = d / filename
-      if (!force && f.exists) {
-        return
+      if (!force) {
+        if (kind == Os.Kind.Win) {
+          if ((Os.path("C:\\Windows\\Fonts") / f.name).exists) {
+            return
+          }
+        } else {
+          if (f.exists) {
+            return
+          }
+        }
       }
       val fontName: String = filename match {
         case string"SireumMono-Regular.ttf" => "Sireum Mono"
@@ -708,10 +716,19 @@ import Init._
     kind match {
       case Os.Kind.Mac =>
       case Os.Kind.Win =>
+        var ps1Content =
+          st"""if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+              |  Start-Process PowerShell -Verb RunAs "-NoProfile -ExecutionPolicy Bypass -Command `"cd '$$pwd'; & '$$PSCommandPath';`"";
+              |  exit;
+              |}
+              |""".render
         for (p <- map.entries) {
           val (fontName, fontPath) = p
-          Os.proc(ISZ[String]("powershell", "-noprofile", "-executionpolicy", "bypass", "-command", s"New-ItemProperty -Path \"HKCU:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -Name \"$fontName\" -Type String -Value \"$fontPath\"")).run()
+          ps1Content = s"${ps1Content}Copy-Item \"$fontPath\" \"C:\\Windows\\Fonts\"; New-ItemProperty -Name \"$fontName\" -Path \"HKLM:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -PropertyType string -Value \"${Os.path(fontPath).name}\";"
         }
+        val ps1 = d / "install-font.ps1"
+        ps1.writeOver(ps1Content)
+        Os.proc(ISZ[String]("powershell", "-noprofile", "-executionpolicy", "bypass", "-file", ps1.canon.string)).runCheck()
       case _ => proc"fc-cache -f".run()
     }
   }
