@@ -695,14 +695,19 @@ import Init._
       if (!force) {
         if (kind == Os.Kind.Win) {
           if ((Os.path("C:\\Windows\\Fonts") / f.name).exists) {
+            println("Sireum fonts have already been installed")
             return
           }
         } else {
           if (f.exists) {
+            println("Sireum fonts have already been installed")
             return
           }
         }
+      } else {
+        println("Forcing Sireum fonts reinstallation")
       }
+
       val fontName: String = filename match {
         case string"SireumMono-Regular.ttf" => "Sireum Mono"
         case string"SireumMonoPlus-Regular.ttf" => "Sireum Mono Plus"
@@ -715,6 +720,7 @@ import Init._
     }
     kind match {
       case Os.Kind.Mac =>
+        println(s"Sireum fonts installed at: $d")
       case Os.Kind.Win =>
         var ps1Content =
           st"""if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
@@ -729,7 +735,10 @@ import Init._
         val ps1 = d / "install-font.ps1"
         ps1.writeOver(ps1Content)
         Os.proc(ISZ[String]("powershell", "-noprofile", "-executionpolicy", "bypass", "-file", ps1.canon.string)).runCheck()
-      case _ => proc"fc-cache -f".run()
+        println("Sireum fonts installed at: C:\\Windows\\Fonts")
+      case _ =>
+        println(s"Sireum fonts installed at: $d")
+        proc"fc-cache -f".run()
     }
   }
 
