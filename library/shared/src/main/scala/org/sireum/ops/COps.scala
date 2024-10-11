@@ -54,6 +54,30 @@ import org.sireum._
     }
   }
 
+  @strictpure def isScalaOp: B = c match {
+    case '!' => T
+    case '#' => T
+    case '%' => T
+    case '&' => T
+    case '*' => T
+    case '+' => T
+    case '-' => T
+    case '/' => T
+    case ':' => T
+    case '<' => T
+    case '=' => T
+    case '>' => T
+    case '?' => T
+    case '@' => T
+    case '\\' => T
+    case '^' => T
+    case '|' => T
+    case '~' => T
+    case _ =>
+      val cat = category
+      cat == COps.Category.Sm || cat == COps.Category.So
+  }
+
   @pure def escapeString: String = {
     c match {
       case '\b' => return "\\b"

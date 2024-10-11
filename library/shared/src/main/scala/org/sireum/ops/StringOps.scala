@@ -50,6 +50,8 @@ object StringOps {
     return T
   }
 
+  @strictpure def isScalaOp(cis: ISZ[C]): B = ops.ISZOps(cis).forall((c: C) => ops.COps(c).isScalaOp)
+
   @pure def trim(cis: ISZ[C]): String = {
     var i = 0
     val size = cis.size
@@ -409,6 +411,7 @@ object StringOps {
     return s.size
   }
 
+  @strictpure def isScalaOp: B = StringOps.isScalaOp(conversions.String.toCis(s))
 
   def collectSections(errorKind: String,
                       beginMarker: String,
