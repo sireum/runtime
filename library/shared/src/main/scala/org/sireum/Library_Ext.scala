@@ -51,7 +51,12 @@ object Library_Ext {
   }
 
   def fontMap: scala.collection.SortedMap[scala.Vector[Predef.String], Predef.String] = RC.base64(Vector("../../../../../../../../resources/fonts/ttf")) { (p, f) =>
-    p.last.endsWith(".ttf")
+    p.last.endsWith("-Regular.ttf")
+  }
+
+  def vscodeImageMap: scala.collection.SortedMap[scala.Vector[Predef.String], Predef.String] = RC.base64(Vector("../../../../../../../../resources/distro/icons")) { (p, f) =>
+    val name = p.last
+    name.startsWith("code") || name.startsWith("letterpress") || name == "favicon.ico" || name == "VSCodium.icns"
   }
 
   def trie: Trie.Node[Predef.String, Predef.String] = RC.toTrie(sharedMap ++ jvmMap)
@@ -66,6 +71,10 @@ object Library_Ext {
 
   def fontFiles: ISZ[(Option[String], String)] =
     ISZ(fontMap.toSeq.
+      map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
+
+  def vscodeImageFiles: ISZ[(Option[String], String)] =
+    ISZ(vscodeImageMap.toSeq.
       map(p => (Some(String(p._1.mkString("/"))), String(p._2))): _*)
 
   def files: ISZ[(Option[String], String)] = sharedFiles ++ jvmFiles

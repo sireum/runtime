@@ -857,6 +857,24 @@ import Init._
       return extDirArg
     }
 
+    def replaceImages(path: Os.Path): Unit = {
+      if (existingInstallOpt.nonEmpty) {
+        return
+      }
+      var map = HashMap.empty[String, ISZ[U8]]
+      for (p <- Library.vscodeImageFiles) {
+        map = map + p._1.get ~> conversions.String.fromBase64(p._2).left
+      }
+      for (p <- Os.Path.walk(path, F, F, (f: Os.Path) => f.ext == "svg" || f.ext == "png" || f.ext == "ico" || f.ext == "icns")) {
+        map.get(p.name) match {
+          case Some(content) =>
+            p.removeAll()
+            p.writeU8s(content)
+          case _ =>
+        }
+      }
+    }
+
     def patchCodium(codium: Os.Path, anchor: String, sireumHome: String, isWin: B): Unit = {
       var codiumContent = codium.read
       val cis = conversions.String.toCis(codiumContent)
@@ -898,8 +916,9 @@ import Init._
             vscodium.removeAll()
             println("Extracting VSCodium ...")
             drop.unzipTo(platform)
-            ver.write(vscodiumVersion)
+            replaceImages(vscodium)
             println()
+            ver.write(vscodiumVersion)
             updated = T
           }
           c
@@ -952,8 +971,9 @@ import Init._
             }
             vscodium.removeAll()
             vscodiumNew.moveTo(vscodium)
-            ver.write(vscodiumVersion)
+            replaceImages(vscodium)
             println()
+            ver.write(vscodiumVersion)
             updated = T
           }
           c
@@ -1001,8 +1021,9 @@ import Init._
             }
             vscodium.removeAll()
             vscodiumNew.moveTo(vscodium)
-            ver.write(vscodiumVersion)
+            replaceImages(vscodium)
             println()
+            ver.write(vscodiumVersion)
             updated = T
           }
           c

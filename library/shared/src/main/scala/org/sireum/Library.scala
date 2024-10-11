@@ -33,6 +33,8 @@ package org.sireum
 
   def fontFiles: ISZ[(Option[String], String)] = $
 
+  def vscodeImageFiles: ISZ[(Option[String], String)] = $
+
   def files: ISZ[(Option[String], String)] = $
 
 }
