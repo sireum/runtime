@@ -1161,8 +1161,8 @@ import Init._
     }
   }
 
-  def distro(isDev: B, buildSfx: B, buildIve: B, buildHamrPackage: B, isUltimate: B, isServer: B): Unit = {
-    assert(buildIve | buildHamrPackage)
+  def distro(isDev: B, buildPackage: B, buildIve: B, buildVSCodePackage: B, isUltimate: B, isServer: B): Unit = {
+    assert(buildIve | buildVSCodePackage)
     val devSuffix: String = if (isDev) "-dev" else ""
     if (isServer && Os.kind != Os.Kind.Linux) {
       eprintln(s"Server setup is only available in Linux")
@@ -1199,7 +1199,7 @@ import Init._
         "linux" ~> ".tar.gz" +
         "linux/arm" ~> "-aarch64.tar.gz"
 
-    val hamrDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
+    val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
         ISZ("bin", "win", "7za.exe"),
         ISZ("bin", "win", "cvc.exe"),
@@ -1296,8 +1296,8 @@ import Init._
         ISZ("versions.properties")
       )
 
-    val distroMap = hamrDistroMap +
-      Os.Kind.Win ~> (hamrDistroMap.get(Os.Kind.Win).get ++ ISZ(
+    val distroMap = vscodeDistroMap +
+      Os.Kind.Win ~> (vscodeDistroMap.get(Os.Kind.Win).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "win", "cs.exe"),
@@ -1305,10 +1305,9 @@ import Init._
         ISZ("bin", "win", "java"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.bat"),
-        ISZ("lib"),
-        ISZ("..", "setup.bat")
+        ISZ("lib")
       )) +
-      Os.Kind.Linux ~> (hamrDistroMap.get(Os.Kind.Linux).get ++ ISZ(
+      Os.Kind.Linux ~> (vscodeDistroMap.get(Os.Kind.Linux).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "cs"),
@@ -1316,10 +1315,9 @@ import Init._
         ISZ("bin", "linux", "java"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("lib"),
-        ISZ("..", "setup")
+        ISZ("lib")
       )) +
-      Os.Kind.LinuxArm ~> (hamrDistroMap.get(Os.Kind.LinuxArm).get ++ ISZ(
+      Os.Kind.LinuxArm ~> (vscodeDistroMap.get(Os.Kind.LinuxArm).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "arm", "cs"),
@@ -1327,10 +1325,9 @@ import Init._
         ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("lib"),
-        ISZ("..", "setup")
+        ISZ("lib")
       )) +
-      Os.Kind.Mac ~> (hamrDistroMap.get(Os.Kind.Mac).get ++ ISZ(
+      Os.Kind.Mac ~> (vscodeDistroMap.get(Os.Kind.Mac).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "scala"),
         ISZ("bin", "mac", "cs"),
@@ -1338,8 +1335,7 @@ import Init._
         ISZ("bin", "mac", "java"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh"),
-        ISZ("lib"),
-        ISZ("..", "setup")
+        ISZ("lib")
       ))
 
     val pluginsDir: Os.Path =
@@ -1373,7 +1369,7 @@ import Init._
 
     val pwd7zsfx = pwd7z.up / "7z.sfx"
 
-    if (buildSfx && !pwd7zsfx.exists) {
+    if (buildPackage && !pwd7zsfx.exists) {
       println(s"Please wait while downloading ${pwd7zsfx.name} ...")
 
       def downloadSfx(kind: Os.Kind.Type): Unit = {
@@ -1657,18 +1653,14 @@ import Init._
       (ideaDir / "bin" / "idea64.exe").removeAll()
       (ideaDir / "bin" / "idea.exe.vmoptions").removeAll()
       (ideaDir / "bin" / "IVE.exe").downloadFrom("https://github.com/sireum/rolling/releases/download/ive_launcher_win/IVE.exe")
-      if (buildSfx) {
+      if (buildPackage) {
         (homeBin / "sireum.jar").copyOverTo(ideaDir / "plugins" / "sireum-intellij-plugin" / "lib" / "sireum.jar")
       }
     }
 
     def pack(): Unit = {
       val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
-      val sfxSuffix: String = if (kind == Os.Kind.Win) ".exe" else ".sfx"
-      val r = home / "distro" / s"$plat$devSuffix$sfxSuffix"
-      r.removeAll()
-      print(s"Packaging $r ... ")
-      val distro7z = s"$plat.7z"
+      print(s"Packaging for $plat ... ")
       val setupDir = home / "distro" / (if (isDev) "dev" else "release")
       val oldPwd = home
       val (repoDir, distroDir): (Os.Path, Os.Path) = {
@@ -1685,19 +1677,21 @@ import Init._
         }
         (oldPwd, dir)
       }
-      val sfx = repoDir / "distro" / s"$plat$devSuffix$sfxSuffix"
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
-      val cmd = ISZ[String](pwd7z.string, "a", "-mx9", "-mmt4", distro7z) ++ files
 
-      Os.proc(cmd).at(distroDir.up).runCheck()
-      kind match {
-        case Os.Kind.Win =>
-          sfx.mergeFrom(ISZ(repoDir / "bin" / "win" / "7z.sfx", distroDir.up / "config.txt", distroDir.up / distro7z))
-        case _ =>
-          sfx.mergeFrom(ISZ(repoDir / "bin" / platform(kind) / "7z.sfx", distroDir.up / distro7z))
+      if (kind == Os.Kind.Win) {
+        val zip = s"$plat.zip"
+        (distroDir.up / zip).removeAll()
+        Os.proc(ISZ[String](pwd7z.string, "a", "-mx9", "-mmt4", "-mm=Deflate", "-mfb=258", zip) ++ files).at(distroDir.up).runCheck()
+      } else {
+        val tar = s"$plat.tar"
+        (distroDir.up / tar).removeAll()
+        (distroDir.up / s"$tar.gz").removeAll()
+        Os.proc(ISZ[String]("tar", "cf", tar) ++ files).at(distroDir.up).runCheck()
+        proc"gzip -9 $tar".at(distroDir.up).runCheck()
       }
-      (distroDir.up / distro7z).removeAll()
+
       println("done!")
       distroDir.removeAll()
     }
@@ -1747,7 +1741,7 @@ import Init._
       val homeBinSireumJar = homeBin / "sireum.jar"
       sireumJar.removeAll()
       println()
-      if (buildSfx) {
+      if (buildPackage) {
         homeBinSireumJar.copyTo(sireumJar)
         pack()
       } else {
@@ -1759,23 +1753,23 @@ import Init._
       println("Done!")
     }
 
-    def hamr(): Unit = {
+    def vscode(): Unit = {
       val sireumName = home.name
       val files: ISZ[String] =
-        for (p <- hamrDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
-      val hamrName = "hamr-sysmlv2"
+        for (p <- vscodeDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
+      val vscodeName = "ive-vscodium"
       var rname: String = kind match {
-        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$hamrName-mac-arm64.tar" else s"$sireumName-$hamrName-mac-amd64.tar"
-        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$hamrName-win-arm64.zip" else s"$sireumName-$hamrName-win-amd64.zip"
-        case Os.Kind.Linux => s"$sireumName-$hamrName-linux-amd64.tar"
-        case Os.Kind.LinuxArm => s"$sireumName-$hamrName-linux-arm64.tar"
+        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$vscodeName-mac-arm64.tar" else s"$sireumName-$vscodeName-mac-amd64.tar"
+        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$vscodeName-win-arm64.zip" else s"$sireumName-$vscodeName-win-amd64.zip"
+        case Os.Kind.Linux => s"$sireumName-$vscodeName-linux-amd64.tar"
+        case Os.Kind.LinuxArm => s"$sireumName-$vscodeName-linux-arm64.tar"
         case _ => halt("Infeasible")
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
       kind match {
         case Os.Kind.Win =>
-          Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", rname) ++ files).at(home.up.canon).runCheck()
+          Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", "-mm=Deflate", "-mfb=258", rname) ++ files).at(home.up.canon).runCheck()
         case _ =>
           val rnameGz = s"$rname.gz"
           (home.up.canon / rnameGz).removeAll()
@@ -1799,8 +1793,8 @@ import Init._
       }
     }
 
-    if (buildHamrPackage) {
-      hamr()
+    if (buildVSCodePackage) {
+      vscode()
     }
     if (buildIve) {
       ive()
@@ -1892,7 +1886,7 @@ import Init._
     }
 
     if (setup && Os.env("SIREUM_NO_SETUP") != Some("true")) {
-      distro(isDev = F, buildSfx = F, buildIve = F, buildHamrPackage = F, isUltimate = F, isServer = F)
+      distro(isDev = F, buildPackage = F, buildIve = F, buildVSCodePackage = F, isUltimate = F, isServer = F)
     }
     return T
   }
