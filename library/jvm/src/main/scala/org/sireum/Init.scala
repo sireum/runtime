@@ -1623,9 +1623,9 @@ import Init._
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
-      val txz = s"$plat.tar.xz"
-      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", txz) ++ files).at(distroDir.up).runCheck()
-      (distroDir.up / txz).moveOverTo(setupDir.up / txz)
+      val pkg = s"$plat.tar.${if (kind == Os.Kind.Win) "bz2" else "xz"}"
+      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-j" else "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+      (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
 
       println("done!")
       distroDir.removeAll()
@@ -1695,14 +1695,14 @@ import Init._
       val vscodeName = "ive-vscodium"
       var rname: String = kind match {
         case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$vscodeName-mac-arm64.tar.xz" else s"$sireumName-$vscodeName-mac-amd64.tar.xz"
-        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$vscodeName-win-arm64.tar.xz" else s"$sireumName-$vscodeName-win-amd64.tar.xz"
+        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$vscodeName-win-arm64.tar.bz2" else s"$sireumName-$vscodeName-win-amd64.tar.bz2"
         case Os.Kind.Linux => s"$sireumName-$vscodeName-linux-amd64.tar.xz"
         case Os.Kind.LinuxArm => s"$sireumName-$vscodeName-linux-arm64.tar.xz"
         case _ => halt("Infeasible")
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-j" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
