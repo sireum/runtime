@@ -1367,30 +1367,6 @@ import Init._
       if (isDev) devVer else ver
     }
 
-    val pwd7zsfx = pwd7z.up / "7z.sfx"
-
-    if (buildPackage && !pwd7zsfx.exists) {
-      println(s"Please wait while downloading ${pwd7zsfx.name} ...")
-
-      def downloadSfx(kind: Os.Kind.Type): Unit = {
-        val baseUrl = "https://github.com/sireum/rolling/releases/download/7z.sfx"
-        val (f, url): (Os.Path, String) = kind match {
-          case Os.Kind.Mac => (homeBin / "mac" / pwd7zsfx.name, s"$baseUrl/7z-mac-${if (Os.isMacArm) "arm" else "amd"}64.sfx")
-          case Os.Kind.Linux => (homeBin / "linux" / pwd7zsfx.name, s"$baseUrl/7z-linux-amd64.sfx")
-          case Os.Kind.LinuxArm => (homeBin / "linux" / "arm" / pwd7zsfx.name, s"$baseUrl/7z-linux-arm64.sfx")
-          case Os.Kind.Win => (homeBin / "win" / pwd7zsfx.name, s"$baseUrl/7z-win-${if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "arm" else "amd"}64.sfx")
-          case _ => halt("Infeasible")
-        }
-        f.downloadFrom(url)
-        f.chmod("+x")
-      }
-
-      for (kind <- Os.Kind.elements if kind != Os.Kind.Unsupported) {
-        downloadSfx(kind)
-      }
-      println()
-    }
-
     val pluginFilter = (p: Plugin) => if (isUltimate || isServer) T else p.isCommunity
     pluginsCacheDir.mkdirAll()
 
@@ -1662,12 +1638,11 @@ import Init._
       val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
       print(s"Packaging for $plat ... ")
       val setupDir = home / "distro" / (if (isDev) "dev" else "release")
-      val oldPwd = home
-      val (repoDir, distroDir): (Os.Path, Os.Path) = {
+      val distroDir: Os.Path = {
         val dir = setupDir / s"Sireum$devSuffix"
         for (rp <- distroMap.get(kind).get if rp(0) != "..") {
           (dir /+ rp).up.mkdirAll()
-          val orp = oldPwd /+ rp
+          val orp = home /+ rp
           if (orp.exists) {
             orp.copyOverTo(dir /+ rp)
           } else {
@@ -1675,7 +1650,7 @@ import Init._
             println(s"Warning: Could not find $orp")
           }
         }
-        (oldPwd, dir)
+        dir
       }
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
@@ -1684,12 +1659,15 @@ import Init._
         val zip = s"$plat.zip"
         (distroDir.up / zip).removeAll()
         Os.proc(ISZ[String](pwd7z.string, "a", "-mx9", "-mmt4", "-mm=Deflate", "-mfb=258", zip) ++ files).at(distroDir.up).runCheck()
+        (distroDir.up / zip).moveOverTo(setupDir.up / zip)
       } else {
         val tar = s"$plat.tar"
+        val tgz = s"$tar.gz"
         (distroDir.up / tar).removeAll()
-        (distroDir.up / s"$tar.gz").removeAll()
+        (distroDir.up / tgz).removeAll()
         Os.proc(ISZ[String]("tar", "cf", tar) ++ files).at(distroDir.up).runCheck()
         proc"gzip -9 $tar".at(distroDir.up).runCheck()
+        (distroDir.up / tgz).moveOverTo(setupDir.up / tgz)
       }
 
       println("done!")
