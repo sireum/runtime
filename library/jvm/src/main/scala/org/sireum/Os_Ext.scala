@@ -33,7 +33,6 @@ import java.util.zip.{ZipEntry => ZE, ZipInputStream => ZIS, ZipOutputStream => 
 import com.zaxxer.nuprocess._
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
-import org.sireum.$internal.CollectionCompat
 import org.sireum.$internal.CollectionCompat.Converters._
 import org.sireum.message.{FlatPos, Position}
 import os.SubProcess
@@ -97,20 +96,6 @@ object Os_Ext {
   lazy val numOfProcessors: Z = Runtime.getRuntime.availableProcessors
 
   lazy val maxMemory: Z = Runtime.getRuntime.maxMemory
-
-  lazy val exe7zaOpt: Option[Os.Path] = {
-    val suffix7za: String = osKind match {
-      case Os.Kind.Win => "bin/win/7za.exe"
-      case Os.Kind.Mac => "bin/mac/7za"
-      case Os.Kind.Linux => "bin/linux/7za"
-      case Os.Kind.LinuxArm => "bin/linux/arm/7za"
-      case _ => "?"
-    }
-    Os.sireumHomeOpt match {
-      case Some(dir) if (dir / suffix7za).exists => Some(dir / suffix7za)
-      case _ => None()
-    }
-  }
 
   private lazy val permissions: Array[PosixFilePermission] = Array(
     PosixFilePermission.OTHERS_EXECUTE,
@@ -763,16 +748,6 @@ object Os_Ext {
   }
 
   def zip(path: String, target: String): Unit = {
-    exe7zaOpt match {
-      case Some(p) =>
-        Os.proc((
-            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "a", "-r", target, ".")
-            else ISZ[String]("bash", "-c", s"${p.name} a -r \"$target\" ."))).
-          env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
-        return
-      case _ =>
-    }
-
     def normPath(p: String): Predef.String = if (Os.isWin) p.value.replace('\\', '/') else p.value
     val f = toNIO(target)
     val zip = new ZOS(
@@ -793,21 +768,10 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    exe7zaOpt match {
-      case Some(p) =>
-        val t = Os.path(target)
-        t.mkdirAll()
-        Os.proc((
-            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
-            else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\""))).
-          env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
-        return
-      case _ =>
-    }
     val zis = new ZIS(new BIS(JFiles.newInputStream(toNIO(path)), buffSize))
     try {
       val t = toNIO(target)
-      for (file <- CollectionCompat.LazyList.continually(zis.getNextEntry).takeWhile(_ != null)) {
+      for (file <- $internal.CollectionCompat.LazyList.continually(zis.getNextEntry).takeWhile(_ != null)) {
         if (!file.isDirectory) {
           val p = t.resolve(file.getName)
           p.getParent.toFile.mkdirs()

@@ -143,11 +143,7 @@ import Init._
     }
   }
 
-  @memoize def pwd7z: Os.Path = {
-    return homeBin / platform(Os.kind) / (if (kind == Os.Kind.Win) "7za.exe" else "7za")
-  }
-
-  def installJava(vs: Map[String, String]): B = {
+  def installJava(vs: Map[String, String], useNik: B): B = {
     homeBinPlatform.mkdirAll()
 
     if (Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
@@ -155,26 +151,42 @@ import Init._
       val javaVersion = vs.get("org.sireum.version.java").get
       val nikVersion = vs.get("org.sireum.version.nik").get
       val nikJavaVersion = ops.StringOps(s"$nikVersion-$javaVersion").replaceAllLiterally("+", "%2B")
-      var isNik = T
+      var isNik = useNik
       var javaUrl: String = ""
       kind match {
         case Os.Kind.LinuxArm =>
           isNik = F
           javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
         case Os.Kind.Linux =>
-          javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-linux-amd64.tar.gz"
+          if (useNik) {
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-linux-amd64.tar.gz"
+          } else {
+            javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
+          }
         case Os.Kind.Win =>
           if (Os.isWinArm) {
             isNik = F
             javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$nikVersion-windows-aarch64-full.zip"
           } else {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-windows-amd64.zip"
+            if (useNik) {
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-windows-amd64.zip"
+            } else {
+              javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-windows-amd64-full.zip"
+            }
           }
         case Os.Kind.Mac =>
           if (Os.isMacArm) {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-aarch64.tar.gz"
+            if (useNik) {
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-aarch64.tar.gz"
+            } else {
+              javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-macos-aarch64-full.tar.gz"
+            }
           } else {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-amd64.tar.gz"
+            if (useNik) {
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-amd64.tar.gz"
+            } else {
+              javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-macos-amd64-full.tar.gz"
+            }
           }
         case _ =>
           return F
@@ -367,45 +379,6 @@ import Init._
     cliDrop.copyOverTo(cliJar)
 
     jacocoVer.writeOver(jacocoVersion)
-  }
-
-  def pwd7zUrl: String = {
-    Os.kind match {
-      case Os.Kind.Win =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/win", sireumV)
-        return s"https://github.com/sireum/bin-windows/raw/$sha/7za.exe"
-      case Os.Kind.Mac =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/mac", sireumV)
-        return s"https://github.com/sireum/bin-mac/raw/$sha/7za"
-      case Os.Kind.Linux =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", sireumV)
-        return s"https://github.com/sireum/bin-linux/raw/$sha/7za"
-      case Os.Kind.LinuxArm =>
-        val sha = GitHub.repo("sireum", "kekinian").submoduleShaOf("bin/linux", sireumV)
-        return s"https://github.com/sireum/bin-linux/raw/$sha/arm/7za"
-      case _ => halt("Infeasible")
-    }
-  }
-
-  def install7z(): Unit = {
-    if (!pwd7z.exists) {
-      pwd7z.up.mkdirAll()
-      println(s"Please wait while downloading 7z ...")
-      pwd7z.downloadFrom(pwd7zUrl)
-      pwd7z.chmod("+x")
-      println()
-    }
-    if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) {
-      val d = homeBin / "win" / "7z"
-      if (!d.exists) {
-        val bundle = d.up.canon / "7z-win-arm64.zip"
-        val url = s"https://github.com/sireum/rolling/releases/download/7z/${bundle.name}"
-        bundle.removeAll()
-        bundle.downloadFrom(url)
-        bundle.unzipTo(d)
-        bundle.removeAll()
-      }
-    }
   }
 
   def installZ3(): Unit = {
@@ -900,7 +873,7 @@ import Init._
     }
 
     def mac(): Unit = {
-      val drop = cache / s"VSCodium-darwin-${if (Os.isMacArm) "arm64" else "x64"}-$vscodiumVersion.zip"
+      val drop = cache / s"VSCodium.${if (Os.isMacArm) "arm64" else "x64"}.$vscodiumVersion.dmg"
       val platform = homeBin / "mac"
       var vscodium = platform / "VSCodium.app"
       val ver = vscodium / "Contents" / "VER"
@@ -915,7 +888,10 @@ import Init._
             downloadVSCodium(drop)
             vscodium.removeAll()
             println("Extracting VSCodium ...")
-            drop.unzipTo(platform)
+            proc"hdiutil attach $drop".at(home).runCheck()
+            val dirPath = Os.path("/Volumes/VSCodium")
+            (dirPath / "VSCodium.app").copyOverTo(vscodium)
+            proc"hdiutil eject $dirPath".at(home).runCheck()
             replaceImages(vscodium)
             println()
             ver.write(vscodiumVersion)
@@ -1201,7 +1177,6 @@ import Init._
 
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
-        ISZ("bin", "win", "7za.exe"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "sireum.exe"),
@@ -1222,7 +1197,6 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Linux ~> ISZ(
-        ISZ("bin", "linux", "7za"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
         ISZ("bin", "linux", "sireum"),
@@ -1249,7 +1223,6 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
-        ISZ("bin", "linux", "arm", "7za"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
         ISZ("bin", "linux", "arm", "sireum"),
@@ -1269,7 +1242,6 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
-        ISZ("bin", "mac", "7za"),
         ISZ("bin", "mac", "codium-portable-data"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
@@ -1610,11 +1582,7 @@ import Init._
 
     def setupWin(ideaDrop: Os.Path): Unit = {
       ideaDir.mkdirAll()
-      if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) {
-        proc"${homeBin / "win" / "7z" / "7z.exe"} x $ideaDrop".at(ideaDir).runCheck()
-      } else {
-        ideaDrop.unzipTo(ideaDir)
-      }
+      ideaDrop.unzipTo(ideaDir)
       (ideaDir / "$PLUGINSDIR").removeAll()
       deleteSources()
       println("done!")
@@ -1658,7 +1626,7 @@ import Init._
       if (kind == Os.Kind.Win) {
         val zip = s"$plat.zip"
         (distroDir.up / zip).removeAll()
-        Os.proc(ISZ[String](pwd7z.string, "a", "-mx9", "-mmt4", "-mm=Deflate", "-mfb=258", zip) ++ files).at(distroDir.up).runCheck()
+        Os.proc(ISZ[String]("tar", "-a", "-c", "-f", zip) ++ files).at(distroDir.up).runCheck()
         (distroDir.up / zip).moveOverTo(setupDir.up / zip)
       } else {
         val tar = s"$plat.tar"
@@ -1747,7 +1715,7 @@ import Init._
       (home.up.canon / rname).removeAll()
       kind match {
         case Os.Kind.Win =>
-          Os.proc(ISZ[String](pwd7z.string, "a", "-tzip", "-mx9", "-mmt4", "-mm=Deflate", "-mfb=258", rname) ++ files).at(home.up.canon).runCheck()
+          Os.proc(ISZ[String]("tar", "-a", "-c", "-f", rname) ++ files).at(home.up.canon).runCheck()
         case _ =>
           val rnameGz = s"$rname.gz"
           (home.up.canon / rnameGz).removeAll()
@@ -1786,7 +1754,6 @@ import Init._
     }
     installScala()
     installScalacPlugin()
-    install7z()
     if (kind == Os.Kind.Win) {
       val sireumScript = homeBin / "sireum.bat"
       if (!sireumScript.exists) {
@@ -1858,7 +1825,7 @@ import Init._
     }
 
     val vs: Map[String, String] = if (versions.isEmpty) versionsPath.properties else versions
-    if (!installJava(vs)) {
+    if (!installJava(vs, F)) {
       eprintln("Unsupported platform")
       return F
     }

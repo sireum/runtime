@@ -235,6 +235,9 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x2237D4EE4A33DAD9L, _ => org.sireum.Json.Printer.nullSt) // methodKey(T, "org.sireum.Json.Printer", "nullSt").value
     r.put(0xC7F143202794CB16L, _ => org.sireum.LibUtil.setOptions) // methodKey(T, "org.sireum.LibUtil", "setOptions").value
     r.put(0x2770437707001E59L, _ => org.sireum.Library.sharedFiles) // methodKey(T, "org.sireum.Library", "sharedFiles").value
+    r.put(0x5D1619B7FBDEDE83L, _ => org.sireum.Library.jvmFiles) // methodKey(T, "org.sireum.Library", "jvmFiles").value
+    r.put(0xD3F6CE7B2D83E3FBL, _ => org.sireum.Library.fontFiles) // methodKey(T, "org.sireum.Library", "fontFiles").value
+    r.put(0x8853B75E3DDD60F0L, _ => org.sireum.Library.vscodeImageFiles) // methodKey(T, "org.sireum.Library", "vscodeImageFiles").value
     r.put(0x0D137D659C21744EL, _ => org.sireum.Library.files) // methodKey(T, "org.sireum.Library", "files").value
     r.put(0x48DC4AC1CAF34241L, _ => org.sireum.Poset.Internal.emptySet) // methodKey(T, "org.sireum.Poset.Internal", "emptySet").value
     r.put(0xDED3A22AA5504011L, _ => org.sireum.Random.create64) // methodKey(T, "org.sireum.Random", "create64").value
@@ -1276,13 +1279,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xECAA1CDF1B2E8932L, X[org.sireum.Init](_).checkstack) // methodKey(F, "org.sireum.Init", "checkstack").value
     r.put(0x3672E35612705476L, X[org.sireum.Init](_).checkstackVersion) // methodKey(F, "org.sireum.Init", "checkstackVersion").value
     r.put(0x36E11EC52DA0B6F5L, X[org.sireum.Init](_).javaVersion) // methodKey(F, "org.sireum.Init", "javaVersion").value
-    r.put(0xAD801C858273905DL, X[org.sireum.Init](_).pwd7z) // methodKey(F, "org.sireum.Init", "pwd7z").value
     r.put(0xFC8E5B3CD4A66226L, X[org.sireum.Init](_).installScala()) // methodKey(F, "org.sireum.Init", "installScala").value
     r.put(0x1FFA7C92CE77EAD3L, X[org.sireum.Init](_).installScalacPlugin()) // methodKey(F, "org.sireum.Init", "installScalacPlugin").value
     r.put(0xAE2412F12F627832L, X[org.sireum.Init](_).installCoursier()) // methodKey(F, "org.sireum.Init", "installCoursier").value
     r.put(0x4924789C9337C287L, X[org.sireum.Init](_).installJacoco()) // methodKey(F, "org.sireum.Init", "installJacoco").value
-    r.put(0x25C9B4E2D44AD008L, X[org.sireum.Init](_).pwd7zUrl) // methodKey(F, "org.sireum.Init", "pwd7zUrl").value
-    r.put(0x607A0504446119A2L, X[org.sireum.Init](_).install7z()) // methodKey(F, "org.sireum.Init", "install7z").value
     r.put(0x7AF0439B866D4FB2L, X[org.sireum.Init](_).installZ3()) // methodKey(F, "org.sireum.Init", "installZ3").value
     r.put(0x2F3811F83D8BEEFFL, X[org.sireum.Init](_).installCVC()) // methodKey(F, "org.sireum.Init", "installCVC").value
     r.put(0xAC68FF7561F9281AL, X[org.sireum.Init](_).installMaryTTS()) // methodKey(F, "org.sireum.Init", "installMaryTTS").value
@@ -3241,8 +3241,8 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       case _ => MNone()
     }) // methodKey(T, "org.sireum.Init", "unapply").value
     r.put(0x394D50D66209F24FL, r => (o1: Any) => X[org.sireum.Init](r).platform(X(o1))) // methodKey(F, "org.sireum.Init", "platform").value
-    r.put(0x820EB4449968AFCDL, r => (o1: Any) => X[org.sireum.Init](r).installJava(X(o1))) // methodKey(F, "org.sireum.Init", "installJava").value
     r.put(0x6AEDD8A12084FD26L, r => (o1: Any) => X[org.sireum.Init](r).installMill(X(o1))) // methodKey(F, "org.sireum.Init", "installMill").value
+    r.put(0x90F1FCAD8814A4D0L, r => (o1: Any) => X[org.sireum.Init](r).installFonts(X(o1))) // methodKey(F, "org.sireum.Init", "installFonts").value
     r.put(0x885C121A873E93F3L, r => (o1: Any) => X[org.sireum.Init](r).ideaSandbox(X(o1))) // methodKey(F, "org.sireum.Init", "ideaSandbox").value
     r.put(0xB42ABE770C9ECC42L, r => (o1: Any) => X[org.sireum.Init](r).init(X(o1))) // methodKey(F, "org.sireum.Init", "init").value
     r.put(0xE9DC95EFDFAF94C7L, _ => (o1: Any) => org.sireum.Os.Path.Impl.apply(X(o1))) // methodKey(T, "org.sireum.Os.Path.Impl", "apply").value
@@ -3424,7 +3424,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method2Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](327)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](328)
     r.put(0x4D89D302473509F8L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.contain(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "contain").value
     r.put(0x178633CC914B88ACL, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containKey(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containKey").value
     r.put(0x4E5075BEB3306304L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containValue(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containValue").value
@@ -3741,6 +3741,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x81CA0BCB569395A3L, r => (o1: Any) => (o2: Any) => X[org.sireum.UnionFind[_]](r).inSameSetCompress(X(o1), X(o2))) // methodKey(F, "org.sireum.UnionFind", "inSameSetCompress").value
     r.put(0x00CE94D4772D3C2DL, r => (o1: Any) => (o2: Any) => X[org.sireum.UnionFind[_]](r).merge(X(o1), X(o2))) // methodKey(F, "org.sireum.UnionFind", "merge").value
     r.put(0xA419F44D4B9054C8L, r => (o1: Any) => (o2: Any) => X[org.sireum.GitHub.Repository](r).submoduleShaOf(X(o1), X(o2))) // methodKey(F, "org.sireum.GitHub.Repository", "submoduleShaOf").value
+    r.put(0x820EB4449968AFCDL, r => (o1: Any) => (o2: Any) => X[org.sireum.Init](r).installJava(X(o1), X(o2))) // methodKey(F, "org.sireum.Init", "installJava").value
     r.put(0xE1CDFE6DAFB04D1CL, r => (o1: Any) => (o2: Any) => X[org.sireum.Init](r).ideaDirPath(X(o1), X(o2))) // methodKey(F, "org.sireum.Init", "ideaDirPath").value
     r.put(0x3DE404F7DAD376EFL, r => (o1: Any) => (o2: Any) => X[org.sireum.Init](r).zipName(X(o1), X(o2))) // methodKey(F, "org.sireum.Init", "zipName").value
     r.put(0xC82368A1132E4391L, r => (o1: Any) => (o2: Any) => X[org.sireum.Init](r).downloadPlugins(X(o1), X(o2))) // methodKey(F, "org.sireum.Init", "downloadPlugins").value
@@ -4663,6 +4664,9 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     fields = ISZ(),
     methods = ISZ(
       Method(isInObject = true, isByName = T, name = "sharedFiles", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "jvmFiles", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "fontFiles", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "vscodeImageFiles", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "files", params = ISZ())
     )
   )
@@ -8078,14 +8082,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = T, name = "checkstackVersion", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "javaVersion", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "platform", params = ISZ("k")),
-      Method(isInObject = false, isByName = T, name = "pwd7z", params = ISZ()),
-      Method(isInObject = false, isByName = F, name = "installJava", params = ISZ("vs")),
+      Method(isInObject = false, isByName = F, name = "installJava", params = ISZ("vs", "useNik")),
       Method(isInObject = false, isByName = F, name = "installScala", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installScalacPlugin", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installCoursier", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installJacoco", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "pwd7zUrl", params = ISZ()),
-      Method(isInObject = false, isByName = F, name = "install7z", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installZ3", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installCVC", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installMaryTTS", params = ISZ()),
@@ -8093,6 +8094,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "installMill", params = ISZ("verbose")),
       Method(isInObject = false, isByName = F, name = "ideaDirPath", params = ISZ("isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "installScripts", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "installFonts", params = ISZ("force")),
       Method(isInObject = false, isByName = F, name = "installVSCodium", params = ISZ("existingInstallOpt", "extensionsDirOpt", "extensions")),
       Method(isInObject = false, isByName = T, name = "isIdeaInUserHome", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "ideaConfig", params = ISZ("isSetup", "isDev", "isUltimate", "projectPathOpt")),
@@ -8101,7 +8103,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "zipName", params = ISZ("id", "version")),
       Method(isInObject = false, isByName = F, name = "downloadPlugins", params = ISZ("isDev", "pluginFilter")),
       Method(isInObject = false, isByName = F, name = "extractPlugins", params = ISZ("pluginsDir", "pluginFilter")),
-      Method(isInObject = false, isByName = F, name = "distro", params = ISZ("isDev", "buildSfx", "buildIve", "buildHamrPackage", "isUltimate", "isServer")),
+      Method(isInObject = false, isByName = F, name = "distro", params = ISZ("isDev", "buildPackage", "buildIve", "buildVSCodePackage", "isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "basicDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "proyekCompileDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "logikaDeps", params = ISZ()),
