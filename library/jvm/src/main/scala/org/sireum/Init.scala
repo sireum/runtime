@@ -1624,7 +1624,7 @@ import Init._
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
       val txz = s"$plat.tar.xz"
-      Os.proc(ISZ[String]("tar", "-c", "--lzma", "-f", txz) ++ files).at(distroDir.up).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", txz) ++ files).at(distroDir.up).runCheck()
       (distroDir.up / txz).moveOverTo(setupDir.up / txz)
 
       println("done!")
@@ -1702,7 +1702,7 @@ import Init._
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String]("tar", "-c", "--lzma", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
