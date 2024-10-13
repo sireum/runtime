@@ -1623,8 +1623,8 @@ import Init._
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
-      val pkg = s"$plat.tar.${if (kind == Os.Kind.Win) "gz" else "xz"}"
-      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-z" else "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+      val pkg = s"$plat.${if (kind == Os.Kind.Win) "zip" else "tar.xz"}"
+      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-a" else "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
       (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
 
       println("done!")
@@ -1694,15 +1694,13 @@ import Init._
         for (p <- vscodeDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
       val vscodeName = "ive-vscodium"
       var rname: String = kind match {
-        case Os.Kind.Mac => if (Os.isMacArm) s"$sireumName-$vscodeName-mac-arm64.tar.xz" else s"$sireumName-$vscodeName-mac-amd64.tar.xz"
-        case Os.Kind.Win => if (Os.isWinArm) s"$sireumName-$vscodeName-win-arm64.tar.gz" else s"$sireumName-$vscodeName-win-amd64.tar.gz"
-        case Os.Kind.Linux => s"$sireumName-$vscodeName-linux-amd64.tar.xz"
-        case Os.Kind.LinuxArm => s"$sireumName-$vscodeName-linux-arm64.tar.xz"
-        case _ => halt("Infeasible")
+        case Os.Kind.Mac => s"$sireumName-$vscodeName-mac-${if (Os.isMacArm) "arm64" else "amd64"}.tar.xz"
+        case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.zip"
+        case _ => s"$sireumName-$vscodeName-linux-${if (kind == Os.Kind.LinuxArm) "arm64" else "amd64"}.tar.xz"
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-z" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
