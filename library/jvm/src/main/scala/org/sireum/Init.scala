@@ -875,8 +875,8 @@ import Init._
     def mac(): Unit = {
       val drop = cache / s"VSCodium.${if (Os.isMacArm) "arm64" else "x64"}.$vscodiumVersion.dmg"
       val platform = homeBin / "mac"
-      var vscodium = platform / "VSCodium.app"
-      val ver = vscodium / "Contents" / "VER"
+      var vscodium = platform / "vscodium" / "VSCodium.app"
+      val ver = vscodium.up.canon / "VER"
       var updated = F
       val codium: Os.Path = vsCodiumOpt match {
         case Some(p) =>
@@ -899,14 +899,14 @@ import Init._
           }
           c
       }
-      patchCodium(codium, "ELECTRON_RUN_AS_NODE=", "$(readlink -f `dirname $0`/../../../../../../..)", F)
+      patchCodium(codium, "ELECTRON_RUN_AS_NODE=", "$(readlink -f `dirname $0`/../../../../../../../..)", F)
       proc"xattr -rd com.apple.quarantine $vscodium".run()
       proc"codesign --force --deep --sign - $vscodium".run()
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
           if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
-            val d = platform / "codium-portable-data" / "extensions"
+            val d = vscodium.up.canon / "codium-portable-data" / "extensions"
             d.mkdirAll()
             d
           } else {
@@ -1213,11 +1213,10 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
-        ISZ("bin", "mac", "codium-portable-data"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
         ISZ("bin", "mac", "sireum"),
-        ISZ("bin", "mac", "VSCodium.app"),
+        ISZ("bin", "mac", "vscodium"),
         ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
