@@ -522,7 +522,7 @@ object Random {
     return Gen64Impl(Impl.Xoshiro256.create)
   }
 
-  @pure def createSeed64(seed: U64): Gen = {
+  @pure def createSeed64(seed: U64): Gen64Impl = {
     return Gen64Impl(Impl.Xoshiro256.createSeed(seed))
   }
 
