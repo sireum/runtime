@@ -149,8 +149,8 @@ import Init._
     if (Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
       val javaHome = Os.javaHomeOpt(kind, Some(home)).get
       val javaVersion = vs.get("org.sireum.version.java").get
-      val nikVersion = vs.get("org.sireum.version.nik").get
-      val nikJavaVersion = ops.StringOps(s"$nikVersion-$javaVersion").replaceAllLiterally("+", "%2B")
+      val ISZ(nikJavaVersion, nikVersion) = ops.StringOps(vs.get("org.sireum.version.nik").get).split((c: C) => c == ',')
+      val nikFullVersion = ops.StringOps(s"$nikVersion-$nikJavaVersion").replaceAllLiterally("+", "%2B")
       var isNik = useNik
       var javaUrl: String = ""
       kind match {
@@ -159,7 +159,7 @@ import Init._
           javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
         case Os.Kind.Linux =>
           if (useNik) {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-linux-amd64.tar.gz"
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-linux-amd64.tar.gz"
           } else {
             javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
           }
@@ -169,7 +169,7 @@ import Init._
             javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$nikVersion-windows-aarch64-full.zip"
           } else {
             if (useNik) {
-              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-windows-amd64.zip"
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-windows-amd64.zip"
             } else {
               javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-windows-amd64-full.zip"
             }
@@ -177,13 +177,13 @@ import Init._
         case Os.Kind.Mac =>
           if (Os.isMacArm) {
             if (useNik) {
-              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-aarch64.tar.gz"
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-macos-aarch64.tar.gz"
             } else {
               javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-macos-aarch64-full.tar.gz"
             }
           } else {
             if (useNik) {
-              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikJavaVersion/bellsoft-liberica-vm-full-openjdk$javaVersion-$nikVersion-macos-amd64.tar.gz"
+              javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-macos-amd64.tar.gz"
             } else {
               javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-macos-amd64-full.tar.gz"
             }
@@ -192,7 +192,7 @@ import Init._
           return F
       }
 
-      val VER: String = if (isNik) s"$javaVersion-$nikVersion" else javaVersion
+      val VER: String = if (isNik) nikFullVersion else javaVersion
       val javaVer = javaHome / "VER"
 
       def diffVersion: B = {
