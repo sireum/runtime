@@ -767,7 +767,7 @@ import Init._
         if (ops.StringOps(l).endsWith(",")) {
           l = ops.StringOps(l).substring(0, l.size - 1)
         }
-        if (ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
+        if (l.size > 0 && ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
           ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0) {
           newLines = newLines :+ l
         }
@@ -775,6 +775,8 @@ import Init._
       if (lines.size != newLines.size) {
         println("Patching Scalameta Metals ...")
         val tab = "\t"
+        newLines = newLines :+ s""""workspaceContains:build.sc""""
+        newLines = newLines :+ s""""workspaceContains:.bloop""""
         packageJson.writeOver(
           st"""${ops.StringOps.substring(cis, 0, min + 1)}
               |$tab$tab${(newLines, ",\n\t\t")}
