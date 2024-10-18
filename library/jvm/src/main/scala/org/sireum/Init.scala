@@ -1690,7 +1690,7 @@ import Init._
       val sireumName = home.name
       val files: ISZ[String] =
         for (p <- vscodeDistroMap.get(kind).get.map((rp: ISZ[String]) => st"${(sireumName +: rp, Os.fileSep)}")) yield p.render
-      val vscodeName = "ive-vscodium"
+      val vscodeName = "codeive"
       var rname: String = kind match {
         case Os.Kind.Mac => s"$sireumName-$vscodeName-mac-${if (Os.isMacArm) "arm64" else "amd64"}.tar.xz"
         case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.zip"
