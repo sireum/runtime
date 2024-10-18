@@ -749,6 +749,40 @@ import Init._
       return r
     }
 
+    def patchMetals(d: Os.Path): Unit = {
+      val packageJson =d / "package.json"
+      val cis = conversions.String.toCis(packageJson.read)
+      val activationEvents = conversions.String.toCis("\"activationEvents\"")
+      var i = ops.StringOps.stringIndexOfFrom(cis, activationEvents, 0)
+      i = i + activationEvents.size
+      val min = ops.StringOps.indexOfFrom(cis, '[', i)
+      val max = ops.StringOps.indexOfFrom(cis, ']', min)
+      var newLines = ISZ[String]()
+      val workspaceContains = conversions.String.toCis("workspaceContains")
+      val onLanguage = conversions.String.toCis("onLanguage")
+      val lines = ops.StringOps(ops.StringOps.substring(cis, min + 1, max)).split((c: C) => c == '\n')
+      for (line <- lines) {
+        val lineCis = conversions.String.toCis(line)
+        var l = ops.StringOps.trim(lineCis)
+        if (ops.StringOps(l).endsWith(",")) {
+          l = ops.StringOps(l).substring(0, l.size - 1)
+        }
+        if (ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
+          ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0) {
+          newLines = newLines :+ l
+        }
+      }
+      if (lines.size != newLines.size) {
+        println("Patching Scalameta Metals ...")
+        val tab = "\t"
+        packageJson.writeOver(
+          st"""${ops.StringOps.substring(cis, 0, min + 1)}
+              |$tab$tab${(newLines, ",\n\t\t")}
+              |$tab${ops.StringOps.substring(cis, max, cis.size)}""".render)
+        println()
+      }
+    }
+
     def patchSysIDE(d: Os.Path): Unit = {
       val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
       var content = tmlf.read
@@ -824,8 +858,15 @@ import Init._
       }
       proc"$codium --force$extDirArg --install-extension $drop".console.runCheck()
       println()
-      for (f <- extensionsDir.list if ops.StringOps(f.name).startsWith("sensmetry.sysml-")) {
-        patchSysIDE(f)
+      val sysidePrefix = conversions.String.toCis("sensmetry.sysml-")
+      val metalsPrefix = conversions.String.toCis("scalameta.metals-")
+      for (p <- extensionsDir.list) {
+        val cis = conversions.String.toCis(p.name)
+        if (ops.StringOps.startsWith(cis, sysidePrefix)) {
+          patchSysIDE(p)
+        } else if (ops.StringOps.startsWith(cis, metalsPrefix)) {
+          patchMetals(p)
+        }
       }
       return extDirArg
     }
