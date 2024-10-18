@@ -889,36 +889,32 @@ import Init._
           case _ =>
         }
       }
-    }
-
-    def patchCodium(codium: Os.Path, anchor: String, sireumHome: String, isWin: B): Unit = {
-      var codiumContent = codium.read
-      val cis = conversions.String.toCis(codiumContent)
-      if (ops.StringOps.stringIndexOfFrom(cis, conversions.String.toCis("SIREUM_HOME"), 0) >= 0) {
-        return
+      if (Os.isWin) {
+        val origExe = path / "VSCodium.exe"
+        val exe = path / "CodeIVE.exe"
+        val rceditVersion = "2.0.0"
+        val rcedit = cache / s"rcedit-$rceditVersion.exe"
+        if (!rcedit.exists) {
+          val url = s"https://github.com/electron/rcedit/releases/download/v$rceditVersion/rcedit-x64.exe"
+          println("Downloading rcedit ...")
+          rcedit.downloadFrom(url)
+          println()
+        }
+        println(s"Patching $origExe ...")
+        val ico = Os.tempFix("code", ".ico")
+        ico.removeAll()
+        ico.writeU8s(map.get("code.ico").get)
+        origExe.moveTo(exe)
+        proc"""$rcedit $exe --set-icon $ico""".runCheck()
+        ico.removeAll()
+        println()
       }
-      println(s"Patching $codium ...")
-      val i = ops.StringOps.stringIndexOfFrom(cis, conversions.String.toCis(anchor), 0)
-      val set: String = if (isWin) "set" else "export"
-      val javaHomeOpt: String = Os.kind match {
-        case Os.Kind.Mac => s"$set JAVA_HOME=$$SIREUM_HOME/bin/mac/java${Os.lineSep}"
-        case Os.Kind.Linux => s"$set JAVA_HOME=$$SIREUM_HOME/bin/linux/java${Os.lineSep}"
-        case Os.Kind.LinuxArm => s"$set JAVA_HOME=$$SIREUM_HOME/bin/linux/arm/java${Os.lineSep}"
-        case Os.Kind.Win => s"$set JAVA_HOME=%SIREUM_HOME%\\bin\\win\\java${Os.lineSep}"
-        case _ => ""
-      }
-      codiumContent = s"${ops.StringOps.substring(cis, 0, i)}$set SIREUM_HOME=$sireumHome${Os.lineSep}$javaHomeOpt${ops.StringOps.substring(cis, i, cis.size)}"
-      codium.writeOver(codiumContent)
-      if (!isWin) {
-        codium.chmod("+x")
-      }
-      println()
     }
 
     def mac(): Unit = {
       val drop = cache / s"VSCodium.${if (Os.isMacArm) "arm64" else "x64"}.$vscodiumVersion.dmg"
       val platform = homeBin / "mac"
-      var vscodium = platform / "vscodium" / "VSCodium.app"
+      var vscodium = platform / "vscodium" / "CodeIVE.app"
       val ver = vscodium.up.canon / "VER"
       var updated = F
       val codium: Os.Path = vsCodiumOpt match {
@@ -942,7 +938,6 @@ import Init._
           }
           c
       }
-      patchCodium(codium, "ELECTRON_RUN_AS_NODE=", "$(readlink -f `dirname $0`/../../../../../../../..)", F)
       proc"xattr -rd com.apple.quarantine $vscodium".run()
       proc"codesign --force --deep --sign - $vscodium".run()
       val extensionsDir: Os.Path = extDirOpt match {
@@ -961,9 +956,9 @@ import Init._
       val extDirArg = installExtensions(codium, extensionsDir)
       if (updated) {
         if (isInUserHome) {
-          println(s"To launch VSCodium: open $vscodium")
+          println(s"To launch CodeIVE: open $vscodium")
         } else {
-          println(s"To launch VSCodium: $codium$extDirArg")
+          println(s"To launch CodeIVE: $codium$extDirArg")
         }
       }
     }
@@ -979,7 +974,7 @@ import Init._
           vscodium = p.up.up.canon
           p
         case _ =>
-          val c = vscodium / "bin" / "codium"
+          val c = vscodium / "bin" / "codeive"
           if (!ver.exists || ver.read != vscodiumVersion) {
             downloadVSCodium(drop)
             println("Extracting VSCodium ...")
@@ -991,14 +986,13 @@ import Init._
             vscodium.removeAll()
             vscodiumNew.moveTo(vscodium)
             replaceImages(vscodium)
+            (vscodium / "bin" / "codium").moveTo(c)
             println()
             ver.write(vscodiumVersion)
             updated = T
           }
           c
       }
-      patchCodium(codium, "ELECTRON_RUN_AS_NODE=",
-        s"$$(readlink -f `dirname $$0`/../../../..${if (isArm) "/.." else ""})", F)
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
@@ -1014,7 +1008,7 @@ import Init._
       }
       val extDirArg = installExtensions(codium, extensionsDir)
       if (updated) {
-        println(s"To launch VSCodium: $codium$extDirArg")
+        println(s"To launch CodeIVE: $codium$extDirArg")
       }
     }
 
@@ -1029,7 +1023,7 @@ import Init._
           vscodium = p.up.up.canon
           p
         case _ =>
-          val c =  vscodium / "bin" / "codium.cmd"
+          val c =  vscodium / "bin" / "codeive.cmd"
           if (!ver.exists || ver.read != vscodiumVersion) {
             downloadVSCodium(drop)
             val vscodiumNew = platform / "vscodium.new"
@@ -1041,14 +1035,14 @@ import Init._
             vscodium.removeAll()
             vscodiumNew.moveTo(vscodium)
             replaceImages(vscodium)
+            (vscodium / "bin" / "codium.cmd").moveTo(c)
             println()
             ver.write(vscodiumVersion)
             updated = T
           }
+          c.writeOver(ops.StringOps(c.read).replaceAllLiterally("VSCodium.exe", "CodeIVE.exe"))
           c
       }
-      patchCodium(codium, "\"%~dp0..",
-        s""""%~dp0..\\..\\..\\..${Os.lineSep}pushd %SIREUM_HOME%${Os.lineSep}set SIREUM_HOME=%CD%${Os.lineSep}popd""".stripMargin, T)
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
@@ -1064,7 +1058,11 @@ import Init._
       }
       val extDirArg = installExtensions(codium, extensionsDir)
       if (updated) {
-        println(s"To launch VSCodium: $codium$extDirArg")
+        if (extDirArg.size > 0) {
+          println(s"To launch CodeIVE: $codium$extDirArg")
+        } else {
+          println(s"To launch CodeIVE: ${vscodium / "CodeIVE.exe"}")
+        }
       }
     }
 
