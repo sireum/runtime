@@ -449,9 +449,27 @@ object Z extends $ZCompanion[Z] {
 
   }
 
+  trait BV[T <: BV[T]] extends Any with ZLike[T] {
+    this: T =>
+
+    def >>(other: T): T
+
+    def >>>(other: T): T
+
+    def <<(other: T): T
+
+    def &(other: T): T
+
+    def |(other: T): T
+
+    def |^(other: T): T
+
+    def unary_~ : T
+  }
+
   object BV {
 
-    trait Byte[T <: Byte[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+    trait Byte[T <: Byte[T]] extends Any with BV[T] with $internal.HasBoxer {
       this: T =>
 
       final def isBitVector: scala.Boolean = true
@@ -607,7 +625,7 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Short[T <: Short[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+    trait Short[T <: Short[T]] extends Any with BV[T] with $internal.HasBoxer {
       this: T =>
 
       final def isBitVector: scala.Boolean = true
@@ -761,7 +779,7 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Int[T <: Int[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+    trait Int[T <: Int[T]] extends Any with BV[T] with $internal.HasBoxer {
       this: T =>
 
       final def isBitVector: scala.Boolean = true
@@ -910,7 +928,7 @@ object Z extends $ZCompanion[Z] {
         if (isZeroIndex) toMP else toMP - Index.toMP
     }
 
-    trait Long[T <: Long[T]] extends Any with ZLike[T] with $internal.HasBoxer {
+    trait Long[T <: Long[T]] extends Any with BV[T] with $internal.HasBoxer {
       this: T =>
 
       final def isBitVector: scala.Boolean = true
