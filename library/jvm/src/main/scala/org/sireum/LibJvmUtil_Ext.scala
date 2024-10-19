@@ -4072,6 +4072,12 @@ class LibJvmUtil_Ext extends Reflection_Ext {
 
   override def classNameOf[T](o: T): Option[String] = {
     o match {
+      case o: org.sireum.CircularQueue.Policy.Type => return Some("org.sireum.CircularQueue.Policy.Type")
+      case o: org.sireum.Json.ValueKind.Type => return Some("org.sireum.Json.ValueKind.Type")
+      case o: org.sireum.CoursierClassifier.Type => return Some("org.sireum.CoursierClassifier.Type")
+      case o: org.sireum.Os.Kind.Type => return Some("org.sireum.Os.Kind.Type")
+      case o: org.sireum.Os.Path.Kind.Type => return Some("org.sireum.Os.Path.Kind.Type")
+      case o: org.sireum.Os.Path.WriteMode.Type => return Some("org.sireum.Os.Path.WriteMode.Type")
       case o: org.sireum.AssocS[_, _] => return Some("org.sireum.AssocS")
       case o: org.sireum.Bag[_] => return Some("org.sireum.Bag")
       case o: org.sireum.CircularQueue.NoDrop[_] => return Some("org.sireum.CircularQueue.NoDrop")
