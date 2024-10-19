@@ -96,6 +96,9 @@ import Reflection._
   def info(name: String): Option[Info] = {
     return None()
   }
+  def classNameOf[T](o: T): Option[String] = {
+    return None()
+  }
   def invoke0[@mut T, @mut R](owner: String, name: String, receiver: T): R = {
     halt(s"Unavailable reflection on $owner#$name")
   }
