@@ -399,8 +399,8 @@ import Init._
       case Os.Kind.Mac =>
         if (Os.isMacArm) s"z3-exe-$version-mac-arm64.zip"
         else s"z3-exe-$version-mac-amd64.zip"
-      case Os.Kind.Linux => s"z3-exe-static-gmp-$version-linux-amd64.zip"
-      case Os.Kind.LinuxArm => s"z3-exe-static-gmp-$version-linux-arm64.zip"
+      case Os.Kind.Linux => s"z3-exe-static-$version-linux-amd64.zip"
+      case Os.Kind.LinuxArm => s"z3-exe-static-$version-linux-arm64.zip"
       case _ => return
     }
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
