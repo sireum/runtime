@@ -395,12 +395,12 @@ import Init._
     val filename: String = kind match {
       case Os.Kind.Win =>
         if (Os.isWinArm) s"z3-$version-win-arm64.zip"
-        else s"z3-$version-win-amd64.zip"
+        else s"z3-exe-static-$version-win-amd64.zip"
       case Os.Kind.Mac =>
-        if (Os.isMacArm) s"z3-$version-mac-arm64.zip"
-        else s"z3-$version-mac-amd64.zip"
-      case Os.Kind.Linux => s"z3-$version-linux-amd64.zip"
-      case Os.Kind.LinuxArm => s"z3-$version-linux-arm64.zip"
+        if (Os.isMacArm) s"z3-exe-$version-mac-arm64.zip"
+        else s"z3-exe-$version-mac-amd64.zip"
+      case Os.Kind.Linux => s"z3-exe-static-gmp-$version-linux-amd64.zip"
+      case Os.Kind.LinuxArm => s"z3-exe-static-gmp-$version-linux-arm64.zip"
       case _ => return
     }
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
@@ -413,10 +413,10 @@ import Init._
     }
 
     println("Extracting Z3 ...")
+    dir.removeAll()
     bundle.unzipTo(dir.up)
 
     for (p <- dir.up.list if ops.StringOps(p.name).startsWith("z3-")) {
-      dir.removeAll()
       p.moveTo(dir)
     }
 
