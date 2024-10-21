@@ -399,8 +399,8 @@ import Init._
       case Os.Kind.Mac =>
         if (Os.isMacArm) s"z3-exe-$version-mac-arm64.zip"
         else s"z3-exe-$version-mac-amd64.zip"
-      case Os.Kind.Linux => s"z3-exe-static-$version-linux-amd64.zip"
-      case Os.Kind.LinuxArm => s"z3-$version-linux-arm64.zip"
+      case Os.Kind.Linux => s"z3-exe-static-musl-gmp-$version-linux-amd64.zip"
+      case Os.Kind.LinuxArm => s"z3-exe-static-musl-gmp-$version-linux-arm64.zip"
       case _ => return
     }
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
@@ -1221,6 +1221,8 @@ import Init._
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "sireum.exe"),
+        ISZ("bin", "win", "vcruntime140.dll"),
+        ISZ("bin", "win", "vcruntime140_1.dll"),
         ISZ("bin", "win", "vscodium"),
         ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
@@ -1712,6 +1714,17 @@ import Init._
       if (!slangRunScript.exists) {
         slangRunScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/slang-run.sh")
         slangRunScript.chmod("+x")
+      }
+    }
+
+    if (kind == Os.Kind.Win) {
+      if (Os.isWinArm) {
+        // TODO
+      } else {
+        val vcr = (homeBinPlatform / "vcruntime140.dll")
+        val vcr1 = homeBinPlatform / "vcruntime140_1.dll"
+        vcr.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140.dll")
+        vcr1.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140_1.dll")
       }
     }
 
