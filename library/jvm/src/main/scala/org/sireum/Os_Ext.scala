@@ -1052,17 +1052,7 @@ object Os_Ext {
         case _: InterruptedException =>
       }
       if (sp.isAlive()) {
-        try {
-          sp.destroy()
-          sp.wrapped.waitFor(500, TU.MICROSECONDS)
-        } catch {
-          case _: Throwable =>
-        }
-        if (sp.isAlive())
-          try sp.destroyForcibly()
-          catch {
-            case _: Throwable =>
-          }
+        sp.destroy(shutdownGracePeriod = 500, async = true)
       }
       val (pout, perr) = po.fEnd()
       Os.Proc.Result.Timeout(pout, perr)
