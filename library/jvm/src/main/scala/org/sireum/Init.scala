@@ -399,7 +399,7 @@ import Init._
       case Os.Kind.Mac =>
         if (Os.isMacArm) s"z3-exe-$version-mac-arm64.zip"
         else s"z3-exe-$version-mac-amd64.zip"
-      case Os.Kind.Linux => s"z3-static-exe-$version-linux-amd64.zip"
+      case Os.Kind.Linux => s"z3-exe-static-$version-linux-amd64.zip"
       case Os.Kind.LinuxArm => s"z3-$version-linux-arm64.zip"
       case _ => return
     }
