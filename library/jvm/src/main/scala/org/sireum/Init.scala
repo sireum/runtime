@@ -1717,12 +1717,14 @@ import Init._
       }
     }
 
-    if (kind == Os.Kind.Win) {
+    if (kind == Os.Kind.Win && (buildPackage || buildVSCodePackage)) {
       if (Os.isWinArm) {
         // TODO
       } else {
-        val vcr = (homeBinPlatform / "vcruntime140.dll")
+        val vcr = homeBinPlatform / "vcruntime140.dll"
         val vcr1 = homeBinPlatform / "vcruntime140_1.dll"
+        vcr.removeAll()
+        vcr1.removeAll()
         vcr.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140.dll")
         vcr1.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140_1.dll")
       }
