@@ -1034,7 +1034,21 @@ object Os_Ext {
       val pOut = new ProcessOutput(po.fOut)
       def pErr = if (p.isErrAsOut) pOut else new ProcessOutput(po.fErr)
       val stdin: _root_.os.ProcessInput = p.in match {
-        case Some(s) => s.value
+        case Some(s) => new os.ProcessInput {
+          val r: os.Source = s.value
+          def redirectFrom: ProcessBuilder.Redirect = ProcessBuilder.Redirect.PIPE
+          def processInput(stdin: => SubProcess.InputStream): scala.Option[Runnable] = scala.Some(() => {
+            try {
+              r.writeBytesTo(stdin)
+            } catch {
+              case _: Throwable =>
+            } finally {
+              try stdin.close() catch {
+                case _: Throwable =>
+              }
+            }
+          })
+        }
         case _ => _root_.os.Inherit
       }
       val sp = _root_.os.proc(p.cmds.elements.map(_.value: _root_.os.Shellable)).
