@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1213)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1214)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -254,6 +254,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xC214995D93B8F73AL, _ => org.sireum.Os.freeMemory) // methodKey(T, "org.sireum.Os", "freeMemory").value
     r.put(0xF9EC465B049ED421L, _ => org.sireum.Os.home) // methodKey(T, "org.sireum.Os", "home").value
     r.put(0xEC7DB9323B09CA07L, _ => org.sireum.Os.isLinux) // methodKey(T, "org.sireum.Os", "isLinux").value
+    r.put(0x0C0BDAECF50A71DAL, _ => org.sireum.Os.isLinuxArm) // methodKey(T, "org.sireum.Os", "isLinuxArm").value
     r.put(0x5A09B80316284B83L, _ => org.sireum.Os.isMac) // methodKey(T, "org.sireum.Os", "isMac").value
     r.put(0xD9D4C954179BBD4EL, _ => org.sireum.Os.isMacArm) // methodKey(T, "org.sireum.Os", "isMacArm").value
     r.put(0xF9FC3F44DEB5F97DL, _ => org.sireum.Os.isWinArm) // methodKey(T, "org.sireum.Os", "isWinArm").value
@@ -4985,6 +4986,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = true, isByName = T, name = "freeMemory", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "home", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isLinux", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "isLinuxArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isMac", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isMacArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isWinArm", params = ISZ()),

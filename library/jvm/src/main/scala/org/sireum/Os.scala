@@ -66,6 +66,10 @@ object Os {
     return kind == Kind.Linux
   }
 
+  @pure def isLinuxArm: B = {
+    return kind == Kind.LinuxArm
+  }
+
   @pure def isMac: B = {
     return kind == Kind.Mac
   }
