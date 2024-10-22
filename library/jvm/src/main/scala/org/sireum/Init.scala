@@ -1322,6 +1322,7 @@ import Init._
       else ideaDir / "plugins"
 
     val settingsPluginDir = ideaPlugins(isDev, isUltimate, None())
+    settingsPluginDir.mkdirAll()
 
     val libDir: Os.Path =
       if (kind == Os.Kind.Mac) sireumAppDir / "Contents" / "lib"
