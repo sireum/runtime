@@ -397,7 +397,7 @@ import Init._
         if (Os.isWinArm) s"z3-$version-win-arm64.zip"
         else s"z3-exe-static-$version-win-amd64.zip"
       case Os.Kind.Mac =>
-        if (Os.isMacArm) s"z3-exe-$version-mac-arm64.zip"
+        if (Os.isMacArm) s"z3-exe-gmp-$version-mac-arm64.zip"
         else s"z3-exe-$version-mac-amd64.zip"
       case Os.Kind.Linux => s"z3-exe-static-musl-gmp-$version-linux-amd64.zip"
       case Os.Kind.LinuxArm => s"z3-exe-static-musl-gmp-$version-linux-arm64.zip"
@@ -1718,16 +1718,13 @@ import Init._
     }
 
     if (kind == Os.Kind.Win && (buildPackage || buildVSCodePackage)) {
-      if (Os.isWinArm) {
-        // TODO
-      } else {
-        val vcr = homeBinPlatform / "vcruntime140.dll"
-        val vcr1 = homeBinPlatform / "vcruntime140_1.dll"
-        vcr.removeAll()
-        vcr1.removeAll()
-        vcr.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140.dll")
-        vcr1.downloadFrom("https://github.com/sireum/rolling/releases/download/vcruntime/vcruntime140_1.dll")
-      }
+      val vcr = homeBinPlatform / "vcruntime140.dll"
+      val vcr1 = homeBinPlatform / "vcruntime140_1.dll"
+      vcr.removeAll()
+      vcr1.removeAll()
+      val system32 = Os.path("C:\\Windows\\System32")
+      (system32 / vcr.name).copyOverTo(vcr)
+      (system32 / vcr1.name).copyOverTo(vcr1)
     }
 
     if (buildVSCodePackage) {
