@@ -143,10 +143,10 @@ import Init._
     }
   }
 
-  def installJava(vs: Map[String, String], useNik: B): B = {
+  def installJava(vs: Map[String, String], useNik: B, force: B): B = {
     homeBinPlatform.mkdirAll()
 
-    if (Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
+    if (force || Os.env("SIREUM_PROVIDED_JAVA") != Some("true")) {
       val javaHome = Os.javaHomeOpt(kind, Some(home)).get
       val javaVersion = vs.get("org.sireum.version.java").get
       val ISZ(nikJavaVersion, nikVersion) = ops.StringOps(vs.get("org.sireum.version.nik").get).split((c: C) => c == ',')
@@ -197,18 +197,19 @@ import Init._
 
       def diffVersion: B = {
         val content = ops.StringOps(javaVer.read).trim
-        return content != VER && content != javaVersion
+        return content != nikFullVersion && content != javaVersion
       }
 
-      if (!javaVer.exists || diffVersion) {
+      if (force || !javaVer.exists || diffVersion) {
         val drop = cache / ops.StringOps(javaUrl).substring(ops.StringOps(javaUrl).lastIndexOf('/') + 1, javaUrl.size)
+        val jdk: String = if (isNik) s"Liberica Native Image Kit JDK Full $javaVersion-$nikVersion" else s"Liberica JDK Full $javaVersion"
         if (!drop.exists) {
-          println(s"Please wait while downloading ${if (isNik) s"Liberica Native Image Kit JDK Full $javaVersion-$nikVersion" else s"Liberica JDK Full $javaVersion"} ...")
+          println(s"Please wait while downloading $jdk ...")
           drop.downloadFrom(javaUrl)
           println()
         }
 
-        println(s"Extracting JDK $VER ...")
+        println(s"Extracting $jdk ...")
         val d = Os.tempDir()
         if (Os.isWin) {
           drop.unzipTo(d)
@@ -216,10 +217,16 @@ import Init._
           drop.unTarGzTo(d)
         }
         javaHome.removeAll()
+        val javaTemp = d.list(0)
         if (Os.isMac) {
-          (d.list(0) / "Contents" / "Home").moveTo(javaHome)
+          val javaTempHome = javaTemp / "Contents" / "Home"
+          if (javaTempHome.exists) {
+            javaTempHome.moveTo(javaHome)
+          } else {
+          javaTemp.moveTo(javaHome)
+          }
         } else {
-          d.list(0).moveTo(javaHome)
+          javaTemp.moveTo(javaHome)
         }
         d.removeAll()
 
@@ -1813,7 +1820,7 @@ import Init._
     }
 
     val vs: Map[String, String] = if (versions.isEmpty) versionsPath.properties else versions
-    if (!installJava(vs, F)) {
+    if (!installJava(vs, F, F)) {
       eprintln("Unsupported platform")
       return F
     }
