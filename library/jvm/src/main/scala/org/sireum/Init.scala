@@ -223,7 +223,7 @@ import Init._
           if (javaTempHome.exists) {
             javaTempHome.moveTo(javaHome)
           } else {
-          javaTemp.moveTo(javaHome)
+            javaTemp.moveTo(javaHome)
           }
         } else {
           javaTemp.moveTo(javaHome)
@@ -994,6 +994,9 @@ import Init._
             vscodiumNew.moveTo(vscodium)
             replaceImages(vscodium)
             (vscodium / "bin" / "codium").moveTo(c)
+            (vscodium / "codium").moveTo(vscodium / c.name)
+            c.writeOver(ops.StringOps(c.read).replaceAllLiterally("/codium", "/codeive"))
+            c.chmod("+x")
             println()
             ver.write(vscodiumVersion)
             updated = T
@@ -1015,7 +1018,12 @@ import Init._
       }
       val extDirArg = installExtensions(codium, extensionsDir)
       if (updated) {
-        println(s"To launch CodeIVE: $codium$extDirArg")
+        val sandbox = vscodium / "chrome-sandbox"
+        println(s"Please run the following:")
+        println()
+        println(s"sudo chown root:root $sandbox; sudo chmod 4755 $sandbox")
+        println()
+        println(s"After that, to launch CodeIVE: $codium$extDirArg")
       }
     }
 
