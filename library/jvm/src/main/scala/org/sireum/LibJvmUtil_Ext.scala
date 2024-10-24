@@ -1438,7 +1438,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method1Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1683)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1682)
     r.put(0x1854D576D83AF7E4L, _ => (o1: Any) => org.sireum.AssocS.Entries.uniqueKeys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "uniqueKeys").value
     r.put(0xE5CBF86C0B8F9696L, _ => (o1: Any) => org.sireum.AssocS.Entries.keys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "keys").value
     r.put(0xCEBF203EDC8BD12DL, _ => (o1: Any) => org.sireum.AssocS.Entries.values(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "values").value
@@ -1534,7 +1534,6 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x1B5C15598D84A189L, _ => (o1: Any) => org.sireum.GitHub.Ext.assets(X(o1))) // methodKey(T, "org.sireum.GitHub.Ext", "assets").value
     r.put(0x29BBF2727F5FF44DL, _ => (o1: Any) => org.sireum.Os.exit(X(o1))) // methodKey(T, "org.sireum.Os", "exit").value
     r.put(0xF1DFEE31D449E56AL, _ => (o1: Any) => org.sireum.Os.env(X(o1))) // methodKey(T, "org.sireum.Os", "env").value
-    r.put(0x499C0428117A738DL, _ => (o1: Any) => org.sireum.Os.tar(X(o1))) // methodKey(T, "org.sireum.Os", "tar").value
     r.put(0xC187877C8C9D667CL, _ => (o1: Any) => org.sireum.Os.javaExe(X(o1))) // methodKey(T, "org.sireum.Os", "javaExe").value
     r.put(0xD9706FE633E8860FL, _ => (o1: Any) => org.sireum.Os.path(X(o1))) // methodKey(T, "org.sireum.Os", "path").value
     r.put(0x6DBC59F180255399L, _ => (o1: Any) => org.sireum.Os.printParseableMessages(X(o1))) // methodKey(T, "org.sireum.Os", "printParseableMessages").value
@@ -4986,7 +4985,6 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = true, isByName = T, name = "fileSep", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "freeMemory", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "home", params = ISZ()),
-      Method(isInObject = true, isByName = F, name = "tar", params = ISZ("cache")),
       Method(isInObject = true, isByName = T, name = "isLinux", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isLinuxArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isMac", params = ISZ()),

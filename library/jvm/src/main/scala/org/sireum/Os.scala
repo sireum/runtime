@@ -62,18 +62,6 @@ object Os {
     }
   }
 
-  def tar(cache: Os.Path): String = {
-    if (Os.isWin) {
-      val bsdtar = cache / (if (Os.isWinArm) "bsdtar-3.7.2-arm64.exe" else "bsdtar-3.7.2-amd64.exe")
-      if (!bsdtar.exists) {
-        bsdtar.downloadFrom(s"https://github.com/sireum/rolling/releases/download/misc/${bsdtar.name}")
-      }
-      return bsdtar.string
-    } else {
-      return "tar"
-    }
-  }
-
   @pure def isLinux: B = {
     return kind == Kind.Linux
   }

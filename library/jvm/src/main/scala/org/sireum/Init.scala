@@ -1639,9 +1639,20 @@ import Init._
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
-      val pkg = s"$plat.tar.xz"
-      Os.proc(ISZ[String](Os.tar(cache), "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
-      (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
+      if (Os.isWin) {
+        val pkg = s"$plat.7z"
+        val sevenzrVersion = "24.08"
+        val sevenzr = cache / s"7zr-$sevenzrVersion.exe"
+        if (!sevenzr.exists) {
+          sevenzr.downloadFrom(s"https://github.com/ip7z/7zip/releases/download/$sevenzrVersion/7zr.exe")
+        }
+        Os.proc(ISZ[String](sevenzr.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
+        (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
+      } else {
+        val pkg = s"$plat.tar.xz"
+        Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+        (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
+      }
 
       println("done!")
       distroDir.removeAll()
@@ -1716,7 +1727,7 @@ import Init._
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String](Os.tar(cache), "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
