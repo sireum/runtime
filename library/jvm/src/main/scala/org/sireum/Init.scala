@@ -1639,8 +1639,8 @@ import Init._
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
-      val pkg = s"$plat.${if (kind == Os.Kind.Win) "zip" else "tar.xz"}"
-      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-a" else "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+      val pkg = s"$plat.tar.xz"
+      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
       (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
 
       println("done!")
@@ -1711,12 +1711,12 @@ import Init._
       val vscodeName = "codeive"
       var rname: String = kind match {
         case Os.Kind.Mac => s"$sireumName-$vscodeName-mac-${if (Os.isMacArm) "arm64" else "amd64"}.tar.xz"
-        case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.zip"
+        case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.tar.xz"
         case _ => s"$sireumName-$vscodeName-linux-${if (kind == Os.Kind.LinuxArm) "arm64" else "amd64"}.tar.xz"
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String]("tar", "-c", if (kind == Os.Kind.Win) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
