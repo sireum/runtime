@@ -585,7 +585,7 @@ import Init._
       while (i < size) {
         if (!stop) {
           if (isAt("%*", i) || isAt("\"$@\"", i)) {
-            j = putString("-i ", j)
+            j = putString("--no-server ", j)
           } else if (isAt(javaPrefix, i)) {
             val platform: String = Os.kind match {
               case Os.Kind.Win => "win"
@@ -782,7 +782,7 @@ import Init._
       if (lines.size != newLines.size) {
         println("Patching Scalameta Metals ...")
         val tab = "\t"
-        newLines = newLines :+ s""""workspaceContains:build.sc""""
+        newLines = newLines :+ s""""workspaceContains:build.mill""""
         newLines = newLines :+ s""""workspaceContains:.bloop""""
         packageJson.writeOver(
           st"""${ops.StringOps.substring(cis, 0, min + 1)}
