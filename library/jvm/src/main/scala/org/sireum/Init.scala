@@ -740,6 +740,32 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
+    kind match {
+      case Os.Kind.Win =>
+      case Os.Kind.Mac =>
+      case _ =>
+        if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
+          val cosmosVersion = versions.get("org.sireum.version.cosmos").get
+          if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
+            println(
+              st"""Please run the following:
+                  |
+                  |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop
+                  |"""".render
+            )
+          } else {
+            println(
+              st"""Please run the following:
+                  |
+                  |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
+                  |sudo chmod +x /usr/bin/ape
+                  |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
+                  |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register
+                  |"""".render
+            )
+          }
+        }
+    }
     return p7zz
   }
 
@@ -1255,8 +1281,11 @@ import Init._
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
         ISZ("bin", "7zz.com"),
+        ISZ("bin", "scala"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
+        ISZ("bin", "win", "cs.exe"),
+        ISZ("bin", "win", "java"),
         ISZ("bin", "win", "sireum.exe"),
         ISZ("bin", "win", "vcruntime140.dll"),
         ISZ("bin", "win", "vcruntime140_1.dll"),
@@ -1264,45 +1293,58 @@ import Init._
         ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum.bat"),
+        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
         ISZ("versions.properties")
       ) +
       Os.Kind.Linux ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "scala"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
+        ISZ("bin", "linux", "cs"),
+        ISZ("bin", "linux", "java"),
         ISZ("bin", "linux", "sireum"),
         ISZ("bin", "linux", "vscodium"),
         ISZ("bin", "linux", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
         ISZ("versions.properties")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "scala"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
+        ISZ("bin", "linux", "arm", "cs"),
+        ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
         ISZ("bin", "linux", "arm", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
         ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "scala"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
+        ISZ("bin", "mac", "cs"),
+        ISZ("bin", "mac", "java"),
         ISZ("bin", "mac", "sireum"),
         ISZ("bin", "mac", "vscodium"),
         ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
         ISZ("versions.properties")
@@ -1311,43 +1353,27 @@ import Init._
     val distroMap = vscodeDistroMap +
       Os.Kind.Win ~> (vscodeDistroMap.get(Os.Kind.Win).get ++ ISZ(
         ISZ(".settings"),
-        ISZ("bin", "scala"),
-        ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "win", "idea"),
-        ISZ("bin", "win", "java"),
         ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.bat"),
-        ISZ("lib")
+        ISZ("bin", "slang-run.bat")
       )) +
       Os.Kind.Linux ~> (vscodeDistroMap.get(Os.Kind.Linux).get ++ ISZ(
         ISZ(".settings"),
-        ISZ("bin", "scala"),
-        ISZ("bin", "linux", "cs"),
         ISZ("bin", "linux", "idea"),
-        ISZ("bin", "linux", "java"),
         ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.sh"),
-        ISZ("lib")
+        ISZ("bin", "slang-run.sh")
       )) +
       Os.Kind.LinuxArm ~> (vscodeDistroMap.get(Os.Kind.LinuxArm).get ++ ISZ(
         ISZ(".settings"),
-        ISZ("bin", "scala"),
-        ISZ("bin", "linux", "arm", "cs"),
         ISZ("bin", "linux", "arm", "idea"),
-        ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.sh"),
-        ISZ("lib")
+        ISZ("bin", "slang-run.sh")
       )) +
       Os.Kind.Mac ~> (vscodeDistroMap.get(Os.Kind.Mac).get ++ ISZ(
         ISZ(".settings"),
-        ISZ("bin", "scala"),
-        ISZ("bin", "mac", "cs"),
         ISZ("bin", "mac", "idea"),
-        ISZ("bin", "mac", "java"),
         ISZ("bin", "sireum.jar"),
-        ISZ("bin", "slang-run.sh"),
-        ISZ("lib")
+        ISZ("bin", "slang-run.sh")
       ))
 
     val pluginsDir: Os.Path =
@@ -1802,6 +1828,7 @@ import Init._
         sireumScript.chmod("+x")
       }
     }
+    install7zz()
   }
 
   def proyekCompileDeps(): Unit = {
@@ -1817,7 +1844,6 @@ import Init._
     basicDeps()
     proyekCompileDeps()
     logikaDeps()
-    install7zz()
     installJacoco()
     installMaryTTS()
     installCheckStack()
