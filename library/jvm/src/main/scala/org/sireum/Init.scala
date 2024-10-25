@@ -722,13 +722,14 @@ import Init._
     }
   }
 
-  def install7zz(): Unit = {
+  def install7zz(): Os.Path = {
     val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
     val p7zipVersion = versions.get("org.sireum.version.7zip").get
     val p7zzVer = homeBin / s"7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
+    val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
     if (p7zzVer.exists && p7zzVer.read == ver) {
-      return
+      return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
     if (!drop.exists) {
@@ -736,10 +737,10 @@ import Init._
       drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/misc/${drop.name}")
       println()
     }
-    val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
+    return p7zz
   }
 
   def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
@@ -1665,12 +1666,8 @@ import Init._
 
       if (Os.isWin) {
         val pkg = s"$plat.7z"
-        val sevenzrVersion = "24.08"
-        val sevenzr = cache / s"7zr-$sevenzrVersion.exe"
-        if (!sevenzr.exists) {
-          sevenzr.downloadFrom(s"https://github.com/ip7z/7zip/releases/download/$sevenzrVersion/7zr.exe")
-        }
-        Os.proc(ISZ[String](sevenzr.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
+        val p7zz = install7zz()
+        Os.proc(ISZ[String](p7zz.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
