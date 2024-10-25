@@ -1802,7 +1802,6 @@ import Init._
         sireumScript.chmod("+x")
       }
     }
-    install7zz()
   }
 
   def proyekCompileDeps(): Unit = {
@@ -1818,6 +1817,7 @@ import Init._
     basicDeps()
     proyekCompileDeps()
     logikaDeps()
+    install7zz()
     installJacoco()
     installMaryTTS()
     installCheckStack()
