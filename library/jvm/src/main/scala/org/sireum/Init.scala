@@ -722,6 +722,26 @@ import Init._
     }
   }
 
+  def install7zz(): Unit = {
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+    val p7zipVersion = versions.get("org.sireum.version.7zip").get
+    val p7zzVer = homeBin / s"7zz.ver"
+    val ver = s"$p7zipVersion-$cosmoccVersion"
+    if (p7zzVer.exists && p7zzVer.read == ver) {
+      return
+    }
+    val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
+    if (!drop.exists) {
+      println("Downloading 7zz ...")
+      drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/misc/${drop.name}")
+      println()
+    }
+    val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
+    drop.copyOverTo(p7zz)
+    p7zz.chmod("+x")
+    p7zzVer.writeOver(ver)
+  }
+
   def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
     val isInUserHome = ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
@@ -1233,6 +1253,7 @@ import Init._
 
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
+        ISZ("bin", "7zz.com"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "sireum.exe"),
@@ -1247,6 +1268,7 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Linux ~> ISZ(
+        ISZ("bin", "7zz"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
         ISZ("bin", "linux", "sireum"),
@@ -1259,6 +1281,7 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
+        ISZ("bin", "7zz"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
         ISZ("bin", "linux", "arm", "sireum"),
@@ -1271,6 +1294,7 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
+        ISZ("bin", "7zz"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
         ISZ("bin", "mac", "sireum"),
@@ -1781,6 +1805,7 @@ import Init._
         sireumScript.chmod("+x")
       }
     }
+    install7zz()
   }
 
   def proyekCompileDeps(): Unit = {

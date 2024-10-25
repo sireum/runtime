@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1214)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1215)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -1289,6 +1289,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xAC68FF7561F9281AL, X[org.sireum.Init](_).installMaryTTS()) // methodKey(F, "org.sireum.Init", "installMaryTTS").value
     r.put(0x9A32C9E5F4212A3FL, X[org.sireum.Init](_).installCheckStack()) // methodKey(F, "org.sireum.Init", "installCheckStack").value
     r.put(0x7D2A68A135CD2753L, X[org.sireum.Init](_).installScripts()) // methodKey(F, "org.sireum.Init", "installScripts").value
+    r.put(0xA3394C0B89F4E4E3L, X[org.sireum.Init](_).install7zz()) // methodKey(F, "org.sireum.Init", "install7zz").value
     r.put(0xBA28ABD6C1F69D05L, X[org.sireum.Init](_).isIdeaInUserHome) // methodKey(F, "org.sireum.Init", "isIdeaInUserHome").value
     r.put(0xEC4A65D5E8BF769FL, X[org.sireum.Init](_).basicDeps()) // methodKey(F, "org.sireum.Init", "basicDeps").value
     r.put(0xD878810D05D5DD20L, X[org.sireum.Init](_).proyekCompileDeps()) // methodKey(F, "org.sireum.Init", "proyekCompileDeps").value
@@ -8211,6 +8212,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "ideaDirPath", params = ISZ("isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "installScripts", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installFonts", params = ISZ("force")),
+      Method(isInObject = false, isByName = F, name = "install7zz", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installVSCodium", params = ISZ("existingInstallOpt", "extensionsDirOpt", "extensions")),
       Method(isInObject = false, isByName = T, name = "isIdeaInUserHome", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "ideaConfig", params = ISZ("isSetup", "isDev", "isUltimate", "projectPathOpt")),
