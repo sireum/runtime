@@ -750,8 +750,8 @@ import Init._
             println(
               st"""Please run the following:
                   |
-                  |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop
-                  |"""".render
+                  |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop"
+                  |""".render
             )
           } else {
             println(
@@ -760,8 +760,8 @@ import Init._
                   |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
                   |sudo chmod +x /usr/bin/ape
                   |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
-                  |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register
-                  |"""".render
+                  |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
+                  |""".render
             )
           }
         }
