@@ -105,7 +105,7 @@ object Os_Ext {
         if (osKind == Os.Kind.Win || osKind == Os.Kind.Mac) {
           Some(p)
         } else {
-          if (proc"$p -h".run().ok) Some(p) else None()
+          if (Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) Some(p) else None()
         }
       } else {
         None()
