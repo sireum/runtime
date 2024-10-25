@@ -101,7 +101,15 @@ object Os_Ext {
     case Some(dir) =>
       val p7zz: String = if (osKind == Os.Kind.Win) "7zz.com" else "7zz"
       val p = dir / "bin" / p7zz
-      if (p.exists && proc"$p -h".run().ok) Some(p) else None()
+      if (p.exists) {
+        if (osKind == Os.Kind.Win || osKind == Os.Kind.Mac) {
+          Some(p)
+        } else {
+          if (proc"$p -h".run().ok) Some(p) else None()
+        }
+      } else {
+        None()
+      }
     case _ => None()
   }
 
