@@ -1283,6 +1283,7 @@ import Init._
         ISZ("bin", "7zz.com"),
         ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
+        ISZ("bin", "sireum.jar"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "cs.exe"),
@@ -1303,6 +1304,7 @@ import Init._
         ISZ("bin", "7zz"),
         ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
+        ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
         ISZ("bin", "linux", "cs"),
@@ -1321,6 +1323,7 @@ import Init._
         ISZ("bin", "7zz"),
         ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
+        ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
         ISZ("bin", "linux", "arm", "cs"),
@@ -1339,6 +1342,7 @@ import Init._
         ISZ("bin", "7zz"),
         ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
+        ISZ("bin", "sireum.jar"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
         ISZ("bin", "mac", "cs"),
@@ -1358,25 +1362,21 @@ import Init._
       Os.Kind.Win ~> (vscodeDistroMap.get(Os.Kind.Win).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "win", "idea"),
-        ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.bat")
       )) +
       Os.Kind.Linux ~> (vscodeDistroMap.get(Os.Kind.Linux).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "linux", "idea"),
-        ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh")
       )) +
       Os.Kind.LinuxArm ~> (vscodeDistroMap.get(Os.Kind.LinuxArm).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "linux", "arm", "idea"),
-        ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh")
       )) +
       Os.Kind.Mac ~> (vscodeDistroMap.get(Os.Kind.Mac).get ++ ISZ(
         ISZ(".settings"),
         ISZ("bin", "mac", "idea"),
-        ISZ("bin", "sireum.jar"),
         ISZ("bin", "slang-run.sh")
       ))
 
