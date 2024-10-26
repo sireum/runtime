@@ -1281,6 +1281,7 @@ import Init._
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
         ISZ("bin", "7zz.com"),
+        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
@@ -1300,6 +1301,7 @@ import Init._
       ) +
       Os.Kind.Linux ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
@@ -1317,6 +1319,7 @@ import Init._
       ) +
       Os.Kind.LinuxArm ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
@@ -1334,6 +1337,7 @@ import Init._
       ) +
       Os.Kind.Mac ~> ISZ(
         ISZ("bin", "7zz"),
+        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
