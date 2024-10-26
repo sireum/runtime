@@ -766,9 +766,9 @@ object Os_Ext {
   def zip(path: String, target: String): Unit = {
     p7zzOpt match {
       case Some(p) =>
-        Os.proc((
+        Os.proc(
             if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "a", "-r", target, ".")
-            else ISZ[String]("bash", "-c", s"${p.name} a -r \"$target\" ."))).
+            else ISZ[String]("bash", "-c", s"${p.name} a -r \"$target\" .")).
           env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(Os.path(path)).runCheck()
         return
       case _ =>
@@ -794,16 +794,19 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    p7zzOpt match {
-      case Some(p) =>
-        val t = Os.path(target)
-        t.mkdirAll()
-        Os.proc((
-            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
-            else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\""))).
-          env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
-        return
-      case _ =>
+    import $internal.###
+    ###(!scala.util.Properties.isWin) {
+      p7zzOpt match {
+        case Some(p) =>
+          val t = Os.path(target)
+          t.mkdirAll()
+          Os.proc(
+              if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
+              else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
+            env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
+          return
+        case _ =>
+      }
     }
     val zis = new ZIS(new BIS(JFiles.newInputStream(toNIO(path)), buffSize))
     try {
