@@ -794,15 +794,12 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    import $internal.###
-    ###(!scala.util.Properties.isWin) {
+    if (!Os.isWin) {
       p7zzOpt match {
         case Some(p) =>
           val t = Os.path(target)
           t.mkdirAll()
-          Os.proc(
-              if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
-              else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
+          Os.proc(ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
             env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
           return
         case _ =>
