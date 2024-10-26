@@ -1778,7 +1778,7 @@ import Init._
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).echo.at(home.up.canon).runCheck()
+      Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
