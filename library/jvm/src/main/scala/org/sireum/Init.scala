@@ -33,6 +33,8 @@ object Init {
                          val isCommunity: B,
                          val isJar: B,
                          val version: String)
+
+  var p7zzChecked: B = F
 }
 
 import Init._
@@ -725,6 +727,10 @@ import Init._
   def install7zz(): Os.Path = {
     val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
     def check7zz(): Unit = {
+      if (Init.p7zzChecked) {
+        return
+      }
+      Init.p7zzChecked = T
       kind match {
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
@@ -757,6 +763,7 @@ import Init._
     val p7zzVer = homeBin / s"7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
     if (p7zzVer.exists && p7zzVer.read == ver) {
+      check7zz()
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
