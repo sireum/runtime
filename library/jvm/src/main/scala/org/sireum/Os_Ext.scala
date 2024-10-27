@@ -673,12 +673,18 @@ object Os_Ext {
 
   def removeAll(path: String): Unit = if (exists(path)) {
     val p = path.value.replace(' ', '␣')
-    if (isDir(path)) {
+    if (isDir(path) || osKind != Os.Kind.Win) {
       osKind match {
         case Os.Kind.Win => proc"""cmd /c RD /S /Q $p""".run()
         case _ => proc"""sh -c rm␣-fR␣"$p"""".run()
       }
     } else try {
+      if (Os.isWin) {
+        val f = toIO(path)
+        if (!f.canWrite) {
+          f.setWritable(false)
+        }
+      }
       remove(path)
     } catch {
       case _: Throwable =>
@@ -794,16 +800,14 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
-    if (!Os.isWin) {
-      p7zzOpt match {
-        case Some(p) =>
-          val t = Os.path(target)
-          t.mkdirAll()
-          Os.proc(ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
-            env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
-          return
-        case _ =>
-      }
+    p7zzOpt match {
+      case Some(p) =>
+        val t = Os.path(target)
+        t.mkdirAll()
+        Os.proc(ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
+          env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
+        return
+      case _ =>
     }
     val zis = new ZIS(new BIS(JFiles.newInputStream(toNIO(path)), buffSize))
     try {
