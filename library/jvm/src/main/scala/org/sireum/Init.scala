@@ -723,12 +723,41 @@ import Init._
   }
 
   def install7zz(): Os.Path = {
+    val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
+    def check7zz(): Unit = {
+      kind match {
+        case Os.Kind.Win =>
+        case Os.Kind.Mac =>
+        case _ =>
+          if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
+            val cosmosVersion = versions.get("org.sireum.version.cosmos").get
+            if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
+              println(
+                st"""Please run the following:
+                    |
+                    |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop"
+                    |""".render
+              )
+            } else {
+              println(
+                st"""Please run the following:
+                    |
+                    |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
+                    |sudo chmod +x /usr/bin/ape
+                    |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
+                    |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
+                    |""".render
+              )
+            }
+          }
+      }
+    }
     val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
     val p7zipVersion = versions.get("org.sireum.version.7zip").get
     val p7zzVer = homeBin / s"7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
-    val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
     if (p7zzVer.exists && p7zzVer.read == ver) {
+      check7zz()
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
@@ -740,32 +769,7 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
-    kind match {
-      case Os.Kind.Win =>
-      case Os.Kind.Mac =>
-      case _ =>
-        if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
-          val cosmosVersion = versions.get("org.sireum.version.cosmos").get
-          if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
-            println(
-              st"""Please run the following:
-                  |
-                  |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop"
-                  |""".render
-            )
-          } else {
-            println(
-              st"""Please run the following:
-                  |
-                  |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
-                  |sudo chmod +x /usr/bin/ape
-                  |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
-                  |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
-                  |""".render
-            )
-          }
-        }
-    }
+    check7zz()
     return p7zz
   }
 
