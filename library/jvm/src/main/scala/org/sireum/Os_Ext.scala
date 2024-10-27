@@ -804,7 +804,9 @@ object Os_Ext {
       case Some(p) =>
         val t = Os.path(target)
         t.mkdirAll()
-        Os.proc(ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
+        Os.proc(
+            if (Os.isWin) ISZ[String]("cmd", "/C", p.name, "x", "-aoa", path)
+            else ISZ[String]("bash", "-c", s"${p.name} x -aoa \"$path\"")).
           env(ISZ("PATH" ~> s"${p.up.canon}${Os.pathSep}${Os.env("PATH")}")).at(t).runCheck()
         return
       case _ =>
