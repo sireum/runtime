@@ -673,7 +673,7 @@ object Os_Ext {
 
   def removeAll(path: String): Unit = if (exists(path)) {
     val p = path.value.replace(' ', '␣')
-    if (isDir(path) || osKind != Os.Kind.Win) {
+    if (isDir(path)) {
       osKind match {
         case Os.Kind.Win => proc"""cmd /c RD /S /Q $p""".run()
         case _ => proc"""sh -c rm␣-fR␣"$p"""".run()
@@ -681,8 +681,10 @@ object Os_Ext {
     } else try {
       if (Os.isWin) {
         val f = toIO(path)
-        if (!f.canWrite) {
+        if (!f.canWrite) try {
           f.setWritable(false)
+        } catch {
+          case _: Throwable =>
         }
       }
       remove(path)
