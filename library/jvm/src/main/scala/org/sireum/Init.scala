@@ -738,7 +738,7 @@ import Init._
           if (extension.Time.currentMillis - p7zzVer.lastModified < Init.dayMillis) {
             return
           }
-          p7zzVer.writeOver(p7zzVer.read)
+          p7zzVer.writeOver(ver)
           if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
