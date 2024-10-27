@@ -33,6 +33,8 @@ object Init {
                          val isCommunity: B,
                          val isJar: B,
                          val version: String)
+
+  val dayMillis: Z = 24 * 60 * 60 * 1000
 }
 
 import Init._
@@ -733,27 +735,32 @@ import Init._
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
         case _ =>
-          if (extension.Time.currentMillis - p7zzVer.lastModified < 900000) {
+          if (extension.Time.currentMillis - p7zzVer.lastModified < Init.dayMillis) {
             return
           }
-          p7zzVer.touch()
+          p7zzVer.writeOver(p7zzVer.read)
           if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
               println(
-                st"""Please run the following:
+                st"""Please run the following to enable executing $p7zz:
                     |
                     |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop"
                     |""".render
               )
             } else {
               println(
-                st"""Please run the following:
+                st"""Please run the following to enable $p7zz:
                     |
                     |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
                     |sudo chmod +x /usr/bin/ape
                     |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
                     |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
+                    |
+                    |or, by disabling binfmt completely:
+                    |
+                    |udo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/cli'
+                    |sudo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/status'
                     |""".render
               )
             }
