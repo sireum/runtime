@@ -757,7 +757,6 @@ import Init._
     val p7zzVer = homeBin / s"7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
     if (p7zzVer.exists && p7zzVer.read == ver) {
-      check7zz()
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
