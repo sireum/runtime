@@ -743,7 +743,7 @@ import Init._
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
               println(
-                st"""Please run the following to enable executing $p7zz:
+                st"""Please run the following to enable $p7zz:
                     |
                     |sudo sh -c "echo -1 > /proc/sys/fs/binfmt_misc/WSLInterop"
                     |""".render
