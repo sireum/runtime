@@ -33,8 +33,6 @@ object Init {
                          val isCommunity: B,
                          val isJar: B,
                          val version: String)
-
-  var p7zzChecked: B = F
 }
 
 import Init._
@@ -726,15 +724,19 @@ import Init._
 
   def install7zz(): Os.Path = {
     val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+    val p7zipVersion = versions.get("org.sireum.version.7zip").get
+    val p7zzVer = homeBin / s"7zz.ver"
+    val ver = s"$p7zipVersion-$cosmoccVersion"
     def check7zz(): Unit = {
-      if (Init.p7zzChecked) {
-        return
-      }
-      Init.p7zzChecked = T
       kind match {
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
         case _ =>
+          if (extension.Time.currentMillis - p7zzVer.lastModified < 900000) {
+            return
+          }
+          p7zzVer.touch()
           if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
@@ -758,10 +760,6 @@ import Init._
           }
       }
     }
-    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
-    val p7zipVersion = versions.get("org.sireum.version.7zip").get
-    val p7zzVer = homeBin / s"7zz.ver"
-    val ver = s"$p7zipVersion-$cosmoccVersion"
     if (p7zzVer.exists && p7zzVer.read == ver) {
       check7zz()
       return p7zz

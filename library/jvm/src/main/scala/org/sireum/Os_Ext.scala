@@ -697,6 +697,10 @@ object Os_Ext {
     toIO(path).deleteOnExit()
   }
 
+  def setLastModified(path: String, millis: Z): Unit = try toIO(path).setLastModified(millis.toLong) catch {
+    case _: Throwable =>
+  }
+
   def sha1(path: String): String = digest(path, "SHA1")
 
   def slashDir: String = {

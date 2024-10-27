@@ -767,6 +767,10 @@ object Os {
       return Ext.sha1(value)
     }
 
+    def setLastModified(millis: Z): Unit = {
+      Ext.setLastModified(value, millis)
+    }
+
     def size: Z = {
       return Ext.size(value)
     }
@@ -779,6 +783,10 @@ object Os {
         nativ.removeAll()
         proc(string +: args).script.console.runCheck()
       }
+    }
+
+    def touch(): Unit = {
+      setLastModified(extension.Time.currentMillis)
     }
 
     def toUri: String = {
@@ -1053,6 +1061,8 @@ object Os {
     def removeOnExit(path: String): Unit = $
 
     def sha1(path: String): String = $
+
+    def setLastModified(path: String, millis: Z): Unit = $
 
     @pure def slashDir: String = $
 

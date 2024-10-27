@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1215)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1217)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -1335,6 +1335,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x7B95E0EE2D006919L, X[org.sireum.Os.Path.Impl](_).removeOnExit()) // methodKey(F, "org.sireum.Os.Path.Impl", "removeOnExit").value
     r.put(0x7571CF897B6EC471L, X[org.sireum.Os.Path.Impl](_).sha1) // methodKey(F, "org.sireum.Os.Path.Impl", "sha1").value
     r.put(0x4175AE92111F86F0L, X[org.sireum.Os.Path.Impl](_).size) // methodKey(F, "org.sireum.Os.Path.Impl", "size").value
+    r.put(0xD2820E8F6B6AAA50L, X[org.sireum.Os.Path.Impl](_).touch()) // methodKey(F, "org.sireum.Os.Path.Impl", "touch").value
     r.put(0x9EBCB808A930F8D7L, X[org.sireum.Os.Path.Impl](_).toUri) // methodKey(F, "org.sireum.Os.Path.Impl", "toUri").value
     r.put(0xD9F373D6960E1661L, X[org.sireum.Os.Path.Impl](_).up) // methodKey(F, "org.sireum.Os.Path.Impl", "up").value
     r.put(0xE5513EC0AA7EA1CEL, X[org.sireum.Os.Path.Jen[_]](_).path) // methodKey(F, "org.sireum.Os.Path.Jen", "path").value
@@ -1433,13 +1434,14 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x9335B41FA7C3F484L, X[org.sireum.Os.Path](_).removeOnExit()) // methodKey(F, "org.sireum.Os.Path", "removeOnExit").value
     r.put(0x04B89F4CC0E5740CL, X[org.sireum.Os.Path](_).sha1) // methodKey(F, "org.sireum.Os.Path", "sha1").value
     r.put(0x19FD88503431BB56L, X[org.sireum.Os.Path](_).size) // methodKey(F, "org.sireum.Os.Path", "size").value
+    r.put(0xEED09B061F11B809L, X[org.sireum.Os.Path](_).touch()) // methodKey(F, "org.sireum.Os.Path", "touch").value
     r.put(0xF0A7A3326CE0FA74L, X[org.sireum.Os.Path](_).toUri) // methodKey(F, "org.sireum.Os.Path", "toUri").value
     r.put(0xCF3FA32FE8F80BE1L, X[org.sireum.Os.Path](_).up) // methodKey(F, "org.sireum.Os.Path", "up").value
     r
   }
 
   private lazy val method1Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1682)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1684)
     r.put(0x1854D576D83AF7E4L, _ => (o1: Any) => org.sireum.AssocS.Entries.uniqueKeys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "uniqueKeys").value
     r.put(0xE5CBF86C0B8F9696L, _ => (o1: Any) => org.sireum.AssocS.Entries.keys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "keys").value
     r.put(0xCEBF203EDC8BD12DL, _ => (o1: Any) => org.sireum.AssocS.Entries.values(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "values").value
@@ -3267,6 +3269,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x21DEF52BDAEFFE47L, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).mklink(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "mklink").value
     r.put(0x4D1118DA7AD477C9L, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).prependWith(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "prependWith").value
     r.put(0x177BD36757FFA2FCL, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).relativize(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "relativize").value
+    r.put(0xE623FA9514DF669CL, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).setLastModified(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "setLastModified").value
     r.put(0x4087B80DA941BE05L, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).slash(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "slash").value
     r.put(0xBC5E847DF4333665L, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).write(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "write").value
     r.put(0xFC5755AC50A8319FL, r => (o1: Any) => X[org.sireum.Os.Path.Impl](r).writeOver(X(o1))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeOver").value
@@ -3391,6 +3394,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xA6BA777B1FBE47B4L, r => (o1: Any) => X[org.sireum.Os.Path](r).mklink(X(o1))) // methodKey(F, "org.sireum.Os.Path", "mklink").value
     r.put(0x0879FE2B2FB52FF4L, r => (o1: Any) => X[org.sireum.Os.Path](r).prependWith(X(o1))) // methodKey(F, "org.sireum.Os.Path", "prependWith").value
     r.put(0x96414EBF95277030L, r => (o1: Any) => X[org.sireum.Os.Path](r).relativize(X(o1))) // methodKey(F, "org.sireum.Os.Path", "relativize").value
+    r.put(0x5A9B1076C58EEB72L, r => (o1: Any) => X[org.sireum.Os.Path](r).setLastModified(X(o1))) // methodKey(F, "org.sireum.Os.Path", "setLastModified").value
     r.put(0xA1348253E3A5B1E3L, r => (o1: Any) => X[org.sireum.Os.Path](r).slash(X(o1))) // methodKey(F, "org.sireum.Os.Path", "slash").value
     r.put(0xDC4DB49A09541247L, r => (o1: Any) => X[org.sireum.Os.Path](r).write(X(o1))) // methodKey(F, "org.sireum.Os.Path", "write").value
     r.put(0xC311034B333607A4L, r => (o1: Any) => X[org.sireum.Os.Path](r).writeOver(X(o1))) // methodKey(F, "org.sireum.Os.Path", "writeOver").value
@@ -3426,7 +3430,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method2Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](327)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](328)
     r.put(0x4D89D302473509F8L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.contain(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "contain").value
     r.put(0x178633CC914B88ACL, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containKey(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containKey").value
     r.put(0x4E5075BEB3306304L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containValue(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containValue").value
@@ -3532,6 +3536,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x601C666A8F930DA3L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.mkdir(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "mkdir").value
     r.put(0xC0EEB8B2898E63D2L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.mklink(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "mklink").value
     r.put(0xB82E01BF2363E5BBL, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.relativize(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "relativize").value
+    r.put(0xB393AE71E3606377L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.setLastModified(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "setLastModified").value
     r.put(0x384F977029B938BAL, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.temp(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "temp").value
     r.put(0x837B0EC490F1849CL, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.zip(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "zip").value
     r.put(0x396E341024F63799L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.unzip(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "unzip").value
@@ -5085,6 +5090,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = true, isByName = F, name = "removeAll", params = ISZ("path")),
       Method(isInObject = true, isByName = F, name = "removeOnExit", params = ISZ("path")),
       Method(isInObject = true, isByName = F, name = "sha1", params = ISZ("path")),
+      Method(isInObject = true, isByName = F, name = "setLastModified", params = ISZ("path", "millis")),
       Method(isInObject = true, isByName = T, name = "slashDir", params = ISZ()),
       Method(isInObject = true, isByName = F, name = "size", params = ISZ("path")),
       Method(isInObject = true, isByName = F, name = "temp", params = ISZ("prefix", "suffix")),
@@ -8291,8 +8297,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "removeAll", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "removeOnExit", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "sha1", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "setLastModified", params = ISZ("millis")),
       Method(isInObject = false, isByName = T, name = "size", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "slash", params = ISZ("args")),
+      Method(isInObject = false, isByName = F, name = "touch", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "toUri", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "write", params = ISZ("content")),
       Method(isInObject = false, isByName = F, name = "writeOver", params = ISZ("content")),
@@ -8582,8 +8590,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "removeAll", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "removeOnExit", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "sha1", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "setLastModified", params = ISZ("millis")),
       Method(isInObject = false, isByName = T, name = "size", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "slash", params = ISZ("args")),
+      Method(isInObject = false, isByName = F, name = "touch", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "toUri", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "write", params = ISZ("content")),
       Method(isInObject = false, isByName = F, name = "writeOver", params = ISZ("content")),
