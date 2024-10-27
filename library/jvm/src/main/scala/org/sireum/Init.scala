@@ -730,12 +730,12 @@ import Init._
     val p7zipVersion = versions.get("org.sireum.version.7zip").get
     val p7zzVer = homeBin / s"7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
-    def check7zz(): Unit = {
+    def check7zz(force: B): Unit = {
       kind match {
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
         case _ =>
-          if (extension.Time.currentMillis - p7zzVer.lastModified < Init.dayMillis) {
+          if (!force && extension.Time.currentMillis - p7zzVer.lastModified < Init.dayMillis) {
             return
           }
           p7zzVer.writeOver(ver)
@@ -768,7 +768,7 @@ import Init._
       }
     }
     if (p7zzVer.exists && p7zzVer.read == ver) {
-      check7zz()
+      check7zz(F)
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
@@ -780,7 +780,7 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
-    check7zz()
+    check7zz(T)
     return p7zz
   }
 
