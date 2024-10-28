@@ -617,7 +617,7 @@ import Init._
     }
 
     val millVersion = versions.get("org.sireum.version.mill").get
-    val ver = home / "bin" / "mill.ver"
+    val ver = home / "bin" / ".mill.ver"
     if (ver.exists && ver.read == millVersion) {
       return
     }
