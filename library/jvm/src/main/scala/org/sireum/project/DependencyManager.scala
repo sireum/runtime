@@ -145,8 +145,12 @@ import DependencyManager._
   val ivyDeps: HashSMap[String, String] = {
     var r = HashSMap.empty[String, String]
     def addIvyDep(ivyDep: String): Unit = {
-      val v = getVersion(ivyDep)
-      r = r + ivyDep ~> s"${toJsDep(ivyDep)}$v"
+      if (ops.StringOps(ivyDep).startsWith("file://")) {
+        r = r + ivyDep ~> ivyDep
+      } else {
+        val v = getVersion(ivyDep)
+        r = r + ivyDep ~> s"${toJsDep(ivyDep)}$v"
+      }
     }
     for (m <- project.modules.values) {
       for (ivyDep <- m.ivyDeps) {
@@ -281,7 +285,22 @@ import DependencyManager._
     fetchedDeps.get(key) match {
       case Some(r) => return r
       case _ =>
-        val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, ivyDeps, classifiers, proxy)
+        var coursierIvyDeps = ISZ[String]()
+        var unmanagedDeps = ISZ[CoursierFileInfo]()
+        for (dep <- ivyDeps) {
+          if (ops.StringOps(dep).startsWith("file://")) {
+            val p = Os.Path.fromUri(dep)
+            val sha3 = crypto.SHA3.init512
+            sha3.update(conversions.String.toU8is(p.canon.string))
+            val bs = Jen.IS(sha3.finalise()).take(8).toISZ
+            unmanagedDeps = unmanagedDeps :+ CoursierFileInfo(st"unmanaged.$bs".render, p.name, s"${p.lastModified}",
+              p.string)
+          } else {
+            coursierIvyDeps = coursierIvyDeps :+ dep
+          }
+        }
+        val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, coursierIvyDeps, classifiers,
+          proxy) ++ unmanagedDeps
         fetchedDeps = fetchedDeps + key ~> r
         return r
     }
