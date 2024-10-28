@@ -727,12 +727,12 @@ import Init._
 
   def install7zz(): Os.Path = {
     val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
-    def check7zz(): Unit = {
+    def check7zz(force: B): Unit = {
       kind match {
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
         case _ =>
-          if (!binfmt.exists) {
+          if (!force && !binfmt.exists) {
             return
           }
           binfmt.removeAll()
@@ -769,7 +769,7 @@ import Init._
     val p7zzVer = homeBin / s".7zz.ver"
     val ver = s"$p7zipVersion-$cosmoccVersion"
     if (p7zzVer.exists && p7zzVer.read == ver) {
-      check7zz()
+      check7zz(F)
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
@@ -781,11 +781,7 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
-    if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
-      binfmt.removeAll()
-      binfmt.touch()
-    }
-    check7zz()
+    check7zz(T)
     return p7zz
   }
 
