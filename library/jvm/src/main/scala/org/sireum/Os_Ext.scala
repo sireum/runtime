@@ -1234,7 +1234,7 @@ object Os_Ext {
     val md = java.security.MessageDigest.getInstance(name.value)
     val digest = md.digest(readU8s(path).elements.map(_.value).toArray)
     val s = ISZ((for (d <- digest) yield U8(d)).toSeq: _*)
-    st"${if (numOfBytes > 0) Jen.IS(s).take(numOfBytes).toISZ else s}".render.value.toLowerCase
+    st"${(if (numOfBytes > 0) Jen.IS(s).take(numOfBytes).toISZ else s, "")}".render.value.toLowerCase
   }
 
   private def toIO(path: String): JFile = new JFile(path.value)

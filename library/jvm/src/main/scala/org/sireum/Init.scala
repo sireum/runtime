@@ -1261,7 +1261,7 @@ import Init._
     val formsJar = home / "lib" / "forms.jar"
     val ver = formsJar.up / s"${formsJar.name}.ver"
     val version = s"${versions.get("org.sireum.version.forms").get}"
-    val versionWithSireum = s"$version-${(sireumJar.sha3(8), "")}"
+    val versionWithSireum = s"$version-${sireumJar.sha3(8)}"
     if (ver.exists && ver.read == versionWithSireum) {
       return
     }
