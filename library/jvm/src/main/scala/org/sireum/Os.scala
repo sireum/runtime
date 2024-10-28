@@ -786,7 +786,16 @@ object Os {
     }
 
     def touch(): Unit = {
-      setLastModified(extension.Time.currentMillis)
+      if (exists) {
+        if (isFile) {
+          writeOver(read)
+        } else {
+          setLastModified(extension.Time.currentMillis)
+        }
+      } else {
+        up.mkdirAll()
+        writeOver("")
+      }
     }
 
     def toUri: String = {
