@@ -29,6 +29,13 @@ package org.sireum.project
 import org.sireum._
 
 object DependencyManager {
+  @enum object DepKind {
+    "File"
+    "HTTP"
+    "HTTPS"
+    "IVY"
+  }
+
   @datatype class Lib(val name: String,
                       val org: String,
                       val module: String,
@@ -86,6 +93,20 @@ import DependencyManager._
   val sireumJar: Os.Path = sireumHome / "bin" / "sireum.jar"
 
   val _scalacPlugin: Os.Path = sireumHome / "lib" / s"scalac-plugin-${versions.get(scalacPluginKey).get}.jar"
+
+  @pure def depKind(dep: String): DepKind.Type = {
+    val depOps = ops.StringOps(dep)
+    if (depOps.startsWith("file://")) {
+      return DepKind.File
+    }
+    if (depOps.startsWith("http://")) {
+      return DepKind.HTTP
+    }
+    if (depOps.startsWith("https://")) {
+      return DepKind.HTTPS
+    }
+    return DepKind.IVY
+  }
 
   def scalacPlugin: Os.Path = {
     if (_scalacPlugin.exists) {
@@ -145,7 +166,7 @@ import DependencyManager._
   val ivyDeps: HashSMap[String, String] = {
     var r = HashSMap.empty[String, String]
     def addIvyDep(ivyDep: String): Unit = {
-      if (ops.StringOps(ivyDep).startsWith("file://")) {
+      if (depKind(ivyDep) != DepKind.IVY) {
         r = r + ivyDep ~> ivyDep
       } else {
         val v = getVersion(ivyDep)
@@ -280,6 +301,40 @@ import DependencyManager._
     return fetchClassifiers(ivyDeps, ISZ(CoursierClassifier.Default))
   }
 
+  def resolveVersion(dep: String): (Option[Os.Path], String) = {
+    depKind(dep) match {
+      case DepKind.IVY => return (None(), getVersion(dep))
+      case DepKind.File =>
+        val p = Os.Path.fromUri(dep)
+        if (p.ext != "jar") {
+          halt(s"File dependency has to be a .jar file: $dep")
+        }
+        return (Some(p), conversions.Z.toU64(p.lastModified).string)
+      case _ =>
+        val cis = conversions.String.toCis(dep)
+        if (!ops.StringOps.endsWith(cis, conversions.String.toCis(".jar"))) {
+          halt(s"URL dependency has to be a .jar file: $dep")
+        }
+        val i = ops.StringOps.lastIndexOfFrom(cis, '/', 0)
+        val name = ops.StringOps.substring(cis, i + 1, dep.size)
+        val p: Os.Path = Os.env("SIREUM_CACHE") match {
+          case Some(c) => Os.path(c) / name
+          case _ => Os.home / "Downloads" / "sireum" / name
+        }
+        p.up.mkdirAll()
+        println(s"Downloading $dep ...")
+        p.removeAll()
+        p.downloadFrom(dep)
+        println()
+        val sha3 = crypto.SHA3.init512
+        sha3.update(p.readU8s)
+        val version = st"${Jen.IS(sha3.finalise()).take(8).toISZ}".render
+        val pv = p.up.canon / st"${ops.StringOps(p.name).substring(0, p.name.size - 4)}-$version.jar".render
+        p.moveOverTo(pv)
+        return (Some(pv), version)
+    }
+  }
+
   def fetchClassifiers(ivyDeps: ISZ[String], classifiers: ISZ[CoursierClassifier.Type]): ISZ[CoursierFileInfo] = {
     val key = (ivyDeps, classifiers)
     fetchedDeps.get(key) match {
@@ -288,15 +343,11 @@ import DependencyManager._
         var coursierIvyDeps = ISZ[String]()
         var unmanagedDeps = ISZ[CoursierFileInfo]()
         for (dep <- ivyDeps) {
-          if (ops.StringOps(dep).startsWith("file://")) {
-            val p = Os.Path.fromUri(dep)
-            val sha3 = crypto.SHA3.init512
-            sha3.update(conversions.String.toU8is(p.canon.string))
-            val bs = Jen.IS(sha3.finalise()).take(8).toISZ
-            unmanagedDeps = unmanagedDeps :+ CoursierFileInfo(st"unmanaged.$bs".render, p.name, s"${p.lastModified}",
-              p.string)
-          } else {
-            coursierIvyDeps = coursierIvyDeps :+ dep
+          depKind(dep) match {
+            case DepKind.IVY => coursierIvyDeps = coursierIvyDeps :+ dep
+            case _ =>
+              val (Some(p), version) = resolveVersion(dep)
+              unmanagedDeps = unmanagedDeps :+ CoursierFileInfo(st"unmanaged.$version".render, p.name, version, p.string)
           }
         }
         val r = Coursier.fetchClassifiers(scalaVersion, cacheOpt, project.mavenRepoUrls, coursierIvyDeps, classifiers,

@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1217)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1218)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -1268,6 +1268,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x9D735E53E4BEA32BL, X[org.sireum.Init](_).homeBin) // methodKey(F, "org.sireum.Init", "homeBin").value
     r.put(0xAA88BE7C2E40044DL, X[org.sireum.Init](_).homeLib) // methodKey(F, "org.sireum.Init", "homeLib").value
     r.put(0xCA6FE7482DBCBD9EL, X[org.sireum.Init](_).homeBinPlatform) // methodKey(F, "org.sireum.Init", "homeBinPlatform").value
+    r.put(0x6C11A982AA2992B5L, X[org.sireum.Init](_).binfmt) // methodKey(F, "org.sireum.Init", "binfmt").value
     r.put(0xF78FA3367448F578L, X[org.sireum.Init](_).distroPlugins) // methodKey(F, "org.sireum.Init", "distroPlugins").value
     r.put(0xE2A1015CD69EA9F3L, X[org.sireum.Init](_).scalacPluginVersion) // methodKey(F, "org.sireum.Init", "scalacPluginVersion").value
     r.put(0x510160BCC772FB1AL, X[org.sireum.Init](_).coursierVersion) // methodKey(F, "org.sireum.Init", "coursierVersion").value
@@ -8192,6 +8193,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = T, name = "homeBin", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "homeLib", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "homeBinPlatform", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "binfmt", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "distroPlugins", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "scalacPluginVersion", params = ISZ()),
       Method(isInObject = false, isByName = T, name = "coursierVersion", params = ISZ()),
