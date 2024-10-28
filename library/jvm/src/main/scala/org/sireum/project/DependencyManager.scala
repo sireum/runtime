@@ -327,7 +327,7 @@ import DependencyManager._
         p.downloadFrom(dep)
         println()
         val version = p.sha3(8)
-        val pv = p.up.canon / st"${ops.StringOps(p.name).substring(0, p.name.size - 4)}-$version.jar".render
+        val pv = p.up.canon / st"${ops.StringOps(p.name).substring(0, p.name.size - 4)}-${(version, "")}.jar".render
         p.moveOverTo(pv)
         return (Some(pv), version)
     }
