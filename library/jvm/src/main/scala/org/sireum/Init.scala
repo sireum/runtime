@@ -781,6 +781,10 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
+    if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
+      binfmt.removeAll()
+      binfmt.touch()
+    }
     check7zz()
     return p7zz
   }
