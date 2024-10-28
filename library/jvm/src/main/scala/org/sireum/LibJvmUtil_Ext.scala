@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1218)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1219)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -1292,6 +1292,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x7D2A68A135CD2753L, X[org.sireum.Init](_).installScripts()) // methodKey(F, "org.sireum.Init", "installScripts").value
     r.put(0xA3394C0B89F4E4E3L, X[org.sireum.Init](_).install7zz()) // methodKey(F, "org.sireum.Init", "install7zz").value
     r.put(0xBA28ABD6C1F69D05L, X[org.sireum.Init](_).isIdeaInUserHome) // methodKey(F, "org.sireum.Init", "isIdeaInUserHome").value
+    r.put(0x88F00413C0CBF17FL, X[org.sireum.Init](_).buildForms()) // methodKey(F, "org.sireum.Init", "buildForms").value
     r.put(0xEC4A65D5E8BF769FL, X[org.sireum.Init](_).basicDeps()) // methodKey(F, "org.sireum.Init", "basicDeps").value
     r.put(0xD878810D05D5DD20L, X[org.sireum.Init](_).proyekCompileDeps()) // methodKey(F, "org.sireum.Init", "proyekCompileDeps").value
     r.put(0x253BA259D4C72EA3L, X[org.sireum.Init](_).logikaDeps()) // methodKey(F, "org.sireum.Init", "logikaDeps").value
@@ -8229,6 +8230,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "zipName", params = ISZ("id", "version")),
       Method(isInObject = false, isByName = F, name = "downloadPlugins", params = ISZ("isDev", "pluginFilter")),
       Method(isInObject = false, isByName = F, name = "extractPlugins", params = ISZ("pluginsDir", "pluginFilter")),
+      Method(isInObject = false, isByName = F, name = "buildForms", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "distro", params = ISZ("isDev", "buildPackage", "buildIve", "buildVSCodePackage", "isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "basicDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "proyekCompileDeps", params = ISZ()),

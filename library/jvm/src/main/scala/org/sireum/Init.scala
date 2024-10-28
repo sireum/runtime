@@ -1256,6 +1256,16 @@ import Init._
     }
   }
 
+  def buildForms(): Unit = {
+    println("Building forms ...")
+    val forms = home / "forms"
+    forms.removeAll()
+    proc"git clone --depth=1 https://github.com/sireum/forms".at(home).runCheck()
+    proc"sireum proyek assemble --main org.sireum.forms.FormsApp --exclude-jar-deps asm:,unmanaged:,org.scala-lang: $forms".runCheck()
+    (forms / "out" / "forms" / "assemble" / "forms.jar").copyOverTo(home / "lib" / "forms.jar")
+    println()
+  }
+
   def distro(isDev: B, buildPackage: B, buildIve: B, buildVSCodePackage: B, isUltimate: B, isServer: B): Unit = {
     assert(buildIve | buildVSCodePackage)
     val devSuffix: String = if (isDev) "-dev" else ""
