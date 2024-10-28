@@ -296,7 +296,7 @@ object Os_Ext {
     }
   }
 
-  def md5(path: String): String = digest(path, "MD5")
+  def md5(path: String): String = digest(path, "MD5", 0)
 
   def move(path: String, target: String, over: B): Unit = {
     val p = toNIO(path)
@@ -701,7 +701,9 @@ object Os_Ext {
     case _: Throwable =>
   }
 
-  def sha1(path: String): String = digest(path, "SHA1")
+  def sha1(path: String): String = digest(path, "SHA1", 0)
+
+  def sha3(path: String, numOfBytes: Z): String = digest(path, "SHA3-512", numOfBytes)
 
   def slashDir: String = {
     try if (isNative) return parent(Class.forName("org.graalvm.nativeimage.ProcessProperties").
@@ -1228,10 +1230,11 @@ object Os_Ext {
 
   def size(path: String): Z = toIO(path).length
 
-  private def digest(path: String, name: String): String = {
+  private def digest(path: String, name: String, numOfBytes: Z): String = {
     val md = java.security.MessageDigest.getInstance(name.value)
     val digest = md.digest(readU8s(path).elements.map(_.value).toArray)
-    st"${(for (d <- digest) yield U8(d)).toSeq}".render.value.toLowerCase
+    val s = ISZ((for (d <- digest) yield U8(d)).toSeq: _*)
+    st"${if (numOfBytes > 0) Jen.IS(s).take(numOfBytes).toISZ else s}".render.value.toLowerCase
   }
 
   private def toIO(path: String): JFile = new JFile(path.value)

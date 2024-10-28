@@ -1260,8 +1260,9 @@ import Init._
     val forms = home / "forms"
     val formsJar = home / "lib" / "forms.jar"
     val ver = formsJar.up / s"${formsJar.name}.ver"
-    val version = versions.get("org.sireum.version.forms").get
-    if (ver.exists && ver.read == version) {
+    val version = s"${versions.get("org.sireum.version.forms").get}"
+    val versionWithSireum = s"$version-${sireumJar.sha3(8)}"
+    if (ver.exists && ver.read == versionWithSireum) {
       return
     }
     println("Building forms ...")
@@ -1272,7 +1273,7 @@ import Init._
     proc"$sireum proyek assemble --main org.sireum.forms.FormsApp --exclude-jar-deps asm:,unmanaged:,org.scala-lang: $forms".runCheck()
     (forms / "out" / "forms" / "assemble" / "forms.jar").copyOverTo(formsJar)
     forms.removeAll()
-    ver.writeOver(version)
+    ver.writeOver(versionWithSireum)
     println()
   }
 

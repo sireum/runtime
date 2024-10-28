@@ -767,6 +767,10 @@ object Os {
       return Ext.sha1(value)
     }
 
+    def sha3(numOfBytes: Z): String = {
+      return Ext.sha3(value, numOfBytes)
+    }
+
     def setLastModified(millis: Z): Unit = {
       Ext.setLastModified(value, millis)
     }
@@ -1070,6 +1074,8 @@ object Os {
     def removeOnExit(path: String): Unit = $
 
     def sha1(path: String): String = $
+
+    def sha3(path: String, numOfBytes: Z): String = $
 
     def setLastModified(path: String, millis: Z): Unit = $
 

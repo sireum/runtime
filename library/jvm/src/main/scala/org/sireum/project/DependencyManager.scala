@@ -326,9 +326,7 @@ import DependencyManager._
         p.removeAll()
         p.downloadFrom(dep)
         println()
-        val sha3 = crypto.SHA3.init512
-        sha3.update(p.readU8s)
-        val version = st"${Jen.IS(sha3.finalise()).take(8).toISZ}".render
+        val version = p.sha3(8)
         val pv = p.up.canon / st"${ops.StringOps(p.name).substring(0, p.name.size - 4)}-$version.jar".render
         p.moveOverTo(pv)
         return (Some(pv), version)
