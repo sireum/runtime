@@ -33,8 +33,6 @@ object Init {
                          val isCommunity: B,
                          val isJar: B,
                          val version: String)
-
-  val dayMillis: Z = 24 * 60 * 60 * 1000
 }
 
 import Init._
@@ -64,6 +62,10 @@ import Init._
       case Os.Kind.Mac => return homeBin / "mac"
       case _ => return homeBin / "unsupported"
     }
+  }
+
+  @memoize def binfmt: Os.Path = {
+    return homeBin / ".binfmt"
   }
 
   val cache: Os.Path = {
@@ -287,9 +289,8 @@ import Init._
     homeLib.mkdirAll()
 
     val coursierVer: Os.Path = kind match {
-      case Os.Kind.Win => homeBinPlatform / "cs.exe.ver"
-      case Os.Kind.Unsupported => homeLib / "coursier.jar.ver"
-      case _ => homeBinPlatform / "cs.ver"
+      case Os.Kind.Unsupported => homeLib / ".cs.ver"
+      case _ => homeBinPlatform / ".cs.ver"
     }
 
     if (coursierVer.exists && ops.StringOps(coursierVer.read).trim == coursierVersion) {
@@ -726,19 +727,15 @@ import Init._
 
   def install7zz(): Os.Path = {
     val p7zz = homeBin / (if (Os.isWin) "7zz.com" else "7zz")
-    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
-    val p7zipVersion = versions.get("org.sireum.version.7zip").get
-    val p7zzVer = homeBin / s"7zz.ver"
-    val ver = s"$p7zipVersion-$cosmoccVersion"
-    def check7zz(force: B): Unit = {
+    def check7zz(): Unit = {
       kind match {
         case Os.Kind.Win =>
         case Os.Kind.Mac =>
         case _ =>
-          if (!force && extension.Time.currentMillis - p7zzVer.lastModified < Init.dayMillis) {
+          if (!binfmt.exists) {
             return
           }
-          p7zzVer.writeOver(ver)
+          binfmt.removeAll()
           if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
@@ -767,8 +764,12 @@ import Init._
           }
       }
     }
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+    val p7zipVersion = versions.get("org.sireum.version.7zip").get
+    val p7zzVer = homeBin / s".7zz.ver"
+    val ver = s"$p7zipVersion-$cosmoccVersion"
     if (p7zzVer.exists && p7zzVer.read == ver) {
-      check7zz(F)
+      check7zz()
       return p7zz
     }
     val drop = cache / s"7zz-$p7zipVersion-cosmo-$cosmoccVersion.com"
@@ -780,7 +781,7 @@ import Init._
     drop.copyOverTo(p7zz)
     p7zz.chmod("+x")
     p7zzVer.writeOver(ver)
-    check7zz(T)
+    check7zz()
     return p7zz
   }
 
@@ -1295,16 +1296,16 @@ import Init._
 
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
+        ISZ("bin", ".7zz.ver"),
         ISZ("bin", "7zz.com"),
-        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
+        ISZ("bin", "win", ".cs.ver"),
         ISZ("bin", "win", ".cvc.ver"),
         ISZ("bin", "win", ".cvc5.ver"),
         ISZ("bin", "win", "cvc.exe"),
         ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "cs.exe"),
-        ISZ("bin", "win", "cs.exe.ver"),
         ISZ("bin", "win", "java"),
         ISZ("bin", "win", "sireum.exe"),
         ISZ("bin", "win", "vcruntime140.dll"),
@@ -1319,16 +1320,17 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Linux ~> ISZ(
+        ISZ("bin", ".7zz.ver"),
+        ISZ("bin", ".binfmt"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
+        ISZ("bin", "linux", ".cs.ver"),
         ISZ("bin", "linux", ".cvc.ver"),
         ISZ("bin", "linux", ".cvc5.ver"),
         ISZ("bin", "linux", "cvc"),
         ISZ("bin", "linux", "cvc5"),
         ISZ("bin", "linux", "cs"),
-        ISZ("bin", "linux", "cs.ver"),
         ISZ("bin", "linux", "java"),
         ISZ("bin", "linux", "sireum"),
         ISZ("bin", "linux", "vscodium"),
@@ -1341,16 +1343,17 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.LinuxArm ~> ISZ(
+        ISZ("bin", ".7zz.ver"),
+        ISZ("bin", ".binfmt"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
+        ISZ("bin", "linux", "arm", ".cs.ver"),
         ISZ("bin", "linux", "arm", ".cvc.ver"),
         ISZ("bin", "linux", "arm", ".cvc5.ver"),
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cvc5"),
         ISZ("bin", "linux", "arm", "cs"),
-        ISZ("bin", "linux", "arm", "cs.ver"),
         ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
@@ -1363,16 +1366,16 @@ import Init._
         ISZ("versions.properties")
       ) +
       Os.Kind.Mac ~> ISZ(
+        ISZ("bin", ".7zz.ver"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "7zz.ver"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
+        ISZ("bin", "mac", ".cs.ver"),
         ISZ("bin", "mac", ".cvc.ver"),
         ISZ("bin", "mac", ".cvc5.ver"),
         ISZ("bin", "mac", "cvc"),
         ISZ("bin", "mac", "cvc5"),
         ISZ("bin", "mac", "cs"),
-        ISZ("bin", "mac", "cs.ver"),
         ISZ("bin", "mac", "java"),
         ISZ("bin", "mac", "sireum"),
         ISZ("bin", "mac", "vscodium"),
@@ -1728,6 +1731,10 @@ import Init._
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
+        if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
+          binfmt.removeAll()
+          binfmt.touch()
+        }
         Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
@@ -1805,6 +1812,10 @@ import Init._
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
+      if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
+        binfmt.removeAll()
+        binfmt.touch()
+      }
       Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
