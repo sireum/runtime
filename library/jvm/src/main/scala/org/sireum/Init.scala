@@ -1257,12 +1257,21 @@ import Init._
   }
 
   def buildForms(): Unit = {
-    println("Building forms ...")
     val forms = home / "forms"
+    val formsJar = home / "lib" / "forms.jar"
+    val ver = formsJar.up / s"${formsJar.name}.ver"
+    val version = versions.get("org.sireum.version.forms").get
+    if (ver.exists && ver.read == version) {
+      return
+    }
+    println("Building forms ...")
     forms.removeAll()
-    proc"git clone --depth=1 https://github.com/sireum/forms".at(home).runCheck()
+    proc"git clone https://github.com/sireum/forms $forms".at(home).runCheck()
+    proc"git checkout $version".at(forms).runCheck()
     proc"sireum proyek assemble --main org.sireum.forms.FormsApp --exclude-jar-deps asm:,unmanaged:,org.scala-lang: $forms".runCheck()
-    (forms / "out" / "forms" / "assemble" / "forms.jar").copyOverTo(home / "lib" / "forms.jar")
+    (forms / "out" / "forms" / "assemble" / "forms.jar").copyOverTo(formsJar)
+    forms.removeAll()
+    ver.writeOver(version)
     println()
   }
 
