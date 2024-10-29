@@ -1748,7 +1748,7 @@ import Init._
       if (Os.isWin) {
         val pkg = s"$plat.7z"
         val p7zz = install7zz()
-        Os.proc(ISZ[String](p7zz.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
+        Os.proc(ISZ[String](p7zz.string, "a", "-mmt2", pkg) ++ files).at(distroDir.up).runCheck()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
