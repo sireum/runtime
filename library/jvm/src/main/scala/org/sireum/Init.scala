@@ -820,39 +820,67 @@ import Init._
     }
 
     def patchMetals(d: Os.Path): Unit = {
-      val packageJson =d / "package.json"
-      val cis = conversions.String.toCis(packageJson.read)
-      val activationEvents = conversions.String.toCis("\"activationEvents\"")
-      var i = ops.StringOps.stringIndexOfFrom(cis, activationEvents, 0)
-      i = i + activationEvents.size
-      val min = ops.StringOps.indexOfFrom(cis, '[', i)
-      val max = ops.StringOps.indexOfFrom(cis, ']', min)
-      var newLines = ISZ[String]()
-      val workspaceContains = conversions.String.toCis("workspaceContains")
-      val onLanguage = conversions.String.toCis("onLanguage")
-      val lines = ops.StringOps(ops.StringOps.substring(cis, min + 1, max)).split((c: C) => c == '\n')
-      for (line <- lines) {
-        val lineCis = conversions.String.toCis(line)
-        var l = ops.StringOps.trim(lineCis)
-        if (ops.StringOps(l).endsWith(",")) {
-          l = ops.StringOps(l).substring(0, l.size - 1)
+      def patchPackage(): Unit = {
+        val packageJson = d / "package.json"
+        val cis = conversions.String.toCis(packageJson.read)
+        val activationEvents = conversions.String.toCis("\"activationEvents\"")
+        var i = ops.StringOps.stringIndexOfFrom(cis, activationEvents, 0)
+        i = i + activationEvents.size
+        val min = ops.StringOps.indexOfFrom(cis, '[', i)
+        val max = ops.StringOps.indexOfFrom(cis, ']', min)
+        var newLines = ISZ[String]()
+        val workspaceContains = conversions.String.toCis("workspaceContains")
+        val onLanguage = conversions.String.toCis("onLanguage")
+        val lines = ops.StringOps(ops.StringOps.substring(cis, min + 1, max)).split((c: C) => c == '\n')
+        for (line <- lines) {
+          val lineCis = conversions.String.toCis(line)
+          var l = ops.StringOps.trim(lineCis)
+          if (ops.StringOps(l).endsWith(",")) {
+            l = ops.StringOps(l).substring(0, l.size - 1)
+          }
+          if (l.size > 0 && ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
+            ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0) {
+            newLines = newLines :+ l
+          }
         }
-        if (l.size > 0 && ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
-          ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0) {
-          newLines = newLines :+ l
+        if (lines.size != newLines.size) {
+          println("Patching Scalameta Metals ...")
+          val tab = "\t"
+          newLines = newLines :+ s""""workspaceContains:.bloop""""
+          packageJson.setWritable(T)
+          packageJson.writeOver(
+            st"""${ops.StringOps.substring(cis, 0, min + 1)}
+                |$tab$tab${(newLines, ",\n\t\t")}
+                |$tab${ops.StringOps.substring(cis, max, cis.size)}""".render)
+          packageJson.setWritable(F)
+          println()
         }
       }
-      if (lines.size != newLines.size) {
-        println("Patching Scalameta Metals ...")
-        val tab = "\t"
-        newLines = newLines :+ s""""workspaceContains:build.mill""""
-        newLines = newLines :+ s""""workspaceContains:.bloop""""
-        packageJson.writeOver(
-          st"""${ops.StringOps.substring(cis, 0, min + 1)}
-              |$tab$tab${(newLines, ",\n\t\t")}
-              |$tab${ops.StringOps.substring(cis, max, cis.size)}""".render)
-        println()
+      def patchClient(): Unit = {
+        val clientJs = d / "node_modules" / "vscode-languageclient" / "lib" / "common"/ "client.js"
+        val lines = clientJs.readLines
+        var i = 0
+        val onRequest = conversions.String.toCis("connection.onRequest(")
+        val showMessageRequest = conversions.String.toCis(".ShowMessageRequest.")
+        val insertLine = """                if (params.message.includes("Scala script detected")) return undefined;"""
+        var newLines = ISZ[String]()
+        while (i < lines.size) {
+          val line = conversions.String.toCis(lines(i))
+          newLines = newLines :+ lines(i)
+          if (ops.StringOps.stringIndexOfFrom(line, onRequest, 0) >= 0 && ops.StringOps.stringIndexOfFrom(line, showMessageRequest, 0) >= 0) {
+            val nextLine = lines(i + 1)
+            if (!ops.StringOps(nextLine).startsWith(insertLine)) {
+              newLines = newLines :+ insertLine
+            }
+          }
+          i = i + 1
+        }
+        clientJs.setWritable(T)
+        clientJs.writeOver(st"${(newLines, "\n")}".render)
+        clientJs.setWritable(F)
       }
+      patchPackage()
+      patchClient()
     }
 
     def patchSysIDE(d: Os.Path): Unit = {
@@ -880,7 +908,9 @@ import Init._
         }
         content = ops.StringOps(content).replaceAllLiterally("\\\\b(about|", st"\\\\b(${(gumboTokens(existingKeywords), "|")}|about|".render)
         content = ops.StringOps(content).replaceAllLiterally("\"/\\\\*\"", "\"/\\\\*[^{]\"")
+        tmlf.setWritable(T)
         tmlf.writeOver(content)
+        tmlf.setWritable(F)
       }
       def patchJs(f: Os.Path): Unit = {
         def patchPrefix(text: String, prefix: String): String = {
@@ -897,7 +927,9 @@ import Init._
           }
           return conversions.String.fromCis(ops.ISZOps(cis).slice(0, i) ++ ops.ISZOps(cis).slice(j, cis.size))
         }
+        f.setWritable(T)
         f.writeOver(patchPrefix(patchPrefix(f.read, "comment("), "textualRep("))
+        f.setWritable(F)
       }
       println("Patching SysIDE ...")
       patchTml()
