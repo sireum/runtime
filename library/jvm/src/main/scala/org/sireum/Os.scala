@@ -775,6 +775,18 @@ object Os {
       Ext.setLastModified(value, millis)
     }
 
+    def setExecutable(executable: B): Unit = {
+      Ext.setExecutable(value, executable)
+    }
+
+    def setReadable(readable: B): Unit = {
+      Ext.setReadable(value, readable)
+    }
+
+    def setWritable(writable: B): Unit = {
+      Ext.setWritable(value, writable)
+    }
+
     def size: Z = {
       return Ext.size(value)
     }
@@ -1078,6 +1090,12 @@ object Os {
     def sha3(path: String, numOfBytes: Z): String = $
 
     def setLastModified(path: String, millis: Z): Unit = $
+
+    def setExecutable(path: String, value: B): B = $
+
+    def setReadable(path: String, value: B): B = $
+
+    def setWritable(path: String, value: B): B = $
 
     @pure def slashDir: String = $
 

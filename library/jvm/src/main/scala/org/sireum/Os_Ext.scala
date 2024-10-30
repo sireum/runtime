@@ -701,6 +701,24 @@ object Os_Ext {
     case _: Throwable =>
   }
 
+  def setExecutable(path: String, value: B): B = {
+    try toIO(path).setExecutable(value.value) catch {
+      case _: Throwable => F
+    }
+  }
+
+  def setReadable(path: String, value: B): B = {
+    try toIO(path).setReadable(value.value) catch {
+      case _: Throwable => F
+    }
+  }
+
+  def setWritable(path: String, value: B): B = {
+    try toIO(path).setWritable(value.value) catch {
+      case _: Throwable => F
+    }
+  }
+
   def sha1(path: String): String = digest(path, "SHA1", 0)
 
   def sha3(path: String, numOfBytes: Z): String = digest(path, "SHA3-512", numOfBytes)
