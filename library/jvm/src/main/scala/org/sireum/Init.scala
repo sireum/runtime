@@ -1777,8 +1777,12 @@ import Init._
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
+      val libCache = homeLib / "cache"
       val tmp = Os.tempDir()
-      (homeLib / "cache").moveTo(tmp / "cache")
+      tmp.removeAll()
+      if (libCache.exists) {
+        libCache.moveTo(tmp)
+      }
       if (Os.isWin) {
         val pkg = s"$plat.7z"
         val p7zz = install7zz()
@@ -1793,8 +1797,9 @@ import Init._
         Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
-      (tmp / "cache").moveTo(homeLib / "cache")
-      tmp.removeAll()
+      if (tmp.exists) {
+        tmp.moveTo(libCache)
+      }
       println("done!")
       distroDir.removeAll()
     }
@@ -1872,11 +1877,16 @@ import Init._
         binfmt.removeAll()
         binfmt.touch()
       }
+      val libCache = homeLib / "cache"
       val tmp = Os.tempDir()
-      (homeLib / "cache").moveTo(tmp / "cache")
-      Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
-      (tmp / "cache").moveTo(homeLib / "cache")
       tmp.removeAll()
+      if (libCache.exists) {
+        libCache.moveTo(tmp)
+      }
+      Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      if (tmp.exists) {
+        tmp.moveTo(libCache)
+      }
       (home.up.canon / rname).moveOverTo(home / "distro" / rname)
     }
 
