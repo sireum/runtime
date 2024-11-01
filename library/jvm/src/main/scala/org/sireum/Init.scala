@@ -588,7 +588,7 @@ import Init._
       while (i < size) {
         if (!stop) {
           if (isAt("%*", i) || isAt("\"$@\"", i)) {
-            j = putString("--no-server ", j)
+            j = putString("-i ", j)
           } else if (isAt(javaPrefix, i)) {
             val platform: String = Os.kind match {
               case Os.Kind.Win => "win"
