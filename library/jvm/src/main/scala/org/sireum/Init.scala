@@ -1766,6 +1766,10 @@ import Init._
       val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
       print(s"Packaging for $plat ... ")
       val setupDir = home / "distro" / (if (isDev) "dev" else "release")
+      if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
+        binfmt.removeAll()
+        binfmt.touch()
+      }
       val distroDir: Os.Path = {
         val dir = setupDir / s"Sireum$devSuffix"
         for (rp <- distroMap.get(kind).get if rp(0) != "..") {
@@ -1780,6 +1784,7 @@ import Init._
         }
         dir
       }
+      binfmt.removeAll()
       val files: ISZ[String] =
         for (p <- distroMap.get(kind).get.map((rp: ISZ[String]) => Os.path(distroDir.name) /+ rp)) yield p.string
 
@@ -1796,13 +1801,7 @@ import Init._
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
-        val distroBinfmt = distroDir / "bin" / binfmt.name
-        if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
-          distroBinfmt.removeAll()
-          distroBinfmt.touch()
-        }
         Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
-        distroBinfmt.removeAll()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
       if (tmp.exists) {
