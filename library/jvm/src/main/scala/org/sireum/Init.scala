@@ -606,6 +606,8 @@ import Init._
             i = i + javaExePrefix.size
           } else if (isAt("exit /B %errorlevel%", i)) {
             stop = T
+          } else if (isAt(""""%JAVACMD%"""", i)) {
+            j = putString(s"set _I_=true\r\n", j)
           }
         }
         put(j, at(i))
