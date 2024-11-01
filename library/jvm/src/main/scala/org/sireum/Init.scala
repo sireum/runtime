@@ -1796,12 +1796,13 @@ import Init._
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
+        val distroBinfmt = distroDir / "bin" / binfmt.name
         if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
-          binfmt.removeAll()
-          binfmt.touch()
+          distroBinfmt.removeAll()
+          distroBinfmt.touch()
         }
         Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
-        binfmt.removeAll()
+        distroBinfmt.removeAll()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
       if (tmp.exists) {
@@ -1880,10 +1881,6 @@ import Init._
       }
       rname = ops.StringOps(rname).toLower
       (home.up.canon / rname).removeAll()
-      if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
-        binfmt.removeAll()
-        binfmt.touch()
-      }
       val libCache = homeLib / "cache"
       val tmp = Os.tempDir()
       tmp.removeAll()
