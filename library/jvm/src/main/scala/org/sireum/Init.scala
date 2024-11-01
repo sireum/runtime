@@ -1801,6 +1801,7 @@ import Init._
           binfmt.touch()
         }
         Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+        binfmt.removeAll()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
       if (tmp.exists) {
@@ -1874,7 +1875,7 @@ import Init._
       val vscodeName = "codeive"
       var rname: String = kind match {
         case Os.Kind.Mac => s"$sireumName-$vscodeName-mac-${if (Os.isMacArm) "arm64" else "amd64"}.tar.xz"
-        case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.zip"
+        case Os.Kind.Win => s"$sireumName-$vscodeName-win-${if (Os.isWinArm) "arm64" else "amd64"}.7z"
         case _ => s"$sireumName-$vscodeName-linux-${if (kind == Os.Kind.LinuxArm) "arm64" else "amd64"}.tar.xz"
       }
       rname = ops.StringOps(rname).toLower
@@ -1889,7 +1890,17 @@ import Init._
       if (libCache.exists) {
         libCache.moveTo(tmp)
       }
-      Os.proc(ISZ[String]("tar", "-c", if (Os.isWin) "-a" else "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+      if (Os.isWin) {
+        val p7zz = install7zz()
+        Os.proc(ISZ[String](p7zz.string, "a", rname) ++ files).at(home.up.canon).runCheck()
+      } else {
+        if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
+          binfmt.removeAll()
+          binfmt.touch()
+        }
+        Os.proc(ISZ[String]("tar", "-c", "-J", "-f", rname) ++ files).at(home.up.canon).runCheck()
+        binfmt.removeAll()
+      }
       if (tmp.exists) {
         tmp.moveTo(libCache)
       }
