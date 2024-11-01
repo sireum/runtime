@@ -1351,6 +1351,7 @@ import Init._
       Os.Kind.Win ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", "7zz.com"),
+        ISZ("bin", "mill.bat"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "win", ".cs.ver"),
@@ -1376,6 +1377,7 @@ import Init._
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", ".cs.ver"),
@@ -1399,6 +1401,7 @@ import Init._
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", "arm", ".cs.ver"),
@@ -1421,6 +1424,7 @@ import Init._
       Os.Kind.Mac ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "mac", ".cs.ver"),
