@@ -538,6 +538,11 @@ import Init._
 
   def installMill(verbose: B): Unit = {
     def patchMill(mill: Os.Path): Unit = {
+      val ansiPatch = mill.up.canon / "windows-ansi-patch.zip"
+      ansiPatch.downloadFrom("https://github.com/sireum/rolling/releases/download/mill/windows-ansi-0.0.5-patch.zip")
+      ansiPatch.unzipTo(mill.up)
+      ansiPatch.removeAll()
+      proc"${install7zz()} u mill.jar io".at(mill.up).runCheck()
       val content = mill.readU8s
       mill.removeAll()
       val size = content.size
@@ -606,8 +611,6 @@ import Init._
             i = i + javaExePrefix.size
           } else if (isAt("exit /B %errorlevel%", i)) {
             stop = T
-          } else if (isAt(""""%JAVACMD%"""", i)) {
-            j = putString(s"set _I_=true\r\n", j)
           }
         }
         put(j, at(i))
@@ -628,12 +631,16 @@ import Init._
     if (verbose) {
       println(s"Downloading mill $millVersion ...")
     }
-    mill.downloadFrom(url)
+    val d = Os.tempDir()
+    val millJar = d / "mill.jar"
+    millJar.downloadFrom(url)
     if (verbose) {
       println()
-      println(s"Patching $mill ...")
+      println(s"Patching mill ...")
     }
-    patchMill(mill)
+    patchMill(millJar)
+    millJar.moveOverTo(mill)
+    d.removeAll()
     if (verbose) {
       println()
     }
