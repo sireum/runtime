@@ -1037,7 +1037,7 @@ import Init._
           val c = vscodium / "Contents"/ "Resources" / "app" / "bin" / "codium"
           if (!ver.exists || ver.read != vscodiumVersion) {
             downloadVSCodium(drop)
-            vscodium.removeAll()
+            vscodium.up.removeAll()
             println("Extracting VSCodium ...")
             proc"hdiutil attach $drop".at(home).runCheck()
             val dirPath = Os.path("/Volumes/VSCodium")
