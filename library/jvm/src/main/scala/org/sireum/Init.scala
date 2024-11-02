@@ -795,7 +795,8 @@ import Init._
   }
 
   def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
-    val isInUserHome = ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
+    val useDefaultExtDir = Os.env("GITHUB_ACTION").nonEmpty ||
+      ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
     val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
     val sysIdeVersion = versions.get("org.sireum.version.vscodium.extension.syside").get
@@ -958,7 +959,7 @@ import Init._
     }
 
     def installExtensions(codium: Os.Path, extensionsDir: Os.Path): String = {
-      val extDirArg: String = if (isInUserHome) "" else s" --extensions-dir $extensionsDir"
+      val extDirArg: String = if (useDefaultExtDir) "" else s" --extensions-dir $extensionsDir"
       val drop = cache / sireumExtDrop
       if (!drop.exists) {
         println("Downloading Sireum VSCode Extension ...")
@@ -1054,7 +1055,7 @@ import Init._
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
-          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+          if (useDefaultExtDir) {
             val d = vscodium.up.canon / "codium-portable-data" / "extensions"
             d.mkdirAll()
             d
@@ -1066,7 +1067,7 @@ import Init._
       }
       val extDirArg = installExtensions(codium, extensionsDir)
       if (updated) {
-        if (isInUserHome) {
+        if (useDefaultExtDir) {
           println(s"To launch CodeIVE: open $vscodium")
         } else {
           println(s"To launch CodeIVE: $codium$extDirArg")
@@ -1110,7 +1111,7 @@ import Init._
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
-          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+          if (useDefaultExtDir) {
             val d = vscodium / "data" / "extensions"
             d.mkdirAll()
             d
@@ -1165,7 +1166,7 @@ import Init._
       val extensionsDir: Os.Path = extDirOpt match {
         case Some(ed) => ed
         case _ =>
-          if (Os.env("GITHUB_ACTION").nonEmpty || isInUserHome) {
+          if (useDefaultExtDir) {
             val d = vscodium / "data" / "extensions"
             d.mkdirAll()
             d
