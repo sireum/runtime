@@ -765,7 +765,7 @@ import Init._
                     |
                     |or, by disabling binfmt completely:
                     |
-                    |udo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/cli'
+                    |sudo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/cli'
                     |sudo sh -c 'echo -1 > /proc/sys/fs/binfmt_misc/status'
                     |""".render
               )
