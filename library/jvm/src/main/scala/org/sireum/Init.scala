@@ -542,9 +542,11 @@ import Init._
       ansiPatch.downloadFrom("https://github.com/sireum/rolling/releases/download/mill/windows-ansi-0.0.5-patch.zip")
       ansiPatch.unzipTo(mill.up)
       ansiPatch.removeAll()
-      val p7zz = install7zz()
-      proc"$p7zz d mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
-      proc"$p7zz a mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+      if (kind == Os.Kind.Win) {
+        val p7zz = install7zz()
+        proc"$p7zz d mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+        proc"$p7zz a mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+      }
       val content = mill.readU8s
       mill.removeAll()
       val size = content.size
