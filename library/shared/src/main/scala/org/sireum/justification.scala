@@ -63,6 +63,8 @@ object justification {
 
   @just def Simpl: Unit = $
 
+  @just def ESimpl: Unit = $
+
   object natded {
 
     object prop {
