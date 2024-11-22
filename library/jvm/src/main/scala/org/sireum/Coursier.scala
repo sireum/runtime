@@ -174,8 +174,8 @@ object Coursier {
 
     val fetchLines = ops.StringOps(Os.proc(fetchCommands).env(ISZ("JAVA_HOME" ~> Os.javaHomeOpt(Os.kind, Os.sireumHomeOpt).get.string)).runCheck().out).split((c: C) => c == '\n' || c == '\r')
     for (line <- fetchLines) {
-      val path = Os.path(ops.StringOps(ops.StringOps(line).trim).replaceAllLiterally("%2B", "+"))
-      val pOps = ops.StringOps(path.toUri)
+      val path = Os.path(ops.StringOps(line).trim)
+      val pOps = ops.StringOps(ops.StringOps(path.toUri).replaceAllLiterally("%252B", "+"))
       val i = pOps.lastIndexOf('/') + 1
       val moduleVersion: String = if (pOps.endsWith("-sources.jar")) {
         pOps.substring(i, pOps.size - string"-sources.jar".size)
