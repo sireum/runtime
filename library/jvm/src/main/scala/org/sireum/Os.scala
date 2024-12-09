@@ -153,8 +153,12 @@ object Os {
         case message.Level.Warning => "warning"
         case _ => "error"
       }
-      var text = ops.StringOps(m.text).replaceAllLiterally("\r\n", " ")
-      text = ops.StringOps(text).replaceAllLiterally("\n", " ")
+      var text = m.text
+      val i = ops.StringOps(text).indexOf('\n')
+      if (i >= 0) {
+        text = ops.StringOps(text).substring(0, i)
+      }
+      text = ops.StringOps(text).trim
       m.posOpt match {
         case Some(pos) if pos.uriOpt.nonEmpty =>
           println(s"${Os.Path.fromUri(pos.uriOpt.get)}:${pos.beginLine}:${pos.beginColumn}:${pos.endLine}:${pos.endColumn + 1}: $severity: $text")
