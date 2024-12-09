@@ -157,7 +157,7 @@ object Os {
       text = ops.StringOps(text).replaceAllLiterally("\n", " ")
       m.posOpt match {
         case Some(pos) if pos.uriOpt.nonEmpty =>
-          println(s"${Os.Path.fromUri(pos.uriOpt.get)}:${pos.beginLine}:${pos.beginColumn}:${pos.endLine}:${pos.endColumn}: $severity: $text")
+          println(s"${Os.Path.fromUri(pos.uriOpt.get)}:${pos.beginLine}:${pos.beginColumn}:${pos.endLine}:${pos.endColumn + 1}: $severity: $text")
         case _ =>
           println(s"$severity: $text")
       }
