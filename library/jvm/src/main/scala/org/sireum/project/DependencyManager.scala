@@ -279,7 +279,7 @@ import DependencyManager._
     }
     val r: ISZ[Lib] =
       for (cif <- fetch(computeTransitiveIvyDeps(m)) if !ignoredLibraryNames.contains(libName(cif))) yield
-        libMap.get(libName(cif))
+        libMap.get(libName(cif)).get
     tLibMap = tLibMap + m.id ~> r
     return r
   }
