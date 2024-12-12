@@ -60,7 +60,7 @@ object DependencyManager {
   val docJarSuffix: String = "-javadoc.jar"
 
   val ignoredLibraryNames: HashSet[String] = HashSet ++ ISZ[String](
-    "org.scala-lang.scala-library", "org.scala-lang.scala-reflect", "org.scala-lang.scala-compiler"
+    "org.scala-lang.scala-library", "org.scala-lang.scala-reflect", "org.scala-lang.scala-compiler", "org.scala-lang.scalap"
   )
 
   @pure def buildClassifiers(withSource: B, withDoc: B): ISZ[CoursierClassifier.Type] = {
@@ -278,7 +278,8 @@ import DependencyManager._
       case _ =>
     }
     val r: ISZ[Lib] =
-      for (cif <- fetch(computeTransitiveIvyDeps(m)) if !ignoredLibraryNames.contains(libName(cif))) yield libMap.get(libName(cif)).get
+      for (cif <- fetch(computeTransitiveIvyDeps(m)) if !ignoredLibraryNames.contains(libName(cif))) yield
+        libMap.get(libName(cif)).getOrElse(halt(s"Could not get ${libName(cif)} lib in $libMap"))
     tLibMap = tLibMap + m.id ~> r
     return r
   }
