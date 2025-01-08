@@ -210,7 +210,7 @@ import DependencyManager._
       var r = HashSMap.empty[String, Lib]
       r = r + "org.scala-lang.scalap" ~> Lib(
         "org.scala-lang.scalap", "org.scala-lang", "scalap", scalaVersion,
-        (sireumHome / "bin" / "scala" / "lib" / s"scalap-$scalaVersion").value, None(), None()
+        (sireumHome / "bin" / "scala" / "lib" / s"scalap-$scalaVersion.jar").value, None(), None()
       )
       for (cif <- fetchClassifiers(ivyDeps.values, buildClassifiers(withSource, withDoc))) {
         val name = libName(cif)
