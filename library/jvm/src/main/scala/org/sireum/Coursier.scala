@@ -181,6 +181,8 @@ object Coursier {
         pOps.substring(i, pOps.size - string"-sources.jar".size)
       } else if (pOps.endsWith("-javadoc.jar")) {
         pOps.substring(i, pOps.size - string"-javadoc.jar".size)
+      } else if (pOps.endsWith("-jdk8.jar")) {
+        pOps.substring(i, pOps.size - string"-jdk8.jar".size)
       } else {
         pOps.substring(i, pOps.size - string".jar".size)
       }
