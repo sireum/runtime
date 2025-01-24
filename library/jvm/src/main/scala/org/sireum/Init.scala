@@ -394,21 +394,22 @@ import Init._
   def installZ3(): Unit = {
     homeBinPlatform.mkdirAll()
 
-    val version = versions.get("org.sireum.version.z3").get
+    val z3Version = versions.get("org.sireum.version.z3").get
     val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
     val dir = homeBin / "z3"
     val ver = dir / "VER"
+    val version = s"$z3Version-$cosmoccVersion"
 
     if (ver.exists && ver.read == version) {
       return
     }
 
-    val filename: String = s"z3-exe-static-$version-cosmocc-$cosmoccVersion.zip"
+    val filename: String = s"z3-exe-static-$z3Version-cosmocc-$cosmoccVersion.zip"
 
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
     val bundle = cache / filename
     if (!bundle.exists) {
-      println(s"Please wait while downloading Z3 $version ...")
+      println(s"Please wait while downloading Z3 $z3Version ...")
       bundle.up.mkdirAll()
       bundle.downloadFrom(url)
       println()
