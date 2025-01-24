@@ -395,24 +395,16 @@ import Init._
     homeBinPlatform.mkdirAll()
 
     val version = versions.get("org.sireum.version.z3").get
-    val dir = homeBinPlatform / "z3"
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+    val dir = homeBin / "z3"
     val ver = dir / "VER"
 
     if (ver.exists && ver.read == version) {
       return
     }
 
-    val filename: String = kind match {
-      case Os.Kind.Win =>
-        if (Os.isWinArm) s"z3-$version-win-arm64.zip"
-        else s"z3-exe-static-$version-win-amd64.zip"
-      case Os.Kind.Mac =>
-        if (Os.isMacArm) s"z3-exe-gmp-$version-mac-arm64.zip"
-        else s"z3-exe-$version-mac-amd64.zip"
-      case Os.Kind.Linux => s"z3-exe-static-musl-gmp-$version-linux-amd64.zip"
-      case Os.Kind.LinuxArm => s"z3-exe-static-musl-gmp-$version-linux-arm64.zip"
-      case _ => return
-    }
+    val filename: String = s"z3-exe-static-$version-cosmocc-$cosmoccVersion.zip"
+
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
     val bundle = cache / filename
     if (!bundle.exists) {
@@ -430,9 +422,8 @@ import Init._
       p.moveTo(dir)
     }
 
-    if (kind != Os.Kind.Win) {
-      (dir / "bin" / "z3").chmod("+x")
-    }
+    (dir / "bin" / "z3.com").chmod("+x")
+
     println()
 
     ver.writeOver(version)
@@ -1380,9 +1371,9 @@ import Init._
         ISZ("bin", "win", "vcruntime140.dll"),
         ISZ("bin", "win", "vcruntime140_1.dll"),
         ISZ("bin", "win", "vscodium"),
-        ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum.bat"),
+        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1405,9 +1396,9 @@ import Init._
         ISZ("bin", "linux", "java"),
         ISZ("bin", "linux", "sireum"),
         ISZ("bin", "linux", "vscodium"),
-        ISZ("bin", "linux", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1430,9 +1421,9 @@ import Init._
         ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
-        ISZ("bin", "linux", "arm", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1454,9 +1445,9 @@ import Init._
         ISZ("bin", "mac", "java"),
         ISZ("bin", "mac", "sireum"),
         ISZ("bin", "mac", "vscodium"),
-        ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
