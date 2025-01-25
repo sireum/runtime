@@ -433,24 +433,21 @@ import Init._
   def installCVC(): Unit = {
     homeBinPlatform.mkdirAll()
 
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+
     def installCVCGen(gen: String, version: String): Unit = {
-      val genOpt: Option[String] = if (gen == "4") None() else Some(gen)
-      val exe = homeBinPlatform / (if (kind == Os.Kind.Win) st"cvc$genOpt.exe" else st"cvc$genOpt").render
-      val ver = homeBinPlatform / st".cvc$genOpt.ver".render
+      val (exe, ver, ve): (Os.Path, Os.Path, String) = if (gen == "4") {
+        (homeBinPlatform / (if (kind == Os.Kind.Win) "cvc.exe" else "cvc"), homeBinPlatform / ".cvc.ver", s"$gen-$version")
+      } else {
+        (homeBin / "cvc5.com", homeBin / ".cvc5.ver", s"$gen-$version-$cosmoccVersion")
+      }
 
-      val VER = s"$gen-$version"
-
-      if (ver.exists && ver.read == VER) {
+      if (ver.exists && ver.read == ve) {
         return
       }
 
       val dropname: String = (gen, kind) match {
-        case (string"5", Os.Kind.Win) => s"cvc$gen-$version-Win64-static.zip"
-        case (string"5", Os.Kind.LinuxArm) => s"cvc$gen-$version-Linux-arm64-static.zip"
-        case (string"5", Os.Kind.Linux) => s"cvc$gen-$version-Linux-static.zip"
-        case (string"5", Os.Kind.Mac) =>
-          if (Os.isMacArm) s"cvc$gen-$version-macOS-arm64-static.zip"
-          else s"cvc$gen-$version-macOS-static.zip"
+        case (string"5", _) => s"cvc$gen-$version-cosmocc-$cosmoccVersion.com"
         case (string"4", Os.Kind.Win) => s"cvc$gen-$version-win64-opt.exe"
         case (string"4", Os.Kind.Linux) => s"cvc$gen-$version-x86_64-linux-opt.8-linux"
         case (string"4", Os.Kind.Mac) => s"cvc$gen-$version-macos-opt.8-mac"
@@ -467,24 +464,10 @@ import Init._
         println()
       }
 
-      if (gen == "5") {
-        val d = Os.tempDir()
-        drop.unzipTo(d)
-        for (p <- d.list if ops.StringOps(p.name).startsWith(s"cvc5-")) {
-          (d / p.name / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
-        }
-        d.removeAll()
-      } else {
-        drop.copyOverTo(exe)
-      }
+      drop.copyOverTo(exe)
+      exe.chmod("+x")
 
-      kind match {
-        case Os.Kind.Linux => exe.chmod("+x")
-        case Os.Kind.Mac => exe.chmod("+x")
-        case _ =>
-      }
-
-      ver.writeOver(VER)
+      ver.writeOver(ve)
       println()
     }
 
@@ -1356,16 +1339,16 @@ import Init._
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> ISZ(
         ISZ("bin", ".7zz.ver"),
+        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz.com"),
+        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill.bat"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "win", ".cs.ver"),
         ISZ("bin", "win", ".cvc.ver"),
-        ISZ("bin", "win", ".cvc5.ver"),
         ISZ("bin", "win", "cvc.exe"),
-        ISZ("bin", "win", "cvc5.exe"),
         ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "win", "java"),
         ISZ("bin", "win", "sireum.exe"),
@@ -1383,8 +1366,10 @@ import Init._
       Os.Kind.Linux ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
+        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
@@ -1408,8 +1393,10 @@ import Init._
       Os.Kind.LinuxArm ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
+        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
@@ -1432,8 +1419,10 @@ import Init._
       ) +
       Os.Kind.Mac ~> ISZ(
         ISZ("bin", ".7zz.ver"),
+        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
+        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
