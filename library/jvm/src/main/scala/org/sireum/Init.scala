@@ -596,6 +596,11 @@ import Init._
         j = j + 1
         i = i + 1
       }
+      if (!stop) {
+        eprintln(s"Patch failed for $mill")
+        Os.exit(-1)
+      }
+
       mill.writeU8Partms(newContent, 0, j)
       mill.chmod("+x")
     }
@@ -605,7 +610,7 @@ import Init._
     if (ver.exists && ver.read == millVersion) {
       return
     }
-    val url = s"https://github.com/com-lihaoyi/mill/releases/download/$millVersion/$millVersion-assembly"
+    val url = s"https://repo1.maven.org/maven2/com/lihaoyi/mill-dist/$millVersion/mill-dist-$millVersion.jar"
     val mill: Os.Path = (home / "bin" / (if (Os.isWin) "mill.bat" else "mill")).canon
     if (verbose) {
       println(s"Downloading mill $millVersion ...")
