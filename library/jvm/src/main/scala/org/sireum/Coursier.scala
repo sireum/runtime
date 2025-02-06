@@ -95,7 +95,7 @@ object Coursier {
     updateProxyOption("https.proxyPassword", proxy.protocolPasswordEnvKeyOpt, T)
     updateProxyOption("http.nonProxyHosts", proxy.nonHostsOpt, F)
     val csPrefix: ISZ[String] = Os.kind match {
-      case Os.Kind.Win =>
+      case Os.Kind.Win if !Os.isWinArm =>
         val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
         coursierExe.string +: proxyOptions
       case Os.Kind.Linux =>

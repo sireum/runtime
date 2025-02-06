@@ -298,7 +298,7 @@ import Init._
     }
 
     kind match {
-      case Os.Kind.Win =>
+      case Os.Kind.Win if !Os.isWinArm =>
         val drop = cache / s"cs-$coursierVersion-x86_64-pc-win32.zip"
         if (!drop.exists) {
           println(s"Downloading Coursier $coursierVersion ...")
