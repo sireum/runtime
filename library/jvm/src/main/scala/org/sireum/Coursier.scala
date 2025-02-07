@@ -94,24 +94,28 @@ object Coursier {
     updateProxyOption("https.proxyUser", proxy.protocolUserEnvKeyOpt, T)
     updateProxyOption("https.proxyPassword", proxy.protocolPasswordEnvKeyOpt, T)
     updateProxyOption("http.nonProxyHosts", proxy.nonHostsOpt, F)
-    val csPrefix: ISZ[String] = Os.kind match {
-      case Os.Kind.Win if !Os.isWinArm =>
-        val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
-        coursierExe.string +: proxyOptions
-      case Os.Kind.Linux =>
-        val coursierExe = sireumHome / "bin" / "linux" / "cs"
-        coursierExe.string +: proxyOptions
-      case Os.Kind.LinuxArm =>
-        val coursierExe = sireumHome / "bin" / "linux" / "arm" / "cs"
-        coursierExe.string +: proxyOptions
-      case Os.Kind.Mac =>
-        val coursierExe = sireumHome / "bin" / "mac" / "cs"
-        coursierExe.string +: proxyOptions
-      case _ =>
-        val javaExe = Os.javaExe(Some(sireumHome))
-        val coursierJar = sireumHome / "lib" / "coursier.jar"
-        (javaExe.string +: (for (opt <- proxyOptions) yield ops.StringOps(opt).substring(2, opt.size))) ++
-          ISZ[String]("-jar", coursierJar.string)
+    def csPrefix: ISZ[String] = {
+      if (Os.env("SIREUM_COURSIER_JAR").isEmpty) {
+        Os.kind match {
+          case Os.Kind.Win if !Os.isWinArm =>
+            val coursierExe = sireumHome / "bin" / "win" / "cs.exe"
+            return coursierExe.string +: proxyOptions
+          case Os.Kind.Linux =>
+            val coursierExe = sireumHome / "bin" / "linux" / "cs"
+            return coursierExe.string +: proxyOptions
+          case Os.Kind.LinuxArm =>
+            val coursierExe = sireumHome / "bin" / "linux" / "arm" / "cs"
+            return coursierExe.string +: proxyOptions
+          case Os.Kind.Mac =>
+            val coursierExe = sireumHome / "bin" / "mac" / "cs"
+            return coursierExe.string +: proxyOptions
+          case _ =>
+        }
+      }
+      val javaExe = Os.javaExe(Some(sireumHome))
+      val coursierJar = sireumHome / "lib" / "coursier.jar"
+      return (javaExe.string +: (for (opt <- proxyOptions) yield ops.StringOps(opt).substring(2, opt.size))) ++
+        ISZ[String]("-jar", coursierJar.string)
     }
 
     val cache: ISZ[String] = cacheOpt match {

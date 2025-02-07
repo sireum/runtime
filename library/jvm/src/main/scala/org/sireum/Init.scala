@@ -297,63 +297,69 @@ import Init._
       return
     }
 
-    kind match {
-      case Os.Kind.Win if !Os.isWinArm =>
-        val drop = cache / s"cs-$coursierVersion-x86_64-pc-win32.zip"
-        if (!drop.exists) {
-          println(s"Downloading Coursier $coursierVersion ...")
-          val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/cs-x86_64-pc-win32.zip"
-          drop.downloadFrom(url)
-          println()
-        }
-        drop.unzipTo(homeBinPlatform)
-        (homeBinPlatform / "cs-x86_64-pc-win32.exe").moveOverTo(homeBinPlatform / "cs.exe")
-      case Os.Kind.Linux =>
-        val drop = cache / s"cs-$coursierVersion-x86_64-pc-linux-static.gz"
-        if (!drop.exists) {
-          println(s"Downloading Coursier $coursierVersion ...")
-          val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/cs-x86_64-pc-linux-static.gz"
-          drop.downloadFrom(url)
-          println()
-        }
-        proc"gunzip $drop".runCheck()
-        (cache / s"cs-$coursierVersion-x86_64-pc-linux-static").moveOverTo(homeBinPlatform / "cs")
-        (homeBinPlatform / "cs").chmod("+x")
-      case Os.Kind.LinuxArm =>
-        val drop = cache / s"cs-$coursierVersion-aarch64-pc-linux-static-sdk.zip"
-        if (!drop.exists) {
-          println(s"Downloading Coursier $coursierVersion ...")
-          val url = s"https://github.com/VirtusLab/coursier-m1/releases/download/v$coursierVersion/cs-aarch64-pc-linux-static-sdk.zip"
-          drop.downloadFrom(url)
-          println()
-        }
-        drop.unzipTo(homeBinPlatform)
-        (homeBinPlatform / "cs-aarch64-pc-linux-static-sdk" / "bin" / "cs").moveOverTo(homeBinPlatform / "cs")
-        (homeBinPlatform / "cs").chmod("+x")
-        (homeBinPlatform / "cs-aarch64-pc-linux-static-sdk").removeAll()
-      case Os.Kind.Mac =>
-        val arch: String = if (Os.isMacArm) "aarch64" else "x86_64"
-        val drop = cache / s"cs-$coursierVersion-$arch-apple-darwin.gz"
-        if (!drop.exists) {
-          println(s"Downloading Coursier $coursierVersion ...")
-          val url = s"https://github.com/VirtusLab/coursier-m1/releases/download/v$coursierVersion/cs-$arch-apple-darwin.gz"
-          drop.downloadFrom(url)
-          println()
-        }
-        proc"gunzip $drop".runCheck()
-        (cache / s"cs-$coursierVersion-$arch-apple-darwin").moveOverTo(homeBinPlatform / "cs")
-        (homeBinPlatform / "cs").chmod("+x")
-      case _ =>
-        val drop = cache / s"coursier-$coursierVersion.jar"
-        if (!drop.exists) {
-          println(s"Downloading Coursier $coursierVersion ...")
-          val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/coursier.jar"
-          drop.downloadFrom(url)
-          println()
-        }
+    var useJar = Os.env("SIREUM_COURSIER_JAR").nonEmpty
+    if (!useJar) {
+      kind match {
+        case Os.Kind.Win if !Os.isWinArm =>
+          val drop = cache / s"cs-$coursierVersion-x86_64-pc-win32.zip"
+          if (!drop.exists) {
+            println(s"Downloading Coursier $coursierVersion ...")
+            val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/cs-x86_64-pc-win32.zip"
+            drop.downloadFrom(url)
+            println()
+          }
+          drop.unzipTo(homeBinPlatform)
+          (homeBinPlatform / "cs-x86_64-pc-win32.exe").moveOverTo(homeBinPlatform / "cs.exe")
+        case Os.Kind.Linux =>
+          val drop = cache / s"cs-$coursierVersion-x86_64-pc-linux-static.gz"
+          if (!drop.exists) {
+            println(s"Downloading Coursier $coursierVersion ...")
+            val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/cs-x86_64-pc-linux-static.gz"
+            drop.downloadFrom(url)
+            println()
+          }
+          proc"gunzip $drop".runCheck()
+          (cache / s"cs-$coursierVersion-x86_64-pc-linux-static").moveOverTo(homeBinPlatform / "cs")
+          (homeBinPlatform / "cs").chmod("+x")
+        case Os.Kind.LinuxArm =>
+          val drop = cache / s"cs-$coursierVersion-aarch64-pc-linux-static-sdk.zip"
+          if (!drop.exists) {
+            println(s"Downloading Coursier $coursierVersion ...")
+            val url = s"https://github.com/VirtusLab/coursier-m1/releases/download/v$coursierVersion/cs-aarch64-pc-linux-static-sdk.zip"
+            drop.downloadFrom(url)
+            println()
+          }
+          drop.unzipTo(homeBinPlatform)
+          (homeBinPlatform / "cs-aarch64-pc-linux-static-sdk" / "bin" / "cs").moveOverTo(homeBinPlatform / "cs")
+          (homeBinPlatform / "cs").chmod("+x")
+          (homeBinPlatform / "cs-aarch64-pc-linux-static-sdk").removeAll()
+        case Os.Kind.Mac =>
+          val arch: String = if (Os.isMacArm) "aarch64" else "x86_64"
+          val drop = cache / s"cs-$coursierVersion-$arch-apple-darwin.gz"
+          if (!drop.exists) {
+            println(s"Downloading Coursier $coursierVersion ...")
+            val url = s"https://github.com/VirtusLab/coursier-m1/releases/download/v$coursierVersion/cs-$arch-apple-darwin.gz"
+            drop.downloadFrom(url)
+            println()
+          }
+          proc"gunzip $drop".runCheck()
+          (cache / s"cs-$coursierVersion-$arch-apple-darwin").moveOverTo(homeBinPlatform / "cs")
+          (homeBinPlatform / "cs").chmod("+x")
+        case _ =>
+          useJar = T
+      }
+    }
+    if (useJar) {
+      val drop = cache / s"coursier-$coursierVersion.jar"
+      if (!drop.exists) {
+        println(s"Downloading Coursier $coursierVersion ...")
+        val url = s"https://github.com/coursier/coursier/releases/download/v$coursierVersion/coursier.jar"
+        drop.downloadFrom(url)
+        println()
+      }
 
-        val coursierJar = home / "lib" / "coursier.jar"
-        drop.copyOverTo(coursierJar)
+      val coursierJar = home / "lib" / "coursier.jar"
+      drop.copyOverTo(coursierJar)
     }
     coursierVer.writeOver(coursierVersion)
   }
