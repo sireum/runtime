@@ -496,8 +496,8 @@ import Init._
         cacheJar.up.mkdirAll()
         println("Please wait while downloading MaryTTS text2wav ...")
         cacheJar.downloadFrom("https://github.com/sireum/rolling/releases/download/marytts-text2wav/txt2wav.jar")
-        cacheJar.copyOverTo(maryTtsJar)
       }
+      cacheJar.copyOverTo(maryTtsJar)
       println()
     }
   }
