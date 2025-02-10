@@ -288,16 +288,15 @@ import Init._
   def installCoursier(): Unit = {
     homeLib.mkdirAll()
 
-    val coursierVer: Os.Path = kind match {
-      case Os.Kind.Unsupported => homeLib / ".cs.ver"
-      case _ => homeBinPlatform / ".cs.ver"
-    }
+    var useJar = Os.env("SIREUM_COURSIER_JAR").nonEmpty
+    val coursierVer: Os.Path =
+      if (useJar || kind == Os.Kind.Unsupported) homeLib / ".cs.ver"
+      else homeBinPlatform / ".cs.ver"
 
     if (coursierVer.exists && ops.StringOps(coursierVer.read).trim == coursierVersion) {
       return
     }
 
-    var useJar = Os.env("SIREUM_COURSIER_JAR").nonEmpty
     if (!useJar) {
       kind match {
         case Os.Kind.Win if !Os.isWinArm =>
