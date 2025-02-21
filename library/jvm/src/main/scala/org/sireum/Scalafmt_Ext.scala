@@ -41,9 +41,10 @@ object Scalafmt_Ext {
   }
 
   def formatFile(config: String, file: Os.Path): B = {
-    val exitCode = org.scalafmt.cli.Cli.mainWithOptions(Array[Predef.String](
-      "--quiet", "--non-interactive", "--config-str", config.value, file.string.value
-    ), org.scalafmt.cli.CliOptions.default)
+    val exitCode = scala.concurrent.Await.result(
+      org.scalafmt.cli.Cli.mainWithOptions(org.scalafmt.cli.CliOptions.default,
+      "--quiet", "--non-interactive", "--config-str", config.value, file.string.value),
+      scala.concurrent.duration.Duration.Inf)
     return exitCode.code == 0
   }
 
