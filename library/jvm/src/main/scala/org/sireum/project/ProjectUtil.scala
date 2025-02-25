@@ -46,6 +46,7 @@ object ProjectUtil {
   val johnHatcliff: Developer = Developer(id = "John-Hatcliff", name = "John Hatcliff")
   val jasonBelt: Developer = Developer(id = "jasonbelt", name = "Jason Belt")
   val thari: Developer = Developer(id = "thari", name = "Hariharan Thiagarajan")
+  val matthewWeis: Developer = Developer(id = "matthewweis", name = "Matthew Weis")
   val kejunChen: Developer = Developer(id = "ckj119940887", name = "Kejun Chen")
 
   @strictpure def id(baseId: String): ISZ[String] = ISZ(baseId)
