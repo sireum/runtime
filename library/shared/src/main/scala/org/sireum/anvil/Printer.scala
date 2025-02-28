@@ -54,6 +54,36 @@ object Printer {
     @pure def z2u(n: Z): U = $
   }
 
+  def printB(buffer: MS[U, U8], index: U, b: B): U64 = {
+    val sz = anvil.Printer.Ext.z2u(buffer.size)
+    buffer(index % sz) = if (b) u8"84" else u8"70"
+    return u64"1"
+  }
+
+  def printC(buffer: MS[U, U8], index: U, c: C): U64 = {
+    val sz = anvil.Printer.Ext.z2u(buffer.size)
+    val raw = conversions.C.toU32(c)
+    if (u32"0" <= raw && raw <= u32"0x7F") {
+      buffer(index % sz) = conversions.U32.toU8(raw)
+      return u64"1"
+    } else if (u32"80" <= raw && raw <= u32"0x7FF") {
+      buffer(index % sz) = conversions.U32.toU8(u32"0xC0" | ((raw >>> u32"6") & u32"0x1F"))
+      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      return u64"2"
+    } else if (u32"800" <= raw && raw <= u32"0xFFFF") {
+      buffer(index % sz) = conversions.U32.toU8(u32"0xE0" | ((raw >>> u32"12") & u32"0xF"))
+      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
+      buffer((index + u"2") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      return u64"3"
+    } else {
+      buffer(index % sz) = conversions.U32.toU8(u32"0xF0" | ((raw >>> u32"18") & u32"0x7"))
+      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"12") & u32"0x3F"))
+      buffer((index + u"2") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
+      buffer((index + u"3") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      return u64"4"
+    }
+  }
+
   def printS64(buffer: MS[U, U8], index: U, n: S64): U64 = {
     val sz = Ext.z2u(buffer.size)
     if (n == S64.Min) {
