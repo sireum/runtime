@@ -2285,3 +2285,11 @@ object String_Ext {
     new MS(s.companion, s.data.asInstanceOf[Array[Byte]].clone, s.length / 8 + (if (s.length % 8 == 0) 0 else 1), org.sireum.U8.Boxer)
 }
 
+object Printer_Ext {
+  @pure def u2z(n: anvil.PrinterIndex.U): Z = n.toMP
+  @pure def z2u(n: Z): anvil.PrinterIndex.U = {
+    require(Z_Ext.isInRangeUnsigned64(n))
+    anvil.PrinterIndex.U(n)
+  }
+}
+
