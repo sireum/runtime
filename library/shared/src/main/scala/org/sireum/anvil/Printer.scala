@@ -506,4 +506,16 @@ object Printer {
     }
     return r
   }
+
+  def printString(buffer: MS[U, U8], index: U, s: String): U64 = {
+    val sz = Ext.z2u(buffer.size)
+    val u8is = conversions.String.toU8is(s)
+    var i: Z = 0
+    val size = s.size
+    while (i < size) {
+      buffer((index + Ext.z2u(i)) % sz) = u8is(i)
+      i = i + 1
+    }
+    return conversions.Z.toU64(i)
+  }
 }
