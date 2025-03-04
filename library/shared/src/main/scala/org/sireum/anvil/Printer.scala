@@ -239,33 +239,83 @@ object Printer {
   }
 
   def f32Digit(buffer: MS[I50, U8], index: I50, n: F32): Unit = {
-    val b: U8 =
-      if (n > 9f) u8"57"        // 9
-      else if (n > 8f) u8"56"   // 8
-      else if (n > 7f) u8"55"   // 7
-      else if (n > 6f) u8"54"   // 6
-      else if (n > 5f) u8"53"   // 5
-      else if (n > 4f) u8"52"   // 4
-      else if (n > 3f) u8"51"   // 3
-      else if (n > 2f) u8"50"   // 2
-      else if (n > 1f) u8"49"   // 1
-      else u8"48"               // 0
-    buffer(index) = b
+    if (n > 9f) {
+      buffer(index) = u8"57"  // 9
+      return
+    }
+    if (n > 8f) {
+      buffer(index) = u8"56"  // 8
+      return
+    }
+    if (n > 7f) {
+      buffer(index) = u8"55"  // 7
+      return
+    }
+    if (n > 6f) {
+      buffer(index) = u8"54"  // 6
+      return
+    }
+    if (n > 5f) {
+      buffer(index) = u8"53"  // 5
+      return
+    }
+    if (n > 4f) {
+      buffer(index) = u8"52"  // 4
+      return
+    }
+    if (n > 3f) {
+      buffer(index) = u8"51"  // 3
+      return
+    }
+    if (n > 2f) {
+      buffer(index) = u8"50"  // 2
+      return
+    }
+    if (n > 1f) {
+      buffer(index) = u8"49"  // 1
+      return
+    }
+    buffer(index) = u8"48"    // 0
   }
 
   def f64Digit(buffer: MS[I320, U8], index: I320, n: F64): Unit = {
-    val b: U8 =
-      if (n > 9d) u8"57"        // 9
-      else if (n > 8d) u8"56"   // 8
-      else if (n > 7d) u8"55"   // 7
-      else if (n > 6d) u8"54"   // 6
-      else if (n > 5d) u8"53"   // 5
-      else if (n > 4d) u8"52"   // 4
-      else if (n > 3d) u8"51"   // 3
-      else if (n > 2d) u8"50"   // 2
-      else if (n > 1d) u8"49"   // 1
-      else u8"48"               // 0
-    buffer(index) = b
+    if (n > 9d) {
+      buffer(index) = u8"57"  // 9
+      return
+    }
+    if (n > 8d) {
+      buffer(index) = u8"56"  // 8
+      return
+    }
+    if (n > 7d) {
+      buffer(index) = u8"55"  // 7
+      return
+    }
+    if (n > 6d) {
+      buffer(index) = u8"54"  // 6
+      return
+    }
+    if (n > 5d) {
+      buffer(index) = u8"53"  // 5
+      return
+    }
+    if (n > 4d) {
+      buffer(index) = u8"52"  // 4
+      return
+    }
+    if (n > 3d) {
+      buffer(index) = u8"51"  // 3
+      return
+    }
+    if (n > 2d) {
+      buffer(index) = u8"50"  // 2
+      return
+    }
+    if (n > 1d) {
+      buffer(index) = u8"49"  // 1
+      return
+    }
+    buffer(index) = u8"48"    // 0
   }
 
   def printF32_2(buffer: MS[U, U8], index: U, n: F32): U64 = {
