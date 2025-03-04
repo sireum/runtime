@@ -76,44 +76,44 @@ trait PackageTrait {
     as.size match {
       case 0 =>
         System.out.println()
-        System.out.flush()
       case 1 =>
         System.out.println(as(0))
-        System.out.flush()
       case _ =>
         for (a <- as) System.out.print(a)
         System.out.println()
-        System.out.flush()
     }
+    System.out.flush()
+    System.err.flush()
   }
 
   final def print(as: Any*): Unit = {
     for (a <- as) {
       System.out.print(a)
-      System.out.flush()
     }
+    System.out.flush()
+    System.err.flush()
   }
 
   final def eprintln(as: Any*): Unit = {
     as.size match {
       case 0 =>
         System.err.println()
-        System.err.flush()
       case 1 =>
         System.err.println(as(0))
-        System.err.flush()
       case _ =>
         for (a <- as) System.err.print(a)
         System.err.println()
-        System.err.flush()
     }
+    System.err.flush()
+    System.out.flush()
   }
 
   final def eprint(as: Any*): Unit = {
     for (a <- as) {
       System.err.print(a)
-      System.err.flush()
     }
+    System.err.flush()
+    System.out.flush()
   }
 
   import language.implicitConversions
