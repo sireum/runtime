@@ -86,7 +86,7 @@ object Printer {
 
   def printS64(buffer: MS[U, U8], index: U, n: S64): U64 = {
     val sz = Ext.z2u(buffer.size)
-    if (n == S64.Min) {
+    if (n == s64"-9223372036854775808") {
       // -9,223,372,036,854,775,808
       buffer(index % sz) = u8"45"           // -
       buffer((index + u"1") % sz) = u8"57"  // 9
@@ -191,7 +191,7 @@ object Printer {
     return r
   }
 
-  def printU64Hex(buffer: MS[U, U8], index: U, n: U64, digits: Z): Unit = {
+  def printU64Hex(buffer: MS[U, U8], index: U, n: U64, digits: Z): U64 = {
     val sz = Ext.z2u(buffer.size)
     val buff = MS[I16, U8](
       u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0",
@@ -235,6 +235,7 @@ object Printer {
       j = j - i16"1"
       idx = idx + u"1"
     }
+    return conversions.Z.toU64(digits)
   }
 
   def f32Digit(buffer: MS[I50, U8], index: I50, n: F32): Unit = {
