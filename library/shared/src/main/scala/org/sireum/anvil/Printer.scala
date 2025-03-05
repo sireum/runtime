@@ -54,64 +54,61 @@ object Printer {
     @pure def z2u(n: Z): U = $
   }
 
-  def printB(buffer: MS[U, U8], index: U, b: B): U64 = {
-    val sz = anvil.Printer.Ext.z2u(buffer.size)
-    buffer(index % sz) = if (b) u8"84" else u8"70"
+  def printB(buffer: MS[U, U8], index: U, mask: U, b: B): U64 = {
+    buffer(index & mask) = if (b) u8"84" else u8"70"
     return u64"1"
   }
 
-  def printC(buffer: MS[U, U8], index: U, c: C): U64 = {
-    val sz = anvil.Printer.Ext.z2u(buffer.size)
+  def printC(buffer: MS[U, U8], index: U, mask: U, c: C): U64 = {
     val raw = conversions.C.toU32(c)
     if (u32"0" <= raw && raw <= u32"0x7F") {
-      buffer(index % sz) = conversions.U32.toU8(raw)
+      buffer(index & mask) = conversions.U32.toU8(raw)
       return u64"1"
     } else if (u32"80" <= raw && raw <= u32"0x7FF") {
-      buffer(index % sz) = conversions.U32.toU8(u32"0xC0" | ((raw >>> u32"6") & u32"0x1F"))
-      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      buffer(index & mask) = conversions.U32.toU8(u32"0xC0" | ((raw >>> u32"6") & u32"0x1F"))
+      buffer((index + u"1") & mask) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
       return u64"2"
     } else if (u32"800" <= raw && raw <= u32"0xFFFF") {
-      buffer(index % sz) = conversions.U32.toU8(u32"0xE0" | ((raw >>> u32"12") & u32"0xF"))
-      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
-      buffer((index + u"2") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      buffer(index & mask) = conversions.U32.toU8(u32"0xE0" | ((raw >>> u32"12") & u32"0xF"))
+      buffer((index + u"1") & mask) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
+      buffer((index + u"2") & mask) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
       return u64"3"
     } else {
-      buffer(index % sz) = conversions.U32.toU8(u32"0xF0" | ((raw >>> u32"18") & u32"0x7"))
-      buffer((index + u"1") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"12") & u32"0x3F"))
-      buffer((index + u"2") % sz) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
-      buffer((index + u"3") % sz) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
+      buffer(index & mask) = conversions.U32.toU8(u32"0xF0" | ((raw >>> u32"18") & u32"0x7"))
+      buffer((index + u"1") & mask) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"12") & u32"0x3F"))
+      buffer((index + u"2") & mask) = conversions.U32.toU8(u32"0x80" | ((raw >>> u32"6") & u32"0x3F"))
+      buffer((index + u"3") & mask) = conversions.U32.toU8(u32"0x80" | (raw & u32"0x3F"))
       return u64"4"
     }
   }
 
-  def printS64(buffer: MS[U, U8], index: U, n: S64): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printS64(buffer: MS[U, U8], index: U, mask: U, n: S64): U64 = {
     if (n == s64"-9223372036854775808") {
       // -9,223,372,036,854,775,808
-      buffer(index % sz) = u8"45"           // -
-      buffer((index + u"1") % sz) = u8"57"  // 9
-      buffer((index + u"2") % sz) = u8"50"  // 2
-      buffer((index + u"3") % sz) = u8"50"  // 2
-      buffer((index + u"4") % sz) = u8"51"  // 3
-      buffer((index + u"5") % sz) = u8"51"  // 3
-      buffer((index + u"6") % sz) = u8"55"  // 7
-      buffer((index + u"7") % sz) = u8"50"  // 2
-      buffer((index + u"8") % sz) = u8"48"  // 0
-      buffer((index + u"9") % sz) = u8"51"  // 3
-      buffer((index + u"10") % sz) = u8"54" // 6
-      buffer((index + u"11") % sz) = u8"56" // 8
-      buffer((index + u"12") % sz) = u8"53" // 5
-      buffer((index + u"13") % sz) = u8"52" // 4
-      buffer((index + u"14") % sz) = u8"55" // 7
-      buffer((index + u"15") % sz) = u8"55" // 7
-      buffer((index + u"16") % sz) = u8"53" // 5
-      buffer((index + u"17") % sz) = u8"56" // 8
-      buffer((index + u"18") % sz) = u8"48" // 0
-      buffer((index + u"19") % sz) = u8"56" // 8
+      buffer(index & mask) = u8"45"           // -
+      buffer((index + u"1") & mask) = u8"57"  // 9
+      buffer((index + u"2") & mask) = u8"50"  // 2
+      buffer((index + u"3") & mask) = u8"50"  // 2
+      buffer((index + u"4") & mask) = u8"51"  // 3
+      buffer((index + u"5") & mask) = u8"51"  // 3
+      buffer((index + u"6") & mask) = u8"55"  // 7
+      buffer((index + u"7") & mask) = u8"50"  // 2
+      buffer((index + u"8") & mask) = u8"48"  // 0
+      buffer((index + u"9") & mask) = u8"51"  // 3
+      buffer((index + u"10") & mask) = u8"54" // 6
+      buffer((index + u"11") & mask) = u8"56" // 8
+      buffer((index + u"12") & mask) = u8"53" // 5
+      buffer((index + u"13") & mask) = u8"52" // 4
+      buffer((index + u"14") & mask) = u8"55" // 7
+      buffer((index + u"15") & mask) = u8"55" // 7
+      buffer((index + u"16") & mask) = u8"53" // 5
+      buffer((index + u"17") & mask) = u8"56" // 8
+      buffer((index + u"18") & mask) = u8"48" // 0
+      buffer((index + u"19") & mask) = u8"56" // 8
       return u64"20"
     }
     if (n == s64"0") {
-      buffer(index % sz) = u8"48"
+      buffer(index & mask) = u8"48"
       return u64"1"
     }
     val buff = MS[I20, U8](
@@ -144,7 +141,7 @@ object Printer {
     var idx = index
     var r = u64"0"
     while (j >= i20"0") {
-      buffer(idx % sz) = buff(j)
+      buffer(idx & mask) = buff(j)
       j = j - i20"1"
       idx = idx + u"1"
       r = r + u64"1"
@@ -152,10 +149,9 @@ object Printer {
     return r
   }
 
-  def printU64(buffer: MS[U, U8], index: U, n: U64): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printU64(buffer: MS[U, U8], index: U, mask: U, n: U64): U64 = {
     if (n == u64"0") {
-      buffer(index % sz) = u8"48"
+      buffer(index & mask) = u8"48"
       return u64"1"
     }
     val buff = MS[I20, U8](
@@ -183,7 +179,7 @@ object Printer {
     var idx = index
     var r = u64"0"
     while (j >= i20"0") {
-      buffer(idx % sz) = buff(j)
+      buffer(idx & mask) = buff(j)
       j = j - i20"1"
       idx = idx + u"1"
       r = r + u64"1"
@@ -191,8 +187,7 @@ object Printer {
     return r
   }
 
-  def printU64Hex(buffer: MS[U, U8], index: U, n: U64, digits: Z): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printU64Hex(buffer: MS[U, U8], index: U, mask: U, n: U64, digits: Z): U64 = {
     val buff = MS[I16, U8](
       u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0",
       u8"0", u8"0", u8"0", u8"0", u8"0", u8"0"
@@ -225,13 +220,13 @@ object Printer {
     }
     var idx = index
     while (d > 0) {
-      buffer(idx % sz) = u8"48"
+      buffer(idx & mask) = u8"48"
       d = d - 1
       idx = idx + u"1"
     }
     var j = i - i16"1"
     while (j >= i16"0") {
-      buffer(idx % sz) = buff(j)
+      buffer(idx & mask) = buff(j)
       j = j - i16"1"
       idx = idx + u"1"
     }
@@ -318,46 +313,45 @@ object Printer {
     buffer(index) = u8"48"    // 0
   }
 
-  def printF32_2(buffer: MS[U, U8], index: U, n: F32): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printF32_2(buffer: MS[U, U8], index: U, mask: U, n: F32): U64 = {
     if (n == 0f) {
-      buffer(index % sz) = u8"48"           // 0
-      buffer((index + u"1") % sz) = u8"46"  // .
-      buffer((index + u"2") % sz) = u8"48"  // 0
+      buffer(index & mask) = u8"48"           // 0
+      buffer((index + u"1") & mask) = u8"46"  // .
+      buffer((index + u"2") & mask) = u8"48"  // 0
       return u64"3"
     } else if (n == -0f) {
-      buffer(index % sz) = u8"45"           // -
-      buffer((index + u"1") % sz) = u8"48"  // 0
-      buffer((index + u"2") % sz) = u8"46"  // .
-      buffer((index + u"3") % sz) = u8"48"  // 0
+      buffer(index & mask) = u8"45"           // -
+      buffer((index + u"1") & mask) = u8"48"  // 0
+      buffer((index + u"2") & mask) = u8"46"  // .
+      buffer((index + u"3") & mask) = u8"48"  // 0
       return u64"4"
     }
     val raw = conversions.F32.toRawU32(n)
     if (raw == u32"0x7F800000") {
-      buffer(index % sz) = u8"73"             // I
-      buffer((index + u"1") % sz) = u8"110"   // n
-      buffer((index + u"2") % sz) = u8"102"   // f
-      buffer((index + u"3") % sz) = u8"105"   // i
-      buffer((index + u"4") % sz) = u8"110"   // n
-      buffer((index + u"5") % sz) = u8"105"   // i
-      buffer((index + u"6") % sz) = u8"116"   // t
-      buffer((index + u"7") % sz) = u8"121"   // y
+      buffer(index & mask) = u8"73"             // I
+      buffer((index + u"1") & mask) = u8"110"   // n
+      buffer((index + u"2") & mask) = u8"102"   // f
+      buffer((index + u"3") & mask) = u8"105"   // i
+      buffer((index + u"4") & mask) = u8"110"   // n
+      buffer((index + u"5") & mask) = u8"105"   // i
+      buffer((index + u"6") & mask) = u8"116"   // t
+      buffer((index + u"7") & mask) = u8"121"   // y
       return u64"8"
     } else if (raw == u32"0xFF800000") {
-      buffer(index % sz) = u8"45"             // -
-      buffer((index + u"1") % sz) = u8"73"    // I
-      buffer((index + u"2") % sz) = u8"110"   // n
-      buffer((index + u"3") % sz) = u8"102"   // f
-      buffer((index + u"4") % sz) = u8"105"   // i
-      buffer((index + u"5") % sz) = u8"110"   // n
-      buffer((index + u"6") % sz) = u8"105"   // i
-      buffer((index + u"7") % sz) = u8"116"   // t
-      buffer((index + u"8") % sz) = u8"121"   // y
+      buffer(index & mask) = u8"45"             // -
+      buffer((index + u"1") & mask) = u8"73"    // I
+      buffer((index + u"2") & mask) = u8"110"   // n
+      buffer((index + u"3") & mask) = u8"102"   // f
+      buffer((index + u"4") & mask) = u8"105"   // i
+      buffer((index + u"5") & mask) = u8"110"   // n
+      buffer((index + u"6") & mask) = u8"105"   // i
+      buffer((index + u"7") & mask) = u8"116"   // t
+      buffer((index + u"8") & mask) = u8"121"   // y
       return u64"9"
     } else if ((raw << u32"1") >>> u32"23" == u32"0x1FF") {
-      buffer(index % sz) = u8"78"               // N
-      buffer((index + u"1") % sz) = u8"97"    // a
-      buffer((index + u"2") % sz) = u8"78"    // N
+      buffer(index & mask) = u8"78"             // N
+      buffer((index + u"1") & mask) = u8"97"    // a
+      buffer((index + u"2") & mask) = u8"78"    // N
       return u64"3"
     }
     val buff = MS[I50, U8](
@@ -392,12 +386,12 @@ object Printer {
     var j = i50"0"
     var r = u64"0"
     while (j < i) {
-      buffer(idx % sz) = buff(i - j - i50"1")
+      buffer(idx & mask) = buff(i - j - i50"1")
       j = j + i50"1"
       idx = idx + u"1"
       r = r + u64"1"
     }
-    buffer(idx % sz) = u8"46"
+    buffer(idx & mask) = u8"46"
     idx = idx + u"1"
     m = om
     m = m * 10f
@@ -416,7 +410,7 @@ object Printer {
     }
     j = i50"0"
     while (j < i) {
-      buffer(idx % sz) = buff(j)
+      buffer(idx & mask) = buff(j)
       j = j + i50"1"
       idx = idx + u"1"
       r = r + u64"1"
@@ -424,46 +418,45 @@ object Printer {
     return r
   }
 
-  def printF64_2(buffer: MS[U, U8], index: U, n: F64): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printF64_2(buffer: MS[U, U8], index: U, mask: U, n: F64): U64 = {
     if (n == 0d) {
-      buffer(index % sz) = u8"48"           // 0
-      buffer((index + u"1") % sz) = u8"46"  // .
-      buffer((index + u"2") % sz) = u8"48"  // 0
+      buffer(index & mask) = u8"48"           // 0
+      buffer((index + u"1") & mask) = u8"46"  // .
+      buffer((index + u"2") & mask) = u8"48"  // 0
       return u64"3"
     } else if (n == -0d) {
-      buffer(index % sz) = u8"45"           // -
-      buffer((index + u"1") % sz) = u8"48"  // 0
-      buffer((index + u"2") % sz) = u8"46"  // .
-      buffer((index + u"3") % sz) = u8"48"  // 0
+      buffer(index & mask) = u8"45"           // -
+      buffer((index + u"1") & mask) = u8"48"  // 0
+      buffer((index + u"2") & mask) = u8"46"  // .
+      buffer((index + u"3") & mask) = u8"48"  // 0
       return u64"4"
     }
     val raw = conversions.F64.toRawU64(n)
     if (raw == u64"0x7FF0000000000000") {
-      buffer(index % sz) = u8"73"             // I
-      buffer((index + u"1") % sz) = u8"110"   // n
-      buffer((index + u"2") % sz) = u8"102"   // f
-      buffer((index + u"3") % sz) = u8"105"   // i
-      buffer((index + u"4") % sz) = u8"110"   // n
-      buffer((index + u"5") % sz) = u8"105"   // i
-      buffer((index + u"6") % sz) = u8"116"   // t
-      buffer((index + u"7") % sz) = u8"121"   // y
+      buffer(index & mask) = u8"73"             // I
+      buffer((index + u"1") & mask) = u8"110"   // n
+      buffer((index + u"2") & mask) = u8"102"   // f
+      buffer((index + u"3") & mask) = u8"105"   // i
+      buffer((index + u"4") & mask) = u8"110"   // n
+      buffer((index + u"5") & mask) = u8"105"   // i
+      buffer((index + u"6") & mask) = u8"116"   // t
+      buffer((index + u"7") & mask) = u8"121"   // y
       return u64"8"
     } else if (raw == u64"0xFFF0000000000000") {
-      buffer(index % sz) = u8"45"             // -
-      buffer((index + u"1") % sz) = u8"73"    // I
-      buffer((index + u"2") % sz) = u8"110"   // n
-      buffer((index + u"3") % sz) = u8"102"   // f
-      buffer((index + u"4") % sz) = u8"105"   // i
-      buffer((index + u"5") % sz) = u8"110"   // n
-      buffer((index + u"6") % sz) = u8"105"   // i
-      buffer((index + u"7") % sz) = u8"116"   // t
-      buffer((index + u"8") % sz) = u8"121"   // y
+      buffer(index & mask) = u8"45"             // -
+      buffer((index + u"1") & mask) = u8"73"    // I
+      buffer((index + u"2") & mask) = u8"110"   // n
+      buffer((index + u"3") & mask) = u8"102"   // f
+      buffer((index + u"4") & mask) = u8"105"   // i
+      buffer((index + u"5") & mask) = u8"110"   // n
+      buffer((index + u"6") & mask) = u8"105"   // i
+      buffer((index + u"7") & mask) = u8"116"   // t
+      buffer((index + u"8") & mask) = u8"121"   // y
       return u64"9"
     } else if ((raw << u64"1") >>> u64"53" == u64"0x7FF") {
-      buffer(index % sz) = u8"78"             // N
-      buffer((index + u"1") % sz) = u8"97"    // a
-      buffer((index + u"2") % sz) = u8"78"    // N
+      buffer(index & mask) = u8"78"             // N
+      buffer((index + u"1") & mask) = u8"97"    // a
+      buffer((index + u"2") & mask) = u8"78"    // N
       return u64"3"
     }
     val buff = MS[I320, U8](
@@ -526,12 +519,12 @@ object Printer {
     var j = i320"0"
     var r = u64"0"
     while (j < i) {
-      buffer(idx % sz) = buff(i - j - i320"1")
+      buffer(idx & mask) = buff(i - j - i320"1")
       j = j + i320"1"
       idx = idx + u"1"
       r = r + u64"1"
     }
-    buffer(idx % sz) = u8"46"
+    buffer(idx & mask) = u8"46"
     idx = idx + u"1"
     m = om
     m = m * 10d
@@ -550,7 +543,7 @@ object Printer {
     }
     j = i320"0"
     while (j < i) {
-      buffer(idx % sz) = buff(j)
+      buffer(idx & mask) = buff(j)
       j = j + i320"1"
       idx = idx + u"1"
       r = r + u64"1"
@@ -558,13 +551,12 @@ object Printer {
     return r
   }
 
-  def printString(buffer: MS[U, U8], index: U, s: String): U64 = {
-    val sz = Ext.z2u(buffer.size)
+  def printString(buffer: MS[U, U8], index: U, mask: U, s: String): U64 = {
     val u8is = conversions.String.toU8is(s)
     var i: Z = 0
     val size = s.size
     while (i < size) {
-      buffer((index + Ext.z2u(i)) % sz) = u8is(i)
+      buffer((index + Ext.z2u(i)) & mask) = u8is(i)
       i = i + 1
     }
     return conversions.Z.toU64(i)
