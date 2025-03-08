@@ -567,7 +567,7 @@ object Printer {
     var i = u"0"
     while (i < size) {
       val b = Ext.z2u(conversions.U8.toZ(memory(offset + i)))
-      r = r | (b << (size - i - u"1"))
+      r = r | (b << ((size - i - u"1") * u"8"))
       i = i + u"1"
     }
     return r
@@ -576,7 +576,7 @@ object Printer {
   def store(memory: MS[U, U8], offset: U, size: U, value: U): Unit = {
     var i = u"0"
     while (i < size) {
-      val b = conversions.Z.toU8(Ext.u2z((value >> (size - i - u"1")) & u"0xFF"))
+      val b = conversions.Z.toU8(Ext.u2z((value >> ((size - i - u"1") * u"8")) & u"0xFF"))
       memory(offset + i) = b
       i = i + u"1"
     }
