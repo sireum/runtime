@@ -84,6 +84,18 @@ object ISOps_Ext {
     IS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
+  def mParMapUnordered[@index I, V, U](s: IS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): IS[I, U] = {
+    val ies = s.elements
+    val t = Thread.currentThread
+    val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
+    val irs =
+      if (ies.size >= MinimumParallelThreshold) $internal.Macro.parMap(poolRef, cores, ies, { p: V =>
+        if (t.isInterrupted) null.asInstanceOf[U] else f(p)
+      }).toSeq else ies.map(f)
+    if (Thread.interrupted()) throw new InterruptedException
+    IS[I, U](irs: _*)(s.companion)
+  }
+
   @pure def sortWith[@index I, V](s: IS[I, V], lt: (V, V) => B): IS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
@@ -103,7 +115,11 @@ object ISZOpsUtil_Ext {
 
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
 
+  def mParMapUnordered[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMapUnordered(s, f)
+
   def parMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMap(s, f)
+
+  def parMapUnordered[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = ISOps_Ext.mParMapUnordered(s, f)
 
   def mParMapCores[V, U](s: IS[Z, V], f: V => U, numOfCores: Z): IS[Z, U] = ISOps_Ext.mParMap(s, f, numOfCores)
 
@@ -127,6 +143,18 @@ object MSOps_Ext {
     MS[I, U](irs.map(_._2.asInstanceOf[U]).toSeq: _*)(s.companion)
   }
 
+  def mParMapUnordered[@index I, V, U](s: MS[I, V], f: V => U, numOfCores: Z = Runtime.getRuntime.availableProcessors): MS[I, U] = {
+    val ies = s.elements
+    val t = Thread.currentThread
+    val cores = if (numOfCores >= 1) numOfCores.toInt else Runtime.getRuntime.availableProcessors
+    val irs =
+      if (ies.size >= ISOps_Ext.MinimumParallelThreshold) $internal.Macro.parMap(ISOps_Ext.poolRef, cores, ies, { p: V =>
+        if (t.isInterrupted) null.asInstanceOf[U] else f(p)
+      }).toSeq else ies.map(f)
+    if (Thread.interrupted()) throw new InterruptedException
+    MS[I, U](irs: _*)(s.companion)
+  }
+
   @pure def sortWith[@index I, V](s: MS[I, V], lt: (V, V) => B): MS[I, V] = {
     val es = s.elements.sortWith((e1, e2) => lt(e1, e2).value)
     val a = s.boxer.create(s.length)
@@ -142,7 +170,11 @@ object MSOps_Ext {
 object MSZOpsUtil_Ext {
   def mParMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMap(s, f)
 
+  def mParMapUnordered[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMapUnordered(s, f)
+
   def parMap[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMap(s, f)
+
+  def parMapUnordered[V, U](s: MS[Z, V], f: V => U): MS[Z, U] = MSOps_Ext.mParMapUnordered(s, f)
 
   def mParMapCores[V, U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = MSOps_Ext.mParMap(s, f, numOfCores)
 

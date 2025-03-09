@@ -168,7 +168,11 @@ import org.sireum._
 
   @pure def parMap[V, U](s: IS[Z, V], f: V => U @pure): IS[Z, U] = $
 
+  @pure def parMapUnordered[V, U](s: IS[Z, V], f: V => U @pure): IS[Z, U] = $
+
   def mParMap[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = $
+
+  def mParMapUnordered[V, U](s: IS[Z, V], f: V => U): IS[Z, U] = $
 
   @pure def parMapCores[V, U](s: IS[Z, V], f: V => U @pure, numOfCores: Z): IS[Z, U] = $
 
@@ -401,8 +405,16 @@ import org.sireum._
     return ISZOpsUtil.parMap(s, f)
   }
 
-  @pure def mParMap[U](f: T => U): IS[Z, U] = {
+  @pure def parMapUnordered[U](f: T => U @pure): IS[Z, U] = {
+    return ISZOpsUtil.parMapUnordered(s, f)
+  }
+
+  def mParMap[U](f: T => U): IS[Z, U] = {
     return ISZOpsUtil.mParMap(s, f)
+  }
+
+  def mParMapUnordered[U](f: T => U): IS[Z, U] = {
+    return ISZOpsUtil.mParMapUnordered(s, f)
   }
 
   @pure def parMapFoldLeft[U, R](f: T => U @pure, g: (R, U) => R @pure, init: R): R = {
@@ -534,6 +546,8 @@ import org.sireum._
   @pure def parMap[@mut V, @mut U](s: MS[Z, V], f: V => U @pure): MS[Z, U] = $
 
   def mParMap[@mut V, @mut U](s: MS[Z, V], f: V => U): MS[Z, U] = $
+
+  def mParMapUnordered[@mut V, @mut U](s: MS[Z, V], f: V => U): MS[Z, U] = $
 
   @pure def parMapCores[@mut V, @mut U](s: MS[Z, V], f: V => U @pure, numOfCores: Z): MS[Z, U] = $
 
@@ -765,8 +779,18 @@ import org.sireum._
     return r
   }
 
+  @pure def parMapUnordered[@mut U](f: T => U @pure): MS[Z, U] = {
+    val r = MSZOpsUtil.mParMapUnordered(s, f)
+    return r
+  }
+
   def mParMap[@mut U](f: T => U): MS[Z, U] = {
     val r = MSZOpsUtil.mParMap(s, f)
+    return r
+  }
+
+  def mParMapUnordered[@mut U](f: T => U): MS[Z, U] = {
+    val r = MSZOpsUtil.mParMapUnordered(s, f)
     return r
   }
 
