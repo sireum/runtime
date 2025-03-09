@@ -23,50 +23,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.sireum
+package org.sireum.anvil
 
 import scala.annotation.StaticAnnotation
 
-class datatype extends StaticAnnotation
+class hls extends StaticAnnotation
 
-class `enum` extends StaticAnnotation
-
-class ext(name: String = "") extends StaticAnnotation
-
-class just(name: String = "") extends StaticAnnotation
-
-class hidden extends StaticAnnotation
-
-class memoize extends StaticAnnotation
-
-class msig extends StaticAnnotation
-
-class pure extends StaticAnnotation
-
-class strictpure extends StaticAnnotation
-
-class record extends StaticAnnotation
-
-class unclonable extends StaticAnnotation
-
-class sig extends StaticAnnotation
-
-class spec extends StaticAnnotation
-
-class range(min: Z = 0, max: Z = 0, index: B = F) extends StaticAnnotation
-
-class bits(signed: B = T, width: Z = 0, min: Z = 0, max: Z = 0, index: B = F) extends StaticAnnotation
-
-class imm extends StaticAnnotation
-
-class mut extends StaticAnnotation
-
-class index extends StaticAnnotation
-
-class l(num: Int = 0) extends StaticAnnotation
-
-class rw extends StaticAnnotation
-
-class abs extends StaticAnnotation
-
-class induct extends StaticAnnotation
+class test extends StaticAnnotation
