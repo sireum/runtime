@@ -23,22 +23,14 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package org.sireum.anvil
 
 import org.sireum._
 import org.sireum.U8._
-import org.sireum.S64._
 import org.sireum.U32._
+import org.sireum.S32._
 import org.sireum.U64._
-
-object PrinterIndex {
-  @range(min = -1, max = 16) class I16
-  @range(min = -1, max = 20) class I20
-  @range(min = -1, max = 50) class I50
-  @range(min = -1, max = 320) class I320
-  @bits(signed = F, width = 64) class U
-}
+import org.sireum.S64._
 
 import org.sireum.anvil.PrinterIndex._
 import org.sireum.anvil.PrinterIndex.I16._
@@ -47,8 +39,74 @@ import org.sireum.anvil.PrinterIndex.I50._
 import org.sireum.anvil.PrinterIndex.I320._
 import org.sireum.anvil.PrinterIndex.U._
 
-object Printer {
-  
+object Runtime {
+
+  @pure def shlU32(n: U32, m: U32): U32 = {
+    var r = n
+    var shift = m
+    while (shift >= u32"20") {
+      r = r << u32"20"
+      shift = shift - u32"20"
+    }
+    r = r << shift
+    return r
+  }
+
+  @pure def shlU64(n: U64, m: U64): U64 = {
+    var r = n
+    var shift = m
+    while (shift >= u64"20") {
+      r = r << u64"20"
+      shift = shift - u64"20"
+    }
+    r = r << shift
+    return r
+  }
+
+  @pure def shrU32(n: U32, m: U32): U32 = {
+    var r = n
+    var shift = m
+    while (shift >= u32"20") {
+      r = r >>> u32"20"
+      shift = shift - u32"20"
+    }
+    r = r >>> shift
+    return r
+  }
+
+  @pure def shrU64(n: U64, m: U64): U64 = {
+    var r = n
+    var shift = m
+    while (shift >= u64"20") {
+      r = r >>> u64"20"
+      shift = shift - u64"20"
+    }
+    r = r >>> shift
+    return r
+  }
+
+  @pure def shrS32(n: S32, m: S32): S32 = {
+    var r = n
+    var shift = m
+    while (shift >= s32"20") {
+      r = r >> s32"20"
+      shift = shift - s32"20"
+    }
+    r = r >> shift
+    return r
+  }
+
+  @pure def shrS64(n: S64, m: S64): S64 = {
+    var r = n
+    var shift = m
+    while (shift >= s64"20") {
+      r = r >> s64"20"
+      shift = shift - s64"20"
+    }
+    r = r >> shift
+    return r
+  }
+
   @ext("org.sireum.conversions.Printer_Ext") object Ext {
     @pure def u2z(n: U): Z = $
     @pure def z2u(n: Z): U = $
@@ -567,7 +625,7 @@ object Printer {
     var i = u"0"
     while (i < size) {
       val b = Ext.z2u(conversions.U8.toZ(memory(offset + i)))
-      r = r | (b << ((size - i - u"1") * u"8"))
+      r = r | (b << (i * u"8"))
       i = i + u"1"
     }
     return r
@@ -576,7 +634,7 @@ object Printer {
   def store(memory: MS[U, U8], offset: U, size: U, value: U): Unit = {
     var i = u"0"
     while (i < size) {
-      val b = conversions.Z.toU8(Ext.u2z((value >> ((size - i - u"1") * u"8")) & u"0xFF"))
+      val b = conversions.Z.toU8(Ext.u2z((value >> (i * u"8")) & u"0xFF"))
       memory(offset + i) = b
       i = i + u"1"
     }
@@ -612,4 +670,5 @@ object Printer {
     }
     return r
   }
+
 }
