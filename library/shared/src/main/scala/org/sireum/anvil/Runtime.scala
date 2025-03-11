@@ -641,7 +641,7 @@ object Runtime {
   }
 
   def printStackTrace(buffer: MS[U, U8], index: U, memory: MS[U, U8], mask: U, spSize: U, typeShaSize: U, locSize: U, sizeSize: U, sfCallerOffset: U): U64 = {
-    var sfCaller = load(memory, sfCallerOffset - typeShaSize - sizeSize, spSize)
+    var sfCaller = sfCallerOffset
     var r = u64"0"
     var idx = index
     while (sfCaller != u"0") {
