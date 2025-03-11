@@ -640,33 +640,35 @@ object Runtime {
     }
   }
 
-  def printStackTrace(buffer: MS[U, U8], index: U, memory: MS[U, U8], mask: U, spSize: U, locSize: U, sizeSize: U, sfCallerOffset: U): U64 = {
-    var offset = sfCallerOffset
-    val sfCaller = load(memory, offset, spSize)
-    offset = offset + spSize
-    val sfLoc = conversions.Z.toU64(Ext.u2z(load(memory, offset, locSize)))
-    offset = offset + locSize + u"4"
-    val sfDescSize = load(memory, offset, sizeSize)
-    offset = offset + sizeSize
-    buffer(index & mask) = u8"32"            // ' '
-    buffer((index + u"1") & mask) = u8"32"   // ' '
-    var r = u64"2"
-    var i = u"0"
-    var idx = index + u"2"
-    while (i < sfDescSize) {
-      buffer((idx + i) & mask) = memory(offset + i)
-      r = r + u64"1"
-      i = i + u"1"
-    }
-    idx = idx + i
-    val n = printU64(buffer, idx, mask, sfLoc)
-    r = r + n
-    idx = idx + Ext.z2u(conversions.U64.toZ(n))
-    buffer(idx & mask) = u8"41"              // ')'
-    buffer((idx + u"1") & mask) = u8"10"     // '\n'
-    r = r + u64"2"
-    if (sfCaller != u"0") {
-      r = r + printStackTrace(buffer, idx + u"2", memory, mask, spSize, locSize, sizeSize, sfCaller)
+  def printStackTrace(buffer: MS[U, U8], index: U, memory: MS[U, U8], mask: U, spSize: U, typeShaSize: U, locSize: U, sizeSize: U, sfCallerOffset: U): U64 = {
+    var sfCaller = load(memory, sfCallerOffset - typeShaSize - sizeSize, spSize)
+    var r = u64"0"
+    var idx = index
+    while (sfCaller != u"0") {
+      var offset = sfCaller + spSize - typeShaSize - sizeSize
+      val sfLoc = conversions.Z.toU64(Ext.u2z(load(memory, offset, locSize)))
+      offset = offset + locSize + typeShaSize
+      val sfDescSize = load(memory, offset, sizeSize)
+      offset = offset + sizeSize
+      buffer(idx & mask) = u8"32"          // ' '
+      buffer((idx + u"1") & mask) = u8"32" // ' '
+      idx = idx + u"2"
+      r = r + u64"2"
+      var i = u"0"
+      while (i < sfDescSize) {
+        buffer((idx + i) & mask) = memory(offset + i)
+        r = r + u64"1"
+        i = i + u"1"
+      }
+      idx = idx + i
+      val n = printU64(buffer, idx, mask, sfLoc)
+      r = r + n
+      idx = idx + Ext.z2u(conversions.U64.toZ(n))
+      buffer(idx & mask) = u8"41"          // ')'
+      buffer((idx + u"1") & mask) = u8"10" // '\n'
+      r = r + u64"2"
+      idx = idx + u"2"
+      sfCaller = load(memory,  sfCaller - typeShaSize - sizeSize, spSize)
     }
     return r
   }
