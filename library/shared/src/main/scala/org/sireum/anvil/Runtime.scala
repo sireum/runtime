@@ -42,69 +42,64 @@ import org.sireum.anvil.PrinterIndex.U._
 object Runtime {
 
   @pure def shlU32(n: U32, m: U32): U32 = {
-    var r = n
-    var shift = m
-    while (shift >= u32"20") {
-      r = r << u32"20"
-      shift = shift - u32"20"
+    if (m <= u32"20") {
+      return n << m
     }
-    r = r << shift
-    return r
+    return (n << u32"20") << (m - u32"20")
   }
 
   @pure def shlU64(n: U64, m: U64): U64 = {
-    var r = n
-    var shift = m
-    while (shift >= u64"20") {
-      r = r << u64"20"
-      shift = shift - u64"20"
+    if (m <= u64"20") {
+      return n << m
     }
-    r = r << shift
-    return r
+    if (m <= u64"40") {
+      return (n << u64"20") << (m - u64"20")
+    }
+    if (m <= u64"60") {
+      return (n << u64"40") << (m - u64"40")
+    }
+    return (n << u64"60") << (m - u64"60")
   }
 
   @pure def shrU32(n: U32, m: U32): U32 = {
-    var r = n
-    var shift = m
-    while (shift >= u32"20") {
-      r = r >>> u32"20"
-      shift = shift - u32"20"
+    if (m <= u32"20") {
+      return n >>> m
     }
-    r = r >>> shift
-    return r
+    return (n >>> u32"20") >>> (m - u32"20")
   }
 
   @pure def shrU64(n: U64, m: U64): U64 = {
-    var r = n
-    var shift = m
-    while (shift >= u64"20") {
-      r = r >>> u64"20"
-      shift = shift - u64"20"
+    if (m <= u64"20") {
+      return n >>> m
     }
-    r = r >>> shift
-    return r
+    if (m <= u64"40") {
+      return (n >>> u64"20") >>> (m - u64"20")
+    }
+    if (m <= u64"60") {
+      return (n >>> u64"40") >>> (m - u64"40")
+    }
+    return (n >>> u64"60") >>> (m - u64"60")
   }
 
   @pure def shrS32(n: S32, m: S32): S32 = {
-    var r = n
-    var shift = m
-    while (shift >= s32"20") {
-      r = r >> s32"20"
-      shift = shift - s32"20"
+    if (m >= s32"20") {
+      return (n >> s32"20") >> (m - s32"20")
+    } else {
+      return n >> m
     }
-    r = r >> shift
-    return r
   }
 
   @pure def shrS64(n: S64, m: S64): S64 = {
-    var r = n
-    var shift = m
-    while (shift >= s64"20") {
-      r = r >> s64"20"
-      shift = shift - s64"20"
+    if (m <= s64"20") {
+      return n >> m
     }
-    r = r >> shift
-    return r
+    if (m <= s64"40") {
+      return (n >> s64"20") >> (m - s64"20")
+    }
+    if (m <= s64"60") {
+      return (n >> s64"40") >> (m - s64"40")
+    }
+    return (n >> s64"60") >> (m - s64"60")
   }
 
   @ext("org.sireum.conversions.Printer_Ext") object Ext {
