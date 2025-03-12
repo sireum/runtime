@@ -287,39 +287,39 @@ object Runtime {
   }
 
   def f32Digit(buffer: MS[I50, U8], index: I50, n: F32): Unit = {
-    if (n > 9f) {
+    if (n >= 9f) {
       buffer(index) = u8"57"  // 9
       return
     }
-    if (n > 8f) {
+    if (n >= 8f) {
       buffer(index) = u8"56"  // 8
       return
     }
-    if (n > 7f) {
+    if (n >= 7f) {
       buffer(index) = u8"55"  // 7
       return
     }
-    if (n > 6f) {
+    if (n >= 6f) {
       buffer(index) = u8"54"  // 6
       return
     }
-    if (n > 5f) {
+    if (n >= 5f) {
       buffer(index) = u8"53"  // 5
       return
     }
-    if (n > 4f) {
+    if (n >= 4f) {
       buffer(index) = u8"52"  // 4
       return
     }
-    if (n > 3f) {
+    if (n >= 3f) {
       buffer(index) = u8"51"  // 3
       return
     }
-    if (n > 2f) {
+    if (n >= 2f) {
       buffer(index) = u8"50"  // 2
       return
     }
-    if (n > 1f) {
+    if (n >= 1f) {
       buffer(index) = u8"49"  // 1
       return
     }
@@ -327,39 +327,39 @@ object Runtime {
   }
 
   def f64Digit(buffer: MS[I320, U8], index: I320, n: F64): Unit = {
-    if (n > 9d) {
+    if (n >= 9d) {
       buffer(index) = u8"57"  // 9
       return
     }
-    if (n > 8d) {
+    if (n >= 8d) {
       buffer(index) = u8"56"  // 8
       return
     }
-    if (n > 7d) {
+    if (n >= 7d) {
       buffer(index) = u8"55"  // 7
       return
     }
-    if (n > 6d) {
+    if (n >= 6d) {
       buffer(index) = u8"54"  // 6
       return
     }
-    if (n > 5d) {
+    if (n >= 5d) {
       buffer(index) = u8"53"  // 5
       return
     }
-    if (n > 4d) {
+    if (n >= 4d) {
       buffer(index) = u8"52"  // 4
       return
     }
-    if (n > 3d) {
+    if (n >= 3d) {
       buffer(index) = u8"51"  // 3
       return
     }
-    if (n > 2d) {
+    if (n >= 2d) {
       buffer(index) = u8"50"  // 2
       return
     }
-    if (n > 1d) {
+    if (n >= 1d) {
       buffer(index) = u8"49"  // 1
       return
     }
