@@ -169,7 +169,7 @@ object Runtime {
       u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0", u8"0")
     var i = i20"0"
     val neg = n < s64"0"
-    var m: S64 = if (neg) n * s64"-1" else n
+    var m: S64 = if (neg) -n else n
     while (m > s64"0") {
       m % s64"10" match {
         case s64"0" => buff(i) = u8"48"
@@ -248,7 +248,7 @@ object Runtime {
     var i = i16"0"
     var m = n
     var d = digits
-    while (m > u64"0") {
+    while (d > 0) {
       m & u64"0xF" match {
         case u64"0" => buff(i) = u8"48"
         case u64"1" => buff(i) = u8"49"
