@@ -248,7 +248,7 @@ object Runtime {
     var i = i16"0"
     var m = n
     var d = digits
-    while (d > 0) {
+    while (m > u64"0" & d > 0) {
       m & u64"0xF" match {
         case u64"0" => buff(i) = u8"48"
         case u64"1" => buff(i) = u8"49"
