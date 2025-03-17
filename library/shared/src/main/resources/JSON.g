@@ -1,4 +1,4 @@
-// https://json.org
+// Adapted from https://json.org
 
 grammar JSON;
 
@@ -15,13 +15,27 @@ options {
 
 valueFile: value EOF ;
 
-value: STRING | NUMBER | object | array | 'true' | 'false' | 'null' ;
+value: stringLit | doubleLit | intLit | object | array | boolLit | nullLit ;
 
-object: '{' ( STRING ':' value ( ',' STRING ':' value )* )? '}' ;
+object: '{' ( keyValue ( ',' keyValue )* )? '}' ;
+
+keyValue: STRING ':' value ;
 
 array: '[' ( value (',' value)* )? ']' ;
 
+stringLit: STRING ;
+
+doubleLit: NUMBER ;
+	
+intLit: INTEGER ;
+
+boolLit: 'true' | 'false' ;
+
+nullLit: 'null' ;
+
 STRING: '"' ( ESC | ~ ( '"' | '\\' | '\u0000' .. '\u001F' ) )* '"' ;
+
+INTEGER: '-'? INT ;
 
 NUMBER: '-'? INT ( '.' ( '0' .. '9' )+ )? EXP? ;
 
