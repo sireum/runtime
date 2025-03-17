@@ -31,6 +31,13 @@ import org.sireum.U64._
 import org.sireum.message.Reporter
 
 object StringOps {
+  val scalaKeywords: HashSet[String] = HashSet ++ ISZ[String](
+    "abstract", "case", "catch", "class", "def", "do", "else", "extends", "false", "final", "finally", "for", "forSome",
+    "if", "implicit", "import", "lazy", "match", "new", "null", "object", "override", "package", "private", "protected",
+    "return", "sealed", "super", "this", "throw", "trait", "try", "true", "type", "val", "var", "while", "with",
+    "yield", "export", "given", "as", "derives", "end", "extension", "infix", "inline", "opaque", "open", "transparent",
+    "using")
+
   @pure def isJavaId(cis: ISZ[C]): B = {
     @strictpure def isDigit(c: C): B = '0' <= c && c <= '9'
     @strictpure def isLetter(c: C): B = 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z'
