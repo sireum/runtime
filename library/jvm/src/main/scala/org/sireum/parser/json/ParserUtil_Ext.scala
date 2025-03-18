@@ -12,23 +12,23 @@ object ParserUtil_Ext {
 
   private final case class Node(buffer: ListBuffer[Any]) {
     def asLeaf: AntlrToken = buffer.head.asInstanceOf[AntlrToken]
-    def pos(docInfo: message.DocInfo): message.Position = {
-      var r: message.Position = ParserUtil_Ext.pos(docInfo, buffer.head.asInstanceOf[AntlrToken])
-      if (buffer.size > 1) r = r.to(ParserUtil_Ext.pos(docInfo, buffer.last.asInstanceOf[AntlrToken]))
-      r
+    def pos(docInfo: message.DocInfo): Option[message.Position] = {
+      var r: message.Position = ParserUtil_Ext.pos(docInfo, buffer.head.asInstanceOf[AntlrToken]).get
+      if (buffer.size > 1) r = r.to(ParserUtil_Ext.pos(docInfo, buffer.last.asInstanceOf[AntlrToken]).get)
+      Some(r)
     }
   }
 
-  private def pos(docInfo: message.DocInfo, token: AntlrToken): message.PosInfo = {
+  private def pos(docInfo: message.DocInfo, token: AntlrToken): Option[message.Position] = {
     val offset = docInfo.lineOffsets(org.sireum.Z(token.getLine - 1)).toZ + org.sireum.Z(token.getCharPositionInLine)
     val length = token.getText.length
     val offsetLength = (org.sireum.conversions.Z.toU64(offset) << org.sireum.U64(32)) | org.sireum.U64(length)
-    org.sireum.message.PosInfo(docInfo, offsetLength)
+    Some(org.sireum.message.PosInfo(docInfo, offsetLength))
   }
 
   private final class Adaptor(docInfo: message.DocInfo) extends TreeAdaptor {
 
-    def pos(token: AntlrToken): message.PosInfo = ParserUtil_Ext.pos(docInfo, token)
+    def pos(token: AntlrToken): Option[message.Position] = ParserUtil_Ext.pos(docInfo, token)
 
     override def create(payload: AntlrToken): AntlrToken = {
       payload
@@ -42,7 +42,8 @@ object ParserUtil_Ext {
 
     override def errorNode(input: TokenStream, start: AntlrToken, stop: AntlrToken, e: RecognitionException): AnyRef = {
       val name = Thread.currentThread.getStackTrace()(2).getMethodName
-      AST.Str(s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", pos(start).to(pos(stop)))
+      AST.Str(s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}",
+        Some(pos(start).get.to(pos(stop).get)))
     }
 
     override def isNil(tree: Any): Boolean = halt("Infeasible")

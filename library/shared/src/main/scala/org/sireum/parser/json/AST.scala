@@ -28,7 +28,7 @@ package org.sireum.parser.json
 import org.sireum._
 
 @datatype trait AST {
-  @pure def pos: message.Position
+  @pure def posOpt: Option[message.Position]
   @pure def toST: ST
   @pure def toCompactST: ST
 }
@@ -36,7 +36,7 @@ import org.sireum._
 
 object AST {
 
-  @datatype class Obj(val keyValues: ISZ[KeyValue], val pos: message.Position) extends AST {
+  @datatype class Obj(val keyValues: ISZ[KeyValue], val posOpt: Option[message.Position]) extends AST {
     @strictpure def asMap: Map = Map(HashSMap ++ (for (kv <- keyValues) yield (kv.id.value, kv.value)))
     @strictpure def toST: ST =
       st"""{
@@ -74,7 +74,7 @@ object AST {
     @strictpure def toCompactST: ST = st"${id.toCompactST}:${value.toCompactST}"
   }
 
-  @datatype class Arr(val values: ISZ[AST], val pos: message.Position) extends AST {
+  @datatype class Arr(val values: ISZ[AST], val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST =
       if (values.isEmpty) st"[]"
       else if (values(0).isInstanceOf[AST.Obj] || values(0).isInstanceOf[AST.Arr])
@@ -85,27 +85,27 @@ object AST {
     @strictpure def toCompactST: ST = st"[${(for (v <- values) yield v.toCompactST,",")}]"
   }
 
-  @datatype class Int(val value: Z, val pos: message.Position) extends AST {
+  @datatype class Int(val value: Z, val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST = toCompactST
     @strictpure def toCompactST: ST = Json.Printer.printZ(value)
   }
 
-  @datatype class Dbl(val value: F64, val pos: message.Position) extends AST {
+  @datatype class Dbl(val value: F64, val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST = toCompactST
     @strictpure def toCompactST: ST = Json.Printer.printF64(value)
   }
 
-  @datatype class Str(val value: String, val pos: message.Position) extends AST {
+  @datatype class Str(val value: String, val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST = toCompactST
     @strictpure def toCompactST: ST = Json.Printer.printString(value)
   }
 
-  @datatype class Bool(val value: B, val pos: message.Position) extends AST {
+  @datatype class Bool(val value: B, val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST = toCompactST
     @strictpure def toCompactST: ST = Json.Printer.printB(value)
   }
 
-  @datatype class Null(val pos: message.Position) extends AST {
+  @datatype class Null(val posOpt: Option[message.Position]) extends AST {
     @strictpure def toST: ST = toCompactST
     @strictpure def toCompactST: ST = st"null"
   }
@@ -120,30 +120,30 @@ object AST {
     @pure def toStr(t: parser.ParseTree): AST.Str = {
       val leaf = asLeaf(t)
       val text = Json.Parser(conversions.String.toCis(leaf.text), 0, None()).parseString()
-      return AST.Str(text, posOf(leaf))
+      return AST.Str(text, Some(posOf(leaf)))
     }
     tree.ruleName match {
       case string"valueFile" => return build(asNode(tree).children(0))
       case string"value" => return build(asNode(tree).children(0))
       case string"object" =>
         return AST.Obj(for (v <- asNode(tree).children if v.isInstanceOf[parser.ParseTree.Node]) yield
-          AST.KeyValue(toStr(asNode(v).children(0)), build(asNode(v).children(2))), posOf(tree))
+          AST.KeyValue(toStr(asNode(v).children(0)), build(asNode(v).children(2))), Some(posOf(tree)))
       case string"array" =>
-        return AST.Arr(for (v <- asNode(tree).children if v.isInstanceOf[parser.ParseTree.Node]) yield build(v), posOf(tree))
+        return AST.Arr(for (v <- asNode(tree).children if v.isInstanceOf[parser.ParseTree.Node]) yield build(v), Some(posOf(tree)))
       case string"stringLit" =>
         return toStr(asNode(tree).children(0))
       case string"doubleLit" =>
         val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Dbl(F64(leaf.text).get, posOf(leaf))
+        return AST.Dbl(F64(leaf.text).get, Some(posOf(leaf)))
       case string"intLit" =>
         val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Int(Z(leaf.text).get, posOf(leaf))
+        return AST.Int(Z(leaf.text).get, Some(posOf(leaf)))
       case string"boolLit" =>
         val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Bool(leaf.text == "true", posOf(leaf))
+        return AST.Bool(leaf.text == "true", Some(posOf(leaf)))
       case string"nullLit" =>
         val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Null(posOf(leaf))
+        return AST.Null(Some(posOf(leaf)))
       case _ => halt(s"Infeasible: $tree")
     }
   }
