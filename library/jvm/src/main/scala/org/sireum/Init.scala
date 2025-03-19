@@ -639,7 +639,7 @@ import Init._
     ver.writeOver(millVersion)
   }
 
-  def installSbt(): Unit = {
+  def installSbt(verbose: B): Unit = {
     val sbtVersion = versions.get("org.sireum.version.sbt").get
     val ver = home / "bin" / "sbt" / "VER"
     if (ver.exists && ver.read == sbtVersion) {
@@ -650,21 +650,31 @@ import Init._
     val url = s"https://github.com/sbt/sbt/releases/download/v$sbtVersion/$dropName"
 
     if (!(cache / dropName).exists) {
-      println(s"Downloading sbt $sbtVersion ...")
+      if (verbose) {
+        println(s"Downloading sbt $sbtVersion ...")
+      }
       (cache /dropName).downloadFrom(url)
-      println()
+      if (verbose) {
+        println()
+      }
     }
 
-    println(s"Extracting sbt ...")
+    if (verbose) {
+      println(s"Extracting sbt ...")
+    }
     (cache /dropName).unzipTo(home / "bin")
-    println()
+    if (verbose) {
+      println()
+    }
 
     for (f <- (home / "bin" / "sbt" / "bin").list if f.ext != "jar") {
       f.chmod("+x")
     }
 
-    println(s"Sbt is installed at: ${home / "bin" / "sbt"}")
-
+    if (verbose) {
+      println(s"Sbt is installed at: ${home / "bin" / "sbt"}")
+    }
+    
     ver.writeOver(sbtVersion)
   }
 
