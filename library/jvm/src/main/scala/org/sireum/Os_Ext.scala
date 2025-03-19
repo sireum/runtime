@@ -1076,11 +1076,27 @@ object Os_Ext {
   }
 
   def proc(pr: Os.Proc): Os.Proc.Result = {
+    def enhanceJavaCommand(cmds: ISZ[String]): ISZ[String] = {
+      def isSireumJava(path: String): B = {
+        val f = Os.path(path)
+        Os.sireumHomeOpt match {
+          case Some(sireumHome) =>
+            return (f.name.value == "java" || f.name.value == "java.exe") &&
+              ops.StringOps(f.canon.string).startsWith(sireumHome.canon.string)
+          case _ => return F
+        }
+      }
+      cmds match {
+        case ISZ(first, _*) if isSireumJava(first) =>
+          return ISZ[String](first, "--enable-native-access=ALL-UNNAMED") ++ ops.ISZOps(cmds).slice(1, cmds.size)
+        case _ => return cmds
+      }
+    }
     val p: Os.Proc =
       if (pr.isScript)
-        if (osKind == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ pr.cmds)
-        else pr(cmds = "sh" +: pr.cmds)
-      else pr
+        if (osKind == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ enhanceJavaCommand(pr.cmds))
+        else pr(cmds = "sh" +: enhanceJavaCommand(pr.cmds))
+      else pr(cmds = enhanceJavaCommand(pr.cmds))
     def standardLib(): Os.Proc.Result = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
