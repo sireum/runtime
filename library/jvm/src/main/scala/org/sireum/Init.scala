@@ -630,10 +630,42 @@ import Init._
     patchMill(millJar)
     millJar.moveOverTo(mill)
     d.removeAll()
+
     if (verbose) {
       println()
+      println(s"Mill is installed at: $mill")
     }
+
     ver.writeOver(millVersion)
+  }
+
+  def installSbt(): Unit = {
+    val sbtVersion = versions.get("org.sireum.version.sbt").get
+    val ver = home / "bin" / "sbt" / "VER"
+    if (ver.exists && ver.read == sbtVersion) {
+      return
+    }
+
+    val dropName = s"sbt-$sbtVersion.zip"
+    val url = s"https://github.com/sbt/sbt/releases/download/v$sbtVersion/$dropName"
+
+    if (!(cache / dropName).exists) {
+      println(s"Downloading sbt $sbtVersion ...")
+      (cache /dropName).downloadFrom(url)
+      println()
+    }
+
+    println(s"Extracting sbt ...")
+    (cache /dropName).unzipTo(home / "bin")
+    println()
+
+    for (f <- (home / "bin" / "sbt" / "bin").list if f.ext != "jar") {
+      f.chmod("+x")
+    }
+
+    println(s"Sbt is installed at: ${home / "bin" / "sbt"}")
+
+    ver.writeOver(sbtVersion)
   }
 
   @pure def ideaDirPath(isUltimate: B, isServer: B): Os.Path = {
