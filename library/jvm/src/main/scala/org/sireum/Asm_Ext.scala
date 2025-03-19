@@ -24,9 +24,8 @@
  */
 package org.sireum
 
-import org.objectweb.asm.{
-  AnnotationVisitor, Attribute, ClassReader, ClassVisitor, ClassWriter, MethodVisitor, Opcodes, Type, TypePath
-}
+import org.objectweb.asm.{AnnotationVisitor, Attribute, ClassReader, ClassVisitor, ClassWriter, MethodVisitor, Opcodes, Type, TypePath}
+import org.objectweb.asm.tree.{ClassNode, InsnNode, InvokeDynamicInsnNode, MethodInsnNode, MethodNode}
 
 import java.nio.file.{FileSystems, Files, Path, Paths}
 
@@ -34,7 +33,7 @@ object Asm_Ext {
   val api: Int = Opcodes.ASM9
 
   def eraseNonNative(path: Os.Path): Unit = {
-
+    import org.sireum.$internal.CollectionCompat.Converters._
     def process(p: Path): Unit = {
       if (!Files.exists(p)) {
         return
@@ -42,13 +41,45 @@ object Asm_Ext {
       if (Files.isDirectory(p)) {
         Files.list(p).forEach(process)
       } else if (p.toUri.toASCIIString.endsWith(".class")) {
-        val is = Files.newInputStream(p)
-        val cr = new ClassReader(is)
-        val cw = new ClassWriter(0)
-        val cv = new NativeUtil.CVisitor(cw)
-        cr.accept(cv, 0)
-        is.close()
-        Files.write(p, cw.toByteArray)
+        try {
+          val is = Files.newInputStream(p)
+          val cr = new ClassReader(is)
+          val cw = new ClassWriter(0)
+          val cn = new ClassNode()
+          cr.accept(cn, 0)
+          for (m <- cn.methods.asScala) {
+            var i = 0
+            while (i < m.instructions.size()) {
+              m.instructions.get(i) match {
+                case insn: MethodInsnNode if insn.getOpcode == Opcodes.INVOKESTATIC && insn.owner == "org/sireum/NativeUtil" && insn.name == "nonNative" =>
+                  var j = i - 1
+                  while (j >= 0 && !m.instructions.get(j).isInstanceOf[InvokeDynamicInsnNode]) {
+                    j = j - 1
+                  }
+                  if (j < 0) {
+                    println(s"Warning: Could not rewrite NativeUtil.nonNative in ${cn.name}.${m.name}")
+                    i = i + 1
+                  } else {
+                    val dyn = m.instructions.get(j).asInstanceOf[InvokeDynamicInsnNode]
+                    for (_ <- 0 until Type.getArgumentCount(dyn.desc)) {
+                      m.instructions.insertBefore(dyn, new InsnNode(Opcodes.POP))
+                    }
+                    m.instructions.set(dyn, new InsnNode(Opcodes.ICONST_0))
+                    m.instructions.set(insn, new InsnNode(Opcodes.POP))
+                  }
+                case _ =>
+                  i = i + 1
+              }
+            }
+          }
+          cn.accept(cw)
+          is.close()
+          Files.write(p, cw.toByteArray)
+        } catch {
+          case t: Throwable =>
+            t.printStackTrace()
+            throw t
+        }
       }
     }
 
@@ -160,24 +191,4 @@ object Asm_Ext {
     }
   }
 
-  object NativeUtil {
-
-    class MVisitor(visitor: MethodVisitor) extends MethodVisitor(api, visitor) {
-      override def visitMethodInsn(opcode: Int, owner: Predef.String, name: Predef.String, descriptor: Predef.String, isInterface: Boolean): Unit = {
-        if (opcode == Opcodes.INVOKESTATIC && owner == "org/sireum/NativeUtil" && name == "nonNative") {
-          visitor.visitInsn(Opcodes.POP)
-        } else {
-          visitor.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
-        }
-      }
-    }
-
-    class CVisitor(cw: ClassWriter) extends ClassVisitor(api, cw) {
-      override def visitMethod(access: Int, name: Predef.String, descriptor: Predef.String, signature: Predef.String,
-                               exceptions: Array[Predef.String]): MethodVisitor = {
-        val visitor = super.visitMethod(access, name, descriptor, signature, exceptions)
-        return new MVisitor(visitor)
-      }
-    }
-  }
 }
