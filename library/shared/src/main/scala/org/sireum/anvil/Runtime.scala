@@ -104,6 +104,7 @@ object Runtime {
 
   @ext("org.sireum.conversions.Printer_Ext") object Ext {
     @pure def u2z(n: U): Z = $
+    @pure def u2RawU32(n: U): U32 = $
     @pure def z2u(n: Z): U = $
   }
 
@@ -640,17 +641,21 @@ object Runtime {
     while (sfCaller != u"0") {
       var offset = sfCaller + spSize - typeShaSize - sizeSize
       val sfLoc = Ext.u2z(load(memory, offset, locSize))
-      offset = offset + locSize + typeShaSize
-      val sfDescSize = load(memory, offset, sizeSize)
-      offset = offset + sizeSize
-      print("  ")
-      var i = u"0"
-      while (i < sfDescSize) {
-        print(conversions.U32.toC(conversions.U8.toU32(memory(offset + i))))
-        i = i + u"1"
-      }
+      offset = offset + locSize// + typeShaSize
+      val sfDesc = Ext.u2RawU32(load(memory, offset, typeShaSize))
+//      val sfDescSize = load(memory, offset, sizeSize)
+//      offset = offset + sizeSize
+//      print("  ")
+//      var i = u"0"
+//      while (i < sfDescSize) {
+//        print(conversions.U32.toC(conversions.U8.toU32(memory(offset + i))))
+//        i = i + u"1"
+//      }
+      print('꧐')
+      print(sfDesc)
+      print(':')
       print(sfLoc)
-      print(")\n")
+      print('\n')
       sfCaller = load(memory,  sfCaller - typeShaSize - sizeSize, spSize)
     }
   }

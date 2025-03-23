@@ -43,6 +43,7 @@ import org.sireum.U8._
 import org.sireum.U16._
 import org.sireum.U32._
 import org.sireum.U64._
+import anvil.PrinterIndex.U._
 
 object B_Ext {
 
@@ -2291,5 +2292,6 @@ object Printer_Ext {
     require(Z_Ext.isInRangeUnsigned64(n))
     anvil.PrinterIndex.U(n)
   }
+  @pure def u2RawU32(n: anvil.PrinterIndex.U): U32 = U32((n & u"0xFFFFFFFF").toMP)
 }
 
