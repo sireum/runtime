@@ -378,16 +378,17 @@ import Init._
     if (r.exitCode == 0) {
       r = proc"./configure --prefix=$verilator".at(temp / "verilator").redirectErr.runCheck()
     } else {
-      eprintln("autoconf is not available")
-      eprintln(r.out)
-      halt("Cannot install Verilator")
+      println("Cannot install Verilator: autoconf is not available")
+      verilatorVer.up.mkdirAll()
+      verilatorVer.writeOver(verilatorVersion)
+      return
     }
     if (r.exitCode != 0) {
-      eprintln("Running configure was not successful")
-      eprintln(r.out)
-      halt("Cannot install Verilator")
+      eprintln("Cannot install Verilator: running configure was not successful")
+      verilatorVer.up.mkdirAll()
+      verilatorVer.writeOver(verilatorVersion)
+      return
     }
-
     val verilatorDrop = cache / s"verilator-$verilatorVersion-cosmo-$cosmoccVersion.zip"
     val url = s"https://github.com/sireum/rolling/releases/download/misc/${verilatorDrop.name}"
     if (!verilatorDrop.exists) {
