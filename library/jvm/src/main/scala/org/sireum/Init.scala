@@ -363,6 +363,48 @@ import Init._
     coursierVer.writeOver(coursierVersion)
   }
 
+  def installVerilator(): Unit = {
+    val verilatorVersion = versions.get("org.sireum.version.verilator").get
+    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
+    val verilator = homeBin / "verilator"
+    val verilatorVer = verilator / "VER"
+    if (verilatorVer.exists && ops.StringOps(verilatorVer.read).trim == verilatorVersion) {
+      return
+    }
+
+    val temp = Os.tempDir()
+    proc"git clone --recursive --depth=1 --branch v$verilatorVersion https://github.com/verilator/verilator.git".at(temp).runCheck()
+    var r = proc"autoconf".at(temp / "verilator").redirectErr.run()
+    if (r.exitCode == 0) {
+      r = proc"./configure --prefix=$verilator".at(temp / "verilator").redirectErr.runCheck()
+    } else {
+      eprintln("autoconf is not available")
+      eprintln(r.out)
+      halt("Cannot install Verilator")
+    }
+    if (r.exitCode != 0) {
+      eprintln("Running configure was not successful")
+      eprintln(r.out)
+      halt("Cannot install Verilator")
+    }
+
+    val verilatorDrop = cache / s"verilator-$verilatorVersion-cosmo-$cosmoccVersion.zip"
+    val url = s"https://github.com/sireum/rolling/releases/download/misc/${verilatorDrop.name}"
+    if (!verilatorDrop.exists) {
+      println(s"Downloading Verilator $verilatorVersion ...")
+      verilatorDrop.downloadFrom(url)
+      println()
+    }
+    verilator.removeAll()
+    verilatorDrop.unzipTo(homeBin)
+    for (f <- (verilator / "bin").list) {
+      f.chmod("+x")
+    }
+    (temp / "verilator" / "include").moveOverTo(verilator / "include")
+
+    verilatorVer.writeOver(verilatorVersion)
+  }
+
   def installJacoco(): Unit = {
     homeLib.mkdirAll()
 
@@ -2008,10 +2050,16 @@ import Init._
     installCVC()
   }
 
+  def anvilDeps(): Unit = {
+    installSbt(T)
+    installVerilator()
+  }
+
   def deps(): Unit = {
     basicDeps()
     proyekCompileDeps()
     logikaDeps()
+    anvilDeps()
     installJacoco()
     installMaryTTS()
     installCheckStack()
