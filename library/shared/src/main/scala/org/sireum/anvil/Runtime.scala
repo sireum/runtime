@@ -41,67 +41,6 @@ import org.sireum.anvil.PrinterIndex.U._
 
 object Runtime {
 
-  @pure def shlU32(n: U32, m: U32): U32 = {
-    if (m <= u32"20") {
-      return n << m
-    }
-    return (n << u32"20") << (m - u32"20")
-  }
-
-  @pure def shlU64(n: U64, m: U64): U64 = {
-    if (m <= u64"20") {
-      return n << m
-    }
-    if (m <= u64"40") {
-      return (n << u64"20") << (m - u64"20")
-    }
-    if (m <= u64"60") {
-      return (n << u64"40") << (m - u64"40")
-    }
-    return (n << u64"60") << (m - u64"60")
-  }
-
-  @pure def shrU32(n: U32, m: U32): U32 = {
-    if (m <= u32"20") {
-      return n >>> m
-    }
-    return (n >>> u32"20") >>> (m - u32"20")
-  }
-
-  @pure def shrU64(n: U64, m: U64): U64 = {
-    if (m <= u64"20") {
-      return n >>> m
-    }
-    if (m <= u64"40") {
-      return (n >>> u64"20") >>> (m - u64"20")
-    }
-    if (m <= u64"60") {
-      return (n >>> u64"40") >>> (m - u64"40")
-    }
-    return (n >>> u64"60") >>> (m - u64"60")
-  }
-
-  @pure def shrS32(n: S32, m: S32): S32 = {
-    if (m >= s32"20") {
-      return (n >> s32"20") >> (m - s32"20")
-    } else {
-      return n >> m
-    }
-  }
-
-  @pure def shrS64(n: S64, m: S64): S64 = {
-    if (m <= s64"20") {
-      return n >> m
-    }
-    if (m <= s64"40") {
-      return (n >> s64"20") >> (m - s64"20")
-    }
-    if (m <= s64"60") {
-      return (n >> s64"40") >> (m - s64"40")
-    }
-    return (n >> s64"60") >> (m - s64"60")
-  }
-
   @ext("org.sireum.conversions.Printer_Ext") object Ext {
     @pure def u2z(n: U): Z = $
     @pure def u2RawU32(n: U): U32 = $
