@@ -402,6 +402,9 @@ import Init._
       f.chmod("+x")
     }
     (temp / "verilator" / "include").moveOverTo(verilator / "include")
+    val verilatedCpp = verilator / "include" / "verilated.cpp"
+    verilatedCpp.writeOver(ops.StringOps(verilatedCpp.read).
+      replaceAllLiterally("#include <utility>", s"#include <utility>${Os.lineSep}#include <limits>"))
 
     verilatorVer.writeOver(verilatorVersion)
   }
