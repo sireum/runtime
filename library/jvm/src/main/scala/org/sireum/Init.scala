@@ -799,7 +799,7 @@ import Init._
               |""".render
         for (p <- map.entries) {
           val (fontName, fontPath) = p
-          ps1Content = s"${ps1Content}Copy-Item \"$fontPath\" \"C:\\Windows\\Fonts\"; New-ItemProperty -Name \"$fontName\" -Path \"HKLM:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -PropertyType string -Value \"${Os.path(fontPath).name}\";"
+          ps1Content = s"${ps1Content}Copy-Item \"$fontPath\" \"C:\\Windows\\Fonts\"; New-ItemProperty -Force -Name \"$fontName\" -Path \"HKLM:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -PropertyType string -Value \"${Os.path(fontPath).name}\";"
         }
         val ps1 = d / "install-font.ps1"
         ps1.writeOver(ps1Content)
