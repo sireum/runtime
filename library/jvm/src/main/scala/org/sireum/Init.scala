@@ -785,6 +785,7 @@ import Init._
       if (fontName.size > 0) {
         map = map + fontName ~> f.canon.string
         f.writeOverU8s(conversions.String.fromBase64(p._2).left)
+        println(s"Wrote $f")
       }
     }
     kind match {
