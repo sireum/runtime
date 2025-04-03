@@ -758,6 +758,9 @@ import Init._
     }
     d.mkdirAll()
     var map = Map.empty[String, String]
+    if (force) {
+      println("Forcing Sireum fonts installation")
+    }
     for (p <- Library.fontFiles if !ops.StringOps(p._1.get).endsWith("-Bold.ttf")) {
       val filename = p._1.get
       val f = d / filename
@@ -773,10 +776,7 @@ import Init._
             return
           }
         }
-      } else {
-        println("Forcing Sireum fonts reinstallation")
       }
-
       val fontName: String = filename match {
         case string"SireumMono-Regular.ttf" => "Sireum Mono"
         case string"SireumMonoPlus-Regular.ttf" => "Sireum Mono Plus"
@@ -784,8 +784,9 @@ import Init._
       }
       if (fontName.size > 0) {
         map = map + fontName ~> f.canon.string
-        f.writeOverU8s(conversions.String.fromBase64(p._2).left)
-        println(s"Wrote $f")
+        val content = conversions.String.fromBase64(p._2).left
+        f.writeOverU8s(content)
+        (home / "lib" / f.name).writeOverU8s(content)
       }
     }
     kind match {
@@ -800,7 +801,7 @@ import Init._
               |""".render
         for (p <- map.entries) {
           val (fontName, fontPath) = p
-          ps1Content = s"${ps1Content}Copy-Item \"$fontPath\" \"C:\\Windows\\Fonts\"; New-ItemProperty -Force -Name \"$fontName\" -Path \"HKLM:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -PropertyType string -Value \"${Os.path(fontPath).name}\";"
+          ps1Content = s"${ps1Content}Copy-Item -Force \"$fontPath\" \"C:\\Windows\\Fonts\"; New-ItemProperty -Force -Name \"$fontName\" -Path \"HKLM:\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Fonts\" -PropertyType string -Value \"${Os.path(fontPath).name}\";"
         }
         val ps1 = d / "install-font.ps1"
         ps1.writeOver(ps1Content)
@@ -810,6 +811,7 @@ import Init._
         println(s"Sireum fonts installed at: $d")
         proc"fc-cache -f".run()
     }
+    println(s"Sireum fonts are also available at: ${home / "lib"}")
   }
 
   def install7zz(): Os.Path = {
