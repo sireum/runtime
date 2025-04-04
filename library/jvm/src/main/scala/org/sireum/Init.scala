@@ -376,7 +376,7 @@ import Init._
     proc"git clone --recursive --depth=1 --branch v$verilatorVersion https://github.com/verilator/verilator.git".at(temp).runCheck()
     var r = proc"autoconf".at(temp / "verilator").redirectErr.run()
     if (r.exitCode == 0) {
-      r = proc"./configure --prefix=$verilator".at(temp / "verilator").redirectErr.runCheck()
+      r = proc"./configure --prefix=$verilator".at(temp / "verilator").redirectErr.run()
     } else {
       println("Cannot install Verilator: autoconf is not available")
       verilatorVer.up.mkdirAll()
