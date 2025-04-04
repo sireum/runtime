@@ -363,7 +363,7 @@ import Init._
     coursierVer.writeOver(coursierVersion)
   }
 
-  def installVerilator(): Unit = {
+  def installVerilator(verbose: B): Unit = {
     val verilatorVersion = versions.get("org.sireum.version.verilator").get
     val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
     val verilator = homeBin / "verilator"
@@ -378,13 +378,17 @@ import Init._
     if (r.exitCode == 0) {
       r = proc"./configure --prefix=$verilator".at(temp / "verilator").redirectErr.run()
     } else {
-      println("Cannot install Verilator: autoconf is not available")
+      if (verbose) {
+        println("Cannot install Verilator: autoconf is not available")
+      }
       verilatorVer.up.mkdirAll()
       verilatorVer.writeOver(verilatorVersion)
       return
     }
     if (r.exitCode != 0) {
-      eprintln("Cannot install Verilator: running configure was not successful")
+      if (verbose) {
+        eprintln("Cannot install Verilator: running configure was not successful")
+      }
       verilatorVer.up.mkdirAll()
       verilatorVer.writeOver(verilatorVersion)
       return
@@ -392,7 +396,9 @@ import Init._
     val verilatorDrop = cache / s"verilator-$verilatorVersion-cosmo-$cosmoccVersion.zip"
     val url = s"https://github.com/sireum/rolling/releases/download/misc/${verilatorDrop.name}"
     if (!verilatorDrop.exists) {
-      println(s"Downloading Verilator $verilatorVersion ...")
+      if (verbose) {
+        println(s"Downloading Verilator $verilatorVersion ...")
+      }
       verilatorDrop.downloadFrom(url)
       println()
     }
@@ -2057,16 +2063,16 @@ import Init._
     installCVC()
   }
 
-  def anvilDeps(): Unit = {
-    installSbt(T)
-    installVerilator()
+  def anvilDeps(verbose: B): Unit = {
+    installSbt(verbose)
+    installVerilator(verbose)
   }
 
   def deps(): Unit = {
     basicDeps()
     proyekCompileDeps()
     logikaDeps()
-    anvilDeps()
+    anvilDeps(F)
     installJacoco()
     installMaryTTS()
     installCheckStack()
