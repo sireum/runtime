@@ -927,6 +927,7 @@ import Init._
         var newLines = ISZ[String]()
         val workspaceContains = conversions.String.toCis("workspaceContains")
         val onLanguage = conversions.String.toCis("onLanguage")
+        val onDebugResolve = conversions.String.toCis("onDebugResolve")
         val lines = ops.StringOps(ops.StringOps.substring(cis, min + 1, max)).split((c: C) => c == '\n')
         for (line <- lines) {
           val lineCis = conversions.String.toCis(line)
@@ -935,7 +936,8 @@ import Init._
             l = ops.StringOps(l).substring(0, l.size - 1)
           }
           if (l.size > 0 && ops.StringOps.stringIndexOfFrom(lineCis, workspaceContains, 0) < 0 &&
-            ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0) {
+            ops.StringOps.stringIndexOfFrom(lineCis, onLanguage, 0) < 0 &&
+            ops.StringOps.stringIndexOfFrom(lineCis, onDebugResolve, 0) < 0) {
             newLines = newLines :+ l
           }
         }
