@@ -1125,7 +1125,7 @@ import Init._
           val c = vscodium / "Contents"/ "Resources" / "app" / "bin" / "codium"
           if (!ver.exists || ver.read != vscodiumVersion) {
             downloadVSCodium(drop)
-            vscodium.up.removeAll()
+            vscodium.removeAll()
             println("Extracting VSCodium ...")
             proc"hdiutil attach $drop".at(home).runCheck()
             val dirPath = Os.path("/Volumes/VSCodium")
@@ -1416,7 +1416,7 @@ import Init._
     }
     val ideaDir: Os.Path = ideaDirPath(isUltimate, isServer)
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
-    val delPlugins = ISZ[String]("android", "smali", "Ktor", "design-tools", "space", "ml-llm", "android-gradle-declarative-lang-ide", "android-gradle-dsl")
+    val delPlugins = ISZ[String]()
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
       "idea-dev.icns",
