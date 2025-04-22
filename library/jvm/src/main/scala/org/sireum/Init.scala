@@ -1133,7 +1133,7 @@ import Init._
             proc"hdiutil eject $dirPath".at(home).runCheck()
             replaceImages(vscodium)
             println()
-            ver.write(vscodiumVersion)
+            ver.writeOver(vscodiumVersion)
             updated = T
           }
           c
@@ -1191,7 +1191,7 @@ import Init._
             c.writeOver(ops.StringOps(c.read).replaceAllLiterally("/codium", "/codeive"))
             c.chmod("+x")
             println()
-            ver.write(vscodiumVersion)
+            ver.writeOver(vscodiumVersion)
             updated = T
           }
           c
@@ -1245,7 +1245,7 @@ import Init._
             replaceImages(vscodium)
             (vscodium / "bin" / "codium.cmd").moveTo(c)
             println()
-            ver.write(vscodiumVersion)
+            ver.writeOver(vscodiumVersion)
             updated = T
           }
           c.writeOver(ops.StringOps(c.read).replaceAllLiterally("VSCodium.exe", "CodeIVE.exe"))
