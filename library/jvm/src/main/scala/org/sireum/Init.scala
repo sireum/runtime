@@ -1524,8 +1524,6 @@ import Init._
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", "arm", ".cs.ver"),
-        ISZ("bin", "linux", "arm", ".cvc.ver"),
-        ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cs"),
         ISZ("bin", "linux", "arm", "java"),
         ISZ("bin", "linux", "arm", "vscodium"),
