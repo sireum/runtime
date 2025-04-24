@@ -1527,7 +1527,6 @@ import Init._
         ISZ("bin", "linux", "arm", "cvc"),
         ISZ("bin", "linux", "arm", "cs"),
         ISZ("bin", "linux", "arm", "java"),
-        ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
