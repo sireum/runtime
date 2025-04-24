@@ -880,7 +880,7 @@ import Init._
     return p7zz
   }
 
-  def installVSCodium(existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
+  def installVSCodium(vscode: B, existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
     val useDefaultExtDir = Os.env("GITHUB_ACTION").nonEmpty ||
       ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
@@ -1054,11 +1054,26 @@ import Init._
         drop.downloadFrom(sireumExtUrl)
         println()
       }
+      val vscodePrefix: String = "vscode:"
+      val envs = ISZ[(String, String)](
+        "VSCODE_GALLERY_SERVICE_URL" ~> "https://marketplace.visualstudio.com/_apis/public/gallery",
+        "VSCODE_GALLERY_CACHE_URL" ~> "https://vscode.blob.core.windows.net/gallery/index",
+        "VSCODE_GALLERY_ITEM_URL" ~> "https://marketplace.visualstudio.com/items")
       for (ext <- es) {
-        proc"$codium --force$extDirArg --install-extension $ext".console.runCheck()
+        var extension = ext
+        var addEnv = vscode
+        if (ops.StringOps(extension).startsWith(vscodePrefix)) {
+          addEnv = T
+          extension = ops.StringOps(extension).substring(vscodePrefix.size, extension.size)
+        }
+        var p = proc"$codium --force$extDirArg --install-extension $extension".console
+        if (addEnv) {
+          p = p.env(envs)
+        }
+        p.runCheck()
         println()
       }
-      proc"$codium --force$extDirArg --install-extension $drop".console.runCheck()
+      proc"$codium --force$extDirArg --install-extension $drop".env(envs).console.runCheck()
       println()
       val sysidePrefix = conversions.String.toCis("sensmetry.sysml-")
       val metalsPrefix = conversions.String.toCis("scalameta.metals-")

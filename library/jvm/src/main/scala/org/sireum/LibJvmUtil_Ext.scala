@@ -1443,7 +1443,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method1Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1692)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1695)
     r.put(0x1854D576D83AF7E4L, _ => (o1: Any) => org.sireum.AssocS.Entries.uniqueKeys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "uniqueKeys").value
     r.put(0xE5CBF86C0B8F9696L, _ => (o1: Any) => org.sireum.AssocS.Entries.keys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "keys").value
     r.put(0xCEBF203EDC8BD12DL, _ => (o1: Any) => org.sireum.AssocS.Entries.values(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "values").value
@@ -3247,9 +3247,12 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       case _ => MNone()
     }) // methodKey(T, "org.sireum.Init", "unapply").value
     r.put(0x394D50D66209F24FL, r => (o1: Any) => X[org.sireum.Init](r).platform(X(o1))) // methodKey(F, "org.sireum.Init", "platform").value
+    r.put(0x76CFF88D45CEDB50L, r => (o1: Any) => X[org.sireum.Init](r).installVerilator(X(o1))) // methodKey(F, "org.sireum.Init", "installVerilator").value
     r.put(0x6AEDD8A12084FD26L, r => (o1: Any) => X[org.sireum.Init](r).installMill(X(o1))) // methodKey(F, "org.sireum.Init", "installMill").value
+    r.put(0x360D50A27B7A84B2L, r => (o1: Any) => X[org.sireum.Init](r).installSbt(X(o1))) // methodKey(F, "org.sireum.Init", "installSbt").value
     r.put(0x90F1FCAD8814A4D0L, r => (o1: Any) => X[org.sireum.Init](r).installFonts(X(o1))) // methodKey(F, "org.sireum.Init", "installFonts").value
     r.put(0x885C121A873E93F3L, r => (o1: Any) => X[org.sireum.Init](r).ideaSandbox(X(o1))) // methodKey(F, "org.sireum.Init", "ideaSandbox").value
+    r.put(0x5AF834521D4992C0L, r => (o1: Any) => X[org.sireum.Init](r).anvilDeps(X(o1))) // methodKey(F, "org.sireum.Init", "anvilDeps").value
     r.put(0xB42ABE770C9ECC42L, r => (o1: Any) => X[org.sireum.Init](r).init(X(o1))) // methodKey(F, "org.sireum.Init", "init").value
     r.put(0xE9DC95EFDFAF94C7L, _ => (o1: Any) => org.sireum.Os.Path.Impl.apply(X(o1))) // methodKey(T, "org.sireum.Os.Path.Impl", "apply").value
     r.put(0x16BF72C5C67B6932L, _ => (o1: Any) => org.sireum.Os.Path.Impl.unapply(X(o1)) match {
@@ -3777,7 +3780,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method3Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](147)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](146)
     r.put(0x6FDEC8AB0C968E16L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.keyIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "keyIndexOfFrom").value
     r.put(0x52BB07D48F688896L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.valueIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "valueIndexOfFrom").value
     r.put(0x228EEDE99FBBA817L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.indexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "indexOfFrom").value
@@ -3908,7 +3911,6 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xC24A2E235997D748L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.GitHub.Repository.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.GitHub.Repository", "apply").value
     r.put(0xDA6C2AA0F5002E98L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.Init.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.Init", "apply").value
     r.put(0x820EB4449968AFCDL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Init](r).installJava(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Init", "installJava").value
-    r.put(0x3A7F5D7D5E0081EDL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Init](r).installVSCodium(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Init", "installVSCodium").value
     r.put(0xCE6EED424CD35C08L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Init](r).ideaPlugins(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Init", "ideaPlugins").value
     r.put(0x5B2DF5DFB4F876F2L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Impl](r).writeU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeU8Parts").value
     r.put(0x69E527D13D6CA649L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Impl](r).writeOverU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeOverU8Parts").value
@@ -3929,7 +3931,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method4Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](17)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](18)
     r.put(0x06CE4C1C6299A4B7L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.isEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "isEqualExcept2").value
     r.put(0x462192823D0C380DL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.msEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "msEqualExcept2").value
     r.put(0x42524DE40C4B0149L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Graph.Internal.addDataEdge(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Graph.Internal", "addDataEdge").value
@@ -3946,6 +3948,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xC71F3B113F1B0EEEL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.UnionFind.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.UnionFind", "apply").value
     r.put(0x2671667D67ADD78FL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.CoursierFileInfo.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.CoursierFileInfo", "apply").value
     r.put(0x0AC204F233E5D49EL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Init.Plugin.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Init.Plugin", "apply").value
+    r.put(0x3A7F5D7D5E0081EDL, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).installVSCodium(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "installVSCodium").value
     r.put(0x02E547788D981E95L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).ideaConfig(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "ideaConfig").value
     r
   }
@@ -8228,17 +8231,19 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "installScala", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installScalacPlugin", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installCoursier", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "installVerilator", params = ISZ("verbose")),
       Method(isInObject = false, isByName = F, name = "installJacoco", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installZ3", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installCVC", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installMaryTTS", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installCheckStack", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installMill", params = ISZ("verbose")),
+      Method(isInObject = false, isByName = F, name = "installSbt", params = ISZ("verbose")),
       Method(isInObject = false, isByName = F, name = "ideaDirPath", params = ISZ("isUltimate", "isServer")),
       Method(isInObject = false, isByName = F, name = "installScripts", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "installFonts", params = ISZ("force")),
       Method(isInObject = false, isByName = F, name = "install7zz", params = ISZ()),
-      Method(isInObject = false, isByName = F, name = "installVSCodium", params = ISZ("existingInstallOpt", "extensionsDirOpt", "extensions")),
+      Method(isInObject = false, isByName = F, name = "installVSCodium", params = ISZ("vscode", "existingInstallOpt", "extensionsDirOpt", "extensions")),
       Method(isInObject = false, isByName = T, name = "isIdeaInUserHome", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "ideaConfig", params = ISZ("isSetup", "isDev", "isUltimate", "projectPathOpt")),
       Method(isInObject = false, isByName = F, name = "ideaPlugins", params = ISZ("isDev", "isUltimate", "projectPathOpt")),
@@ -8251,6 +8256,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = false, isByName = F, name = "basicDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "proyekCompileDeps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "logikaDeps", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "anvilDeps", params = ISZ("verbose")),
       Method(isInObject = false, isByName = F, name = "deps", params = ISZ()),
       Method(isInObject = false, isByName = F, name = "init", params = ISZ("setup"))
     )
