@@ -1461,7 +1461,7 @@ import Init._
         "linux/arm" ~> "-aarch64.tar.gz"
 
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
-      Os.Kind.Win ~> ISZ(
+      Os.Kind.Win ~> (ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
@@ -1473,9 +1473,7 @@ import Init._
         ISZ("bin", "win", ".cs.ver"),
         ISZ("bin", "win", ".cvc.ver"),
         ISZ("bin", "win", "cvc.exe"),
-        ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "win", "java"),
-        ISZ("bin", "win", "sireum.exe"),
         ISZ("bin", "win", "vcruntime140.dll"),
         ISZ("bin", "win", "vcruntime140_1.dll"),
         ISZ("bin", "win", "vscodium"),
@@ -1486,7 +1484,10 @@ import Init._
         ISZ("license.txt"),
         ISZ("readme.md"),
         ISZ("versions.properties")
-      ) +
+      ) ++ (if (Os.isWinArm) ISZ[ISZ[String]]() else ISZ[ISZ[String]](
+        ISZ("bin", "win", "sireum.exe"),
+        ISZ("bin", "win", "cs.exe")
+      ))) +
       Os.Kind.Linux ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
