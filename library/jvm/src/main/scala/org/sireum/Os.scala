@@ -63,6 +63,10 @@ object Os {
   }
 
   @pure def isLinux: B = {
+    return kind == Kind.Linux | kind == Kind.LinuxArm
+  }
+
+  @pure def isLinuxAmd: B = {
     return kind == Kind.Linux
   }
 
@@ -72,6 +76,10 @@ object Os {
 
   @pure def isMac: B = {
     return kind == Kind.Mac
+  }
+
+  @pure def isMacAmd: B = {
+    return kind == Kind.Mac && !isMacArm
   }
 
   def isMacArm: B = {
@@ -84,6 +92,10 @@ object Os {
 
   @pure def isWin: B = {
     return kind == Kind.Win
+  }
+
+  @pure def isWinAmd: B = {
+    return isWin && !isWinArm
   }
 
   def javaHomeOpt(kind: Os.Kind.Type, homeOpt: Option[Os.Path]): Option[Path] = {

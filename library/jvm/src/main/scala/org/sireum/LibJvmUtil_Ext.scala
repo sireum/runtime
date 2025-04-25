@@ -219,7 +219,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1219)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1222)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -254,11 +254,14 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xC214995D93B8F73AL, _ => org.sireum.Os.freeMemory) // methodKey(T, "org.sireum.Os", "freeMemory").value
     r.put(0xF9EC465B049ED421L, _ => org.sireum.Os.home) // methodKey(T, "org.sireum.Os", "home").value
     r.put(0xEC7DB9323B09CA07L, _ => org.sireum.Os.isLinux) // methodKey(T, "org.sireum.Os", "isLinux").value
+    r.put(0x55F78DFD34709818L, _ => org.sireum.Os.isLinuxAmd) // methodKey(T, "org.sireum.Os", "isLinuxAmd").value
     r.put(0x0C0BDAECF50A71DAL, _ => org.sireum.Os.isLinuxArm) // methodKey(T, "org.sireum.Os", "isLinuxArm").value
     r.put(0x5A09B80316284B83L, _ => org.sireum.Os.isMac) // methodKey(T, "org.sireum.Os", "isMac").value
+    r.put(0x1813E26EB117010AL, _ => org.sireum.Os.isMacAmd) // methodKey(T, "org.sireum.Os", "isMacAmd").value
     r.put(0xD9D4C954179BBD4EL, _ => org.sireum.Os.isMacArm) // methodKey(T, "org.sireum.Os", "isMacArm").value
     r.put(0xF9FC3F44DEB5F97DL, _ => org.sireum.Os.isWinArm) // methodKey(T, "org.sireum.Os", "isWinArm").value
     r.put(0x3101B846165B6861L, _ => org.sireum.Os.isWin) // methodKey(T, "org.sireum.Os", "isWin").value
+    r.put(0xA50CB333B76E01FBL, _ => org.sireum.Os.isWinAmd) // methodKey(T, "org.sireum.Os", "isWinAmd").value
     r.put(0x2162A94D5C1D8143L, _ => org.sireum.Os.kind) // methodKey(T, "org.sireum.Os", "kind").value
     r.put(0x5DD1938BC48065EDL, _ => org.sireum.Os.lineSep) // methodKey(T, "org.sireum.Os", "lineSep").value
     r.put(0xE02DE01C74364D6AL, _ => org.sireum.Os.maxMemory) // methodKey(T, "org.sireum.Os", "maxMemory").value
@@ -5009,11 +5012,14 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = true, isByName = T, name = "freeMemory", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "home", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isLinux", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "isLinuxAmd", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isLinuxArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isMac", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "isMacAmd", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isMacArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isWinArm", params = ISZ()),
       Method(isInObject = true, isByName = T, name = "isWin", params = ISZ()),
+      Method(isInObject = true, isByName = T, name = "isWinAmd", params = ISZ()),
       Method(isInObject = true, isByName = F, name = "javaHomeOpt", params = ISZ("kind", "homeOpt")),
       Method(isInObject = true, isByName = F, name = "javaExe", params = ISZ("homeOpt")),
       Method(isInObject = true, isByName = T, name = "kind", params = ISZ()),
