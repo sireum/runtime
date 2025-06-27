@@ -1431,7 +1431,7 @@ import Init._
     }
     val ideaDir: Os.Path = ideaDirPath(isUltimate, isServer)
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
-    val delPlugins = ISZ[String]()
+    val delPlugins = ISZ[String]("completionMlRanking", "fullLine", "marketplaceMl", "turboComplete")
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
       "idea-dev.icns",
