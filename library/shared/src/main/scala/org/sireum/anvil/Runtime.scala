@@ -580,16 +580,8 @@ object Runtime {
     while (sfCaller != u"0") {
       var offset = sfCaller + spSize - typeShaSize - sizeSize
       val sfLoc = Ext.u2z(load(memory, offset, locSize))
-      offset = offset + locSize// + typeShaSize
+      offset = offset + locSize
       val sfDesc = Ext.u2RawU32(load(memory, offset, typeShaSize))
-//      val sfDescSize = load(memory, offset, sizeSize)
-//      offset = offset + sizeSize
-//      print("  ")
-//      var i = u"0"
-//      while (i < sfDescSize) {
-//        print(conversions.U32.toC(conversions.U8.toU32(memory(offset + i))))
-//        i = i + u"1"
-//      }
       print('꧐')
       print(sfDesc)
       print(':')
@@ -599,4 +591,239 @@ object Runtime {
     }
   }
 
+  object Intrinsic {
+
+    var leftShiftValue: U64 = u64"0"
+    var leftShiftAmount: U64 = u64"0"
+    var leftShiftRet: U64 = u64"0"
+    var leftShiftRes: U64 = u64"0"
+
+    def leftShift(): U64 = {
+      leftShiftAmount match {
+        case u64"0" => leftShiftRes = leftShiftValue
+        case u64"8" => leftShiftRes = leftShiftValue << u64"8"
+        case u64"16" => leftShiftRes = leftShiftValue << u64"16"
+        case u64"24" => leftShiftRes = leftShiftValue << u64"24"
+        case u64"32" => leftShiftRes = leftShiftValue << u64"32"
+        case u64"40" => leftShiftRes = leftShiftValue << u64"40"
+        case u64"48" => leftShiftRes = leftShiftValue << u64"48"
+        case u64"56" => leftShiftRes = leftShiftValue << u64"56"
+        case _ => halt("")
+      }
+      return leftShiftRet
+    }
+
+    var rightShiftValue: U64 = u64"0"
+    var rightShiftAmount: U64 = u64"0"
+    var rightShiftRet: U64 = u64"0"
+    var rightShiftRes: U64 = u64"0"
+
+    def rightShift(): U64 = {
+      rightShiftAmount match {
+        case u64"8" => rightShiftRes = rightShiftValue >> u64"8"
+        case u64"16" => rightShiftRes = rightShiftValue >> u64"16"
+        case u64"24" => rightShiftRes = rightShiftValue >> u64"24"
+        case u64"32" => rightShiftRes = rightShiftValue >> u64"32"
+        case u64"40" => rightShiftRes = rightShiftValue >> u64"40"
+        case u64"48" => rightShiftRes = rightShiftValue >> u64"48"
+        case u64"56" => rightShiftRes = rightShiftValue >> u64"56"
+        case u64"64" => rightShiftRes = u64"0"
+        case _ => halt("")
+      }
+      return rightShiftRet
+    }
+
+    var readBaseAddr: U64 = u64"0"
+    var readOffset: U64 = u64"0"
+    var readLen: U64 = u64"0"
+    var readRes: U64 = u64"0"
+    var readRet: U64 = u64"0"
+    var readAddr: U64 = u64"0"
+    var readAlignOffset: U64 = u64"0"
+    var readAlignedAddr: U64 = u64"0"
+    var readLower: U64 = u64"0"
+    var readUpper: U64 = u64"0"
+    var readTemp1: U64 = u64"0"
+    var readTemp2: U64 = u64"0"
+    var readBits: U64 = u64"0"
+    var readMask: U64 = u64"0"
+
+    def read(): U64 = {
+      readAddr = readBaseAddr + readOffset
+      readAlignOffset = readAddr & u64"7"
+      readAlignedAddr = readAddr & u64"0xFFFFFFFFFFFFFFF8" //~u64"7"
+
+      readBits = readLen << u64"3"
+
+      readBits match {
+        case u64"8" => readMask = u64"0x00000000000000FF" //(u64"1" << u64"8") - u64"1"
+        case u64"16" => readMask = u64"0x000000000000FFFF" //(u64"1" << u64"16") - u64"1"
+        case u64"24" => readMask = u64"0x0000000000FFFFFF" //(u64"1" << u64"24") - u64"1"
+        case u64"32" => readMask = u64"0x00000000FFFFFFFF" //(u64"1" << u64"32") - u64"1"
+        case u64"40" => readMask = u64"0x000000FFFFFFFFFF" //(u64"1" << u64"40") - u64"1"
+        case u64"48" => readMask = u64"0x0000FFFFFFFFFFFF" //(u64"1" << u64"48") - u64"1"
+        case u64"56" => readMask = u64"0x00FFFFFFFFFFFFFF" //(u64"1" << u64"56") - u64"1"
+        case u64"64" => readMask = u64"0xFFFFFFFFFFFFFFFF" //~u64"0"
+      }
+
+//      println(s"baseAddr: ${readBaseAddr}, offset: ${readOffset}, addr: ${readAddr}, alignOffset: ${readAlignOffset}, alignedAddr: ${readAlignedAddr}")
+
+      if (readAlignOffset == u64"0") {
+        readAlignAddr = readAlignedAddr
+        readAlign()
+        readRes = readAlignRes & readMask
+      } else {
+        readAlignAddr = readAlignedAddr
+        readAlign()
+        readLower = readAlignRes
+
+        readAlignAddr = readAlignedAddr + u64"8"
+        readAlign()
+        readUpper = readAlignRes
+
+        readAlignOffset match {
+          case u64"1" =>
+            readTemp1 = readLower >> u64"8"
+            readTemp2 = readUpper << u64"56"
+          case u64"2" =>
+            readTemp1 = readLower >> u64"16"
+            readTemp2 = readUpper << u64"48"
+          case u64"3" =>
+            readTemp1 = readLower >> u64"24"
+            readTemp2 = readUpper << u64"40"
+          case u64"4" =>
+            readTemp1 = readLower >> u64"32"
+            readTemp2 = readUpper << u64"32"
+          case u64"5" =>
+            readTemp1 = readLower >> u64"40"
+            readTemp2 = readUpper << u64"24"
+          case u64"6" =>
+            readTemp1 = readLower >> u64"48"
+            readTemp2 = readUpper << u64"16"
+          case u64"7" =>
+            readTemp1 = readLower >> u64"56"
+            readTemp2 = readUpper << u64"8"
+          case _ => halt("")
+        }
+
+        readRes = (readTemp1 | readTemp2)
+        readRes = readRes & readMask
+      }
+
+      return readRet
+    }
+
+    var writeBaseAddr: U64 = u64"0"
+    var writeOffset: U64 = u64"0"
+    var writeLen: U64 = u64"0"
+    var writeValue: U64 = u64"0"
+    var writeRet: U64 = u64"0"
+    var writeAddr: U64 = u64"0"
+    var writeAlignedAddr: U64 = u64"0"
+    var writeLower: U64 = u64"0"
+    var writeUpper: U64 = u64"0"
+    var writeShiftAmount: U64 = u64"0"
+    var writeBits: U64 = u64"0"
+    var writeFullMask: U64 = u64"0"
+    var writeNewValue: U64 = u64"0"
+    var writeMaskLeftShifted: U64 = u64"0"
+    var writeMaskRightShifted: U64 = u64"0"
+    var writeInvMaskLeftShifted: U64 = u64"0"
+    var writeInvMaskRightShifted: U64 = u64"0"
+    var writeValueLeftShifted: U64 = u64"0"
+    var writeValueRightShifted: U64 = u64"0"
+    var writeNewLower: U64 = u64"0"
+    var writeNewUpper: U64 = u64"0"
+    var writeTemp: U64 = u64"0"
+
+    def write(): U64 = {
+      writeAddr = writeBaseAddr + writeOffset
+      writeAlignedAddr = writeAddr & u64"0xFFFFFFFFFFFFFFF8" //~u64"7"
+
+      readAlignAddr = writeAlignedAddr
+      readAlign()
+      writeLower = readAlignRes
+
+      writeTemp = writeAlignedAddr + u64"8"
+      readAlignAddr = writeTemp
+      readAlign()
+      writeUpper = readAlignRes
+
+      writeTemp = writeAddr & u64"7"
+      writeShiftAmount = writeTemp << u64"3"
+      writeBits = writeLen << u64"3"
+      writeFullMask = u64"0"
+
+      writeBits match {
+        case u64"8" =>  writeFullMask = u64"0x00000000000000FF" //(u64"1" << u64"8") - u64"1"
+        case u64"16" => writeFullMask = u64"0x000000000000FFFF" //(u64"1" << u64"16") - u64"1"
+        case u64"24" => writeFullMask = u64"0x0000000000FFFFFF" //(u64"1" << u64"24") - u64"1"
+        case u64"32" => writeFullMask = u64"0x00000000FFFFFFFF" //(u64"1" << u64"32") - u64"1"
+        case u64"40" => writeFullMask = u64"0x000000FFFFFFFFFF" //(u64"1" << u64"40") - u64"1"
+        case u64"48" => writeFullMask = u64"0x0000FFFFFFFFFFFF" //(u64"1" << u64"48") - u64"1"
+        case u64"56" => writeFullMask = u64"0x00FFFFFFFFFFFFFF" //(u64"1" << u64"56") - u64"1"
+        case u64"64" => writeFullMask = u64"0xFFFFFFFFFFFFFFFF" //~u64"0"
+      }
+
+      writeNewValue = writeValue & writeFullMask
+
+      leftShiftValue = writeFullMask
+      leftShiftAmount = writeShiftAmount
+      leftShift()
+      writeMaskLeftShifted = leftShiftRes
+
+      rightShiftValue = writeFullMask
+      rightShiftAmount = u64"64" - writeShiftAmount
+      rightShift()
+      writeMaskRightShifted = rightShiftRes
+
+      writeInvMaskLeftShifted = ~writeMaskLeftShifted
+      writeInvMaskRightShifted = ~writeMaskRightShifted
+
+      leftShiftValue = writeNewValue
+      leftShiftAmount = writeShiftAmount
+      leftShift()
+      writeValueLeftShifted = leftShiftRes
+
+      rightShiftValue = writeNewValue
+      rightShiftAmount = u64"64" - writeShiftAmount
+
+      rightShift()
+
+      writeValueRightShifted = rightShiftRes
+
+      writeNewLower = writeLower & writeInvMaskLeftShifted
+      writeNewUpper = writeUpper & writeInvMaskRightShifted
+
+//      println(s"shiftAmount: ${writeShiftAmount}, writeBits: ${writeBits}, fullMask: ${writeFullMask}")
+//      println(s"maskLeftShifted: ${writeMaskLeftShifted}, maskRightShifted: ${writeMaskRightShifted}, invMaskLeftShifted: ${writeInvMaskLeftShifted}, invMaskRightShifted: ${writeInvMaskRightShifted}")
+//      println(s"newLower: ${writeNewLower}, newUpper: ${writeNewUpper}, valueLeftShifted: ${writeValueLeftShifted}, valueRightShifted: ${writeValueRightShifted}")
+
+      writeAlignAddr = writeAlignedAddr
+      writeAlignValue = writeNewLower | writeValueLeftShifted
+      writeAlign()
+
+      writeTemp = writeAlignedAddr + u64"8"
+      writeAlignAddr = writeTemp
+      writeAlignValue = writeNewUpper | writeValueRightShifted
+      writeAlign()
+
+      return writeRet
+    }
+
+    var readAlignAddr: U64 = u64"0"
+    var readAlignRes: U64 = u64"0"
+    def readAlign(): U64 = {
+      assert(F)
+      readAlignRes = readAlignAddr
+      return u64"0"
+    }
+
+    var writeAlignAddr: U64 = u64"0"
+    var writeAlignValue: U64 = u64"0"
+    def writeAlign(): Unit = {
+      assert(F)
+      writeAlignValue = writeAlignAddr
+    }
+  }
 }
