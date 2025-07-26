@@ -645,6 +645,7 @@ object Runtime {
     var readUpper: U64 = u64"0"
     var readTemp1: U64 = u64"0"
     var readTemp2: U64 = u64"0"
+    var readTempB: B = F
     var readBits: U64 = u64"0"
     var readMask: U64 = u64"0"
 
@@ -668,7 +669,8 @@ object Runtime {
 
 //      println(s"baseAddr: ${readBaseAddr}, offset: ${readOffset}, addr: ${readAddr}, alignOffset: ${readAlignOffset}, alignedAddr: ${readAlignedAddr}")
 
-      if (readAlignOffset == u64"0") {
+      readTempB = readAlignOffset == u64"0"
+      if (readTempB) {
         readAlignAddr = readAlignedAddr
         readAlign()
         readRes = readAlignRes & readMask
