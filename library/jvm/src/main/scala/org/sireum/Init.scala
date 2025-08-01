@@ -580,7 +580,6 @@ import Init._
         proc"$p7zz a mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
       }
       val content = mill.readU8s
-      mill.removeAll()
       val size = content.size
       val newContent = MSZ.create(content.size + 1024, u8"0")
       val newSize = newContent.size
@@ -626,6 +625,7 @@ import Init._
       var stop = F
       val javaPrefix: String = "=\"java\""
       val javaExePrefix: String = "=java.exe\""
+      val jnaPrefix: String = "-Djna.nosys=true"
       while (i < size) {
         if (!stop) {
           if (isAt("%*", i) || isAt("\"$@\"", i)) {
@@ -645,6 +645,9 @@ import Init._
           } else if (isAt(javaExePrefix, i)) {
             j = putString(s"=%SIREUM_HOME%\\bin\\win\\java\\bin\\java.exe\"", j)
             i = i + javaExePrefix.size
+          } else if (isAt(jnaPrefix, i)) {
+            j = putString("--enable-native-access=ALL-UNNAMED -Djna.nosys=true", j)
+            i = i + jnaPrefix.size
           } else if (isAt("exit /B %errorlevel%", i)) {
             stop = T
           }
@@ -658,6 +661,7 @@ import Init._
         Os.exit(-1)
       }
 
+      mill.removeAll()
       mill.writeU8Partms(newContent, 0, j)
       mill.chmod("+x")
     }
@@ -667,7 +671,7 @@ import Init._
     if (ver.exists && ver.read == millVersion) {
       return
     }
-    val url = s"https://repo1.maven.org/maven2/com/lihaoyi/mill-dist/$millVersion/mill-dist-$millVersion.jar"
+    val url = s"https://repo1.maven.org/maven2/com/lihaoyi/mill-dist/$millVersion/mill-dist-$millVersion.exe"
     val mill: Os.Path = (home / "bin" / (if (Os.isWin) "mill.bat" else "mill")).canon
     if (verbose) {
       println(s"Downloading mill $millVersion ...")
