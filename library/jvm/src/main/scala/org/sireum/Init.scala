@@ -646,7 +646,7 @@ import Init._
             j = putString(s"=%SIREUM_HOME%\\bin\\win\\java\\bin\\java.exe\"", j)
             i = i + javaExePrefix.size
           } else if (isAt(jnaPrefix, i)) {
-            j = putString("--enable-native-access=ALL-UNNAMED -Djna.nosys=true", j)
+            j = putString("--enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow -Djna.nosys=true", j)
             i = i + jnaPrefix.size
           } else if (isAt("exit /B %errorlevel%", i)) {
             stop = T
