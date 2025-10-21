@@ -1033,6 +1033,9 @@ import Init._
     def patchSysIdeEditor(d: Os.Path): Unit = {
       val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
       var content = tmlf.read
+      if (ops.StringOps(content).contains("\"/\\\\*[^{]")) {
+        return
+      }
       def patchTmlEditor(): Unit = {
         val existingKeywords: HashSet[String] = {
           val contentOps = ops.StringOps(content)
@@ -1049,6 +1052,9 @@ import Init._
       }
       def patchJsEditor(f: Os.Path): Unit = {
         var text = f.read
+        if (ops.StringOps(text).contains("/*")) {
+          return
+        }
         val textCis = conversions.String.toCis(text)
         val pattern = conversions.String.toCis(".string=")
         var i = ops.StringOps.stringIndexOfFrom(textCis, pattern, 0)
