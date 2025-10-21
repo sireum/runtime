@@ -890,7 +890,7 @@ import Init._
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
     val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
     val sysIdeVersion = versions.get("org.sireum.version.vscodium.extension.syside").get
-    val es = extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion"
+    val es: ISZ[String] = if (sysIdeVersion == "0.9.1") extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion" else extensions :+ s"sensmetry.syside-editor@$sysIdeVersion"
     val urlPrefix = s"https://github.com/VSCodium/vscodium/releases/download/$vscodiumVersion"
     val sireumExtUrl = s"https://github.com/sireum/vscode-extension/releases/download/$sireumExtVersion/sireum-vscode-extension.vsix"
     val sireumExtDrop = s"sireum-vscode-extension-$sireumExtVersion.vsix"
@@ -985,7 +985,7 @@ import Init._
       patchClient()
     }
 
-    def patchSysIDE(d: Os.Path): Unit = {
+    def patchSysIde(d: Os.Path): Unit = {
       val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
       var content = tmlf.read
       val contentOps = ops.StringOps(content)
@@ -997,16 +997,6 @@ import Init._
           val i = contentOps.stringIndexOf("\\\\b(about|")
           val j = contentOps.stringIndexOfFrom(")\\\\b", i)
           HashSet ++ ops.StringOps(contentOps.substring(i, j)).split((c: C) => c == '|') + "about"
-        }
-        content = {
-          val patterns: String = """"patterns": ["""
-          val i = contentOps.stringIndexOf(patterns) + patterns.size
-          val ins =
-            st"""    {
-                |      "match": "/\\*\\*/",
-                |      "name": "string.quoted.other.sysml"
-                |    },"""
-          s"${contentOps.substring(0, i)}${Os.lineSep}${ins.render}${contentOps.substring(i, content.size)}"
         }
         content = ops.StringOps(content).replaceAllLiterally("\\\\b(about|", st"\\\\b(${(gumboTokens(existingKeywords), "|")}|about|".render)
         content = ops.StringOps(content).replaceAllLiterally("\"/\\\\*\"", "\"/\\\\*[^{]\"")
@@ -1038,6 +1028,49 @@ import Init._
       for (f <- Os.Path.walk(d / "dist", F, F, (p: Os.Path) => p.ext == "js")) {
         patchJs(f)
       }
+      println()
+    }
+    def patchSysIdeEditor(d: Os.Path): Unit = {
+      val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
+      var content = tmlf.read
+      def patchTmlEditor(): Unit = {
+        val existingKeywords: HashSet[String] = {
+          val contentOps = ops.StringOps(content)
+          val i = contentOps.stringIndexOf("\\\\b(about|")
+          val j = contentOps.stringIndexOfFrom(")\\\\b", i)
+          HashSet ++ ops.StringOps(contentOps.substring(i, j)).split((c: C) => c == '|') + "about"
+        }
+        content = ops.StringOps(content).replaceAllLiterally("\\\\b(about|", st"\\\\b(${(gumboTokens(existingKeywords), "|")}|about|".render)
+        content = ops.StringOps(content).replaceAllLiterally("\"/\\\\*", "\"/\\\\*[^{]")
+        content = ops.StringOps(content).replaceAllLiterally("\"\\\\*/", "\"[^}]\\\\*/")
+        tmlf.setWritable(T)
+        tmlf.writeOver(content)
+        tmlf.setWritable(F)
+      }
+      def patchJsEditor(f: Os.Path): Unit = {
+        var text = f.read
+        val textCis = conversions.String.toCis(text)
+        val pattern = conversions.String.toCis(".string=")
+        var i = ops.StringOps.stringIndexOfFrom(textCis, pattern, 0)
+        var commentStrings = ISZ[String]()
+        while (i >= 0) {
+          val j = i - 3
+          val k = i + pattern.size + 2
+          if (textCis(j) == ';' && textCis(k) == ';') {
+            commentStrings = commentStrings :+ ops.StringOps.substring(textCis, j + 1, k + 1)
+          }
+          i = ops.StringOps.stringIndexOfFrom(textCis, pattern, i + pattern.size)
+        }
+        f.setWritable(T)
+        for (s <- commentStrings) {
+          text = ops.StringOps(text).replaceAllLiterally(s, s"/*$s*/")
+        }
+        f.writeOver(text)
+        f.setWritable(F)
+      }
+      println("Patching SysIDE ...")
+      patchTmlEditor()
+      patchJsEditor(d / "dist" / "extension.js")
       println()
     }
 
@@ -1081,10 +1114,13 @@ import Init._
       println()
       val sysidePrefix = conversions.String.toCis("sensmetry.sysml-")
       val metalsPrefix = conversions.String.toCis("scalameta.metals-")
+      val sysideEditorPrefix = conversions.String.toCis("sensmetry.syside-editor-")
       for (p <- extensionsDir.list) {
         val cis = conversions.String.toCis(p.name)
         if (ops.StringOps.startsWith(cis, sysidePrefix)) {
-          patchSysIDE(p)
+          patchSysIde(p)
+        } else if (ops.StringOps.startsWith(cis, sysideEditorPrefix)) {
+          patchSysIdeEditor(p)
         } else if (ops.StringOps.startsWith(cis, metalsPrefix)) {
           patchMetals(p)
         }
