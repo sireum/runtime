@@ -451,22 +451,29 @@ import Init._
   def installZ3(): Unit = {
     homeBinPlatform.mkdirAll()
 
-    val z3Version = versions.get("org.sireum.version.z3").get
-    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
-    val dir = homeBin / "z3"
+    val version = versions.get("org.sireum.version.z3").get
+    val dir = homeBinPlatform / "z3"
     val ver = dir / "VER"
-    val version = s"$z3Version-$cosmoccVersion"
 
     if (ver.exists && ver.read == version) {
       return
     }
 
-    val filename: String = s"z3-exe-static-$z3Version-cosmocc-$cosmoccVersion.zip"
-
+    val filename: String = kind match {
+      case Os.Kind.Win =>
+        if (Os.isWinArm) s"z3-$version-win-arm64.zip"
+        else s"z3-$version-win-amd64.zip"
+      case Os.Kind.Mac =>
+        if (Os.isMacArm) s"z3-$version-mac-arm64.zip"
+        else s"z3-$version-mac-amd64.zip"
+      case Os.Kind.Linux => s"z3-$version-linux-amd64.zip"
+      case Os.Kind.LinuxArm => s"z3-$version-linux-arm64.zip"
+      case _ => return
+    }
     val url: String = s"https://github.com/sireum/rolling/releases/download/z3/$filename"
     val bundle = cache / filename
     if (!bundle.exists) {
-      println(s"Please wait while downloading Z3 $z3Version ...")
+      println(s"Please wait while downloading Z3 $version ...")
       bundle.up.mkdirAll()
       bundle.downloadFrom(url)
       println()
@@ -480,8 +487,9 @@ import Init._
       p.moveTo(dir)
     }
 
-    (dir / "bin" / "z3.com").chmod("+x")
-
+    if (kind != Os.Kind.Win) {
+      (dir / "bin" / "z3").chmod("+x")
+    }
     println()
 
     ver.writeOver(version)
@@ -490,21 +498,26 @@ import Init._
   def installCVC(): Unit = {
     homeBinPlatform.mkdirAll()
 
-    val cosmoccVersion = versions.get("org.sireum.version.cosmocc").get
-
     def installCVCGen(gen: String, version: String): Unit = {
-      val (exe, ver, ve): (Os.Path, Os.Path, String) = if (gen == "4") {
-        (homeBinPlatform / (if (kind == Os.Kind.Win) "cvc.exe" else "cvc"), homeBinPlatform / ".cvc.ver", s"$gen-$version")
-      } else {
-        (homeBin / "cvc5.com", homeBin / ".cvc5.ver", s"$gen-$version-$cosmoccVersion")
-      }
+      val genOpt: Option[String] = if (gen == "4") None() else Some(gen)
+      val exe = homeBinPlatform / (if (kind == Os.Kind.Win) st"cvc$genOpt.exe" else st"cvc$genOpt").render
+      val ver = homeBinPlatform / st".cvc$genOpt.ver".render
 
-      if (ver.exists && ver.read == ve) {
+      val VER = s"$gen-$version"
+
+      if (ver.exists && ver.read == VER) {
         return
       }
 
       val dropname: String = (gen, kind) match {
-        case (string"5", _) => s"cvc$gen-$version-cosmocc-$cosmoccVersion.com"
+        case (string"5", Os.Kind.Win) =>
+          if (Os.isWinArm) s"cvc$gen-$version-win-arm64.zip"
+          else s"cvc$gen-$version-win-amd64.zip"
+        case (string"5", Os.Kind.LinuxArm) => s"cvc$gen-$version-linux-arm64.zip"
+        case (string"5", Os.Kind.Linux) => s"cvc$gen-$version-linux-amd64.zip"
+        case (string"5", Os.Kind.Mac) =>
+          if (Os.isMacArm) s"cvc$gen-$version-mac-arm64.zip"
+          else s"cvc$gen-$version-mac-amd64.zip"
         case (string"4", Os.Kind.Win) => s"cvc$gen-$version-win64-opt.exe"
         case (string"4", Os.Kind.Linux) => s"cvc$gen-$version-x86_64-linux-opt.8-linux"
         case (string"4", Os.Kind.Mac) => s"cvc$gen-$version-macos-opt.8-mac"
@@ -521,10 +534,24 @@ import Init._
         println()
       }
 
-      drop.copyOverTo(exe)
-      exe.chmod("+x")
+      if (gen == "5") {
+        val d = Os.tempDir()
+        drop.unzipTo(d)
+        for (p <- d.list if ops.StringOps(p.name).startsWith(s"cvc5-")) {
+          (d / p.name / "bin" / (if (kind == Os.Kind.Win) "cvc5.exe" else "cvc5")).copyOverTo(exe)
+        }
+        d.removeAll()
+      } else {
+        drop.copyOverTo(exe)
+      }
 
-      ver.writeOver(ve)
+      kind match {
+        case Os.Kind.Linux => exe.chmod("+x")
+        case Os.Kind.Mac => exe.chmod("+x")
+        case _ =>
+      }
+
+      ver.writeOver(VER)
       println()
     }
 
@@ -1529,23 +1556,25 @@ import Init._
     val vscodeDistroMap = HashMap.empty[Os.Kind.Type, ISZ[ISZ[String]]] +
       Os.Kind.Win ~> (ISZ(
         ISZ("bin", ".7zz.ver"),
-        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz.com"),
-        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill.bat"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "win", ".cs.ver"),
         ISZ("bin", "win", ".cvc.ver"),
+        ISZ("bin", "win", ".cvc5.ver"),
         ISZ("bin", "win", "cvc.exe"),
+        ISZ("bin", "win", "cvc5.exe"),
+        ISZ("bin", "win", "cs.exe"),
         ISZ("bin", "win", "java"),
+        ISZ("bin", "win", "sireum.exe"),
         ISZ("bin", "win", "vcruntime140.dll"),
         ISZ("bin", "win", "vcruntime140_1.dll"),
         ISZ("bin", "win", "vscodium"),
+        ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum.bat"),
-        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1557,23 +1586,23 @@ import Init._
       Os.Kind.Linux ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
-        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", ".cs.ver"),
         ISZ("bin", "linux", ".cvc.ver"),
+        ISZ("bin", "linux", ".cvc5.ver"),
         ISZ("bin", "linux", "cvc"),
+        ISZ("bin", "linux", "cvc5"),
         ISZ("bin", "linux", "cs"),
         ISZ("bin", "linux", "java"),
         ISZ("bin", "linux", "sireum"),
         ISZ("bin", "linux", "vscodium"),
+        ISZ("bin", "linux", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1582,20 +1611,23 @@ import Init._
       Os.Kind.LinuxArm ~> ISZ(
         ISZ("bin", ".7zz.ver"),
         ISZ("bin", ".binfmt"),
-        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "linux", "arm", ".cs.ver"),
+        ISZ("bin", "linux", "arm", ".cvc.ver"),
+        ISZ("bin", "linux", "arm", ".cvc5.ver"),
+        ISZ("bin", "linux", "arm", "cvc"),
+        ISZ("bin", "linux", "arm", "cvc5"),
         ISZ("bin", "linux", "arm", "cs"),
         ISZ("bin", "linux", "arm", "java"),
+        ISZ("bin", "linux", "arm", "sireum"),
         ISZ("bin", "linux", "arm", "vscodium"),
+        ISZ("bin", "linux", "arm", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1603,23 +1635,23 @@ import Init._
       ) +
       Os.Kind.Mac ~> ISZ(
         ISZ("bin", ".7zz.ver"),
-        ISZ("bin", ".cvc5.ver"),
         ISZ("bin", ".mill.ver"),
         ISZ("bin", "7zz"),
-        ISZ("bin", "cvc5.com"),
         ISZ("bin", "mill"),
         ISZ("bin", "scala"),
         ISZ("bin", "sireum.jar"),
         ISZ("bin", "mac", ".cs.ver"),
         ISZ("bin", "mac", ".cvc.ver"),
+        ISZ("bin", "mac", ".cvc5.ver"),
         ISZ("bin", "mac", "cvc"),
+        ISZ("bin", "mac", "cvc5"),
         ISZ("bin", "mac", "cs"),
         ISZ("bin", "mac", "java"),
         ISZ("bin", "mac", "sireum"),
         ISZ("bin", "mac", "vscodium"),
+        ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "z3"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
