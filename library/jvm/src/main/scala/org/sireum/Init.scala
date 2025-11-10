@@ -546,6 +546,7 @@ import Init._
       }
 
       kind match {
+        case Os.Kind.LinuxArm => exe.chmod("+x")
         case Os.Kind.Linux => exe.chmod("+x")
         case Os.Kind.Mac => exe.chmod("+x")
         case _ =>
