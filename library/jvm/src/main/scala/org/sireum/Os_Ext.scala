@@ -1265,8 +1265,13 @@ object Os_Ext {
   def size(path: String): Z = toIO(path).length
 
   private def digest(path: String, name: String, numOfBytes: Z): String = {
-    val md = java.security.MessageDigest.getInstance(name.value)
-    val digest = md.digest(readU8s(path).elements.map(_.value).toArray)
+    var md = java.security.MessageDigest.getInstance(name.value)
+    val is = new java.io.FileInputStream(toIO(path))
+    val dis = new java.security.DigestInputStream(is, md)
+    while (dis.read() != -1) {}
+    dis.close()
+    md = dis.getMessageDigest
+    val digest = md.digest()
     val s = ISZ((for (d <- digest) yield U8(d)).toSeq: _*)
     st"${(if (numOfBytes > 0) Jen.IS(s).take(numOfBytes).toISZ else s, "")}".render.value.toLowerCase
   }
