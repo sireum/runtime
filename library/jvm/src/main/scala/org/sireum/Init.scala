@@ -33,6 +33,10 @@ object Init {
                          val isCommunity: B,
                          val isJar: B,
                          val version: String)
+
+  @ext("Init_Ext") object Ext {
+    def sireumApiRun(args: ISZ[String]): Z = $
+  }
 }
 
 import Init._
@@ -1493,8 +1497,8 @@ import Init._
     forms.removeAll()
     proc"git clone https://github.com/sireum/forms $forms".at(home).runCheck()
     proc"git checkout $version".at(forms).runCheck()
-    val sireum: Os.Path = homeBin / (if (Os.isWin) "sireum.bat" else "sireum")
-    proc"$sireum proyek assemble --main org.sireum.forms.FormsApp --exclude-jar-deps asm:,unmanaged:,org.scala-lang: $forms".runCheck()
+    Init.Ext.sireumApiRun(ISZ[String]("proyek", "assemble", "--main", "org.sireum.forms.FormsApp", "--exclude-jar-deps",
+      "asm:,unmanaged:,org.scala-lang:", forms.string))
     (forms / "out" / "forms" / "assemble" / "forms.jar").copyOverTo(formsJar)
     forms.removeAll()
     ver.writeOver(versionWithSireum)
