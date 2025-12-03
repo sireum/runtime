@@ -463,7 +463,7 @@ import Init._
     val filename: String = kind match {
       case Os.Kind.Win =>
         if (Os.isWinArm) s"z3-exe-static-$version-cosmocc-$cosmoccVersion.zip"//s"z3-$version-win-arm64.zip"
-        else s"z3-$version-win-amd64.zip"
+        else s"z3-exe-static-$version-cosmocc-$cosmoccVersion.zip"//s"z3-$version-win-amd64.zip"
       case Os.Kind.Mac =>
         if (Os.isMacArm) s"z3-$version-mac-arm64.zip"
         else s"z3-$version-mac-amd64.zip"
@@ -486,6 +486,10 @@ import Init._
 
     for (p <- dir.up.list if ops.StringOps(p.name).startsWith("z3-")) {
       p.moveTo(dir)
+    }
+
+    if (kind != Os.Kind.Mac) {
+      (dir / "bin" / "z3.com").moveOverTo(dir / "bin" / (if (kind == Os.Kind.Win) "z3.exe" else "z3"))
     }
 
     if (kind != Os.Kind.Win) {
