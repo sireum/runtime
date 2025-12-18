@@ -1753,8 +1753,8 @@ import Init._
       print(s"Patching $p ... ")
       val content = ops.StringOps(p.read).trim
       val newContent: String =
-        if (kind == Os.Kind.Win) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n"
-        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n"
+        if (kind == Os.Kind.Win) s"$content\r\n-Dorg.sireum.ive=Sireum$devSuffix\r\n-Dorg.sireum.ive.dev=$isDev\r\n-Dfile.encoding=UTF-8\r\n-Dnosplash=true\r\n"
+        else s"$content\n-Dorg.sireum.ive=Sireum$devSuffix\n-Dorg.sireum.ive.dev=$isDev\n-Dfile.encoding=UTF-8\n-Dnosplash=true\n"
       p.writeOver(newContent)
       println("done!")
     }
@@ -1902,7 +1902,7 @@ import Init._
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
-      patchApp()
+      //patchApp()
       patchIdeaProperties(sireumAppDir / "Contents" / "bin" / "idea.properties")
       patchVMOptions(sireumAppDir / "Contents" / "bin" / "idea.vmoptions")
       patchInfoPlist(sireumAppDir / "Contents" / "Info.plist")
@@ -1943,7 +1943,7 @@ import Init._
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
-      patchApp()
+      //patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.vmoptions")
       (ideaDir / "bin" / "idea.vmoptions").removeAll()
@@ -1962,7 +1962,7 @@ import Init._
       deletePlugins()
       extractPlugins(settingsPluginDir, pluginFilter)
       patchIcon()
-      patchApp()
+      //patchApp()
       patchIdeaProperties(ideaDir / "bin" / "idea.properties")
       patchVMOptions(ideaDir / "bin" / "idea64.exe.vmoptions")
       (ideaDir / "bin" / "idea.exe").removeAll()
@@ -2029,7 +2029,7 @@ import Init._
         if (Os.isMacArm) ideaExtMap.get("mac/arm").get
         else if (kind == Os.Kind.Win && Os.env("PROCESSOR_ARCHITECTURE") == Some("ARM64")) "-aarch64.exe"
         else ideaExtMap.get(platform(kind)).get
-      val url: String = s"https://download.jetbrains.com/idea/idea${if (isUltimate) "IU" else "IC"}-$ideaVer$suffix"
+      val url: String = s"https://download.jetbrains.com/idea/idea-$ideaVer$suffix"
       val urlOps = ops.StringOps(url)
       val filename = urlOps.substring(urlOps.lastIndexOf('/') + 1, url.size)
       val buildDir = ideaDir.up.canon
