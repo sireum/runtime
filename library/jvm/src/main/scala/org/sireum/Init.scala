@@ -2101,6 +2101,9 @@ import Init._
       if (libCache.exists) {
         libCache.moveTo(tmp)
       }
+      if (Os.env("GITHUB_ACTIONS").nonEmpty) {
+        cache.removeAll()
+      }
       if (Os.isWin) {
         val p7zz = install7zz()
         Os.proc(ISZ[String](p7zz.string, "a", rname) ++ files).at(home.up.canon).runCheck()
