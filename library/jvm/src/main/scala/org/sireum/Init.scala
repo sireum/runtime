@@ -2006,6 +2006,9 @@ import Init._
       if (libCache.exists) {
         libCache.moveTo(tmp)
       }
+      if (Os.env("GITHUB_ACTIONS").nonEmpty) {
+        cache.removeAll()
+      }
       if (Os.isWin) {
         val pkg = s"$plat.7z"
         val p7zz = install7zz()
