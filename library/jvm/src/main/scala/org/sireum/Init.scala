@@ -1931,7 +1931,7 @@ import Init._
       } else {
         val ideaDirParent = ideaDir.up.canon
         ideaDrop.unTarGzTo(ideaDirParent)
-        for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-${if (isUltimate) "IU" else "IC"}-")) {
+        for (p <- ideaDirParent.list if ops.StringOps(p.name).startsWith(s"idea-IU-")) {
           p.moveOverTo(ideaDir)
         }
       }
