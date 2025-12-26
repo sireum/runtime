@@ -1511,25 +1511,6 @@ import Init._
     val ideaDir: Os.Path = ideaDirPath(isUltimate, isServer)
     val sireumAppDir: Os.Path = ideaDir / s"IVE.app"
     val delPlugins = ISZ[String](
-      "completionMlRanking",
-      "fullLine",
-      "searchEverywhereMl",
-      "marketplaceMl",
-      "turboComplete",
-      "android-gradle-declarative-lang-ide",
-      "android-gradle-dsl",
-      "compose-ide-plugin",
-      "cwm-plugin",
-      "eclipse",
-      "jupyter-plugin",
-      "kotlin-jupyter-plugin",
-      "marketplace",
-      "notebooks-plugin",
-      "qodana",
-      "tasks",
-      "vcs-git-commit-modal",
-      "vcs-hg",
-      "vcs-perforce"
     )
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
