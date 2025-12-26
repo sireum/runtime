@@ -1956,6 +1956,9 @@ import Init._
     }
 
     def pack(): Unit = {
+      if (Os.env("GITHUB_ACTIONS").nonEmpty) {
+        cache.removeAll()
+      }
       val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
       print(s"Packaging for $plat ... ")
       val setupDir = home / "distro" / (if (isDev) "dev" else "release")
@@ -1986,9 +1989,6 @@ import Init._
       tmp.removeAll()
       if (libCache.exists) {
         libCache.moveTo(tmp)
-      }
-      if (Os.env("GITHUB_ACTIONS").nonEmpty) {
-        cache.removeAll()
       }
       if (Os.isWin) {
         val pkg = s"$plat.7z"
