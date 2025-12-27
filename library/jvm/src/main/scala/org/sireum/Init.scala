@@ -1956,7 +1956,8 @@ import Init._
     }
 
     def pack(): Unit = {
-      if (Os.env("GITHUB_ACTIONS").nonEmpty) {
+      val isInGitHubAction = Os.env("GITHUB_ACTIONS").nonEmpty
+      if (isInGitHubAction) {
         cache.removeAll()
       }
       val plat = ops.StringOps(platform(kind)).replaceAllChars('/', '-')
@@ -1972,7 +1973,11 @@ import Init._
           (dir /+ rp).up.mkdirAll()
           val orp = home /+ rp
           if (orp.exists) {
-            orp.copyOverTo(dir /+ rp)
+            if (isInGitHubAction && kind == Os.Kind.Linux && orp.name == "idea") {
+              orp.moveOverTo(dir /+ rp)
+            } else {
+              orp.copyOverTo(dir /+ rp)
+            }
           } else {
             println()
             println(s"Warning: Could not find $orp")
