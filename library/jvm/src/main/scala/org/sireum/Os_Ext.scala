@@ -1088,7 +1088,7 @@ object Os_Ext {
       }
       cmds match {
         case ISZ(first, _*) if isSireumJava(first) =>
-          return ISZ[String](first, "--enable-native-access=ALL-UNNAMED") ++ ops.ISZOps(cmds).slice(1, cmds.size)
+          return ISZ[String](first, "--enable-native-access=javafx.media", "--enable-native-access=javafx.graphics", "--enable-native-access=ALL-UNNAMED") ++ ops.ISZOps(cmds).slice(1, cmds.size)
         case _ => return cmds
       }
     }
