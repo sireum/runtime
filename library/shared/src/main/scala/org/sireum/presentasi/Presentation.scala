@@ -50,7 +50,7 @@ object Presentation {
   type Slide = SlideEntry
   type Video = VideoEntry
 
-  val empty: Presentation = Presentation("Presentasi", ISZ(), 2000, 2000, 250, 1.0, 2000, 1, ISZ())
+  val empty: Presentation = Presentation("Presentasi", ISZ(), 2000, 2000, 250, 1.0, 2000, 1, ISZ(), HashSMap.empty)
 
   val Slide: Slide = SlideEntry("", 0, "")
 
@@ -66,13 +66,14 @@ object Presentation {
                              val textVolume: F64,
                              val trailing: Z,
                              val granularity: Z,
-                             val entries: ISZ[Presentation.Entry]) {
+                             val entries: ISZ[Presentation.Entry],
+                             val cc: HashSMap[String, String]) {
 
   @strictpure def +(entry: Presentation.Entry): Presentation =
-    Presentation(name, args, delay, textDelay, vseekDelay, textVolume, trailing, granularity, entries :+ entry)
+    this(entries = entries :+ entry)
 
   @strictpure def ++(es: ISZ[Presentation.Entry]): Presentation =
-    Presentation(name, args, delay, textDelay, vseekDelay, textVolume, trailing, granularity, entries ++ es)
+    this(entries = entries ++ es)
 
   def cli(args: ISZ[String]): Unit = {
     val thisL = this

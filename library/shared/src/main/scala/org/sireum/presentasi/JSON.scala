@@ -79,7 +79,8 @@ object JSON {
         ("textVolume", printF64(o.textVolume)),
         ("trailing", printZ(o.trailing)),
         ("granularity", printZ(o.granularity)),
-        ("entries", printISZ(F, o.entries, printPresentationEntry _))
+        ("entries", printISZ(F, o.entries, printPresentationEntry _)),
+        ("cc", printHashSMap(T, o.cc, printString _, printString _))
       ))
     }
 
@@ -194,7 +195,10 @@ object JSON {
       parser.parseObjectKey("entries")
       val entries = parser.parseISZ(parsePresentationEntry _)
       parser.parseObjectNext()
-      return Presentation(name, args, delay, textDelay, vseekDelay, textVolume, trailing, granularity, entries)
+      parser.parseObjectKey("cc")
+      val cc = parser.parseHashSMap(parser.parseString _, parser.parseString _)
+      parser.parseObjectNext()
+      return Presentation(name, args, delay, textDelay, vseekDelay, textVolume, trailing, granularity, entries, cc)
     }
 
     def eof(): B = {
