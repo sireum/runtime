@@ -29,8 +29,30 @@ import org.sireum._
 
 object SireumApi_Ext {
   def run(args: ISZ[String]): Z = {
+    def err(): Z = {
+      eprintln(s"Could not launch a nested Sireum instance")
+      return -1
+    }
     val sireumObject = Class.forName("org.sireum.Sireum$").getField("MODULE$").get(null)
-    val sireumApiRun = Class.forName("org.sireum.SireumApi").getMethods.filter(m => m.getName == "run").head
-    sireumApiRun.invoke(sireumObject, args).asInstanceOf[Z]
+    val sireumApiRun = Class.forName("org.sireum.SireumApi").getMethods.filter(m => m.getName == "run")
+    if (sireumApiRun.isEmpty) {
+      Os.env("SIREUM_HOME") match {
+        case Some(home) =>
+          val bin = Os.path(home) / "bin"
+          val binPlatform: Os.Path = Os.kind match {
+            case Os.Kind.Mac => bin / "mac"
+            case Os.Kind.Win => bin / "win"
+            case Os.Kind.Linux => bin / "linux"
+            case Os.Kind.LinuxArm => bin / "linux" / "arm"
+            case _ => return err()
+          }
+          val javaExe = binPlatform / "java" / "bin" / (if (Os.isWin) "java.exe" else "java")
+          Os.proc(ISZ[String](javaExe.string, "-jar", (bin / "sireum.jar").string) ++ args).console.runCheck().exitCode
+        case _ =>
+          return err()
+      }
+    } else {
+      sireumApiRun.head.invoke(sireumObject, args).asInstanceOf[Z]
+    }
   }
 }
