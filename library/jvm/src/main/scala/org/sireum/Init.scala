@@ -868,7 +868,13 @@ import Init._
             return
           }
           binfmt.removeAll()
-          if (!Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) {
+          var shell: String = "sh"
+          for (sh <- ISZ("/bin/bash", "/usr/bin/bash", "/bin/zsh", "/usr/bin/zsh")) {
+            if (Os.path(sh).isExecutable) {
+              shell = sh
+            }
+          }
+          if (!Os.proc(ISZ[String](shell, "-c", s"$p7zz -h")).run().ok) {
             val cosmosVersion = versions.get("org.sireum.version.cosmos").get
             if (Os.path("/proc/sys/fs/binfmt_misc/WSLInterop").exists) {
               println(
