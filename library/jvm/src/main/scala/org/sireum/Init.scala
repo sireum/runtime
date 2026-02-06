@@ -488,9 +488,9 @@ import Init._
       p.moveTo(dir)
     }
 
-    if (kind != Os.Kind.Mac) {
-      (dir / "bin" / "z3.com").moveOverTo(dir / "bin" / (if (kind == Os.Kind.Win) "z3.exe" else "z3"))
-    }
+    //if (kind != Os.Kind.Mac) {
+    //  (dir / "bin" / "z3.com").moveOverTo(dir / "bin" / (if (kind == Os.Kind.Win) "z3.exe" else "z3"))
+    //}
 
     if (kind != Os.Kind.Win) {
       (dir / "bin" / "z3").chmod("+x")
