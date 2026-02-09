@@ -961,10 +961,10 @@ object MessagePack {
           addU8(Code.FIXARRAY_PREFIX | conversions.Z.toU8(n))
         } else if (n < 65536 /* 1 << 16 */ ) {
           addU8(Code.ARRAY16)
-          addS16(conversions.Z.toS16(n))
+          addU16(conversions.Z.toU16(n))
         } else {
           addU8(Code.ARRAY32)
-          addS32(conversions.Z.toS32(n))
+          addU32(conversions.Z.toU32(n))
         }
       }
 
