@@ -41,7 +41,7 @@ import org.sireum.U32._
   *
   * Usage example:
   * {{{
-  * grammar.computePredictiveTable(2) match {
+  * grammar.computePredictiveTableOpt match {
   *   case Some(table) =>
   *     val nm = table.nameMap
   *     val atom = nm.get("atom").get
@@ -54,23 +54,63 @@ import org.sireum.U32._
   * }
   * }}}
   *
+  * @param k       the lookahead depth this table was built for
   * @param nameMap maps rule and token names to unique U32 identifiers
   * @param rules   a map from rule U32 ID to its root [[PredictiveNode]]
   */
-@datatype class PredictiveTable(val nameMap: HashSMap[String, U32],
+@datatype class PredictiveTable(val k: Z,
+                                val nameMap: HashSMap[String, U32],
                                 val rules: HashSMap[U32, PredictiveNode]) {
   /** Predicts which alternative to use for the given rule and lookahead token IDs.
     *
+    * The `tokens` sequence must have at most `k` elements. Passing more than `k`
+    * tokens is a programming error and will trigger a halt. Passing fewer than `k`
+    * tokens is allowed and returns `None` if the available tokens are insufficient
+    * to reach a decision.
+    *
     * @param rule   the rule's U32 ID (from `nameMap`)
-    * @param tokens the lookahead token ID sequence (up to k tokens, each from `nameMap`)
+    * @param tokens the lookahead token ID sequence (at most k tokens, each from `nameMap`)
     * @return `Some(altIndex)` if the tokens uniquely identify an alternative,
-    *         or `None` if the rule is not found or the tokens don't match any entry.
+    *         or `None` if the rule is not found, the tokens are insufficient,
+    *         or no matching entry is found.
     */
   def predict(rule: U32, tokens: ISZ[U32]): Option[U32] = {
+    assert(tokens.size <= k, s"Expected at most $k lookahead tokens, but got ${tokens.size}")
     rules.get(rule) match {
       case Some(node) => return node.predict(tokens, 0)
       case _ => return None()
     }
+  }
+
+  /** Generates a Slang expression that programmatically constructs this [[PredictiveTable]].
+    *
+    * The rendered ST produces a self-contained Slang expression of type `PredictiveTable`.
+    * The caller's scope must import `org.sireum._`, `org.sireum.U32._`, and
+    * `org.sireum.parser._`.
+    *
+    * @return an ST whose `render` produces the Slang construction expression
+    */
+  def toST: ST = {
+    val nameMapST: ST = if (nameMap.isEmpty) {
+      st"HashSMap.empty[String, U32]"
+    } else {
+      val entries: ISZ[ST] = for (e <- nameMap.entries) yield
+        st""""${e._1}" ~> u32"${conversions.U32.toZ(e._2)}""""
+      st"""HashSMap.empty[String, U32] +
+          |  ${(entries, " +\n")}"""
+    }
+    val rulesST: ST = if (rules.isEmpty) {
+      st"HashSMap.empty[U32, PredictiveNode]"
+    } else {
+      val entries: ISZ[ST] = for (e <- rules.entries) yield
+        st"""u32"${conversions.U32.toZ(e._1)}" ~> ${PredictiveTable.nodeToST(e._2)}"""
+      st"""HashSMap.empty[U32, PredictiveNode] +
+          |  ${(entries, " +\n")}"""
+    }
+    return st"""PredictiveTable(
+               |  $k,
+               |  $nameMapST,
+               |  $rulesST)"""
   }
 }
 
@@ -78,10 +118,11 @@ object PredictiveTable {
   /** Builds a [[PredictiveTable]] from the flat parsing table produced by
     * [[GrammarAst.Grammar.computeParsingTableOpt]].
     *
+    * @param k     the lookahead depth the table was computed with
     * @param table the flat parsing table mapping rule names to lookahead-to-alt maps
     * @return a compact trie-based table with U32-keyed lookup
     */
-  def build(table: HashSMap[String, HashSMap[ISZ[String], Z]]): PredictiveTable = {
+  def build(k: Z, table: HashSMap[String, HashSMap[ISZ[String], Z]]): PredictiveTable = {
     var nameMap = HashSMap.empty[String, U32]
     var nextId: U32 = u32"0"
     for (entry <- table.entries) {
@@ -105,7 +146,36 @@ object PredictiveTable {
         (for (token <- cell._1) yield nameMap.get(token).get, conversions.Z.toU32(cell._2))
       rules = rules + ruleId ~> buildNode(idEntries, 0)
     }
-    return PredictiveTable(nameMap, rules)
+    return PredictiveTable(k, nameMap, rules)
+  }
+
+  /** Generates an ST for a [[PredictiveNode]] expression.
+    *
+    * @param node the node to generate code for
+    * @return an ST producing a Slang expression that constructs the node
+    */
+  def nodeToST(node: PredictiveNode): ST = {
+    node match {
+      case leaf: PredictiveNode.Leaf =>
+        val alt = conversions.U32.toZ(leaf.alt)
+        return st"""PredictiveNode.Leaf(u32"$alt")"""
+      case branch: PredictiveNode.Branch =>
+        val entriesST: ST = if (branch.entries.isEmpty) {
+          st"HashSMap.empty[U32, PredictiveNode]"
+        } else {
+          val es: ISZ[ST] = for (e <- branch.entries.entries) yield
+            st"""u32"${conversions.U32.toZ(e._1)}" ~> ${nodeToST(e._2)}"""
+          st"""HashSMap.empty[U32, PredictiveNode] +
+              |  ${(es, " +\n")}"""
+        }
+        val defaultST: ST = branch.defaultOpt match {
+          case Some(d) => st"Some(${nodeToST(d)})"
+          case _ => st"None()"
+        }
+        return st"""PredictiveNode.Branch(
+                   |  $entriesST,
+                   |  $defaultST)"""
+    }
   }
 
   def buildNode(entries: ISZ[(ISZ[U32], U32)], depth: Z): PredictiveNode = {
