@@ -928,7 +928,7 @@ import Init._
       ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
     val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
-    val sysIdeVersion = versions.get("org.sireum.version.vscodium.extension.syside").get
+    val sysIdeVersion = Os.env("SYSIDE_V").getOrElse(versions.get("org.sireum.version.vscodium.extension.syside").get)
     val es: ISZ[String] = if (sysIdeVersion == "0.9.1") extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion" else extensions :+ s"sensmetry.syside-editor@$sysIdeVersion"
     val urlPrefix = s"https://github.com/VSCodium/vscodium/releases/download/$vscodiumVersion"
     val sireumExtUrl = s"https://github.com/sireum/vscode-extension/releases/download/$sireumExtVersion/sireum-vscode-extension.vsix"
@@ -1089,6 +1089,15 @@ import Init._
         tmlf.writeOver(content)
         tmlf.setWritable(F)
       }
+      def patchPackageJson(path: Os.Path): Unit = {
+        path.writeOver(ops.StringOps(path.read).replaceAllLiterally(""""contributes": {""",
+          st""""contributes": {
+              |		"configurationDefaults": {
+              |			"[sysml]": {
+              |				"editor.semanticHighlighting.enabled": false
+              |			}
+              |		},""".render))
+      }
       def patchJsEditor(f: Os.Path): Unit = {
         var text = f.read
         if (ops.StringOps(text).contains("/*")) {
@@ -1115,7 +1124,8 @@ import Init._
       }
       println("Patching SysIDE ...")
       patchTmlEditor()
-      patchJsEditor(d / "dist" / "extension.js")
+      patchPackageJson(d / "package.json")
+      //patchJsEditor(d / "dist" / "extension.js")
       println()
     }
 
