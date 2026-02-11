@@ -1267,7 +1267,7 @@ object Os_Ext {
   private def digest(path: String, name: String, numOfBytes: Z): String = {
     var md = java.security.MessageDigest.getInstance(name.value)
     val is = new java.io.FileInputStream(toIO(path))
-    val dis = new java.security.DigestInputStream(is, md)
+    val dis = new java.security.DigestInputStream(new BIS(is), md)
     while (dis.read() != -1) {}
     dis.close()
     md = dis.getMessageDigest
