@@ -1605,6 +1605,7 @@ import Init._
         ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum.bat"),
+        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1633,6 +1634,7 @@ import Init._
         ISZ("bin", "linux", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1655,6 +1657,7 @@ import Init._
         ISZ("bin", "linux", "arm", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1679,6 +1682,7 @@ import Init._
         ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
+        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -2195,11 +2199,22 @@ import Init._
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum.bat")
       }
+      val sireumMcpScript = homeBin / "sireum-mcp.bat"
+      if (!sireumMcpScript.exists) {
+        sireumMcpScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum-mcp.bat")
+      }
     } else {
       val sireumScript = homeBin / "sireum"
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum")
         sireumScript.chmod("+x")
+      }
+      val sireumMcpScript = homeBin / "sireum-mcp.bat"
+      if (!sireumMcpScript.exists) {
+        sireumMcpScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum-mcp.bat")
+        if (sireumMcpScript.exists) {
+          sireumMcpScript.chmod("+x")
+        }
       }
     }
     install7zz()
