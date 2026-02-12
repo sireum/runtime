@@ -48,11 +48,13 @@ object ParseTree {
                        @hidden val ruleName: String,
                        @hidden val tipe: U32,
                        @hidden val isHidden: B,
-                       @hidden val posOpt: Option[Position]) extends ParseTree {
+                       @hidden val posOpt: Option[Position]) extends ParseTree with Token {
     @pure override def toST: ST = {
       return if (ops.StringOps(ruleName).startsWith("'")) st""""${ops.StringOps(text).escapeST}""""
       else st"""$ruleName["${ops.StringOps(text).escapeST}"]"""
     }
+    @strictpure def toLeaf: ParseTree.Leaf = this
+    @strictpure def num: U32 = tipe
   }
 
   @datatype class Node(val children: ISZ[ParseTree],
