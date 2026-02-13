@@ -27,6 +27,7 @@
 package org.sireum.ops
 
 import org.sireum._
+import org.sireum.U32._
 import org.sireum.U64._
 import org.sireum.message.Reporter
 
@@ -246,6 +247,111 @@ object StringOps {
       }
     }
     return conversions.String.fromCis(r)
+  }
+
+  val base64Chars: ISZ[C] = ISZ(
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+    'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/')
+
+  @pure def toBase64(data: ISZ[U8]): String = {
+    val size = data.size
+    var r = ISZ[C]()
+    var i: Z = 0
+    while (i + 2 < size) {
+      val b0 = conversions.U8.toU32(data(i))
+      val b1 = conversions.U8.toU32(data(i + 1))
+      val b2 = conversions.U8.toU32(data(i + 2))
+      val n = (b0 << u32"16") | (b1 << u32"8") | b2
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"18") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"12") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"6") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ(n & u32"0x3F"))
+      i = i + 3
+    }
+    val remaining = size - i
+    if (remaining == 2) {
+      val b0 = conversions.U8.toU32(data(i))
+      val b1 = conversions.U8.toU32(data(i + 1))
+      val n = (b0 << u32"16") | (b1 << u32"8")
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"18") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"12") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"6") & u32"0x3F"))
+      r = r :+ '='
+    } else if (remaining == 1) {
+      val b0 = conversions.U8.toU32(data(i))
+      val n = b0 << u32"16"
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"18") & u32"0x3F"))
+      r = r :+ base64Chars(conversions.U32.toZ((n >> u32"12") & u32"0x3F"))
+      r = r :+ '='
+      r = r :+ '='
+    }
+    return conversions.String.fromCis(r)
+  }
+
+  @pure def fromBase64(s: String): Either[ISZ[U8], String] = {
+    @strictpure def decodeChar(c: C): Z =
+      if ('A' <= c && c <= 'Z') c.toZ - 'A'.toZ
+      else if ('a' <= c && c <= 'z') c.toZ - 'a'.toZ + 26
+      else if ('0' <= c && c <= '9') c.toZ - '0'.toZ + 52
+      else if (c == '+') 62
+      else if (c == '/') 63
+      else -1
+    val cis = conversions.String.toCis(s)
+    val size = cis.size
+    if (size % 4 != 0) {
+      return Either.Right("Invalid Base64: length must be a multiple of 4")
+    }
+    if (size == 0) {
+      return Either.Left(ISZ())
+    }
+    var pad: Z = 0
+    if (cis(size - 1) == '=') {
+      pad = pad + 1
+    }
+    if (cis(size - 2) == '=') {
+      pad = pad + 1
+    }
+    var r = ISZ[U8]()
+    var i: Z = 0
+    while (i < size) {
+      val c0 = cis(i)
+      val c1 = cis(i + 1)
+      val c2 = cis(i + 2)
+      val c3 = cis(i + 3)
+      val isLastGroup = i + 4 == size
+      val v0 = decodeChar(c0)
+      val v1 = decodeChar(c1)
+      if (v0 < 0 || v1 < 0) {
+        return Either.Right(st"Invalid Base64 character at index $i".render)
+      }
+      if (isLastGroup && pad == 2) {
+        val n = (conversions.Z.toU32(v0) << u32"18") | (conversions.Z.toU32(v1) << u32"12")
+        r = r :+ conversions.U32.toU8((n >> u32"16") & u32"0xFF")
+      } else if (isLastGroup && pad == 1) {
+        val v2 = decodeChar(c2)
+        if (v2 < 0) {
+          return Either.Right(st"Invalid Base64 character at index ${i + 2}".render)
+        }
+        val n = (conversions.Z.toU32(v0) << u32"18") | (conversions.Z.toU32(v1) << u32"12") | (conversions.Z.toU32(v2) << u32"6")
+        r = r :+ conversions.U32.toU8((n >> u32"16") & u32"0xFF")
+        r = r :+ conversions.U32.toU8((n >> u32"8") & u32"0xFF")
+      } else {
+        val v2 = decodeChar(c2)
+        val v3 = decodeChar(c3)
+        if (v2 < 0 || v3 < 0) {
+          return Either.Right(st"Invalid Base64 character at index $i".render)
+        }
+        val n = (conversions.Z.toU32(v0) << u32"18") | (conversions.Z.toU32(v1) << u32"12") | (conversions.Z.toU32(v2) << u32"6") | conversions.Z.toU32(v3)
+        r = r :+ conversions.U32.toU8((n >> u32"16") & u32"0xFF")
+        r = r :+ conversions.U32.toU8((n >> u32"8") & u32"0xFF")
+        r = r :+ conversions.U32.toU8(n & u32"0xFF")
+      }
+      i = i + 4
+    }
+    return Either.Left(r)
   }
 
   @ext("StringOps_Ext") object Ext {
