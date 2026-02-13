@@ -338,6 +338,18 @@ object NGrammar {
       pt.predict(alts.num, lookahead(i)) match {
         case Some(n) => return parseRule(alts.alts(n), i)
         case _ =>
+          // For synthetic choice rules (star/opt), if the last alt is an empty
+          // synthetic rule, use it as a default stop/skip when prediction fails.
+          // This handles cases where FOLLOW_k is incomplete (e.g., the start rule
+          // has no FOLLOW, or the lookahead is shorter than k near end of input).
+          if (alts.isSynthetic) {
+            val lastAltNum = alts.alts(alts.alts.size - 1)
+            ruleMap.get(lastAltNum).get match {
+              case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
+                return parseElements(lastAlt, i)
+              case _ =>
+            }
+          }
           val expectedTokens: ISZ[String] = pt.rules.get(alts.num) match {
             case Some(n: PredictiveNode.Branch) =>
               val m = pt.reverseNameMap
