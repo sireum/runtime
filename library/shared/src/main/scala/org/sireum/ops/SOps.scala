@@ -182,6 +182,279 @@ import org.sireum._
 
 }
 
+import org.sireum.U8._
+import org.sireum.U32._
+
+object ISZOps {
+
+  @pure def lz4Compress(data: ISZ[U8]): ISZ[U8] = {
+    val dataSize = data.size
+    if (dataSize == 0) {
+      return ISZ[U8](u8"0", u8"0", u8"0", u8"0")
+    }
+    var buf = MSZ.create(dataSize + dataSize / 2 + 16, u8"0")
+    var pos: Z = 0
+
+    def ensureCapacity(needed: Z): Unit = {
+      while (pos + needed > buf.size) {
+        val newBuf = MSZ.create(buf.size * 2 + 1, u8"0")
+        for (i <- z"0" until buf.size) {
+          newBuf(i) = buf(i)
+        }
+        buf = newBuf
+      }
+    }
+
+    def writeU8(v: U8): Unit = {
+      ensureCapacity(1)
+      buf(pos) = v
+      pos = pos + 1
+    }
+
+    def writeU16LE(v: Z): Unit = {
+      ensureCapacity(2)
+      val n = conversions.Z.toU32(v)
+      buf(pos) = conversions.U32.toU8(n & u32"0xFF")
+      buf(pos + 1) = conversions.U32.toU8((n >> u32"8") & u32"0xFF")
+      pos = pos + 2
+    }
+
+    def writeU32LE(v: Z): Unit = {
+      ensureCapacity(4)
+      val n = conversions.Z.toU32(v)
+      buf(pos) = conversions.U32.toU8(n & u32"0xFF")
+      buf(pos + 1) = conversions.U32.toU8((n >> u32"8") & u32"0xFF")
+      buf(pos + 2) = conversions.U32.toU8((n >> u32"16") & u32"0xFF")
+      buf(pos + 3) = conversions.U32.toU8((n >> u32"24") & u32"0xFF")
+      pos = pos + 4
+    }
+
+    def readU32At(i: Z): U32 = {
+      return conversions.U8.toU32(data(i)) |
+        (conversions.U8.toU32(data(i + 1)) << u32"8") |
+        (conversions.U8.toU32(data(i + 2)) << u32"16") |
+        (conversions.U8.toU32(data(i + 3)) << u32"24")
+    }
+
+    @strictpure def hashPos(v: U32): Z =
+      conversions.U32.toZ((v * u32"0x9E3779B1") >>> u32"20")
+
+    // Write original size as 4-byte LE header
+    writeU32LE(dataSize)
+
+    if (dataSize < 5) {
+      // Too small for any match; emit all as literals
+      val token = conversions.Z.toU8(dataSize * 16)
+      writeU8(token)
+      for (i <- z"0" until dataSize) {
+        writeU8(data(i))
+      }
+      val r = MSZ.create(pos, u8"0")
+      for (i <- z"0" until pos) {
+        r(i) = buf(i)
+      }
+      return r.toIS
+    }
+
+    val hashTable = MSZ.create(4096, z"0")
+    var anchor: Z = 0
+    var cur: Z = 0
+    val lastMatchStart = dataSize - 5
+    val lastLiteralStart = dataSize - 4
+
+    while (cur <= lastMatchStart) {
+      val curVal = readU32At(cur)
+      val h = hashPos(curVal)
+      val ref = hashTable(h)
+      hashTable(h) = cur
+
+      if (ref > 0 && cur - ref <= 65535 && ref >= anchor && readU32At(ref) == curVal) {
+        // Found a match
+        val litLen = cur - anchor
+        // Extend match length
+        var matchLen: Z = 4
+        while (cur + matchLen < dataSize && data(ref + matchLen) == data(cur + matchLen)) {
+          matchLen = matchLen + 1
+        }
+
+        // Encode token
+        val litCode: Z = if (litLen >= 15) 15 else litLen
+        val mlCode: Z = if (matchLen - 4 >= 15) 15 else matchLen - 4
+        val token = conversions.Z.toU8(litCode * 16 + mlCode)
+        writeU8(token)
+
+        // Extra literal length
+        if (litLen >= 15) {
+          var remaining = litLen - 15
+          while (remaining >= 255) {
+            writeU8(u8"0xFF")
+            remaining = remaining - 255
+          }
+          writeU8(conversions.Z.toU8(remaining))
+        }
+
+        // Literals
+        for (i <- anchor until cur) {
+          writeU8(data(i))
+        }
+
+        // Offset (2-byte LE)
+        writeU16LE(cur - ref)
+
+        // Extra match length
+        if (matchLen - 4 >= 15) {
+          var remaining = matchLen - 4 - 15
+          while (remaining >= 255) {
+            writeU8(u8"0xFF")
+            remaining = remaining - 255
+          }
+          writeU8(conversions.Z.toU8(remaining))
+        }
+
+        cur = cur + matchLen
+        anchor = cur
+      } else {
+        cur = cur + 1
+      }
+    }
+
+    // Last literals
+    val litLen = dataSize - anchor
+    if (litLen > 0) {
+      val litCode: Z = if (litLen >= 15) 15 else litLen
+      val token = conversions.Z.toU8(litCode * 16)
+      writeU8(token)
+      if (litLen >= 15) {
+        var remaining = litLen - 15
+        while (remaining >= 255) {
+          writeU8(u8"0xFF")
+          remaining = remaining - 255
+        }
+        writeU8(conversions.Z.toU8(remaining))
+      }
+      for (i <- anchor until dataSize) {
+        writeU8(data(i))
+      }
+    }
+
+    val r = MSZ.create(pos, u8"0")
+    for (i <- z"0" until pos) {
+      r(i) = buf(i)
+    }
+    return r.toIS
+  }
+
+  @pure def lz4Decompress(data: ISZ[U8]): Either[ISZ[U8], String] = {
+    if (data.size < 4) {
+      return Either.Right("LZ4: input too short for header")
+    }
+    val origSize = conversions.U32.toZ(
+      conversions.U8.toU32(data(0)) |
+        (conversions.U8.toU32(data(1)) << u32"8") |
+        (conversions.U8.toU32(data(2)) << u32"16") |
+        (conversions.U8.toU32(data(3)) << u32"24"))
+    if (origSize < 0) {
+      return Either.Right("LZ4: invalid original size")
+    }
+    if (origSize == 0) {
+      return Either.Left(ISZ[U8]())
+    }
+    val out = MSZ.create(origSize, u8"0")
+    var opos: Z = 0
+    var ipos: Z = 4
+    val isize = data.size
+
+    while (ipos < isize) {
+      if (ipos >= isize) {
+        return Either.Right("LZ4: unexpected end of input reading token")
+      }
+      val token = data(ipos)
+      ipos = ipos + 1
+      val litLenHi = conversions.U8.toZ((token >> u8"4") & u8"0x0F")
+      val mlHi = conversions.U8.toZ(token & u8"0x0F")
+
+      // Read literal length
+      var litLen = litLenHi
+      if (litLen == 15) {
+        var more: Z = 255
+        while (more == 255) {
+          if (ipos >= isize) {
+            return Either.Right("LZ4: unexpected end of input reading literal length")
+          }
+          more = conversions.U8.toZ(data(ipos))
+          ipos = ipos + 1
+          litLen = litLen + more
+        }
+      }
+
+      // Copy literals
+      if (ipos + litLen > isize) {
+        return Either.Right("LZ4: not enough literal bytes")
+      }
+      if (opos + litLen > origSize) {
+        return Either.Right("LZ4: literal overflow")
+      }
+      for (i <- z"0" until litLen) {
+        out(opos + i) = data(ipos + i)
+      }
+      ipos = ipos + litLen
+      opos = opos + litLen
+
+      // Check if this was the last sequence (no match info)
+      if (ipos >= isize) {
+        // Done — last sequence is literals-only
+        if (opos != origSize) {
+          return Either.Right(st"LZ4: output size mismatch (expected $origSize, got $opos)".render)
+        }
+        return Either.Left(out.toIS)
+      }
+
+      // Read offset (2-byte LE)
+      if (ipos + 2 > isize) {
+        return Either.Right("LZ4: unexpected end of input reading offset")
+      }
+      val offset = conversions.U32.toZ(
+        conversions.U8.toU32(data(ipos)) | (conversions.U8.toU32(data(ipos + 1)) << u32"8"))
+      ipos = ipos + 2
+      if (offset == 0) {
+        return Either.Right("LZ4: zero offset")
+      }
+
+      // Read match length
+      var matchLen = mlHi + 4
+      if (mlHi == 15) {
+        var more: Z = 255
+        while (more == 255) {
+          if (ipos >= isize) {
+            return Either.Right("LZ4: unexpected end of input reading match length")
+          }
+          more = conversions.U8.toZ(data(ipos))
+          ipos = ipos + 1
+          matchLen = matchLen + more
+        }
+      }
+
+      // Copy from back-reference (byte-by-byte for overlapping matches)
+      val matchStart = opos - offset
+      if (matchStart < 0) {
+        return Either.Right("LZ4: match offset before beginning of output")
+      }
+      if (opos + matchLen > origSize) {
+        return Either.Right("LZ4: match overflow")
+      }
+      for (i <- z"0" until matchLen) {
+        out(opos + i) = out(matchStart + i)
+      }
+      opos = opos + matchLen
+    }
+
+    if (opos != origSize) {
+      return Either.Right(st"LZ4: output size mismatch (expected $origSize, got $opos)".render)
+    }
+    return Either.Left(out.toIS)
+  }
+}
+
 @datatype class ISZOps[T](val s: IS[Z, T]) extends ISOps[Z, T] {
 
   @pure def :+(e: T): IS[Z, T] = {

@@ -79,7 +79,7 @@ object NRule {
 object NGrammar {
 
   def fromCompact(s: String): NGrammar = {
-    val data = ops.StringOps.fromBase64(s).left
+    val data = ops.ISZOps.lz4Decompress(ops.StringOps.fromBase64(s).left).left
     val r = MessagePack.reader(data)
     r.init()
     val ruleMapSize = r.readZ()
@@ -237,7 +237,7 @@ object NGrammar {
       NGrammar.writeNRule(w, e._2)
     }
     PredictiveTable.writePredictiveTable(w, pt)
-    return ops.StringOps.toBase64(w.result)
+    return ops.StringOps.toBase64(ops.ISZOps.lz4Compress(w.result))
   }
 
   def toCompactST: ST = {
