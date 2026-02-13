@@ -76,6 +76,134 @@ object NRule {
   }
 }
 
+object NGrammar {
+
+  def fromCompact(s: String): NGrammar = {
+    val data = ops.StringOps.fromBase64(s).left
+    val r = MessagePack.reader(data)
+    r.init()
+    val ruleMapSize = r.readZ()
+    var ruleMap = HashSMap.empty[U32, NRule]
+    var i: Z = 0
+    while (i < ruleMapSize) {
+      val key = r.readU32()
+      val rule = readNRule(r)
+      ruleMap = ruleMap + key ~> rule
+      i = i + 1
+    }
+    val pt = PredictiveTable.readPredictiveTable(r)
+    return NGrammar(ruleMap = ruleMap, pt = pt)
+  }
+
+  def writeNElement(w: MessagePack.Writer.Impl, e: NElement): Unit = {
+    e match {
+      case e: NElement.Str =>
+        w.writeZ(0)
+        w.writeString(e.value)
+        w.writeU32(e.num)
+      case e: NElement.Ref =>
+        w.writeZ(1)
+        w.writeB(e.isTerminal)
+        w.writeString(e.ruleName)
+        w.writeU32(e.num)
+      case e: NElement.Opt =>
+        w.writeZ(2)
+        w.writeString(e.ruleName)
+        w.writeU32(e.num)
+      case e: NElement.Star =>
+        w.writeZ(3)
+        w.writeString(e.ruleName)
+        w.writeU32(e.num)
+      case e: NElement.Plus =>
+        w.writeZ(4)
+        w.writeString(e.ruleName)
+        w.writeU32(e.num)
+    }
+  }
+
+  def readNElement(r: MessagePack.Reader.Impl): NElement = {
+    val tag = r.readZ()
+    tag match {
+      case 0 =>
+        val value = r.readString()
+        val num = r.readU32()
+        return NElement.Str(value = value, num = num)
+      case 1 =>
+        val isTerminal = r.readB()
+        val ruleName = r.readString()
+        val num = r.readU32()
+        return NElement.Ref(isTerminal = isTerminal, ruleName = ruleName, num = num)
+      case 2 =>
+        val ruleName = r.readString()
+        val num = r.readU32()
+        return NElement.Opt(ruleName = ruleName, num = num)
+      case 3 =>
+        val ruleName = r.readString()
+        val num = r.readU32()
+        return NElement.Star(ruleName = ruleName, num = num)
+      case 4 =>
+        val ruleName = r.readString()
+        val num = r.readU32()
+        return NElement.Plus(ruleName = ruleName, num = num)
+      case _ => halt(s"Invalid NElement tag: $tag")
+    }
+  }
+
+  def writeNRule(w: MessagePack.Writer.Impl, rule: NRule): Unit = {
+    rule match {
+      case rule: NRule.Elements =>
+        w.writeZ(0)
+        w.writeString(rule.name)
+        w.writeU32(rule.num)
+        w.writeB(rule.isSynthetic)
+        w.writeZ(rule.elements.size)
+        for (e <- rule.elements) {
+          writeNElement(w, e)
+        }
+      case rule: NRule.Alts =>
+        w.writeZ(1)
+        w.writeString(rule.name)
+        w.writeU32(rule.num)
+        w.writeB(rule.isSynthetic)
+        w.writeZ(rule.alts.size)
+        for (a <- rule.alts) {
+          w.writeU32(a)
+        }
+    }
+  }
+
+  def readNRule(r: MessagePack.Reader.Impl): NRule = {
+    val tag = r.readZ()
+    tag match {
+      case 0 =>
+        val name = r.readString()
+        val num = r.readU32()
+        val isSynthetic = r.readB()
+        val elemSize = r.readZ()
+        var elements = ISZ[NElement]()
+        var i: Z = 0
+        while (i < elemSize) {
+          elements = elements :+ readNElement(r)
+          i = i + 1
+        }
+        return NRule.Elements(name = name, num = num, isSynthetic = isSynthetic, elements = elements)
+      case 1 =>
+        val name = r.readString()
+        val num = r.readU32()
+        val isSynthetic = r.readB()
+        val altsSize = r.readZ()
+        var alts = ISZ[U32]()
+        var i: Z = 0
+        while (i < altsSize) {
+          alts = alts :+ r.readU32()
+          i = i + 1
+        }
+        return NRule.Alts(name = name, num = num, isSynthetic = isSynthetic, alts = alts)
+      case _ => halt(s"Invalid NRule tag: $tag")
+    }
+  }
+}
+
 @datatype class NGrammar(val ruleMap: HashSMap[U32, NRule], val pt: PredictiveTable) {
   @strictpure def k: Z = pt.k
 
@@ -101,7 +229,22 @@ object NRule {
         |  ${pt.toST})"""
   }
 
-  def parse(ruleTypeMap: HashSMap[String, U32], ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
+  def toCompact: String = {
+    val w = MessagePack.writer(T)
+    w.writeZ(ruleMap.size)
+    for (e <- ruleMap.entries) {
+      w.writeU32(e._1)
+      NGrammar.writeNRule(w, e._2)
+    }
+    PredictiveTable.writePredictiveTable(w, pt)
+    return ops.StringOps.toBase64(w.result)
+  }
+
+  def toCompactST: ST = {
+    return st"""NGrammar.fromCompact("${toCompact}")"""
+  }
+
+  def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
     def lookahead(i: Z): ISZ[U32] = {
       var r = ISZ[U32]()
       for (j <- 0 until pt.k if tokens.has(i + j)) {
@@ -189,7 +332,7 @@ object NRule {
       if (elements.isSynthetic) {
         return Some((j, trees))
       }
-      return Some((j, ISZ(ParseTree.Node(trees, elements.name, ruleTypeMap.get(elements.name).get))))
+      return Some((j, ISZ(ParseTree.Node(trees, elements.name, elements.num))))
     }
     def parseAlts(alts: NRule.Alts, i: Z): Option[(Z, ISZ[ParseTree])] = {
       pt.predict(alts.num, lookahead(i)) match {
@@ -218,14 +361,15 @@ object NRule {
       }
     }
 
-    parseRule(pt.nameMap.get(ruleName).get, 0) match {
-      case Some((j, ts)) =>
+    val num = pt.nameMap.get(ruleName).get
+    parseRule(num, 0) match {
+      case Some((j, ISZ(t))) =>
         if (tokens.has(j)) {
           val token = tokens.at(j).toLeaf
           reporter.error(token.posOpt, "Parser", s"Unexpected token '${token.text}' after successful parse")
           return None()
         }
-        return Some(ParseTree.Node(ts, ruleName, ruleTypeMap.get(ruleName).get))
+        return Some(t)
       case _ => return None()
     }
   }

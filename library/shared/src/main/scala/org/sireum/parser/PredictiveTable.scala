@@ -120,9 +120,107 @@ import org.sireum.U32._
         |  $nameMapST,
         |  $rulesST)"""
   }
+
+  def toCompact: String = {
+    val w = MessagePack.writer(T)
+    PredictiveTable.writePredictiveTable(w, this)
+    return ops.StringOps.toBase64(w.result)
+  }
+
+  def toCompactST: ST = {
+    return st"""PredictiveTable.fromCompact("${toCompact}")"""
+  }
 }
 
 object PredictiveTable {
+
+  def fromCompact(s: String): PredictiveTable = {
+    val data = ops.StringOps.fromBase64(s).left
+    val r = MessagePack.reader(data)
+    r.init()
+    return readPredictiveTable(r)
+  }
+
+  def writePredictiveNode(w: MessagePack.Writer.Impl, node: PredictiveNode): Unit = {
+    node match {
+      case leaf: PredictiveNode.Leaf =>
+        w.writeZ(0)
+        w.writeZ(leaf.alt)
+      case branch: PredictiveNode.Branch =>
+        w.writeZ(1)
+        w.writeZ(branch.entries.size)
+        for (e <- branch.entries.entries) {
+          w.writeU32(e._1)
+          writePredictiveNode(w, e._2)
+        }
+        branch.defaultOpt match {
+          case Some(d) =>
+            w.writeB(T)
+            writePredictiveNode(w, d)
+          case _ =>
+            w.writeB(F)
+        }
+    }
+  }
+
+  def readPredictiveNode(r: MessagePack.Reader.Impl): PredictiveNode = {
+    val tag = r.readZ()
+    if (tag == 0) {
+      val alt = r.readZ()
+      return PredictiveNode.Leaf(alt)
+    } else {
+      val size = r.readZ()
+      var entries = HashSMap.empty[U32, PredictiveNode]
+      var i: Z = 0
+      while (i < size) {
+        val key = r.readU32()
+        val node = readPredictiveNode(r)
+        entries = entries + key ~> node
+        i = i + 1
+      }
+      val hasDefault = r.readB()
+      val defaultOpt: Option[PredictiveNode] = if (hasDefault) Some(readPredictiveNode(r)) else None()
+      return PredictiveNode.Branch(entries, defaultOpt)
+    }
+  }
+
+  def writePredictiveTable(w: MessagePack.Writer.Impl, pt: PredictiveTable): Unit = {
+    w.writeZ(pt.k)
+    w.writeZ(pt.nameMap.size)
+    for (e <- pt.nameMap.entries) {
+      w.writeString(e._1)
+      w.writeU32(e._2)
+    }
+    w.writeZ(pt.rules.size)
+    for (e <- pt.rules.entries) {
+      w.writeU32(e._1)
+      writePredictiveNode(w, e._2)
+    }
+  }
+
+  def readPredictiveTable(r: MessagePack.Reader.Impl): PredictiveTable = {
+    val k = r.readZ()
+    val nameMapSize = r.readZ()
+    var nameMap = HashSMap.empty[String, U32]
+    var i: Z = 0
+    while (i < nameMapSize) {
+      val key = r.readString()
+      val value = r.readU32()
+      nameMap = nameMap + key ~> value
+      i = i + 1
+    }
+    val rulesSize = r.readZ()
+    var rules = HashSMap.empty[U32, PredictiveNode]
+    i = 0
+    while (i < rulesSize) {
+      val key = r.readU32()
+      val node = readPredictiveNode(r)
+      rules = rules + key ~> node
+      i = i + 1
+    }
+    return PredictiveTable(k = k, nameMap = nameMap, rules = rules)
+  }
+
   /** Builds a [[PredictiveTable]] from the flat parsing table produced by
     * [[GrammarAst.Grammar.computeParsingTableOpt]].
     *
@@ -158,6 +256,9 @@ object PredictiveTable {
   }
 
   def buildNode(entries: ISZ[(ISZ[U32], Z)], depth: Z): PredictiveNode = {
+    if (entries.isEmpty) {
+      return PredictiveNode.Branch(HashSMap.empty, None())
+    }
     if (entries.size <= 1 && depth >= entries(0)._1.size) {
       return PredictiveNode.Leaf(entries(0)._2)
     }
