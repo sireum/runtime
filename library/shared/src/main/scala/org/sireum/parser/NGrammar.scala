@@ -41,18 +41,6 @@ object NElement {
     @strictpure override def toST: ST =
       st"""NElement.Ref($isTerminal, "$ruleName", u32"${conversions.U32.toZ(num)}")"""
   }
-  @datatype class Opt(val ruleName: String, val num: U32) extends NElement {
-    @strictpure override def toST: ST =
-      st"""NElement.Opt("$ruleName", u32"${conversions.U32.toZ(num)}")"""
-  }
-  @datatype class Star(val ruleName: String, val num: U32) extends NElement {
-    @strictpure override def toST: ST =
-      st"""NElement.Star("$ruleName", u32"${conversions.U32.toZ(num)}")"""
-  }
-  @datatype class Plus(val ruleName: String, val num: U32) extends NElement {
-    @strictpure override def toST: ST =
-      st"""NElement.Plus("$ruleName", u32"${conversions.U32.toZ(num)}")"""
-  }
 }
 @datatype trait NRule {
   @pure def name: String
@@ -106,18 +94,6 @@ object NGrammar {
         w.writeB(e.isTerminal)
         w.writeString(e.ruleName)
         w.writeU32(e.num)
-      case e: NElement.Opt =>
-        w.writeZ(2)
-        w.writeString(e.ruleName)
-        w.writeU32(e.num)
-      case e: NElement.Star =>
-        w.writeZ(3)
-        w.writeString(e.ruleName)
-        w.writeU32(e.num)
-      case e: NElement.Plus =>
-        w.writeZ(4)
-        w.writeString(e.ruleName)
-        w.writeU32(e.num)
     }
   }
 
@@ -133,18 +109,6 @@ object NGrammar {
         val ruleName = r.readString()
         val num = r.readU32()
         return NElement.Ref(isTerminal = isTerminal, ruleName = ruleName, num = num)
-      case 2 =>
-        val ruleName = r.readString()
-        val num = r.readU32()
-        return NElement.Opt(ruleName = ruleName, num = num)
-      case 3 =>
-        val ruleName = r.readString()
-        val num = r.readU32()
-        return NElement.Star(ruleName = ruleName, num = num)
-      case 4 =>
-        val ruleName = r.readString()
-        val num = r.readU32()
-        return NElement.Plus(ruleName = ruleName, num = num)
       case _ => halt(s"Invalid NElement tag: $tag")
     }
   }
@@ -253,22 +217,6 @@ object NGrammar {
       }
       return r
     }
-    def parseStar(ruleNum: U32, i: Z): Option[(Z, ISZ[ParseTree])] = {
-      var trees = ISZ[ParseTree]()
-      var j = i
-      while (pt.predict(ruleNum, lookahead(j)).nonEmpty) {
-        parseRule(ruleNum, j) match {
-          case Some((next, ts)) =>
-            if (next == j) {
-              halt(s"Infeasible: rule did not consume any input")
-            }
-            j = next
-            trees = trees ++ ts
-          case _ => halt(s"Infeasible")
-        }
-      }
-      return Some((j, trees))
-    }
     def parseElement(e: NElement, i: Z): Option[(Z, ISZ[ParseTree])] = {
       e match {
         case e: NElement.Str =>
@@ -299,23 +247,6 @@ object NGrammar {
           } else {
             return parseRule(e.num, i)
           }
-        case e: NElement.Opt =>
-          if (pt.predict(e.num, lookahead(i)).nonEmpty) {
-            return parseRule(e.num, i)
-          } else {
-            return Some((i, ISZ()))
-          }
-        case e: NElement.Plus =>
-          parseRule(e.num, i) match {
-            case Some((j, ts)) =>
-              parseStar(e.num, j) match {
-                case Some((k, ts2)) => return Some((k, ts ++ ts2))
-                case _ => return Some((j, ts))
-              }
-            case _ => return None()
-          }
-        case e: NElement.Star => return parseStar(e.num, i)
-        case e => halt(s"Unsupported: $e")
       }
     }
     def parseElements(elements: NRule.Elements, i: Z): Option[(Z, ISZ[ParseTree])] = {

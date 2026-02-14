@@ -49,10 +49,9 @@ object ParseTree {
                        @hidden val tipe: U32,
                        @hidden val isHidden: B,
                        @hidden val posOpt: Option[Position]) extends ParseTree with Token {
-    @pure override def toST: ST = {
-      return if (ops.StringOps(ruleName).startsWith("'")) st""""${ops.StringOps(text).escapeST}""""
+    @strictpure override def toST: ST =
+      if (ops.StringOps(ruleName).startsWith("'")) st""""${ops.StringOps(text).escapeST}""""
       else st"""$ruleName["${ops.StringOps(text).escapeST}"]"""
-    }
     @strictpure def toLeaf: ParseTree.Leaf = this
     @strictpure def num: U32 = tipe
   }
@@ -60,9 +59,11 @@ object ParseTree {
   @datatype class Node(val children: ISZ[ParseTree],
                        @hidden val ruleName: String,
                        @hidden val tipe: U32) extends ParseTree {
-    @pure override def toST: ST = {
-      return st"""$ruleName(${(for (child <- children) yield child.toST, ", ")})"""
-    }
+    @strictpure override def toST: ST =
+      st"""$ruleName(
+          |  ${(for (child <- children) yield child.toST, ",\n")}
+          |)"""
+
   }
 
   @record class DotGenerator {

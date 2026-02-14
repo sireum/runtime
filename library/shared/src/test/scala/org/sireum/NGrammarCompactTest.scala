@@ -199,54 +199,6 @@ class NGrammarCompactTest extends TestSuite {
       assert(decoded == ng)
     }
 
-    // NGrammar: NRule.Elements with NElement.Opt
-    * - {
-      val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
-            name = "optRule",
-            num = u32"0",
-            isSynthetic = F,
-            elements = ISZ(NElement.Opt(ruleName = "maybeExpr", num = u32"7"))
-          ),
-        pt = emptyPT
-      )
-      val decoded = NGrammar.fromCompact(ng.toCompact)
-      assert(decoded == ng)
-    }
-
-    // NGrammar: NRule.Elements with NElement.Star
-    * - {
-      val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
-            name = "starRule",
-            num = u32"0",
-            isSynthetic = F,
-            elements = ISZ(NElement.Star(ruleName = "stmts", num = u32"8"))
-          ),
-        pt = emptyPT
-      )
-      val decoded = NGrammar.fromCompact(ng.toCompact)
-      assert(decoded == ng)
-    }
-
-    // NGrammar: NRule.Elements with NElement.Plus
-    * - {
-      val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
-            name = "plusRule",
-            num = u32"0",
-            isSynthetic = F,
-            elements = ISZ(NElement.Plus(ruleName = "args", num = u32"9"))
-          ),
-        pt = emptyPT
-      )
-      val decoded = NGrammar.fromCompact(ng.toCompact)
-      assert(decoded == ng)
-    }
-
     // NGrammar: NRule.Alts
     * - {
       val ng = NGrammar(
@@ -274,9 +226,6 @@ class NGrammarCompactTest extends TestSuite {
             elements = ISZ(
               NElement.Str(value = "(", num = u32"10"),
               NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"11"),
-              NElement.Opt(ruleName = "typeAnnot", num = u32"12"),
-              NElement.Star(ruleName = "args", num = u32"13"),
-              NElement.Plus(ruleName = "stmts", num = u32"14"),
               NElement.Ref(isTerminal = F, ruleName = "body", num = u32"15"),
               NElement.Str(value = ")", num = u32"16")
             )
