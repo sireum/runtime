@@ -2203,10 +2203,11 @@ object String_Ext {
     var r: MS[Z, C] = null
     ###(!("true" == System.getenv("PROYEK_JS") || scala.util.Try(Class.forName("scala.scalajs.js.Any", false, getClass.getClassLoader)).isSuccess)) {
       val str = s.value
-      val n = str.codePointCount(0, str.length)
+      val a = str.codePoints.toArray
+      val n = a.length
       val ms = MSZ.create[C](n, '\u0000')
       for (i <- 0 until n) {
-        ms(i) = org.sireum.C(str.codePointAt(i))
+        ms(i) = org.sireum.C(a(i))
       }
       r = ms
     }
