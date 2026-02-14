@@ -70,6 +70,10 @@ import org.sireum.parser.{ParseTree => Tree}
         return AST.Bool(T, Some(posOf(tree)))
       case string"'false'" =>
         return AST.Bool(F, Some(posOf(tree)))
+      case string"boolLit" =>
+        return buildValue(asNode(tree).children(0))
+      case string"value" =>
+        return buildValue(asNode(tree).children(0))
       case _ => halt(s"Infeasible: $tree")
     }
   }
@@ -77,11 +81,12 @@ import org.sireum.parser.{ParseTree => Tree}
   def buildObject(tree: Tree): AST.Obj = {
     val children = asNode(tree).children
     var keyValues = ISZ[AST.KeyValue]()
-    var i: Z = 1
-    while (i < children.size - 1) {
-      val kv = asNode(children(i))
-      keyValues = keyValues :+ AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
-      i = i + 2
+    for (i <- 1 until children.size - 1) {
+      val child = children(i)
+      if (child.ruleName == "keyValue") {
+        val kv = asNode(child)
+        keyValues = keyValues :+ AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
+      }
     }
     return AST.Obj(keyValues, Some(posOf(tree)))
   }
@@ -89,10 +94,11 @@ import org.sireum.parser.{ParseTree => Tree}
   def buildArray(tree: Tree): AST.Arr = {
     val children = asNode(tree).children
     var values = ISZ[AST]()
-    var i: Z = 1
-    while (i < children.size - 1) {
-      values = values :+ buildValue(children(i))
-      i = i + 2
+    for (i <- 1 until children.size - 1) {
+      val child = children(i)
+      if (child.isInstanceOf[Tree.Node]) {
+        values = values :+ buildValue(child)
+      }
     }
     return AST.Arr(values, Some(posOf(tree)))
   }

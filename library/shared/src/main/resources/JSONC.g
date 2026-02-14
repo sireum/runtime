@@ -1,11 +1,11 @@
-// Adapted from https://json.org
+// Adapted from https://json.org with support for comments and trailing commas
 
-grammar JSON;
+grammar JSONC;
 
 options {
 	output = AST;
 	ASTLabelType = Object;
-	k = 1;
+	k = 2;
 }
 
 @header { package org.sireum.parser.json; }
@@ -17,16 +17,16 @@ valueFile: value EOF ;
 
 value: stringLit | doubleLit | intLit | object | array | boolLit | nullLit ;
 
-object: '{' ( keyValue ( ',' keyValue )* )? '}' ;
+object: '{' ( keyValue ( ',' keyValue )* ','? )? '}' ;
 
 keyValue: STRING ':' value ;
 
-array: '[' ( value (',' value)* )? ']' ;
+array: '[' ( value (',' value)* ','? )? ']' ;
 
 stringLit: STRING ;
 
 doubleLit: NUMBER ;
-	
+
 intLit: INTEGER ;
 
 boolLit: 'true' | 'false' ;
@@ -48,3 +48,7 @@ fragment INT: '0' | ( '1' .. '9' ) ( '0' .. '9' )* ;
 fragment EXP: ( 'E' | 'e' ) ( '+' | '-' )? INT ;
 
 WS: ( ' ' | '\n' | '\r' | '\t' )+ {$channel=HIDDEN;} ;
+
+LINE_COMMENT: '//' ~( '\n' | '\r' )* {$channel=HIDDEN;} ;
+
+BLOCK_COMMENT: '/*' ( ~ '*' | '*' ~ '/' )* '*/' {$channel=HIDDEN;} ;

@@ -25,13 +25,27 @@
 package org.sireum
 
 import com.fasterxml.jackson.core.{JsonFactory, JsonParser => JacksonParser, JsonToken}
+import com.fasterxml.jackson.core.json.JsonReadFeature
 
 object JacksonJsonParser_Ext {
 
   private val factory: JsonFactory = new JsonFactory()
 
+  private val jsoncFactory: JsonFactory = JsonFactory.builder()
+    .enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
+    .enable(JsonReadFeature.ALLOW_TRAILING_COMMA)
+    .build()
+
   def parse(uriOpt: Option[String], content: String): parser.json.AST = {
-    val jp = factory.createParser(content.value)
+    doParse(factory, uriOpt, content)
+  }
+
+  def parseJsonc(uriOpt: Option[String], content: String): parser.json.AST = {
+    doParse(jsoncFactory, uriOpt, content)
+  }
+
+  private def doParse(f: JsonFactory, uriOpt: Option[String], content: String): parser.json.AST = {
+    val jp = f.createParser(content.value)
     jp.nextToken()
     val result = parseValue(uriOpt, jp)
     jp.close()

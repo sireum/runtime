@@ -48,6 +48,10 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     JacksonJsonParser.parse(None(), content)
   }
 
+  def parseJacksonJsonc(content: String): parser.json.AST = {
+    JacksonJsonParser.parseJsonc(None(), content)
+  }
+
   def parseLLkOpt(content: String): scala.Option[parser.json.AST] = {
     try {
       val reporter = message.Reporter.create
@@ -62,20 +66,30 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     }
   }
 
-  def benchmark(name: String, content: String): Unit = {
+  def parseLLkJsoncOpt(content: String): scala.Option[parser.json.AST] = {
+    try {
+      val reporter = message.Reporter.create
+      val treeOpt = parser.JsoncParser.parse(None(), content, reporter)
+      treeOpt match {
+        case Some(tree) if !reporter.hasError => scala.Some(parser.json.JsonAstBuilder(tree).build())
+        case _ => scala.None
+      }
+    } catch {
+      case _: StackOverflowError => scala.None
+      case _: Throwable => scala.None
+    }
+  }
+
+  def benchmarkJson(name: String, content: String): Unit = {
     val nameStr: Predef.String = name.value
     val sizeStr: Predef.String = content.size.toString
 
-    // Check if LLk can parse this file
     val llkResult = parseLLkOpt(content)
 
     if (llkResult.isEmpty) {
-      // Warmup Jackson only
       for (_ <- 0 until warmupIterations) {
         parseJackson(content)
       }
-
-      // Benchmark Jackson only
       val jacksonStart = System.nanoTime()
       for (_ <- 0 until benchmarkIterations) {
         parseJackson(content)
@@ -85,24 +99,20 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
       return
     }
 
-    // Verify both produce the same AST
     val jackson = parseJackson(content)
     assert(jackson == llkResult.get, s"AST mismatch for ${name.value}")
 
-    // Warmup
     for (_ <- 0 until warmupIterations) {
       parseJackson(content)
       parseLLkOpt(content)
     }
 
-    // Benchmark Jackson
     val jacksonStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
       parseJackson(content)
     }
     val jacksonElapsed = System.nanoTime() - jacksonStart
 
-    // Benchmark LLk
     val llkStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
       parseLLkOpt(content)
@@ -116,31 +126,90 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms  ratio: ${ratio}%6.2fx")
   }
 
+  def benchmarkJsonc(name: String, content: String): Unit = {
+    val nameStr: Predef.String = name.value
+    val sizeStr: Predef.String = content.size.toString
+
+    val llkResult = parseLLkJsoncOpt(content)
+
+    if (llkResult.isEmpty) {
+      for (_ <- 0 until warmupIterations) {
+        parseJacksonJsonc(content)
+      }
+      val jacksonStart = System.nanoTime()
+      for (_ <- 0 until benchmarkIterations) {
+        parseJacksonJsonc(content)
+      }
+      val jacksonMs = (System.nanoTime() - jacksonStart) / 1000000.0
+      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A  ratio:    N/A")
+      return
+    }
+
+    val jackson = parseJacksonJsonc(content)
+    assert(jackson == llkResult.get, s"JSONC AST mismatch for ${name.value}")
+
+    for (_ <- 0 until warmupIterations) {
+      parseJacksonJsonc(content)
+      parseLLkJsoncOpt(content)
+    }
+
+    val jacksonStart = System.nanoTime()
+    for (_ <- 0 until benchmarkIterations) {
+      parseJacksonJsonc(content)
+    }
+    val jacksonElapsed = System.nanoTime() - jacksonStart
+
+    val llkStart = System.nanoTime()
+    for (_ <- 0 until benchmarkIterations) {
+      parseLLkJsoncOpt(content)
+    }
+    val llkElapsed = System.nanoTime() - llkStart
+
+    val jacksonMs = jacksonElapsed / 1000000.0
+    val llkMs = llkElapsed / 1000000.0
+    val ratio = llkMs / jacksonMs
+
+    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms  ratio: ${ratio}%6.2fx")
+  }
+
   val tests = Tests {
 
     * - {
-      val tmpDir = Os.tempDir()
+      if (Os.env("GITHUB_ACTION").isEmpty) {
+        val tmpDir = Os.tempDir()
+        val sep = "=" * 110
 
-      println()
-      println(s"JSON Parser Benchmark ($benchmarkIterations iterations, $warmupIterations warmup)")
-      println(s"${"=" * 110}")
-
-      for (p <- benchmarkFiles) {
-        val name = p._1
-        val url = p._2
-        val file = tmpDir / name
-        if (!file.exists) {
-          val ok = file.downloadFrom(url)
-          assert(ok, s"Failed to download ${url.value}")
+        // Download all files
+        for (p <- benchmarkFiles) {
+          val file = tmpDir / p._1
+          if (!file.exists) {
+            val ok = file.downloadFrom(p._2)
+            assert(ok, s"Failed to download ${p._2.value}")
+          }
         }
-        val content: String = file.read
-        benchmark(name, content)
+
+        // JSON benchmark
+        println()
+        println(s"JSON Parser Benchmark ($benchmarkIterations iterations, $warmupIterations warmup)")
+        println(sep)
+        for (p <- benchmarkFiles) {
+          val content: String = (tmpDir / p._1).read
+          benchmarkJson(p._1, content)
+        }
+        println(sep)
+
+        // JSONC benchmark (same files — valid JSON is valid JSONC)
+        println()
+        println(s"JSONC Parser Benchmark ($benchmarkIterations iterations, $warmupIterations warmup)")
+        println(sep)
+        for (p <- benchmarkFiles) {
+          val content: String = (tmpDir / p._1).read
+          benchmarkJsonc(p._1, content)
+        }
+        println(sep)
+
+        tmpDir.removeAll()
       }
-
-      println(s"${"=" * 110}")
-
-      tmpDir.removeAll()
     }
-
   }
 }

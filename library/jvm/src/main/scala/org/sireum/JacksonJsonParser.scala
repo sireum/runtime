@@ -27,4 +27,5 @@ package org.sireum
 
 @ext object JacksonJsonParser {
   def parse(uriOpt: Option[String], content: String): parser.json.AST = $
+  def parseJsonc(uriOpt: Option[String], content: String): parser.json.AST = $
 }
