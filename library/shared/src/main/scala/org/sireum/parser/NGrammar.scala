@@ -267,7 +267,15 @@ object NGrammar {
     }
     def parseAlts(alts: NRule.Alts, i: Z): Option[(Z, ISZ[ParseTree])] = {
       pt.predict(alts.num, lookahead(i)) match {
-        case Some(n) => return parseRule(alts.alts(n), i)
+        case Some(n) =>
+          if (alts.isSynthetic) {
+            return parseRule(alts.alts(n), i)
+          } else {
+            parseRule(alts.alts(n), i) match {
+              case Some((j, trees)) => return Some((j, ISZ(ParseTree.Node(trees, alts.name, alts.num))))
+              case _ => return None()
+            }
+          }
         case _ =>
           // For synthetic choice rules (star/opt), if the last alt is an empty
           // synthetic rule, use it as a default stop/skip when prediction fails.

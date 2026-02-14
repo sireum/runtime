@@ -36,6 +36,7 @@ import org.sireum.message.Position
   @pure def ruleName: String
   @pure def toST: ST
   @pure def tipe: U32
+  @pure def posOpt: Option[Position]
 
   override def string: String = {
     return toST.render
@@ -63,7 +64,17 @@ object ParseTree {
       st"""$ruleName(
           |  ${(for (child <- children) yield child.toST, ",\n")}
           |)"""
-
+    @memoize def posOpt: Option[Position] = {
+      if (children.isEmpty) {
+        return None()
+      }
+      (children(0).posOpt, children(children.size - 1).posOpt) match {
+        case (Some(pos1), Some(pos2)) => return Some(pos1.to(pos2))
+        case (Some(pos1), _) => return Some(pos1)
+        case (_, Some(pos2)) => return Some(pos2)
+        case (_, _) => return None()
+      }
+    }
   }
 
   @record class DotGenerator {
@@ -133,10 +144,65 @@ object ParseTree {
 
 
   // T1[exp] ( T1[op] T1[exp] )* => T2[exp]
+  // Uses divide-and-conquer: finds the lowest-precedence operator as the root,
+  // then recursively builds the left and right subtrees.
+  // For same-precedence operators: picks the rightmost for left-associative (so the
+  // left subtree is larger), or the leftmost for right-associative (so the right
+  // subtree is larger).
   def rewriteBinary[Builder, T1, T2](builder: Builder,
                                      bp: BinaryPrecedenceOps[Builder, T1, T2],
                                      trees: ISZ[T1],
                                      reporter: message.Reporter): T2 = {
+    val acs: ISZ[T2] = for (t <- trees) yield bp.transform(builder, t)
+    // acs layout: [operand0, op0, operand1, op1, operand2, ...]
+    // Operand at acs(i * 2), operator at acs(i * 2 + 1)
+    // lo..hi are operand indices (inclusive), with hi - lo operators between them
+    def build(lo: Z, hi: Z): T2 = {
+      if (lo == hi) {
+        return acs(lo * 2)
+      }
+      // Find the split operator: lowest precedence to be the root
+      var splitIdx: Z = lo
+      var splitPrec: Z = bp.precedence(acs(lo * 2 + 1)) match {
+        case Some(n) => n
+        case _ => bp.lowestPrecedence
+      }
+      for (i <- lo + 1 until hi) {
+        val op = acs(i * 2 + 1)
+        val p: Z = bp.precedence(op) match {
+          case Some(n) => n
+          case _ => bp.lowestPrecedence
+        }
+        val isLower = bp.isHigherPrecedence(splitPrec, p)
+        val isEqual = !isLower && !bp.isHigherPrecedence(p, splitPrec)
+        if (isLower || (isEqual && !bp.isRightAssoc(op))) {
+          splitPrec = p
+          splitIdx = i
+        }
+      }
+      val left = build(lo, splitIdx)
+      val right = build(splitIdx + 1, hi)
+      val op = acs(splitIdx * 2 + 1)
+      var l = left
+      var r = right
+      if (bp.shouldParenthesizeOperands(op)) {
+        if (bp.isBinary(l)) {
+          l = bp.parenthesize(builder, l)
+        }
+        if (bp.isBinary(r)) {
+          r = bp.parenthesize(builder, r)
+        }
+      }
+      return bp.binary(builder, l, op, r)
+    }
+    return build(0, (acs.size - 1) / 2)
+  }
+
+  // T1[exp] ( T1[op] T1[exp] )* => T2[exp]
+  def rewriteBinaryOld[Builder, T1, T2](builder: Builder,
+                                        bp: BinaryPrecedenceOps[Builder, T1, T2],
+                                        trees: ISZ[T1],
+                                        reporter: message.Reporter): T2 = {
     def construct(ts: ISZ[T2], rightAssoc: B, start: Z, stop: Z): T2 = {
       if (rightAssoc) {
         var r = ts(stop)
@@ -244,5 +310,4 @@ object ParseTree {
     }
     return acs(0)
   }
-
 }
