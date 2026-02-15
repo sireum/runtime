@@ -45,6 +45,6 @@ fragment HEX: ( '0' .. '9' ) | ( 'a' .. 'f' ) | ( 'A' .. 'F' ) ;
 
 fragment INT: '0' | ( '1' .. '9' ) ( '0' .. '9' )* ;
 
-fragment EXP: ( 'E' | 'e' ) ( '+' | '-' )? INT ;
+fragment EXP: ( 'E' | 'e' ) ( '+' | '-' )? ( '0' .. '9' )+ ;
 
 WS: ( ' ' | '\n' | '\r' | '\t' )+ {$channel=HIDDEN;} ;
