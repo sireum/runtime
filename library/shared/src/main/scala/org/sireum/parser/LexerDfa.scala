@@ -375,19 +375,7 @@ object LexerDfas {
     */
   def tokens(chars: Indexable.Pos[C], skipHidden: B): (Z, ISZ[Token]) = {
     val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = u32"0", isHidden = F, posOpt = None())
-    var buf: MStack[Token] = MStack.create[Token](defaultToken, 256, 2)
-    def bufToISZ(): ISZ[Token] = {
-      if (buf.size == 0) {
-        return ISZ()
-      }
-      val ms = MSZ.create[Token](buf.size, defaultToken)
-      var j: Z = 0
-      while (j < buf.size) {
-        ms(j) = buf.elements(j)
-        j = j + 1
-      }
-      return ms.toIS
-    }
+    var buf: MIStack[Token] = MIStack.create[Token](defaultToken, 256, 2)
     var i: Z = 0
     while (chars.has(i)) {
       lex(chars, i) match {
@@ -397,7 +385,7 @@ object LexerDfas {
           }
           i = end
         case _ =>
-          return (i, bufToISZ())
+          return (i, buf.toISZ)
       }
     }
     eofTypeOpt match {
@@ -411,7 +399,7 @@ object LexerDfas {
         ))
       case _ =>
     }
-    return (-1, bufToISZ())
+    return (-1, buf.toISZ)
   }
 
   /** Serializes this LexerDfas to a compact base64-encoded string.

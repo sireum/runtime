@@ -71,3 +71,61 @@ object MStack {
     return elements(sz)
   }
 }
+
+object MIStack {
+  def create[@imm T](default: T, initialCapacity: Z, growthFactor: Z): MIStack[T] = {
+    return MIStack(MSZ.create(initialCapacity, default), growthFactor, 0)
+  }
+}
+
+@record class MIStack[@imm T](var elements: MSZ[T], val growthFactor: Z, var sz: Z) {
+
+  def size: Z = {
+    return sz
+  }
+
+  def isEmpty: B = {
+    return sz == 0
+  }
+
+  def nonEmpty: B = {
+    return sz > 0
+  }
+
+  def peek: T = {
+    return elements(sz - 1)
+  }
+
+  def push(e: T): Unit = {
+    if (sz == elements.size) {
+      val newCapacity: Z = elements.size * growthFactor
+      val newElements: MSZ[T] = MSZ.create(newCapacity, e)
+      var i: Z = 0
+      while (i < sz) {
+        newElements(i) = elements(i)
+        i = i + 1
+      }
+      elements = newElements
+    }
+    elements(sz) = e
+    sz = sz + 1
+  }
+
+  def pop(): T = {
+    sz = sz - 1
+    return elements(sz)
+  }
+
+  def toISZ: ISZ[T] = {
+    if (sz == 0) {
+      return ISZ()
+    }
+    val ms = MSZ.create(sz, elements(0))
+    var i: Z = 1
+    while (i < sz) {
+      ms(i) = elements(i)
+      i = i + 1
+    }
+    return ms.toIS
+  }
+}
