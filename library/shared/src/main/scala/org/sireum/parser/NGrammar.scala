@@ -316,17 +316,25 @@ object NGrammar {
               case _ =>
             }
           }
-          val expectedTokens: ISZ[String] = pt.rules(alts.num) match {
-            case n: PredictiveNode.Branch =>
+          pt.rules(alts.num) match {
+            case pn: PredictiveNode.Branch =>
               val m = pt.reverseNameMap
-              for (k <- n.entries.keys) yield m.get(k).get
+              var expectedTokens = ISZ[String]()
+              var ii: Z = 0
+              while (ii < pn.entries.size) {
+                val u = conversions.Z.toU32(ii)
+                if (!pn.entries(u).isSentinel) {
+                  expectedTokens = expectedTokens :+ m.get(u).get
+                }
+                ii = ii + 1
+              }
+              if (!tokens.has(i)) {
+                reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
+              } else {
+                val token = tokens.at(i).toLeaf
+                reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
+              }
             case _ => halt(s"Infeasible")
-          }
-          if (!tokens.has(i)) {
-            reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
-          } else {
-            val token = tokens.at(i).toLeaf
-            reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
           }
           return None()
       }
@@ -353,39 +361,37 @@ object NGrammar {
   }
 
   def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
-    // Optimization 1: Inline predict traversal — avoids ISZ[U32] allocation per prediction call.
-    // Reads tokens directly from the Indexable instead of building a lookahead sequence.
-    def predictInline(ruleNum: U32, p: Z): Option[Z] = {
+    // Optimization 1: Inline predict traversal with flat array lookup.
+    // Returns U32 alt index, or U32.Max if no prediction.
+    def predictInline(ruleNum: U32, p: Z): U32 = {
       val node = pt.rules(ruleNum)
       if (node.isSentinel) {
-        return None()
+        return U32.Max
       }
       var n: PredictiveNode = node
       var i = p
-      var result: Option[Z] = None()
+      var result: U32 = U32.Max
       var searching: B = T
       while (searching) {
         n match {
           case leaf: PredictiveNode.Leaf =>
-            result = Some(conversions.U32.toZ(leaf.alt))
+            result = leaf.alt
             searching = F
           case branch: PredictiveNode.Branch =>
             if (!tokens.has(i)) {
               searching = F
             } else {
               val tNum = tokens.at(i).num
-              branch.entries.get(tNum) match {
-                case Some(child) =>
+              if (conversions.U32.toZ(tNum) >= branch.entries.size) {
+                searching = F
+              } else {
+                val child = branch.entries(tNum)
+                if (child.isSentinel) {
+                  searching = F
+                } else {
                   n = child
                   i = i + 1
-                case _ =>
-                  branch.defaultOpt match {
-                    case Some(child) =>
-                      n = child
-                      i = i + 1
-                    case _ =>
-                      searching = F
-                  }
+                }
               }
             }
         }
@@ -431,40 +437,48 @@ object NGrammar {
         while (resolving) {
           ruleMap(enterRuleNum) match {
             case alts: NRule.Alts =>
-              predictInline(alts.num, pos) match {
-                case Some(n) =>
-                  if (!alts.isSynthetic) {
-                    stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))
+              val predResult = predictInline(alts.num, pos)
+              if (predResult != U32.Max) {
+                if (!alts.isSynthetic) {
+                  stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))
+                }
+                enterRuleNum = alts.alts(conversions.U32.toZ(predResult))
+              } else {
+                var fallback: B = F
+                if (alts.isSynthetic) {
+                  val lastAltNum = alts.alts(alts.alts.size - 1)
+                  ruleMap(lastAltNum) match {
+                    case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
+                      resultTrees = emptyTrees
+                      entering = F
+                      resolving = F
+                      fallback = T
+                    case _ =>
                   }
-                  enterRuleNum = alts.alts(n)
-                case _ =>
-                  var fallback: B = F
-                  if (alts.isSynthetic) {
-                    val lastAltNum = alts.alts(alts.alts.size - 1)
-                    ruleMap(lastAltNum) match {
-                      case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
-                        resultTrees = emptyTrees
-                        entering = F
-                        resolving = F
-                        fallback = T
-                      case _ =>
-                    }
+                }
+                if (!fallback) {
+                  pt.rules(alts.num) match {
+                    case pn: PredictiveNode.Branch =>
+                      val m = pt.reverseNameMap
+                      var expectedTokens = ISZ[String]()
+                      var ii: Z = 0
+                      while (ii < pn.entries.size) {
+                        val u = conversions.Z.toU32(ii)
+                        if (!pn.entries(u).isSentinel) {
+                          expectedTokens = expectedTokens :+ m.get(u).get
+                        }
+                        ii = ii + 1
+                      }
+                      if (!tokens.has(pos)) {
+                        reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
+                      } else {
+                        val token = tokens.at(pos).toLeaf
+                        reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
+                      }
+                    case _ => halt("Infeasible")
                   }
-                  if (!fallback) {
-                    val expectedTokens: ISZ[String] = pt.rules(alts.num) match {
-                      case pn: PredictiveNode.Branch =>
-                        val m = pt.reverseNameMap
-                        for (kk <- pn.entries.keys) yield m.get(kk).get
-                      case _ => halt("Infeasible")
-                    }
-                    if (!tokens.has(pos)) {
-                      reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
-                    } else {
-                      val token = tokens.at(pos).toLeaf
-                      reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
-                    }
-                    return None()
-                  }
+                  return None()
+                }
               }
             case elements: NRule.Elements =>
               // Push initial continuation frame and transition to returning state;

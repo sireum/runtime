@@ -61,15 +61,19 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: Branch with entries, no default
+    // nameMap: "rule"->0, "A"->1, "B"->2 (size 3)
+    // entries: slot 1->Leaf(0), slot 2->Leaf(1), slot 0->sentinel
     * - {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(u32"0") +
-              u32"2" ~> PredictiveNode.Leaf(u32"1"),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(u32"0"),
+              PredictiveNode.Leaf(u32"1")
+            ),
             defaultOpt = None()
           ))
       )
@@ -78,14 +82,18 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: Branch with entries AND default
+    // nameMap: "rule"->0, "A"->1 (size 2)
+    // entries: slot 0->Leaf(1) (default-filled), slot 1->Leaf(0) (explicit)
     * - {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(u32"0"),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.Leaf(u32"1"),
+              PredictiveNode.Leaf(u32"0")
+            ),
             defaultOpt = Some(PredictiveNode.Leaf(u32"1"))
           ))
       )
@@ -94,13 +102,17 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: Branch with empty entries and no default
+    // nameMap: "rule"->0 (size 1)
+    // entries: slot 0->sentinel
     * - {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode],
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.sentinel
+            ),
             defaultOpt = None()
           ))
       )
@@ -109,19 +121,30 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: nested Branch nodes
+    // nameMap: "rule"->0, "A"->1, "B"->2, "C"->3 (size 4)
+    // outer: slot 1->inner Branch (explicit), slots 0,2,3->Leaf(2) (default-filled)
+    // inner: slot 2->Leaf(0), slot 3->Leaf(1), slots 0,1->sentinel
     * - {
+      val innerBranch = PredictiveNode.Branch(
+        entries = IS[U32, PredictiveNode](
+          PredictiveNode.sentinel,
+          PredictiveNode.sentinel,
+          PredictiveNode.Leaf(u32"0"),
+          PredictiveNode.Leaf(u32"1")
+        ),
+        defaultOpt = None()
+      )
       val pt = PredictiveTable(
         k = 2,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2" + "C" ~> u32"3",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Branch(
-                entries = HashSMap.empty[U32, PredictiveNode] +
-                  u32"2" ~> PredictiveNode.Leaf(u32"0") +
-                  u32"3" ~> PredictiveNode.Leaf(u32"1"),
-                defaultOpt = None()
-              ),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.Leaf(u32"2"),
+              innerBranch,
+              PredictiveNode.Leaf(u32"2"),
+              PredictiveNode.Leaf(u32"2")
+            ),
             defaultOpt = Some(PredictiveNode.Leaf(u32"2"))
           ))
       )
@@ -241,6 +264,7 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // NGrammar: multiple rules (both Elements and Alts) with non-trivial PredictiveTable
+    // nameMap: "stmt"->0, "ifStmt"->1, "exprStmt"->2, "IF"->3, "ID"->4 (size 5)
     * - {
       val pt = PredictiveTable(
         k = 1,
@@ -249,9 +273,13 @@ class NGrammarCompactTest extends TestSuite {
           "IF" ~> u32"3" + "ID" ~> u32"4",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(u32"0") +
-              u32"4" ~> PredictiveNode.Leaf(u32"1"),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(u32"0"),
+              PredictiveNode.Leaf(u32"1")
+            ),
             defaultOpt = None()
           ))
       )
@@ -327,19 +355,29 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: Branch with default being a Branch (nested default)
+    // nameMap: "rule"->0, "A"->1, "B"->2 (size 3)
+    // inner: slot 0->Leaf(2) (default), slot 1->Leaf(2) (default), slot 2->Leaf(1) (explicit)
+    // outer: slot 0->inner (default fill), slot 1->Leaf(0) (explicit), slot 2->inner (default fill)
     * - {
+      val innerBranch = PredictiveNode.Branch(
+        entries = IS[U32, PredictiveNode](
+          PredictiveNode.Leaf(u32"2"),
+          PredictiveNode.Leaf(u32"2"),
+          PredictiveNode.Leaf(u32"1")
+        ),
+        defaultOpt = Some(PredictiveNode.Leaf(u32"2"))
+      )
       val pt = PredictiveTable(
         k = 2,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(u32"0"),
-            defaultOpt = Some(PredictiveNode.Branch(
-              entries = HashSMap.empty[U32, PredictiveNode] +
-                u32"2" ~> PredictiveNode.Leaf(u32"1"),
-              defaultOpt = Some(PredictiveNode.Leaf(u32"2"))
-            ))
+            entries = IS[U32, PredictiveNode](
+              innerBranch,
+              PredictiveNode.Leaf(u32"0"),
+              innerBranch
+            ),
+            defaultOpt = None()
           ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
@@ -347,19 +385,30 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: multiple rules
+    // nameMap: "r1"->0, "r2"->1, "A"->2, "B"->3 (size 4)
+    // rule 0: slot 2->Leaf(0), rest sentinel
+    // rule 1: slot 3->Leaf(0), rest->Leaf(1) (default)
     * - {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "r1" ~> u32"0" + "r2" ~> u32"1" + "A" ~> u32"2" + "B" ~> u32"3",
         rules = IS[U32, PredictiveNode](
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"2" ~> PredictiveNode.Leaf(u32"0"),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(u32"0"),
+              PredictiveNode.sentinel
+            ),
             defaultOpt = None()
           ),
           PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(u32"0"),
+            entries = IS[U32, PredictiveNode](
+              PredictiveNode.Leaf(u32"1"),
+              PredictiveNode.Leaf(u32"1"),
+              PredictiveNode.Leaf(u32"1"),
+              PredictiveNode.Leaf(u32"0")
+            ),
             defaultOpt = Some(PredictiveNode.Leaf(u32"1"))
           ))
       )
