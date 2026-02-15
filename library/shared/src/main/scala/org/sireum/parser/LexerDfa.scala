@@ -46,6 +46,74 @@ object LexerDfa {
 
 object LexerDfas {
 
+  /** Convenience factory that computes first-character dispatch tables from
+    * the given DFAs and constructs a LexerDfas.
+    */
+  def create(dfas: ISZ[LexerDfa],
+             names: ISZ[String],
+             types: ISZ[U32],
+             hiddens: ISZ[B],
+             eofTypeOpt: Option[U32]): LexerDfas = {
+    val (ad, nai) = computeDispatch(dfas)
+    return LexerDfas(
+      dfas = dfas,
+      names = names,
+      types = types,
+      hiddens = hiddens,
+      eofTypeOpt = eofTypeOpt,
+      asciiDispatch = ad,
+      nonAsciiIndices = nai
+    )
+  }
+
+  /** Computes first-character dispatch tables from the given DFAs.
+    *
+    * For each ASCII character (0-127), collects the indices of DFAs whose
+    * state 0 has a transition covering that character. Also collects DFA
+    * indices that have any non-ASCII transition from state 0.
+    *
+    * @param dfas the individual DFAs
+    * @return (asciiDispatch, nonAsciiIndices) dispatch tables
+    */
+  def computeDispatch(dfas: ISZ[LexerDfa]): (ISZ[ISZ[Z]], ISZ[Z]) = {
+    val n = dfas.size
+    val asciiMs = MSZ.create[ISZ[Z]](128, ISZ[Z]())
+    var nonAscii = ISZ[Z]()
+
+    var di: Z = 0
+    while (di < n) {
+      val dfa = dfas(di)
+      if (dfa.transitions.nonEmpty) {
+        val trans0 = dfa.transitions(0)
+        var hasNonAscii = F
+        var ti: Z = 0
+        while (ti < trans0.size) {
+          val t = trans0(ti)
+          if (t.lo <= '\u007F') {
+            val startC: C = t.lo
+            val endC: C = if (t.hi > '\u007F') '\u007F' else t.hi
+            var ci: Z = startC.toZ
+            val endZ: Z = endC.toZ
+            while (ci <= endZ) {
+              asciiMs(ci) = asciiMs(ci) :+ di
+              ci = ci + 1
+            }
+          }
+          if (t.hi > '\u007F') {
+            hasNonAscii = T
+          }
+          ti = ti + 1
+        }
+        if (hasNonAscii) {
+          nonAscii = nonAscii :+ di
+        }
+      }
+      di = di + 1
+    }
+
+    return (asciiMs.toIS, nonAscii)
+  }
+
   /** Constructs LexerDfas from Graph-based automaton DFAs.
     *
     * For each (dfa, name, type, hidden) tuple, converts the Graph-based DFA
@@ -96,7 +164,7 @@ object LexerDfas {
       ii = ii + 1
     }
 
-    return LexerDfas(
+    return create(
       dfas = lexerDfasMs.toIS,
       names = namesMs.toIS,
       types = typesMs.toIS,
@@ -222,7 +290,7 @@ object LexerDfas {
     val hasEof = r.readB()
     val eofTypeOpt: Option[U32] = if (hasEof) Some(r.readU32()) else None()
 
-    return LexerDfas(
+    return create(
       dfas = lexerDfasMs.toIS,
       names = namesMs.toIS,
       types = typesMs.toIS,
@@ -252,18 +320,22 @@ object LexerDfas {
   * All parallel arrays: dfas(i) has name names(i), token type types(i),
   * hidden flag hiddens(i).
   *
-  * @param dfas       the individual DFAs
-  * @param names      rule name for each DFA
-  * @param types      token type ID for each DFA
-  * @param hiddens    hidden flag for each DFA
-  * @param eofTypeOpt optional token type for the synthetic EOF token
+  * @param dfas            the individual DFAs
+  * @param names           rule name for each DFA
+  * @param types           token type ID for each DFA
+  * @param hiddens         hidden flag for each DFA
+  * @param eofTypeOpt      optional token type for the synthetic EOF token
+  * @param asciiDispatch   for each ASCII char (0-127), the DFA indices whose state 0 covers it
+  * @param nonAsciiIndices DFA indices whose state 0 has any non-ASCII transition
   */
 @datatype class LexerDfas(
   val dfas: ISZ[LexerDfa],
   val names: ISZ[String],
   val types: ISZ[U32],
   val hiddens: ISZ[B],
-  val eofTypeOpt: Option[U32]
+  val eofTypeOpt: Option[U32],
+  val asciiDispatch: ISZ[ISZ[Z]],
+  val nonAsciiIndices: ISZ[Z]
 ) {
 
   /** Executes a single DFA from position i in the character stream.
@@ -277,7 +349,7 @@ object LexerDfas {
     * @param i     the starting position
     * @return the position after the last accepted character, or -1 if no match
     */
-  def runDfa(dfa: LexerDfa, chars: Indexable.Pos[C], i: Z): Z = {
+  def runDfa(dfa: LexerDfa, chars: Indexable.PosC, i: Z): Z = {
     if (dfa.accepting.size == 0) {
       return -1
     }
@@ -311,7 +383,11 @@ object LexerDfas {
     return lastAccept
   }
 
-  /** Tries all DFAs at position i and picks the longest match.
+  /** Tries candidate DFAs at position i and picks the longest match.
+    *
+    * Uses first-character dispatch to only run DFAs whose state 0 has a
+    * transition for the character at position i. For ASCII input this
+    * typically reduces the number of DFA runs from N to 1-2.
     *
     * Returns None if no DFA matches (or only matches empty string).
     * When multiple DFAs match the same length, the first one (by index) wins.
@@ -320,41 +396,30 @@ object LexerDfas {
     * @param i     the starting position
     * @return Some((afterIndex, token)) on success, None on failure
     */
-  def lex(chars: Indexable.Pos[C], i: Z): Option[(Z, Token)] = {
+  def lex(chars: Indexable.PosC, i: Z): Option[(Z, Token)] = {
     var bestEnd: Z = -1
     var bestIdx: Z = -1
-    var di: Z = 0
-    while (di < dfas.size) {
+    val c = chars.at(i)
+    val candidates: ISZ[Z] = if (c <= '\u007F') {
+      asciiDispatch(c.toZ)
+    } else {
+      nonAsciiIndices
+    }
+    var ki: Z = 0
+    while (ki < candidates.size) {
+      val di = candidates(ki)
       val end = runDfa(dfas(di), chars, i)
       if (end > bestEnd) {
         bestEnd = end
         bestIdx = di
       }
-      di = di + 1
+      ki = ki + 1
     }
     if (bestEnd <= i) {
       return None()
     }
-    val len = bestEnd - i
-    val text: ISZ[C] = if (len <= 16) {
-      var t = ISZ[C]()
-      var ci: Z = i
-      while (ci < bestEnd) {
-        t = t :+ chars.at(ci)
-        ci = ci + 1
-      }
-      t
-    } else {
-      val ms = MSZ.create[C](len, chars.at(i))
-      var ci: Z = 1
-      while (ci < len) {
-        ms(ci) = chars.at(i + ci)
-        ci = ci + 1
-      }
-      ms.toIS
-    }
     val leaf = ParseTree.Leaf(
-      text = conversions.String.fromCis(text),
+      text = chars.substring(i, bestEnd),
       ruleName = names(bestIdx),
       tipe = types(bestIdx),
       isHidden = hiddens(bestIdx),
@@ -373,7 +438,7 @@ object LexerDfas {
     * @return (errorIndex, tokens) where errorIndex is -1 on success,
     *         or the position of the first unlexable character on failure
     */
-  def tokens(chars: Indexable.Pos[C], skipHidden: B): (Z, ISZ[Token]) = {
+  def tokens(chars: Indexable.PosC, skipHidden: B): (Z, ISZ[Token]) = {
     val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = u32"0", isHidden = F, posOpt = None())
     var buf: MIStack[Token] = MIStack.create[Token](defaultToken, 256, 2)
     var i: Z = 0

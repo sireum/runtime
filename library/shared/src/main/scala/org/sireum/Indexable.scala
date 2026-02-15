@@ -52,7 +52,24 @@ object Indexable {
     }
   }
 
+  @sig trait PosC extends Pos[C] {
+    @pure def substring(start: Z, until: Z): String
+  }
+
+  @datatype class IszDocInfoC(val is: ISZ[C], val info: message.DocInfo) extends Indexable.PosC {
+    @strictpure override def at(i: Z): C = is(i)
+    @strictpure override def has(i: Z): B = i < is.size
+    @pure override def posOpt(offset: Z, length: Z): Option[message.Position] = {
+      return Some(message.PosInfo(info, (conversions.Z.toU64(offset) << u64"32") | conversions.Z.toU64(length)))
+    }
+    @pure override def substring(start: Z, until: Z): String = {
+      return ops.StringOps.Ext.nativeSubstring(is, start, until)
+    }
+  }
+
   @strictpure def fromIsz[T](is: ISZ[T]): Indexable[T] = Isz(is)
 
   @strictpure def fromIszDocInfo[T](is: ISZ[T], info: message.DocInfo): Indexable.Pos[T] = IszDocInfo(is, info)
+
+  @strictpure def fromIszDocInfoC(is: ISZ[C], info: message.DocInfo): Indexable.PosC = IszDocInfoC(is, info)
 }

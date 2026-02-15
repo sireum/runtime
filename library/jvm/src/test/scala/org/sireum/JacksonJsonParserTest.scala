@@ -410,7 +410,7 @@ class JacksonJsonParserTest extends TestSuite {
       for (input <- inputs) {
         val cis = conversions.String.toCis(input)
         val docInfo = message.DocInfo.createFromCis(None(), cis)
-        val chars = Indexable.IszDocInfo[C](cis, docInfo)
+        val chars = Indexable.IszDocInfoC(cis, docInfo)
         val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
         assert(errorIndex < 0, s"Lex error at $errorIndex for: $input")
         val indexable = Indexable.fromIsz(tokens)

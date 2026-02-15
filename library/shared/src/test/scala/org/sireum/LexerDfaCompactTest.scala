@@ -33,10 +33,10 @@ import org.sireum.test._
 
 class LexerDfaCompactTest extends TestSuite {
 
-  def toInput(s: String): Indexable.Pos[C] = {
+  def toInput(s: String): Indexable.PosC = {
     val cis = conversions.String.toCis(s)
     val info = message.DocInfo(uriOpt = None(), lineOffsets = ISZ(u32"0"))
-    Indexable.fromIszDocInfo(cis, info)
+    Indexable.fromIszDocInfoC(cis, info)
   }
 
   val tests = Tests {
@@ -45,7 +45,7 @@ class LexerDfaCompactTest extends TestSuite {
 
     // Empty LexerDfas (no DFAs, no EOF)
     * - {
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(),
         names = ISZ(),
         types = ISZ(),
@@ -62,7 +62,7 @@ class LexerDfaCompactTest extends TestSuite {
         accepting = ISZ(T),
         transitions = ISZ(ISZ[LexerDfa.Transition]())
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("EMPTY"),
         types = ISZ(u32"0"),
@@ -82,7 +82,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("LOWER"),
         types = ISZ(u32"1"),
@@ -106,7 +106,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ALNUM"),
         types = ISZ(u32"2"),
@@ -133,7 +133,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = '0', hi = '9', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa1, dfa2),
         names = ISZ("ID", "NUM"),
         types = ISZ(u32"1", u32"2"),
@@ -161,7 +161,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa1, dfa2),
         names = ISZ("A", "BC"),
         types = ISZ(u32"1", u32"2"),
@@ -181,7 +181,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -201,7 +201,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("WS"),
         types = ISZ(u32"0"),
@@ -218,7 +218,7 @@ class LexerDfaCompactTest extends TestSuite {
         accepting = ISZ(T),
         transitions = ISZ(ISZ[LexerDfa.Transition]())
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("TOK"),
         types = ISZ(u32"0"),
@@ -241,7 +241,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -328,7 +328,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -352,7 +352,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("LOWER"),
         types = ISZ(u32"1"),
@@ -380,7 +380,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa1, dfa2),
         names = ISZ("LETTER", "WORD"),
         types = ISZ(u32"1", u32"2"),
@@ -413,7 +413,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(idDfa, wsDfa),
         names = ISZ("ID", "WS"),
         types = ISZ(u32"1", u32"2"),
@@ -448,7 +448,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(idDfa, wsDfa),
         names = ISZ("ID", "WS"),
         types = ISZ(u32"1", u32"2"),
@@ -474,7 +474,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -496,7 +496,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -519,7 +519,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -554,7 +554,7 @@ class LexerDfaCompactTest extends TestSuite {
     // runDfa: empty DFA (0 states) returns -1
     * - {
       val dfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("EMPTY"),
         types = ISZ(u32"0"),
@@ -573,7 +573,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = s32"1"))
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),
@@ -597,7 +597,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ALPHA_DIGIT"),
         types = ISZ(u32"1"),
@@ -619,7 +619,7 @@ class LexerDfaCompactTest extends TestSuite {
           ISZ[LexerDfa.Transition]()
         )
       )
-      val lds = LexerDfas(
+      val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("ID"),
         types = ISZ(u32"1"),

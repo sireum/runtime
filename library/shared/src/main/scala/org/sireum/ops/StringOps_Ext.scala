@@ -32,4 +32,12 @@ object StringOps_Ext {
     val digest = md.digest(s.value.getBytes("UTF-8"))
     new IS[Z, U8](Z, digest, digest.length, U8.Boxer)
   }
+
+  def nativeSubstring(cis: ISZ[C], start: Z, until: Z): String = {
+    val s = start.toBigInt.toInt
+    val u = until.toBigInt.toInt
+    if (u - s <= 0) return ""
+    val arr = cis.data.asInstanceOf[scala.Array[scala.Int]]
+    new Predef.String(arr, s, u - s)
+  }
 }

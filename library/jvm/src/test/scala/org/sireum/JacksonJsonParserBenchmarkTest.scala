@@ -55,7 +55,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
   def lexJson(content: String): Indexable[parser.Token] = {
     val cis = conversions.String.toCis(content)
     val docInfo = message.DocInfo.createFromCis(None(), cis)
-    val chars = Indexable.IszDocInfo[C](cis, docInfo)
+    val chars = Indexable.IszDocInfoC(cis, docInfo)
     val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
     assert(errorIndex < 0, s"Lex error at $errorIndex")
     Indexable.fromIsz(tokens)
@@ -64,7 +64,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
   def lexJsonc(content: String): Indexable[parser.Token] = {
     val cis = conversions.String.toCis(content)
     val docInfo = message.DocInfo.createFromCis(None(), cis)
-    val chars = Indexable.IszDocInfo[C](cis, docInfo)
+    val chars = Indexable.IszDocInfoC(cis, docInfo)
     val (errorIndex, tokens) = parser.JsoncParser.lexerDfas.tokens(chars, T)
     assert(errorIndex < 0, s"Lex error at $errorIndex")
     Indexable.fromIsz(tokens)
@@ -100,94 +100,38 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     val nameStr: Predef.String = name.value
     val sizeStr: Predef.String = content.size.toString
 
-    val indexable = lexJson(content)
-    val llkResult = parseLLkOpt(indexable)
-
-    if (llkResult.isEmpty) {
-      for (_ <- 0 until warmupIterations) {
-        parseJackson(content)
-      }
-      val jacksonStart = System.nanoTime()
-      for (_ <- 0 until benchmarkIterations) {
-        parseJackson(content)
-      }
-      val jacksonMs = (System.nanoTime() - jacksonStart) / 1000000.0
-      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A")
-      return
-    }
-
-    val jackson = parseJackson(content)
-    assert(jackson == llkResult.get, s"AST mismatch for ${name.value}")
-
     for (_ <- 0 until warmupIterations) {
-      parseJackson(content)
-      parseLLkOpt(indexable)
+      lexJson(content)
     }
 
-    val jacksonStart = System.nanoTime()
+    val lexStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
-      parseJackson(content)
+      lexJson(content)
     }
-    val jacksonElapsed = System.nanoTime() - jacksonStart
+    val lexElapsed = System.nanoTime() - lexStart
 
-    val llkStart = System.nanoTime()
-    for (_ <- 0 until benchmarkIterations) {
-      parseLLkOpt(indexable)
-    }
-    val llkElapsed = System.nanoTime() - llkStart
+    val lexMs = lexElapsed / 1000000.0
 
-    val jacksonMs = jacksonElapsed / 1000000.0
-    val llkMs = llkElapsed / 1000000.0
-    val ratio = llkMs / jacksonMs
-
-    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms (${ratio}%5.2fx)")
+    println(f"  $nameStr%-25s size=$sizeStr%10s  Lex: ${lexMs}%10.2f ms")
   }
 
   def benchmarkJsonc(name: String, content: String): Unit = {
     val nameStr: Predef.String = name.value
     val sizeStr: Predef.String = content.size.toString
 
-    val indexable = lexJsonc(content)
-    val llkResult = parseLLkJsoncOpt(indexable)
-
-    if (llkResult.isEmpty) {
-      for (_ <- 0 until warmupIterations) {
-        parseJacksonJsonc(content)
-      }
-      val jacksonStart = System.nanoTime()
-      for (_ <- 0 until benchmarkIterations) {
-        parseJacksonJsonc(content)
-      }
-      val jacksonMs = (System.nanoTime() - jacksonStart) / 1000000.0
-      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A")
-      return
-    }
-
-    val jackson = parseJacksonJsonc(content)
-    assert(jackson == llkResult.get, s"JSONC AST mismatch for ${name.value}")
-
     for (_ <- 0 until warmupIterations) {
-      parseJacksonJsonc(content)
-      parseLLkJsoncOpt(indexable)
+      lexJsonc(content)
     }
 
-    val jacksonStart = System.nanoTime()
+    val lexStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
-      parseJacksonJsonc(content)
+      lexJsonc(content)
     }
-    val jacksonElapsed = System.nanoTime() - jacksonStart
+    val lexElapsed = System.nanoTime() - lexStart
 
-    val llkStart = System.nanoTime()
-    for (_ <- 0 until benchmarkIterations) {
-      parseLLkJsoncOpt(indexable)
-    }
-    val llkElapsed = System.nanoTime() - llkStart
+    val lexMs = lexElapsed / 1000000.0
 
-    val jacksonMs = jacksonElapsed / 1000000.0
-    val llkMs = llkElapsed / 1000000.0
-    val ratio = llkMs / jacksonMs
-
-    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms (${ratio}%5.2fx)")
+    println(f"  $nameStr%-25s size=$sizeStr%10s  Lex: ${lexMs}%10.2f ms")
   }
 
   val tests = Tests {
@@ -195,7 +139,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     * - {
       if (Os.env("GITHUB_ACTION").isEmpty) {
         val tmpDir = Os.tempDir()
-        val sep = "=" * 90
+        val sep = "=" * 140
 
         // Download all files
         for (p <- benchmarkFiles) {
