@@ -34,7 +34,7 @@ class NGrammarCompactTest extends TestSuite {
   def emptyPT: PredictiveTable = PredictiveTable(
     k = 1,
     nameMap = HashSMap.empty[String, U32],
-    rules = HashSMap.empty[U32, PredictiveNode]
+    rules = IS[U32, PredictiveNode]()
   )
 
   val tests = Tests {
@@ -54,8 +54,7 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "TOK" ~> u32"1",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Leaf(0)
+        rules = IS[U32, PredictiveNode](PredictiveNode.Leaf(u32"0"))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -66,13 +65,13 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0) +
-              u32"2" ~> PredictiveNode.Leaf(1),
+              u32"1" ~> PredictiveNode.Leaf(u32"0") +
+              u32"2" ~> PredictiveNode.Leaf(u32"1"),
             defaultOpt = None()
-          )
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -83,12 +82,12 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0),
-            defaultOpt = Some(PredictiveNode.Leaf(1))
-          )
+              u32"1" ~> PredictiveNode.Leaf(u32"0"),
+            defaultOpt = Some(PredictiveNode.Leaf(u32"1"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -99,11 +98,11 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode],
             defaultOpt = None()
-          )
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -114,17 +113,17 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 2,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2" + "C" ~> u32"3",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
               u32"1" ~> PredictiveNode.Branch(
                 entries = HashSMap.empty[U32, PredictiveNode] +
-                  u32"2" ~> PredictiveNode.Leaf(0) +
-                  u32"3" ~> PredictiveNode.Leaf(1),
+                  u32"2" ~> PredictiveNode.Leaf(u32"0") +
+                  u32"3" ~> PredictiveNode.Leaf(u32"1"),
                 defaultOpt = None()
               ),
-            defaultOpt = Some(PredictiveNode.Leaf(2))
-          )
+            defaultOpt = Some(PredictiveNode.Leaf(u32"2"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -248,13 +247,13 @@ class NGrammarCompactTest extends TestSuite {
         nameMap = HashSMap.empty[String, U32] +
           "stmt" ~> u32"0" + "ifStmt" ~> u32"1" + "exprStmt" ~> u32"2" +
           "IF" ~> u32"3" + "ID" ~> u32"4",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(0) +
-              u32"4" ~> PredictiveNode.Leaf(1),
+              u32"3" ~> PredictiveNode.Leaf(u32"0") +
+              u32"4" ~> PredictiveNode.Leaf(u32"1"),
             defaultOpt = None()
-          )
+          ))
       )
       val ng = NGrammar(
         ruleMap = IS[U32, NRule](
@@ -286,7 +285,7 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "r" ~> u32"0",
-        rules = HashSMap.empty[U32, PredictiveNode] + u32"0" ~> PredictiveNode.Leaf(0)
+        rules = IS[U32, PredictiveNode](PredictiveNode.Leaf(u32"0"))
       )
       val ng = NGrammar(
         ruleMap = IS[U32, NRule](
@@ -332,16 +331,16 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 2,
         nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0),
+              u32"1" ~> PredictiveNode.Leaf(u32"0"),
             defaultOpt = Some(PredictiveNode.Branch(
               entries = HashSMap.empty[U32, PredictiveNode] +
-                u32"2" ~> PredictiveNode.Leaf(1),
-              defaultOpt = Some(PredictiveNode.Leaf(2))
+                u32"2" ~> PredictiveNode.Leaf(u32"1"),
+              defaultOpt = Some(PredictiveNode.Leaf(u32"2"))
             ))
-          )
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -352,17 +351,17 @@ class NGrammarCompactTest extends TestSuite {
       val pt = PredictiveTable(
         k = 1,
         nameMap = HashSMap.empty[String, U32] + "r1" ~> u32"0" + "r2" ~> u32"1" + "A" ~> u32"2" + "B" ~> u32"3",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
+        rules = IS[U32, PredictiveNode](
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"2" ~> PredictiveNode.Leaf(0),
+              u32"2" ~> PredictiveNode.Leaf(u32"0"),
             defaultOpt = None()
-          ) +
-          u32"1" ~> PredictiveNode.Branch(
+          ),
+          PredictiveNode.Branch(
             entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(0),
-            defaultOpt = Some(PredictiveNode.Leaf(1))
-          )
+              u32"3" ~> PredictiveNode.Leaf(u32"0"),
+            defaultOpt = Some(PredictiveNode.Leaf(u32"1"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)

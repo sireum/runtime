@@ -46,6 +46,8 @@ object NElement {
   @pure def name: String
   @pure def num: U32
   @pure def isSynthetic: B
+  /** Returns `T` if this rule is the sentinel (unused slot marker). */
+  @strictpure def isSentinel: B = num == U32.Max
   @strictpure def toST: ST
 }
 object NRule {
@@ -62,7 +64,7 @@ object NRule {
       st"""NRule.Alts(name = "$name", num = u32"${conversions.U32.toZ(num)}", isSynthetic = $isSynthetic, alts = ISZ(${(as, ", ")}))"""
     }
   }
-  val sentinel: NRule = Elements(name = "", num = u32"0", isSynthetic = F, elements = ISZ())
+  val sentinel: NRule = Elements(name = "", num = U32.Max, isSynthetic = F, elements = ISZ())
 }
 
 object NGrammar {
@@ -70,7 +72,7 @@ object NGrammar {
   @datatype trait ParseFrame
 
   object ParseFrame {
-    @datatype class ElementsCont(val rule: NRule.Elements, val elemIdx: Z, val trees: ISZ[ParseTree]) extends ParseFrame
+    @datatype class ElementsCont(val rule: NRule.Elements, val elemIdx: Z, val treeStart: Z) extends ParseFrame
     @datatype class AltsWrap(val name: String, val num: U32) extends ParseFrame
   }
 
@@ -198,7 +200,7 @@ object NGrammar {
     */
   @strictpure def toST: ST = {
     val rulesST: ISZ[ST] = for (i <- u32"0" until conversions.Z.toU32(ruleMap.size)) yield
-      if (ruleMap(i) == NRule.sentinel) st"NRule.sentinel"
+      if (ruleMap(i).isSentinel) st"NRule.sentinel"
       else ruleMap(i).toST
     st"""NGrammar(
         |  IS[U32, NRule](${(rulesST, ",\n")}),
@@ -210,7 +212,7 @@ object NGrammar {
     var count: Z = 0
     var i: Z = 0
     while (i < ruleMap.size) {
-      if (ruleMap(conversions.Z.toU32(i)) != NRule.sentinel) {
+      if (!ruleMap(conversions.Z.toU32(i)).isSentinel) {
         count = count + 1
       }
       i = i + 1
@@ -219,7 +221,7 @@ object NGrammar {
     i = 0
     while (i < ruleMap.size) {
       val r = ruleMap(conversions.Z.toU32(i))
-      if (r != NRule.sentinel) {
+      if (!r.isSentinel) {
         w.writeU32(conversions.Z.toU32(i))
         NGrammar.writeNRule(w, r)
       }
@@ -314,8 +316,8 @@ object NGrammar {
               case _ =>
             }
           }
-          val expectedTokens: ISZ[String] = pt.rules.get(alts.num) match {
-            case Some(n: PredictiveNode.Branch) =>
+          val expectedTokens: ISZ[String] = pt.rules(alts.num) match {
+            case n: PredictiveNode.Branch =>
               val m = pt.reverseNameMap
               for (k <- n.entries.keys) yield m.get(k).get
             case _ => halt(s"Infeasible")
@@ -351,21 +353,75 @@ object NGrammar {
   }
 
   def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
-    def lookahead(i: Z): ISZ[U32] = {
-      var r = ISZ[U32]()
-      for (j <- 0 until pt.k if tokens.has(i + j)) {
-        val t = tokens.at(i + j)
-        r = r :+ t.num
+    // Optimization 1: Inline predict traversal — avoids ISZ[U32] allocation per prediction call.
+    // Reads tokens directly from the Indexable instead of building a lookahead sequence.
+    def predictInline(ruleNum: U32, p: Z): Option[Z] = {
+      val node = pt.rules(ruleNum)
+      if (node.isSentinel) {
+        return None()
       }
-      return r
+      var n: PredictiveNode = node
+      var i = p
+      var result: Option[Z] = None()
+      var searching: B = T
+      while (searching) {
+        n match {
+          case leaf: PredictiveNode.Leaf =>
+            result = Some(conversions.U32.toZ(leaf.alt))
+            searching = F
+          case branch: PredictiveNode.Branch =>
+            if (!tokens.has(i)) {
+              searching = F
+            } else {
+              val tNum = tokens.at(i).num
+              branch.entries.get(tNum) match {
+                case Some(child) =>
+                  n = child
+                  i = i + 1
+                case _ =>
+                  branch.defaultOpt match {
+                    case Some(child) =>
+                      n = child
+                      i = i + 1
+                    case _ =>
+                      searching = F
+                  }
+              }
+            }
+        }
+      }
+      return result
     }
+
+    // Optimization 3: Shared empty constant avoids repeated ISZ() allocation
+    val emptyTrees: ISZ[ParseTree] = ISZ()
+
+    // Optimization 2+4: Flat tree buffer — O(1) amortized push instead of ISZ :+ O(n) copy.
+    // ElementsCont stores treeStart index instead of accumulated ISZ[ParseTree].
+    val emptyLeaf: ParseTree = ParseTree.Leaf(text = "", ruleName = "", tipe = u32"0", isHidden = F, posOpt = None())
+    var treeBuf: MStack[ParseTree] = MStack.create(emptyLeaf, 256, 2)
 
     val defaultFrame: NGrammar.ParseFrame = NGrammar.ParseFrame.AltsWrap(name = "", num = u32"0")
     var stack: MStack[NGrammar.ParseFrame] = MStack.create(defaultFrame, 64, 2)
     var pos: Z = 0
     var enterRuleNum: U32 = pt.nameMap.get(ruleName).get
-    var resultTrees = ISZ[ParseTree]()
+    var resultTrees: ISZ[ParseTree] = emptyTrees
     var entering: B = T
+
+    // Helper: extract treeBuf[from..treeBuf.size) as ISZ
+    def extractTrees(from: Z): ISZ[ParseTree] = {
+      val n = treeBuf.size - from
+      if (n == 0) {
+        return emptyTrees
+      }
+      val ms = MSZ.create[ParseTree](n, emptyLeaf)
+      var i: Z = 0
+      while (i < n) {
+        ms(i) = treeBuf.elements(from + i)
+        i = i + 1
+      }
+      return ms.toIS
+    }
 
     var done: B = F
     while (!done) {
@@ -375,7 +431,7 @@ object NGrammar {
         while (resolving) {
           ruleMap(enterRuleNum) match {
             case alts: NRule.Alts =>
-              pt.predict(alts.num, lookahead(pos)) match {
+              predictInline(alts.num, pos) match {
                 case Some(n) =>
                   if (!alts.isSynthetic) {
                     stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))
@@ -387,7 +443,7 @@ object NGrammar {
                     val lastAltNum = alts.alts(alts.alts.size - 1)
                     ruleMap(lastAltNum) match {
                       case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
-                        resultTrees = ISZ()
+                        resultTrees = emptyTrees
                         entering = F
                         resolving = F
                         fallback = T
@@ -395,8 +451,8 @@ object NGrammar {
                     }
                   }
                   if (!fallback) {
-                    val expectedTokens: ISZ[String] = pt.rules.get(alts.num) match {
-                      case Some(pn: PredictiveNode.Branch) =>
+                    val expectedTokens: ISZ[String] = pt.rules(alts.num) match {
+                      case pn: PredictiveNode.Branch =>
                         val m = pt.reverseNameMap
                         for (kk <- pn.entries.keys) yield m.get(kk).get
                       case _ => halt("Infeasible")
@@ -413,8 +469,8 @@ object NGrammar {
             case elements: NRule.Elements =>
               // Push initial continuation frame and transition to returning state;
               // element processing is handled uniformly in the returning/continuation path
-              stack.push(NGrammar.ParseFrame.ElementsCont(rule = elements, elemIdx = 0, trees = ISZ()))
-              resultTrees = ISZ()
+              stack.push(NGrammar.ParseFrame.ElementsCont(rule = elements, elemIdx = 0, treeStart = treeBuf.size))
+              resultTrees = emptyTrees
               entering = F
               resolving = F
           }
@@ -428,7 +484,12 @@ object NGrammar {
           frame match {
             case ec: NGrammar.ParseFrame.ElementsCont =>
               val elements = ec.rule
-              var trees = ec.trees ++ resultTrees
+              // Push resultTrees onto tree buffer (merges with existing trees from treeStart)
+              var ri: Z = 0
+              while (ri < resultTrees.size) {
+                treeBuf.push(resultTrees(ri))
+                ri = ri + 1
+              }
               var j = pos
               var elemIdx = ec.elemIdx
               var needSubRule: B = F
@@ -441,7 +502,7 @@ object NGrammar {
                     }
                     val token = tokens.at(j)
                     if (token.text == e.value) {
-                      trees = trees :+ token.toLeaf
+                      treeBuf.push(token.toLeaf)
                       j = j + 1
                       elemIdx = elemIdx + 1
                     } else {
@@ -456,7 +517,7 @@ object NGrammar {
                       }
                       val token = tokens.at(j)
                       if (token.num == e.num) {
-                        trees = trees :+ token.toLeaf
+                        treeBuf.push(token.toLeaf)
                         j = j + 1
                         elemIdx = elemIdx + 1
                       } else {
@@ -466,7 +527,7 @@ object NGrammar {
                     } else {
                       // Push continuation for remaining elements, enter sub-rule
                       stack.push(NGrammar.ParseFrame.ElementsCont(
-                        rule = elements, elemIdx = elemIdx + 1, trees = trees))
+                        rule = elements, elemIdx = elemIdx + 1, treeStart = ec.treeStart))
                       pos = j
                       enterRuleNum = e.num
                       entering = T
@@ -475,12 +536,32 @@ object NGrammar {
                 }
               }
               if (!needSubRule) {
-                // All elements processed
                 pos = j
                 if (elements.isSynthetic) {
-                  resultTrees = trees
+                  // For synthetic rules (from */+/?), check if the parent frame is an
+                  // ElementsCont. If so, leave trees in the buffer — the parent's treeStart
+                  // covers them contiguously, avoiding an extract→push round-trip.
+                  // If the parent is an AltsWrap (non-synthetic Alts chose this synthetic
+                  // Elements), we must extract because AltsWrap reads from resultTrees.
+                  var skipExtract: B = F
+                  if (stack.nonEmpty) {
+                    val parent = stack.peek
+                    parent match {
+                      case _: NGrammar.ParseFrame.ElementsCont => skipExtract = T
+                      case _ =>
+                    }
+                  }
+                  if (skipExtract) {
+                    resultTrees = emptyTrees
+                  } else {
+                    val children = extractTrees(ec.treeStart)
+                    treeBuf.sz = ec.treeStart
+                    resultTrees = children
+                  }
                 } else {
-                  resultTrees = ISZ(ParseTree.Node(trees, elements.name, elements.num))
+                  val children = extractTrees(ec.treeStart)
+                  treeBuf.sz = ec.treeStart
+                  resultTrees = ISZ(ParseTree.Node(children, elements.name, elements.num))
                 }
               }
             case aw: NGrammar.ParseFrame.AltsWrap =>
