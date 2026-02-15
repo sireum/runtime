@@ -313,7 +313,7 @@ object PredictiveTable {
       }
     }
     val numNames = conversions.U32.toZ(nextId)
-    var rulesMS = MS.create[U32, PredictiveNode](nameMap.size, PredictiveNode.sentinel)
+    val rulesMS = MS.create[U32, PredictiveNode](nameMap.size, PredictiveNode.sentinel)
     for (entry <- table.entries) {
       val ruleId = nameMap.get(entry._1).get
       val idEntries: ISZ[(ISZ[U32], Z)] = for (cell <- entry._2.entries) yield

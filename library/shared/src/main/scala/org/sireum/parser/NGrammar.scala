@@ -361,9 +361,78 @@ object NGrammar {
   }
 
   def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
-    // Optimization 1: Inline predict traversal with flat array lookup.
-    // Returns U32 alt index, or U32.Max if no prediction.
-    def predictInline(ruleNum: U32, p: Z): U32 = {
+    // Inline predict: returns U32 alt index, or U32.Max if no prediction.
+    // k=1 special case: unrolled single-level trie lookup (no loop, no var reassignment)
+    def predictK1(ruleNum: U32, p: Z): U32 = {
+      val node = pt.rules(ruleNum)
+      if (node.isSentinel) {
+        return U32.Max
+      }
+      node match {
+        case leaf: PredictiveNode.Leaf => return leaf.alt
+        case branch: PredictiveNode.Branch =>
+          if (!tokens.has(p)) {
+            return U32.Max
+          }
+          val tNum = tokens.at(p).num
+          if (conversions.U32.toZ(tNum) >= branch.entries.size) {
+            return U32.Max
+          }
+          val child = branch.entries(tNum)
+          if (child.isSentinel) {
+            return U32.Max
+          }
+          child match {
+            case leaf: PredictiveNode.Leaf => return leaf.alt
+            case _ => return U32.Max
+          }
+      }
+    }
+
+    // k=2 special case: unrolled two-level trie lookup
+    def predictK2(ruleNum: U32, p: Z): U32 = {
+      val node = pt.rules(ruleNum)
+      if (node.isSentinel) {
+        return U32.Max
+      }
+      node match {
+        case leaf: PredictiveNode.Leaf => return leaf.alt
+        case branch0: PredictiveNode.Branch =>
+          if (!tokens.has(p)) {
+            return U32.Max
+          }
+          val tNum0 = tokens.at(p).num
+          if (conversions.U32.toZ(tNum0) >= branch0.entries.size) {
+            return U32.Max
+          }
+          val child0 = branch0.entries(tNum0)
+          if (child0.isSentinel) {
+            return U32.Max
+          }
+          child0 match {
+            case leaf: PredictiveNode.Leaf => return leaf.alt
+            case branch1: PredictiveNode.Branch =>
+              if (!tokens.has(p + 1)) {
+                return U32.Max
+              }
+              val tNum1 = tokens.at(p + 1).num
+              if (conversions.U32.toZ(tNum1) >= branch1.entries.size) {
+                return U32.Max
+              }
+              val child1 = branch1.entries(tNum1)
+              if (child1.isSentinel) {
+                return U32.Max
+              }
+              child1 match {
+                case leaf: PredictiveNode.Leaf => return leaf.alt
+                case _ => return U32.Max
+              }
+          }
+      }
+    }
+
+    // General case for k>2: loop-based trie traversal
+    def predictGeneral(ruleNum: U32, p: Z): U32 = {
       val node = pt.rules(ruleNum)
       if (node.isSentinel) {
         return U32.Max
@@ -399,7 +468,19 @@ object NGrammar {
       return result
     }
 
-    // Optimization 3: Shared empty constant avoids repeated ISZ() allocation
+    val kk: Z = pt.k
+
+    def predict(ruleNum: U32, p: Z): U32 = {
+      if (kk == 1) {
+        return predictK1(ruleNum, p)
+      } else if (kk == 2) {
+        return predictK2(ruleNum, p)
+      } else {
+        return predictGeneral(ruleNum, p)
+      }
+    }
+
+    // Shared empty constant avoids repeated ISZ() allocation
     val emptyTrees: ISZ[ParseTree] = ISZ()
 
     // Optimization 2+4: Flat tree buffer — O(1) amortized push instead of ISZ :+ O(n) copy.
@@ -437,7 +518,7 @@ object NGrammar {
         while (resolving) {
           ruleMap(enterRuleNum) match {
             case alts: NRule.Alts =>
-              val predResult = predictInline(alts.num, pos)
+              val predResult = predict(alts.num, pos)
               if (predResult != U32.Max) {
                 if (!alts.isSynthetic) {
                   stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))

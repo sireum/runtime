@@ -93,6 +93,7 @@ object B_Ext {
 }
 
 object C_Ext {
+  @pure def toS32(c: C): S32 = org.sireum.S32(c.value)
   @pure def toU32(c: C): U32 = org.sireum.U32(c.value)
 
   @pure def toCodePoints(c: C): ISZ[C] = ISZ(Character.toChars(c.value).map(C(_)).toSeq: _*)
@@ -2174,6 +2175,11 @@ object String_Ext {
 
   @pure def toCis(s: String): IS[Z, C] = {
     toCms(s).toIS
+  }
+
+  @pure def toCisS32(s: String): IS[S32, C] = {
+    val a = s.value.codePoints.toArray
+    new IS[S32, C](S32, a, Z.MP(a.length), C.Boxer)
   }
 
   @pure def toCStream(s: String): Jen[C] =

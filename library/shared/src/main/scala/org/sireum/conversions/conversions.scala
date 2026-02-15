@@ -96,6 +96,7 @@ import org.sireum.Z64._
 }
 
 @ext object C {
+  @pure def toS32(c: C): S32 = $
   @pure def toU32(c: C): U32 = $
   @pure def toCodePoints(c: C): ISZ[C] = $
 }
@@ -2518,6 +2519,8 @@ import org.sireum.Z64._
   @pure def fromU8ms(u8s: MS[Z, U8]): String = $
 
   @pure def toCis(s: String): IS[Z, C] = $
+
+  @pure def toCisS32(s: String): IS[S32, C] = $
 
   @pure def toCStream(s: String): Jen[C] = $
 
