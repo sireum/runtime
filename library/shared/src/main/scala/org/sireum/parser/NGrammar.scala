@@ -252,7 +252,7 @@ object NGrammar {
             return None()
           }
           val r = tokens.at(i)
-          if (r.text == e.value) {
+          if (r.num == e.num) {
             return Some((i + 1, ISZ(r.toLeaf)))
           } else {
             reporter.error(r.toLeaf.posOpt, "Parser", s"Expecting '${e.value}', but found '${r.text}'")
@@ -515,7 +515,7 @@ object NGrammar {
                       return None()
                     }
                     val token = tokens.at(j)
-                    if (token.text == e.value) {
+                    if (token.num == e.num) {
                       treeBuf.push(token.toLeaf)
                       j = j + 1
                       elemIdx = elemIdx + 1

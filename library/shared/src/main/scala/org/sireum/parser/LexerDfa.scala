@@ -58,12 +58,14 @@ object LexerDfas {
     */
   def fromDfas(dfaInfos: ISZ[(automaton.Dfa[(C, C)], String, U32, B)],
                eofTypeOpt: Option[U32]): LexerDfas = {
-    var lexerDfas = ISZ[LexerDfa]()
-    var names = ISZ[String]()
-    var types = ISZ[U32]()
-    var hiddens = ISZ[B]()
+    val n = dfaInfos.size
+    val defaultDfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
+    val lexerDfasMs = MSZ.create[LexerDfa](n, defaultDfa)
+    val namesMs = MSZ.create[String](n, "")
+    val typesMs = MSZ.create[U32](n, u32"0")
+    val hiddensMs = MSZ.create[B](n, F)
     var ii: Z = 0
-    while (ii < dfaInfos.size) {
+    while (ii < n) {
       val info = dfaInfos(ii)
       val dfa = info._1
       val name = info._2
@@ -71,11 +73,11 @@ object LexerDfas {
       val hidden = info._4
       val numStates = dfa.g.nodesInverse.size
 
-      var acceptingSeq = ISZ[B]()
-      var transitionsSeq = ISZ[ISZ[LexerDfa.Transition]]()
+      val acceptingMs = MSZ.create[B](numStates, F)
+      val transitionsMs = MSZ.create[ISZ[LexerDfa.Transition]](numStates, ISZ())
       var si: Z = 0
       while (si < numStates) {
-        acceptingSeq = acceptingSeq :+ dfa.accepting.contains(si)
+        acceptingMs(si) = dfa.accepting.contains(si)
         var trans = ISZ[LexerDfa.Transition]()
         for (edge <- dfa.g.outgoing(si)) {
           if (!automaton.Dfa.isReject(edge)) {
@@ -83,22 +85,22 @@ object LexerDfas {
             trans = trans :+ LexerDfa.Transition(lo = de.data._1, hi = de.data._2, target = conversions.Z.toS32(de.dest))
           }
         }
-        transitionsSeq = transitionsSeq :+ trans
+        transitionsMs(si) = trans
         si = si + 1
       }
 
-      lexerDfas = lexerDfas :+ LexerDfa(accepting = acceptingSeq, transitions = transitionsSeq)
-      names = names :+ name
-      types = types :+ tipe
-      hiddens = hiddens :+ hidden
+      lexerDfasMs(ii) = LexerDfa(accepting = acceptingMs.toIS, transitions = transitionsMs.toIS)
+      namesMs(ii) = name
+      typesMs(ii) = tipe
+      hiddensMs(ii) = hidden
       ii = ii + 1
     }
 
     return LexerDfas(
-      dfas = lexerDfas,
-      names = names,
-      types = types,
-      hiddens = hiddens,
+      dfas = lexerDfasMs.toIS,
+      names = namesMs.toIS,
+      types = typesMs.toIS,
+      hiddens = hiddensMs.toIS,
       eofTypeOpt = eofTypeOpt
     )
   }
@@ -164,57 +166,56 @@ object LexerDfas {
     */
   def readLexerDfas(r: MessagePack.Reader.Impl): LexerDfas = {
     val numDfas = r.readZ()
-    var lexerDfas = ISZ[LexerDfa]()
+    val defaultTransition = LexerDfa.Transition(lo = '\u0000', hi = '\u0000', target = s32"0")
+    val defaultDfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
+    val lexerDfasMs = MSZ.create[LexerDfa](numDfas, defaultDfa)
     var di: Z = 0
     while (di < numDfas) {
       val numStates = r.readZ()
 
-      var acceptingSeq = ISZ[B]()
+      val acceptingMs = MSZ.create[B](numStates, F)
       var si: Z = 0
       while (si < numStates) {
-        acceptingSeq = acceptingSeq :+ r.readB()
+        acceptingMs(si) = r.readB()
         si = si + 1
       }
 
-      var transitionsSeq = ISZ[ISZ[LexerDfa.Transition]]()
+      val transitionsMs = MSZ.create[ISZ[LexerDfa.Transition]](numStates, ISZ())
       si = 0
       while (si < numStates) {
         val numTrans = r.readZ()
-        var trans = ISZ[LexerDfa.Transition]()
+        val transMs = MSZ.create[LexerDfa.Transition](numTrans, defaultTransition)
         var ti: Z = 0
         while (ti < numTrans) {
-          val lo = r.readC()
-          val hi = r.readC()
-          val target = r.readS32()
-          trans = trans :+ LexerDfa.Transition(lo = lo, hi = hi, target = target)
+          transMs(ti) = LexerDfa.Transition(lo = r.readC(), hi = r.readC(), target = r.readS32())
           ti = ti + 1
         }
-        transitionsSeq = transitionsSeq :+ trans
+        transitionsMs(si) = transMs.toIS
         si = si + 1
       }
 
-      lexerDfas = lexerDfas :+ LexerDfa(accepting = acceptingSeq, transitions = transitionsSeq)
+      lexerDfasMs(di) = LexerDfa(accepting = acceptingMs.toIS, transitions = transitionsMs.toIS)
       di = di + 1
     }
 
-    var names = ISZ[String]()
+    val namesMs = MSZ.create[String](numDfas, "")
     var ni: Z = 0
     while (ni < numDfas) {
-      names = names :+ r.readString()
+      namesMs(ni) = r.readString()
       ni = ni + 1
     }
 
-    var types = ISZ[U32]()
+    val typesMs = MSZ.create[U32](numDfas, u32"0")
     var ui: Z = 0
     while (ui < numDfas) {
-      types = types :+ r.readU32()
+      typesMs(ui) = r.readU32()
       ui = ui + 1
     }
 
-    var hiddens = ISZ[B]()
+    val hiddensMs = MSZ.create[B](numDfas, F)
     var hi: Z = 0
     while (hi < numDfas) {
-      hiddens = hiddens :+ r.readB()
+      hiddensMs(hi) = r.readB()
       hi = hi + 1
     }
 
@@ -222,10 +223,10 @@ object LexerDfas {
     val eofTypeOpt: Option[U32] = if (hasEof) Some(r.readU32()) else None()
 
     return LexerDfas(
-      dfas = lexerDfas,
-      names = names,
-      types = types,
-      hiddens = hiddens,
+      dfas = lexerDfasMs.toIS,
+      names = namesMs.toIS,
+      types = typesMs.toIS,
+      hiddens = hiddensMs.toIS,
       eofTypeOpt = eofTypeOpt
     )
   }
@@ -334,11 +335,23 @@ object LexerDfas {
     if (bestEnd <= i) {
       return None()
     }
-    var text = ISZ[C]()
-    var ci: Z = i
-    while (ci < bestEnd) {
-      text = text :+ chars.at(ci)
-      ci = ci + 1
+    val len = bestEnd - i
+    val text: ISZ[C] = if (len <= 16) {
+      var t = ISZ[C]()
+      var ci: Z = i
+      while (ci < bestEnd) {
+        t = t :+ chars.at(ci)
+        ci = ci + 1
+      }
+      t
+    } else {
+      val ms = MSZ.create[C](len, chars.at(i))
+      var ci: Z = 1
+      while (ci < len) {
+        ms(ci) = chars.at(i + ci)
+        ci = ci + 1
+      }
+      ms.toIS
     }
     val leaf = ParseTree.Leaf(
       text = conversions.String.fromCis(text),
@@ -361,31 +374,44 @@ object LexerDfas {
     *         or the position of the first unlexable character on failure
     */
   def tokens(chars: Indexable.Pos[C], skipHidden: B): (Z, ISZ[Token]) = {
-    var result = ISZ[Token]()
+    val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = u32"0", isHidden = F, posOpt = None())
+    var buf: MStack[Token] = MStack.create[Token](defaultToken, 256, 2)
+    def bufToISZ(): ISZ[Token] = {
+      if (buf.size == 0) {
+        return ISZ()
+      }
+      val ms = MSZ.create[Token](buf.size, defaultToken)
+      var j: Z = 0
+      while (j < buf.size) {
+        ms(j) = buf.elements(j)
+        j = j + 1
+      }
+      return ms.toIS
+    }
     var i: Z = 0
     while (chars.has(i)) {
       lex(chars, i) match {
         case Some((end, token)) =>
           if (!skipHidden || !token.isHidden) {
-            result = result :+ token
+            buf.push(token.toLeaf)
           }
           i = end
         case _ =>
-          return (i, result)
+          return (i, bufToISZ())
       }
     }
     eofTypeOpt match {
       case Some(eofType) =>
-        result = result :+ ParseTree.Leaf(
+        buf.push(ParseTree.Leaf(
           text = "",
           ruleName = "EOF",
           tipe = eofType,
           isHidden = F,
           posOpt = chars.posOpt(i, 0)
-        )
+        ))
       case _ =>
     }
-    return (-1, result)
+    return (-1, bufToISZ())
   }
 
   /** Serializes this LexerDfas to a compact base64-encoded string.
