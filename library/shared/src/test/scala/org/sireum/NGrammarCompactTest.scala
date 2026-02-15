@@ -146,7 +146,7 @@ class NGrammarCompactTest extends TestSuite {
 
     // NGrammar: empty ruleMap
     * - {
-      val ng = NGrammar(ruleMap = HashSMap.empty[U32, NRule], pt = emptyPT)
+      val ng = NGrammar(ruleMap = IS[U32, NRule](), pt = emptyPT)
       val decoded = NGrammar.fromCompact(ng.toCompact)
       assert(decoded == ng)
     }
@@ -154,13 +154,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Str
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(
             name = "program",
             num = u32"0",
             isSynthetic = F,
             elements = ISZ(NElement.Str(value = "hello", num = u32"10"))
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -170,13 +171,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Ref (isTerminal = T)
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(
             name = "rule1",
             num = u32"0",
             isSynthetic = F,
             elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"5"))
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -186,13 +188,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Ref (isTerminal = F)
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(
             name = "rule2",
             num = u32"0",
             isSynthetic = T,
             elements = ISZ(NElement.Ref(isTerminal = F, ruleName = "expr", num = u32"3"))
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -202,13 +205,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Alts
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(
+        ruleMap = IS[U32, NRule](
+          NRule.Alts(
             name = "choice",
             num = u32"0",
             isSynthetic = F,
             alts = ISZ(u32"1", u32"2", u32"3")
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -218,8 +222,8 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with multiple NElement variants
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(
             name = "complex",
             num = u32"0",
             isSynthetic = F,
@@ -229,7 +233,8 @@ class NGrammarCompactTest extends TestSuite {
               NElement.Ref(isTerminal = F, ruleName = "body", num = u32"15"),
               NElement.Str(value = ")", num = u32"16")
             )
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -252,9 +257,9 @@ class NGrammarCompactTest extends TestSuite {
           )
       )
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(name = "stmt", num = u32"0", isSynthetic = F, alts = ISZ(u32"1", u32"2")) +
-          u32"1" ~> NRule.Elements(
+        ruleMap = IS[U32, NRule](
+          NRule.Alts(name = "stmt", num = u32"0", isSynthetic = F, alts = ISZ(u32"1", u32"2")),
+          NRule.Elements(
             name = "ifStmt",
             num = u32"1",
             isSynthetic = F,
@@ -262,13 +267,14 @@ class NGrammarCompactTest extends TestSuite {
               NElement.Str(value = "if", num = u32"3"),
               NElement.Ref(isTerminal = F, ruleName = "expr", num = u32"5")
             )
-          ) +
-          u32"2" ~> NRule.Elements(
+          ),
+          NRule.Elements(
             name = "exprStmt",
             num = u32"2",
             isSynthetic = F,
             elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"4"))
-          ),
+          )
+        ),
         pt = pt
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -283,8 +289,9 @@ class NGrammarCompactTest extends TestSuite {
         rules = HashSMap.empty[U32, PredictiveNode] + u32"0" ~> PredictiveNode.Leaf(0)
       )
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(name = "r", num = u32"0", isSynthetic = F, elements = ISZ()),
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(name = "r", num = u32"0", isSynthetic = F, elements = ISZ())
+        ),
         pt = pt
       )
       val st = ng.toCompactST
@@ -299,8 +306,9 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Alts with empty alts list
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(name = "empty", num = u32"0", isSynthetic = T, alts = ISZ()),
+        ruleMap = IS[U32, NRule](
+          NRule.Alts(name = "empty", num = u32"0", isSynthetic = T, alts = ISZ())
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -310,8 +318,9 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with empty elements list
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(name = "eps", num = u32"0", isSynthetic = T, elements = ISZ()),
+        ruleMap = IS[U32, NRule](
+          NRule.Elements(name = "eps", num = u32"0", isSynthetic = T, elements = ISZ())
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)

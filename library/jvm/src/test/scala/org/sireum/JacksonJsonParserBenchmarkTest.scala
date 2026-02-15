@@ -52,30 +52,46 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     JacksonJsonParser.parseJsonc(None(), content)
   }
 
-  def parseLLkOpt(content: String): scala.Option[parser.json.AST] = {
+  def lexJson(content: String): Indexable[parser.Token] = {
+    val cis = conversions.String.toCis(content)
+    val docInfo = message.DocInfo.createFromCis(None(), cis)
+    val chars = Indexable.IszDocInfo[C](cis, docInfo)
+    val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
+    assert(errorIndex < 0, s"Lex error at $errorIndex")
+    Indexable.fromIsz(tokens)
+  }
+
+  def lexJsonc(content: String): Indexable[parser.Token] = {
+    val cis = conversions.String.toCis(content)
+    val docInfo = message.DocInfo.createFromCis(None(), cis)
+    val chars = Indexable.IszDocInfo[C](cis, docInfo)
+    val (errorIndex, tokens) = parser.JsoncParser.lexerDfas.tokens(chars, T)
+    assert(errorIndex < 0, s"Lex error at $errorIndex")
+    Indexable.fromIsz(tokens)
+  }
+
+  def parseLLkOpt(indexable: Indexable[parser.Token]): scala.Option[parser.json.AST] = {
     try {
       val reporter = message.Reporter.create
-      val treeOpt = parser.JsonParser.parse(None(), content, reporter)
+      val treeOpt = parser.JsonParser.g.parse("valueFile", indexable, reporter)
       treeOpt match {
         case Some(tree) if !reporter.hasError => scala.Some(parser.json.JsonAstBuilder(tree).build())
         case _ => scala.None
       }
     } catch {
-      case _: StackOverflowError => scala.None
       case _: Throwable => scala.None
     }
   }
 
-  def parseLLkJsoncOpt(content: String): scala.Option[parser.json.AST] = {
+  def parseLLkJsoncOpt(indexable: Indexable[parser.Token]): scala.Option[parser.json.AST] = {
     try {
       val reporter = message.Reporter.create
-      val treeOpt = parser.JsoncParser.parse(None(), content, reporter)
+      val treeOpt = parser.JsoncParser.g.parse("valueFile", indexable, reporter)
       treeOpt match {
         case Some(tree) if !reporter.hasError => scala.Some(parser.json.JsonAstBuilder(tree).build())
         case _ => scala.None
       }
     } catch {
-      case _: StackOverflowError => scala.None
       case _: Throwable => scala.None
     }
   }
@@ -84,7 +100,8 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     val nameStr: Predef.String = name.value
     val sizeStr: Predef.String = content.size.toString
 
-    val llkResult = parseLLkOpt(content)
+    val indexable = lexJson(content)
+    val llkResult = parseLLkOpt(indexable)
 
     if (llkResult.isEmpty) {
       for (_ <- 0 until warmupIterations) {
@@ -95,7 +112,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
         parseJackson(content)
       }
       val jacksonMs = (System.nanoTime() - jacksonStart) / 1000000.0
-      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A  ratio:    N/A")
+      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A")
       return
     }
 
@@ -104,7 +121,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
 
     for (_ <- 0 until warmupIterations) {
       parseJackson(content)
-      parseLLkOpt(content)
+      parseLLkOpt(indexable)
     }
 
     val jacksonStart = System.nanoTime()
@@ -115,7 +132,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
 
     val llkStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
-      parseLLkOpt(content)
+      parseLLkOpt(indexable)
     }
     val llkElapsed = System.nanoTime() - llkStart
 
@@ -123,14 +140,15 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     val llkMs = llkElapsed / 1000000.0
     val ratio = llkMs / jacksonMs
 
-    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms  ratio: ${ratio}%6.2fx")
+    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms (${ratio}%5.2fx)")
   }
 
   def benchmarkJsonc(name: String, content: String): Unit = {
     val nameStr: Predef.String = name.value
     val sizeStr: Predef.String = content.size.toString
 
-    val llkResult = parseLLkJsoncOpt(content)
+    val indexable = lexJsonc(content)
+    val llkResult = parseLLkJsoncOpt(indexable)
 
     if (llkResult.isEmpty) {
       for (_ <- 0 until warmupIterations) {
@@ -141,7 +159,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
         parseJacksonJsonc(content)
       }
       val jacksonMs = (System.nanoTime() - jacksonStart) / 1000000.0
-      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A  ratio:    N/A")
+      println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk:        N/A")
       return
     }
 
@@ -150,7 +168,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
 
     for (_ <- 0 until warmupIterations) {
       parseJacksonJsonc(content)
-      parseLLkJsoncOpt(content)
+      parseLLkJsoncOpt(indexable)
     }
 
     val jacksonStart = System.nanoTime()
@@ -161,7 +179,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
 
     val llkStart = System.nanoTime()
     for (_ <- 0 until benchmarkIterations) {
-      parseLLkJsoncOpt(content)
+      parseLLkJsoncOpt(indexable)
     }
     val llkElapsed = System.nanoTime() - llkStart
 
@@ -169,7 +187,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     val llkMs = llkElapsed / 1000000.0
     val ratio = llkMs / jacksonMs
 
-    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms  ratio: ${ratio}%6.2fx")
+    println(f"  $nameStr%-25s size=$sizeStr%10s  Jackson: ${jacksonMs}%10.2f ms  LLk: ${llkMs}%10.2f ms (${ratio}%5.2fx)")
   }
 
   val tests = Tests {
@@ -177,7 +195,7 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
     * - {
       if (Os.env("GITHUB_ACTION").isEmpty) {
         val tmpDir = Os.tempDir()
-        val sep = "=" * 110
+        val sep = "=" * 90
 
         // Download all files
         for (p <- benchmarkFiles) {

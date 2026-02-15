@@ -1,8 +1,8 @@
 # Runtime Library
 
-## Parse Tree Structure (NGrammar.parse)
+## Parse Tree Structure (NGrammar.parse/parseRec)
 
-The LL(k) parser (`NGrammar.parse`) produces a tree of `ParseTree.Leaf` and `ParseTree.Node` values.
+The LL(k) parser (`NGrammar.parse/parseRec`) produces a tree of `ParseTree.Leaf` and `ParseTree.Node` values.
 
 ### ParseTree.Leaf (tokens)
 Created by `LexerDfas.lex` for each token. Fields:
@@ -15,7 +15,7 @@ Created by `LexerDfas.lex` for each token. Fields:
 `Leaf` also extends `Token`, so `num` is an alias for `tipe`, and `toLeaf` returns `this`.
 
 ### ParseTree.Node (grammar rules)
-Created by `NGrammar.parse` for non-terminal rules. Fields:
+Created by `NGrammar.parse/parseRec` for non-terminal rules. Fields:
 - `children: ISZ[ParseTree]` — child nodes (Leaf or Node)
 - `ruleName: String` — the grammar rule name (e.g., `"file"`, `"exp3"`, `"infixSuffix"`)
 - `tipe: U32` — the rule's unique ID from `PredictiveTable.nameMap` (same namespace as token types)

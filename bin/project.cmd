@@ -76,7 +76,11 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "org.scalameta::scalafmt-cli:",
     "org.apache.commons:commons-compress:",
     "it.unimi.dsi:fastutil-core:",
-    "org.commonmark:commonmark-ext-yaml-front-matter:"
+    "org.commonmark:commonmark-ext-yaml-front-matter:",
+    "org.graalvm.compiler:compiler:",
+    "org.graalvm.polyglot:polyglot:",
+    "org.graalvm.wasm:wasm-language:",
+    "org.graalvm.truffle:truffle-runtime:"
   ),
   pubOpt = pub(
     desc = "Slang Runtime Library",
