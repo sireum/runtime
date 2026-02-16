@@ -35,6 +35,10 @@ import org.sireum.U64._
 
 object Indexable {
 
+  @ext("Indexable_Ext") object Ext {
+    @pure def fromString(uriOpt: Option[String], s: String): Indexable.PosC = $
+  }
+
   @sig trait Pos[T] extends Indexable[T] {
     @pure def posOpt(offset: Z, length: Z): Option[message.Position]
   }

@@ -37,12 +37,10 @@ object JsoncParser {
   val lexerDfas: LexerDfas = LexerDfas.fromCompact("RwIAAPROxw8ABidudWxsJwYndHJ1ZScHJ2ZhbHNlJwMneycDJ30nAyc6JwMnWycDJ10nAycsJwZTVFJJTkcHSU5URUdFUgZOVU1CRVICV1MMTElORV9DT01NRU5UDUJMT0NLDgDzDMcAAQ8FwsLCwsMBbm4BAXV1AgFsbAMBbGwEABcA8AN0dAEBcnICAXV1AwFlZQQABsIBAPEOwwFmZgEBYWECAWxsAwFzcwQBZWUFAALCwwF7ewEIAKJ9fQEAAsLDATo6CACiW1sBAALCwwFdXQgAYiwsAQAIwgEA8l/DASIiAQUgIQEiIgcjWwFcXAJdzgAQ//8BCSIiAS8vAVxcAWJiAWZmAW5uAXJyAXR0AXV1AwMwOQRBRgRhZgQDMDkFQUYFYWYFAzA5BkFGBmFmBgMwOQFBRgFhZgEABMLCw8MDLS0BMDACMTkDAgcAcAABMDkDCcIBAPIAw8PDwwMtLQEwMAUxOQYCBwDwAAEwOQcBMDkIAysrAy0tAwoA8gEuLgJFRQRlZQQELi4CMDkGDQD5DwMwOQdFRQRlZQQBMDkIAsLDBAkJAQoKAQ0NASAgAQ0A9A4DwsLDAS8vAQEvLwIDAAkCCwwCDs4AEP//AgXCwhwA8goqKgIDACkCKioDK84AEP//AgMALgIvLwQwDgD3EQAAAQIDBAUGBwgJCgsMDQ4ICQoBAw8EBQwCBwY8QUPCAQBQw8PDwyw=")
 
   def parseRule(uriOpt: Option[String], content: String, ruleName: String, reporter: message.Reporter): Option[ParseTree] = {
-    val cis = conversions.String.toCis(content)
-    val docInfo = message.DocInfo.createFromCis(uriOpt, cis)
-    val chars = Indexable.IszDocInfoC(cis, docInfo)
+    val chars = Indexable.Ext.fromString(uriOpt, content)
     val (errorIndex, tokens) = lexerDfas.tokens(chars, T)
     if (errorIndex >= 0) {
-      reporter.error(chars.posOpt(errorIndex, 1), "JsoncParser", st"Unrecognized character '${ops.COps(cis(errorIndex)).escapeString}'".render)
+      reporter.error(chars.posOpt(errorIndex, 1), "JsoncParser", st"Unrecognized character '${ops.COps(chars.at(errorIndex)).escapeString}'".render)
       return None()
     }
     return g.parse(ruleName, Indexable.fromIsz(tokens), reporter)

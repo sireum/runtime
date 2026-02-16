@@ -40,4 +40,12 @@ object StringOps_Ext {
     val arr = cis.data.asInstanceOf[scala.Array[scala.Int]]
     new Predef.String(arr, s, u - s)
   }
+
+  def nativeMsSubstring(cms: MSZ[C], start: Z, until: Z): String = {
+    val s = start.toBigInt.toInt
+    val u = until.toBigInt.toInt
+    if (u - s <= 0) return ""
+    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
+    new Predef.String(arr, s, u - s)
+  }
 }

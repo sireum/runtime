@@ -37,12 +37,10 @@ object JsonParser {
   val lexerDfas: LexerDfas = LexerDfas.fromCompact("4QEAAPNWxw0ABidudWxsJwYndHJ1ZScHJ2ZhbHNlJwMneycDJ30nAyc6JwMnWycDJ10nAycsJwZTVFJJTkcHSU5URUdFUgZOVU1CRVICV1PHAAENBcLCwsLDAW5uAQF1dQIBbGwDAWxsBAAXAPADdHQBAXJyAgF1dQMBZWUEAAbCAQDxDsMBZmYBAWFhAgFsbAMBc3MEAWVlBQACwsMBe3sBCACifX0BAALCwwE6OggAoltbAQACwsMBXV0IAGIsLAEACMIBAPJfwwEiIgEFICEBIiIHI1sBXFwCXc4AEP//AQkiIgEvLwFcXAFiYgFmZgFubgFycgF0dAF1dQMDMDkEQUYEYWYEAzA5BUFGBWFmBQMwOQZBRgZhZgYDMDkBQUYBYWYBAATCwsPDAy0tATAwAjE5AwIHAHAAATA5AwnCAQDyAMPDw8MDLS0BMDAFMTkGAgcA8AABMDkHATA5CAMrKwMtLQMKAPIBLi4CRUUEZWUEBC4uAjA5Bg0A+Q8DMDkHRUUEZWUEATA5CALCwwQJCQEKCgENDQEgIAENAPcMAAECAwQFBgcICQoLDAYHCAQWJgUeEwEDAjbCAQAww8Ml")
 
   def parseRule(uriOpt: Option[String], content: String, ruleName: String, reporter: message.Reporter): Option[ParseTree] = {
-    val cis = conversions.String.toCis(content)
-    val docInfo = message.DocInfo.createFromCis(uriOpt, cis)
-    val chars = Indexable.IszDocInfoC(cis, docInfo)
+    val chars = Indexable.Ext.fromString(uriOpt, content)
     val (errorIndex, tokens) = lexerDfas.tokens(chars, T)
     if (errorIndex >= 0) {
-      reporter.error(chars.posOpt(errorIndex, 1), "JsonParser", st"Unrecognized character '${ops.COps(cis(errorIndex)).escapeString}'".render)
+      reporter.error(chars.posOpt(errorIndex, 1), "JsonParser", st"Unrecognized character '${ops.COps(chars.at(errorIndex)).escapeString}'".render)
       return None()
     }
     return g.parse(ruleName, Indexable.fromIsz(tokens), reporter)

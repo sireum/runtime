@@ -29,6 +29,12 @@ package org.sireum.parser.json
 import org.sireum._
 import org.sireum.parser.{ParseTree => Tree}
 
+object JsonAstBuilder {
+  @ext("JsonAstBuilder_Ext") object Ext {
+    @pure def unescapeJsonString(raw: String): String = $
+  }
+}
+
 @datatype class JsonAstBuilder(tree: Tree) {
 
   @strictpure def asNode(t: Tree): Tree.Node = t.asInstanceOf[Tree.Node]
@@ -42,7 +48,7 @@ import org.sireum.parser.{ParseTree => Tree}
 
   def toStr(t: Tree): AST.Str = {
     val leaf = asLeaf(t)
-    val text = Json.Parser(conversions.String.toCis(leaf.text), 0, None()).parseString()
+    val text = JsonAstBuilder.Ext.unescapeJsonString(leaf.text)
     return AST.Str(text, Some(posOf(leaf)))
   }
 

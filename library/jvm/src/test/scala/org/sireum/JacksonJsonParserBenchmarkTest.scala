@@ -53,18 +53,14 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
   }
 
   def lexJson(content: String): Indexable[parser.Token] = {
-    val cis = conversions.String.toCis(content)
-    val docInfo = message.DocInfo.createFromCis(None(), cis)
-    val chars = Indexable.IszDocInfoC(cis, docInfo)
+    val chars = Indexable.Ext.fromString(None(), content)
     val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
     assert(errorIndex < 0, s"Lex error at $errorIndex")
     Indexable.fromIsz(tokens)
   }
 
   def lexJsonc(content: String): Indexable[parser.Token] = {
-    val cis = conversions.String.toCis(content)
-    val docInfo = message.DocInfo.createFromCis(None(), cis)
-    val chars = Indexable.IszDocInfoC(cis, docInfo)
+    val chars = Indexable.Ext.fromString(None(), content)
     val (errorIndex, tokens) = parser.JsoncParser.lexerDfas.tokens(chars, T)
     assert(errorIndex < 0, s"Lex error at $errorIndex")
     Indexable.fromIsz(tokens)
