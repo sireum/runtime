@@ -33,6 +33,18 @@ object JsonAstBuilder {
   @ext("JsonAstBuilder_Ext") object Ext {
     @pure def unescapeJsonString(raw: String): String = $
   }
+  val rnValueFile: String = "valueFile"
+  val rnObject: String = "object"
+  val rnArray: String = "array"
+  val rnStringLit: String = "stringLit"
+  val rnDoubleLit: String = "doubleLit"
+  val rnIntLit: String = "intLit"
+  val rnNullLit: String = "nullLit"
+  val rnTrue: String = "'true'"
+  val rnFalse: String = "'false'"
+  val rnBoolLit: String = "boolLit"
+  val rnValue: String = "value"
+  val rnKeyValue: String = "keyValue"
 }
 
 @datatype class JsonAstBuilder(tree: Tree) {
@@ -57,30 +69,34 @@ object JsonAstBuilder {
   }
 
   def buildValue(tree: Tree): AST = {
-    tree.ruleName match {
-      case string"valueFile" => return buildValue(asNode(tree).children(0))
-      case string"object" => return buildObject(tree)
-      case string"array" => return buildArray(tree)
-      case string"stringLit" =>
-        return toStr(asNode(tree).children(0))
-      case string"doubleLit" =>
-        val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Dbl(F64(leaf.text).get, Some(posOf(leaf)))
-      case string"intLit" =>
-        val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Int(Z(leaf.text).get, Some(posOf(leaf)))
-      case string"nullLit" =>
-        val leaf = asLeaf(asNode(tree).children(0))
-        return AST.Null(Some(posOf(leaf)))
-      case string"'true'" =>
-        return AST.Bool(T, Some(posOf(tree)))
-      case string"'false'" =>
-        return AST.Bool(F, Some(posOf(tree)))
-      case string"boolLit" =>
-        return buildValue(asNode(tree).children(0))
-      case string"value" =>
-        return buildValue(asNode(tree).children(0))
-      case _ => halt(s"Infeasible: $tree")
+    val rn = tree.ruleName
+    if (rn == JsonAstBuilder.rnValueFile) {
+      return buildValue(asNode(tree).children(0))
+    } else if (rn == JsonAstBuilder.rnObject) {
+      return buildObject(tree)
+    } else if (rn == JsonAstBuilder.rnArray) {
+      return buildArray(tree)
+    } else if (rn == JsonAstBuilder.rnStringLit) {
+      return toStr(asNode(tree).children(0))
+    } else if (rn == JsonAstBuilder.rnDoubleLit) {
+      val leaf = asLeaf(asNode(tree).children(0))
+      return AST.Dbl(F64(leaf.text).get, Some(posOf(leaf)))
+    } else if (rn == JsonAstBuilder.rnIntLit) {
+      val leaf = asLeaf(asNode(tree).children(0))
+      return AST.Int(Z(leaf.text).get, Some(posOf(leaf)))
+    } else if (rn == JsonAstBuilder.rnNullLit) {
+      val leaf = asLeaf(asNode(tree).children(0))
+      return AST.Null(Some(posOf(leaf)))
+    } else if (rn == JsonAstBuilder.rnTrue) {
+      return AST.Bool(T, Some(posOf(tree)))
+    } else if (rn == JsonAstBuilder.rnFalse) {
+      return AST.Bool(F, Some(posOf(tree)))
+    } else if (rn == JsonAstBuilder.rnBoolLit) {
+      return buildValue(asNode(tree).children(0))
+    } else if (rn == JsonAstBuilder.rnValue) {
+      return buildValue(asNode(tree).children(0))
+    } else {
+      halt(s"Infeasible: $tree")
     }
   }
 
@@ -90,7 +106,7 @@ object JsonAstBuilder {
     var count: Z = 0
     var ci: Z = 1
     while (ci < children.size - 1) {
-      if (children(ci).ruleName == "keyValue") {
+      if (children(ci).ruleName == JsonAstBuilder.rnKeyValue) {
         count = count + 1
       }
       ci = ci + 1
@@ -101,7 +117,7 @@ object JsonAstBuilder {
     ci = 1
     while (ci < children.size - 1) {
       val child = children(ci)
-      if (child.ruleName == "keyValue") {
+      if (child.ruleName == JsonAstBuilder.rnKeyValue) {
         val kv = asNode(child)
         keyValuesMs(ki) = AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
         ki = ki + 1

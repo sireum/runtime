@@ -101,6 +101,8 @@ object C_Ext {
 
 object Z_Ext {
 
+  private val u64Max: Z = Z(scala.BigInt("18446744073709551615"))
+
   @pure def isInRangeSigned8(n: Z): B = -128 <= n && n <= 127
 
   @pure def isInRangeSigned16(n: Z): B = -32768 <= n && n <= 32767
@@ -117,9 +119,9 @@ object Z_Ext {
 
   @pure def isInRangeUnsigned32(n: Z): B = 0 <= n && n <= 4294967295L
 
-  @pure def isInRangeUnsigned64(n: Z): B = 0 <= n && n <= z"18446744073709551615"
+  @pure def isInRangeUnsigned64(n: Z): B = 0 <= n && n <= u64Max
 
-  @pure def toB(n: Z): B = n != z"0"
+  @pure def toB(n: Z): B = n != Z(0)
 
   @pure def toZ(n: Z): Z = n
 

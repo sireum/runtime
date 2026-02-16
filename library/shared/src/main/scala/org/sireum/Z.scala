@@ -173,6 +173,185 @@ object Z extends $ZCompanion[Z] {
       case (_: Z, _: Z) => n.toBigInt == other.toBigInt
     }
 
+    // (Z, scala.Long) overloads — avoid boxing the primitive right operand
+
+    @inline def +(n: Z, other: scala.Long): Z = {
+      n match {
+        case Long(n1) =>
+          val r = n1 + other
+          if (((n1 ^ r) & (other ^ r)) >= 0L)
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(n.toBigInt + other)
+    }
+
+    @inline def -(n: Z, other: scala.Long): Z = {
+      n match {
+        case Long(n1) =>
+          val r = n1 - other
+          if (((n1 ^ other) & (n1 ^ r)) >= 0L)
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(n.toBigInt - other)
+    }
+
+    @inline def *(n: Z, other: scala.Long): Z = {
+      n match {
+        case Long(n1) =>
+          val r = n1 * other
+          if (r == 0) return zero
+          var upgrade = false
+          if (other > n1) {
+            if (((other == -1) && (n1 == scala.Long.MinValue)) || (r / other != n1))
+              upgrade = true
+          } else {
+            if (((n1 == -1) && (other == scala.Long.MinValue)) || (r / n1 != other))
+              upgrade = true
+          }
+          if (!upgrade) return Long(r)
+        case _: Z =>
+      }
+      BigInt(n.toBigInt * other)
+    }
+
+    @inline def /(n: Z, other: scala.Long): Z = {
+      n match {
+        case Long(n1) =>
+          val r = n1 / other
+          if (!((n1 == scala.Long.MinValue) && (other == -1)))
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(n.toBigInt / other).pack
+    }
+
+    @inline def %(n: Z, other: scala.Long): Z = {
+      n match {
+        case Long(n1) => return Long(n1 % other)
+        case _: Z =>
+      }
+      BigInt(n.toBigInt % other).pack
+    }
+
+    @inline def >(n: Z, other: scala.Long): B = n match {
+      case Long(n1) => n1 > other
+      case _: Z => n.toBigInt > other
+    }
+
+    @inline def >=(n: Z, other: scala.Long): B = n match {
+      case Long(n1) => n1 >= other
+      case _: Z => n.toBigInt >= other
+    }
+
+    @inline def <(n: Z, other: scala.Long): B = n match {
+      case Long(n1) => n1 < other
+      case _: Z => n.toBigInt < other
+    }
+
+    @inline def <=(n: Z, other: scala.Long): B = n match {
+      case Long(n1) => n1 <= other
+      case _: Z => n.toBigInt <= other
+    }
+
+    @inline def isEqual(n: Z, other: scala.Int): scala.Boolean = n match {
+      case Long(n1) => n1 == other.toLong
+      case _: Z => n.toBigInt == other
+    }
+
+    @inline def isEqual(n: Z, other: scala.Long): scala.Boolean = n match {
+      case Long(n1) => n1 == other
+      case _: Z => n.toBigInt == other
+    }
+
+    @inline def isEqual(n: Z, other: scala.BigInt): scala.Boolean = n match {
+      case Long(n1) => other.isValidLong && n1 == other.longValue
+      case _: Z => n.toBigInt == other
+    }
+
+    // (scala.Long, Z) overloads — avoid boxing the primitive left operand
+
+    @inline def +(n: scala.Long, other: Z): Z = {
+      other match {
+        case Long(n2) =>
+          val r = n + n2
+          if (((n ^ r) & (n2 ^ r)) >= 0L)
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(scala.BigInt(n) + other.toBigInt)
+    }
+
+    @inline def -(n: scala.Long, other: Z): Z = {
+      other match {
+        case Long(n2) =>
+          val r = n - n2
+          if (((n ^ n2) & (n ^ r)) >= 0L)
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(scala.BigInt(n) - other.toBigInt)
+    }
+
+    @inline def *(n: scala.Long, other: Z): Z = {
+      other match {
+        case Long(n2) =>
+          val r = n * n2
+          if (r == 0) return zero
+          var upgrade = false
+          if (n2 > n) {
+            if (((n2 == -1) && (n == scala.Long.MinValue)) || (r / n2 != n))
+              upgrade = true
+          } else {
+            if (((n == -1) && (n2 == scala.Long.MinValue)) || (r / n != n2))
+              upgrade = true
+          }
+          if (!upgrade) return Long(r)
+        case _: Z =>
+      }
+      BigInt(scala.BigInt(n) * other.toBigInt)
+    }
+
+    @inline def /(n: scala.Long, other: Z): Z = {
+      other match {
+        case Long(n2) =>
+          val r = n / n2
+          if (!((n == scala.Long.MinValue) && (n2 == -1)))
+            return Long(r)
+        case _: Z =>
+      }
+      BigInt(scala.BigInt(n) / other.toBigInt).pack
+    }
+
+    @inline def %(n: scala.Long, other: Z): Z = {
+      other match {
+        case Long(n2) => return Long(n % n2)
+        case _: Z =>
+      }
+      BigInt(scala.BigInt(n) % other.toBigInt).pack
+    }
+
+    @inline def >(n: scala.Long, other: Z): B = other match {
+      case Long(n2) => n > n2
+      case _: Z => scala.BigInt(n) > other.toBigInt
+    }
+
+    @inline def >=(n: scala.Long, other: Z): B = other match {
+      case Long(n2) => n >= n2
+      case _: Z => scala.BigInt(n) >= other.toBigInt
+    }
+
+    @inline def <(n: scala.Long, other: Z): B = other match {
+      case Long(n2) => n < n2
+      case _: Z => scala.BigInt(n) < other.toBigInt
+    }
+
+    @inline def <=(n: scala.Long, other: Z): B = other match {
+      case Long(n2) => n <= n2
+      case _: Z => scala.BigInt(n) <= other.toBigInt
+    }
+
     @inline def apply(n: scala.Int): Z = MP.Long(n)
 
     @inline def apply(n: scala.Long): Z = MP.Long(n)
@@ -1448,22 +1627,40 @@ sealed trait Z extends ZLike[Z] with $internal.HasBoxer {
   final def unary_- : Z = Z.MP.unary_-(this)
 
   final def +(other: Z): Z = Z.MP.+(this, other)
+  final def +(other: scala.Int): Z = Z.MP.+(this, other.toLong)
+  final def +(other: scala.Long): Z = Z.MP.+(this, other)
 
   final def -(other: Z): Z = Z.MP.-(this, other)
+  final def -(other: scala.Int): Z = Z.MP.-(this, other.toLong)
+  final def -(other: scala.Long): Z = Z.MP.-(this, other)
 
   final def *(other: Z): Z = Z.MP.*(this, other)
+  final def *(other: scala.Int): Z = Z.MP.*(this, other.toLong)
+  final def *(other: scala.Long): Z = Z.MP.*(this, other)
 
   final def /(other: Z): Z = Z.MP./(this, other)
+  final def /(other: scala.Int): Z = Z.MP./(this, other.toLong)
+  final def /(other: scala.Long): Z = Z.MP./(this, other)
 
   final def %(other: Z): Z = Z.MP.%(this, other)
+  final def %(other: scala.Int): Z = Z.MP.%(this, other.toLong)
+  final def %(other: scala.Long): Z = Z.MP.%(this, other)
 
   final def >(other: Z): B = Z.MP.>(this, other)
+  final def >(other: scala.Int): B = Z.MP.>(this, other.toLong)
+  final def >(other: scala.Long): B = Z.MP.>(this, other)
 
   final def >=(other: Z): B = Z.MP.>=(this, other)
+  final def >=(other: scala.Int): B = Z.MP.>=(this, other.toLong)
+  final def >=(other: scala.Long): B = Z.MP.>=(this, other)
 
   final def <(other: Z): B = Z.MP.<(this, other)
+  final def <(other: scala.Int): B = Z.MP.<(this, other.toLong)
+  final def <(other: scala.Long): B = Z.MP.<(this, other)
 
   final def <=(other: Z): B = Z.MP.<=(this, other)
+  final def <=(other: scala.Int): B = Z.MP.<=(this, other.toLong)
+  final def <=(other: scala.Long): B = Z.MP.<=(this, other)
 
   @inline def ===(other: Z): B = this == other
 
