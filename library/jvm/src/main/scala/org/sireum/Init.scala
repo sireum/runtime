@@ -1024,6 +1024,89 @@ import Init._
       patchClient()
     }
 
+    def removeJsonArrayElement(text: String, key: String): String = {
+      val cis = conversions.String.toCis(text)
+      val keyCis = conversions.String.toCis(key)
+      val keyIdx = ops.StringOps.stringIndexOfFrom(cis, keyCis, 0)
+      if (keyIdx < 0) {
+        return text
+      }
+      // Scan backwards from keyIdx to find the opening '{' at nesting level 0
+      var depth: Z = 0
+      var i = keyIdx - 1
+      var found = F
+      while (i >= 0 && !found) {
+        val c = cis(i)
+        if (c == '}') {
+          depth = depth + 1
+        } else if (c == '{') {
+          if (depth == 0) {
+            found = T
+          } else {
+            depth = depth - 1
+          }
+        }
+        if (!found) {
+          i = i - 1
+        }
+      }
+      val openBrace = i
+      // Scan forwards from openBrace to find the matching closing '}'
+      depth = 1
+      var j = openBrace + 1
+      found = F
+      while (j < cis.size && !found) {
+        val c = cis(j)
+        if (c == '{') {
+          depth = depth + 1
+        } else if (c == '}') {
+          depth = depth - 1
+          if (depth == 0) {
+            found = T
+          }
+        }
+        if (!found) {
+          j = j + 1
+        }
+      }
+      val closeBrace = j
+      // Determine comma handling: look for comma before openBrace (skip whitespace)
+      var before = openBrace - 1
+      while (before >= 0 && (cis(before) == ' ' || cis(before) == '\t' || cis(before) == '\n' || cis(before) == '\r')) {
+        before = before - 1
+      }
+      if (before >= 0 && cis(before) == ',') {
+        return conversions.String.fromCis(ops.ISZOps(cis).slice(0, before) ++ ops.ISZOps(cis).slice(closeBrace + 1, cis.size))
+      }
+      // Look for comma after closeBrace (skip whitespace)
+      var after = closeBrace + 1
+      while (after < cis.size && (cis(after) == ' ' || cis(after) == '\t' || cis(after) == '\n' || cis(after) == '\r')) {
+        after = after + 1
+      }
+      if (after < cis.size && cis(after) == ',') {
+        return conversions.String.fromCis(ops.ISZOps(cis).slice(0, openBrace) ++ ops.ISZOps(cis).slice(after + 1, cis.size))
+      }
+      return conversions.String.fromCis(ops.ISZOps(cis).slice(0, openBrace) ++ ops.ISZOps(cis).slice(closeBrace + 1, cis.size))
+    }
+    def patchPackageJson(path: Os.Path): Unit = {
+      var pjContent = path.read
+      if (ops.StringOps(pjContent).contains(""""editor.semanticHighlighting.enabled": false""")) {
+        return
+      }
+      pjContent = ops.StringOps(pjContent).replaceAllLiterally(""""contributes": {""",
+        st""""contributes": {
+            |		"configurationDefaults": {
+            |			"[sysml]": {
+            |				"editor.semanticHighlighting.enabled": false
+            |			}
+            |		},""".render)
+      pjContent = removeJsonArrayElement(pjContent, """"id": "sysml"""")
+      pjContent = removeJsonArrayElement(pjContent, """"language": "sysml"""")
+      pjContent = removeJsonArrayElement(pjContent, """"scopeName": "markdown.sysml.codeblock"""")
+      path.setWritable(T)
+      path.writeOver(pjContent)
+      path.setWritable(F)
+    }
     def patchSysIde(d: Os.Path): Unit = {
       val tmlf = d / "syntaxes" / "sysml.tmLanguage.json"
       var content = tmlf.read
@@ -1064,6 +1147,7 @@ import Init._
       }
       println("Patching SysIDE ...")
       patchTml()
+      patchPackageJson(d / "package.json")
       for (f <- Os.Path.walk(d / "dist", F, F, (p: Os.Path) => p.ext == "js")) {
         patchJs(f)
       }
@@ -1088,15 +1172,6 @@ import Init._
         tmlf.setWritable(T)
         tmlf.writeOver(content)
         tmlf.setWritable(F)
-      }
-      def patchPackageJson(path: Os.Path): Unit = {
-        path.writeOver(ops.StringOps(path.read).replaceAllLiterally(""""contributes": {""",
-          st""""contributes": {
-              |		"configurationDefaults": {
-              |			"[sysml]": {
-              |				"editor.semanticHighlighting.enabled": false
-              |			}
-              |		},""".render))
       }
       def patchJsEditor(f: Os.Path): Unit = {
         var text = f.read
