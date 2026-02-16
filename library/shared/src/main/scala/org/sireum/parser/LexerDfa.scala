@@ -31,7 +31,7 @@ import org.sireum.U32._
 import org.sireum.S32._
 
 object LexerDfa {
-  @datatype class Transition(val lo: C, val hi: C, val target: S32)
+  @datatype class Transition(val lo: C, val hi: C, val target: Z)
 }
 
 /** A single DFA stored as parallel arrays for O(1) state lookup.
@@ -150,7 +150,7 @@ object LexerDfas {
         for (edge <- dfa.g.outgoing(si)) {
           if (!automaton.Dfa.isReject(edge)) {
             val de = edge.asInstanceOf[Graph.Edge.Data[Z, (C, C)]]
-            trans = trans :+ LexerDfa.Transition(lo = de.data._1, hi = de.data._2, target = conversions.Z.toS32(de.dest))
+            trans = trans :+ LexerDfa.Transition(lo = de.data._1, hi = de.data._2, target = de.dest)
           }
         }
         transitionsMs(si) = trans
@@ -202,7 +202,7 @@ object LexerDfas {
           val t = trans(ti)
           w.writeC(t.lo)
           w.writeC(t.hi)
-          w.writeS32(t.target)
+          w.writeS32(conversions.Z.toS32(t.target))
           ti = ti + 1
         }
         si = si + 1
@@ -234,7 +234,7 @@ object LexerDfas {
     */
   def readLexerDfas(r: MessagePack.Reader.Impl): LexerDfas = {
     val numDfas = r.readZ()
-    val defaultTransition = LexerDfa.Transition(lo = '\u0000', hi = '\u0000', target = s32"0")
+    val defaultTransition = LexerDfa.Transition(lo = '\u0000', hi = '\u0000', target = 0)
     val defaultDfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
     val lexerDfasMs = MSZ.create[LexerDfa](numDfas, defaultDfa)
     var di: Z = 0
@@ -255,7 +255,7 @@ object LexerDfas {
         val transMs = MSZ.create[LexerDfa.Transition](numTrans, defaultTransition)
         var ti: Z = 0
         while (ti < numTrans) {
-          transMs(ti) = LexerDfa.Transition(lo = r.readC(), hi = r.readC(), target = r.readS32())
+          transMs(ti) = LexerDfa.Transition(lo = r.readC(), hi = r.readC(), target = conversions.S32.toZ(r.readS32()))
           ti = ti + 1
         }
         transitionsMs(si) = transMs.toIS
@@ -353,15 +353,15 @@ object LexerDfas {
     if (dfa.accepting.size == 0) {
       return -1
     }
-    var state: S32 = s32"0"
+    var state: Z = 0
     var pos = i
     var lastAccept: Z = -1
-    if (dfa.accepting(conversions.S32.toZ(state))) {
+    if (dfa.accepting(state)) {
       lastAccept = pos
     }
     while (chars.has(pos)) {
       val c = chars.at(pos)
-      val trans = dfa.transitions(conversions.S32.toZ(state))
+      val trans = dfa.transitions(state)
       var found = F
       var ti: Z = 0
       while (!found && ti < trans.size) {
@@ -376,7 +376,7 @@ object LexerDfas {
       if (!found) {
         return lastAccept
       }
-      if (dfa.accepting(conversions.S32.toZ(state))) {
+      if (dfa.accepting(state)) {
         lastAccept = pos
       }
     }
@@ -505,7 +505,7 @@ object LexerDfas {
       while (si < d.transitions.size) {
         val trans = d.transitions(si)
         val transItemSTs: ISZ[ST] = for (t <- trans) yield
-          st"(${ops.COps(t.lo).escapeString} .. ${ops.COps(t.hi).escapeString} -> ${conversions.S32.toZ(t.target)})"
+          st"(${ops.COps(t.lo).escapeString} .. ${ops.COps(t.hi).escapeString} -> ${t.target})"
         val acceptST: ST = if (d.accepting(si)) st"*" else st""
         transSTs = transSTs :+ st"$si$acceptST: ${(transItemSTs, ", ")}"
         si = si + 1

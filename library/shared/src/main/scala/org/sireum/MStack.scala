@@ -120,12 +120,6 @@ object MIStack {
     if (sz == 0) {
       return ISZ()
     }
-    val ms = MSZ.create(sz, elements(0))
-    var i: Z = 1
-    while (i < sz) {
-      ms(i) = elements(i)
-      i = i + 1
-    }
-    return ms.toIS
+    return ops.MSZOpsUtil.slice(elements, 0, sz)
   }
 }

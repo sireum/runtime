@@ -181,4 +181,16 @@ object MSZOpsUtil_Ext {
   def parMapCores[V, U](s: MS[Z, V], f: V => U, numOfCores: Z): MS[Z, U] = MSOps_Ext.mParMap(s, f, numOfCores)
 
   @pure def sortWith[V](s: MS[Z, V], lt: (V, V) => B): MS[Z, V] = MSOps_Ext.sortWith(s, lt)
+
+  def slice[I, V](s: MS[I, V], start: I, until: I): IS[I, V] = {
+    val startIdx = start.asInstanceOf[ZLike[_]].toIndex
+    val untilIdx = until.asInstanceOf[ZLike[_]].toIndex
+    val len = untilIdx - startIdx
+    if (len <= Z.MP.zero) {
+      return new IS[I, V](s.companion, s.boxer.create(Z.MP.zero), Z.MP.zero, s.boxer)
+    }
+    val a = s.boxer.create(len)
+    s.boxer.copy(s.data, startIdx, a, Z.MP.zero, len)
+    new IS[I, V](s.companion, a, len, s.boxer)
+  }
 }

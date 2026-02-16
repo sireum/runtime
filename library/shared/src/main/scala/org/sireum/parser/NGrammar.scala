@@ -497,17 +497,10 @@ object NGrammar {
 
     // Helper: extract treeBuf[from..treeBuf.size) as ISZ
     def extractTrees(from: Z): ISZ[ParseTree] = {
-      val n = treeBuf.size - from
-      if (n == 0) {
+      if (treeBuf.size <= from) {
         return emptyTrees
       }
-      val ms = MSZ.create[ParseTree](n, emptyLeaf)
-      var i: Z = 0
-      while (i < n) {
-        ms(i) = treeBuf.elements(from + i)
-        i = i + 1
-      }
-      return ms.toIS
+      return ops.MSZOpsUtil.slice(treeBuf.elements, from, treeBuf.size)
     }
 
     var done: B = F
