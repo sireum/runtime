@@ -30,7 +30,7 @@ import org.sireum._
 
 @sig trait Token {
   @pure def ruleName: String
-  @pure def num: U32
+  @pure def num: Z
   @pure def toLeaf: ParseTree.Leaf
   @pure def text: String
   @pure def isHidden: B

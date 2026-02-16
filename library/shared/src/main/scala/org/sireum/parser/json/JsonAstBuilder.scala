@@ -86,26 +86,53 @@ object JsonAstBuilder {
 
   def buildObject(tree: Tree): AST.Obj = {
     val children = asNode(tree).children
-    var keyValues = ISZ[AST.KeyValue]()
-    for (i <- 1 until children.size - 1) {
-      val child = children(i)
+    // Count keyValue children, then fill pre-sized MSZ — avoids O(n²) ISZ :+ cloning
+    var count: Z = 0
+    var ci: Z = 1
+    while (ci < children.size - 1) {
+      if (children(ci).ruleName == "keyValue") {
+        count = count + 1
+      }
+      ci = ci + 1
+    }
+    val defaultKV = AST.KeyValue(AST.Str("", None()), AST.Null(None()))
+    val keyValuesMs = MSZ.create[AST.KeyValue](count, defaultKV)
+    var ki: Z = 0
+    ci = 1
+    while (ci < children.size - 1) {
+      val child = children(ci)
       if (child.ruleName == "keyValue") {
         val kv = asNode(child)
-        keyValues = keyValues :+ AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
+        keyValuesMs(ki) = AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
+        ki = ki + 1
       }
+      ci = ci + 1
     }
-    return AST.Obj(keyValues, Some(posOf(tree)))
+    return AST.Obj(keyValuesMs.toIS, Some(posOf(tree)))
   }
 
   def buildArray(tree: Tree): AST.Arr = {
     val children = asNode(tree).children
-    var values = ISZ[AST]()
-    for (i <- 1 until children.size - 1) {
-      val child = children(i)
-      if (child.isInstanceOf[Tree.Node]) {
-        values = values :+ buildValue(child)
+    // Count value children, then fill pre-sized MSZ — avoids O(n²) ISZ :+ cloning
+    var count: Z = 0
+    var ci: Z = 1
+    while (ci < children.size - 1) {
+      if (children(ci).isInstanceOf[Tree.Node]) {
+        count = count + 1
       }
+      ci = ci + 1
     }
-    return AST.Arr(values, Some(posOf(tree)))
+    val valuesMs = MSZ.create[AST](count, AST.Null(None()))
+    var vi: Z = 0
+    ci = 1
+    while (ci < children.size - 1) {
+      val child = children(ci)
+      if (child.isInstanceOf[Tree.Node]) {
+        valuesMs(vi) = buildValue(child)
+        vi = vi + 1
+      }
+      ci = ci + 1
+    }
+    return AST.Arr(valuesMs.toIS, Some(posOf(tree)))
   }
 }

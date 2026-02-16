@@ -29,13 +29,12 @@
 package org.sireum.parser
 
 import org.sireum._
-import org.sireum.U32._
 import org.sireum.message.Position
 
 @datatype trait ParseTree {
   @pure def ruleName: String
   @pure def toST: ST
-  @pure def tipe: U32
+  @pure def tipe: Z
   @pure def posOpt: Option[Position]
 
   override def string: String = {
@@ -47,19 +46,19 @@ object ParseTree {
 
   @datatype class Leaf(val text: String,
                        @hidden val ruleName: String,
-                       @hidden val tipe: U32,
+                       @hidden val tipe: Z,
                        @hidden val isHidden: B,
                        @hidden val posOpt: Option[Position]) extends ParseTree with Token {
     @strictpure override def toST: ST =
       if (ops.StringOps(ruleName).startsWith("'")) st""""${ops.StringOps(text).escapeST}""""
       else st"""$ruleName["${ops.StringOps(text).escapeST}"]"""
     @strictpure def toLeaf: ParseTree.Leaf = this
-    @strictpure def num: U32 = tipe
+    @strictpure def num: Z = tipe
   }
 
   @datatype class Node(val children: ISZ[ParseTree],
                        @hidden val ruleName: String,
-                       @hidden val tipe: U32) extends ParseTree {
+                       @hidden val tipe: Z) extends ParseTree {
     @strictpure override def toST: ST =
       st"""$ruleName(
           |  ${(for (child <- children) yield child.toST, ",\n")}
@@ -113,7 +112,7 @@ object ParseTree {
   }
 
   object Node {
-    @strictpure def empty: Node = Node(ISZ(), "Tree", u32"-1")
+    @strictpure def empty: Node = Node(ISZ(), "Tree", -1)
   }
 
   @sig trait BinaryPrecedenceOps[Builder, T1, T2] {

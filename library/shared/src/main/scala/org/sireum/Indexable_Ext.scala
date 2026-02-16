@@ -29,14 +29,25 @@ object Indexable_Ext {
   def fromString(uriOpt: Option[String], s: String): Indexable.PosC = {
     val codepoints = s.value.codePoints.toArray
     val size = codepoints.length
-    var lineOffsets = ISZ[U32](U32.fromZ(0))
+    // Two-pass: count newlines, then fill pre-sized array — avoids O(n²) ISZ :+ cloning
+    var nlCount = 0
     var i = 0
     while (i < size) {
+      if (codepoints(i) == '\n') nlCount += 1
+      i += 1
+    }
+    val rawArr = new Array[scala.Int](nlCount + 1)
+    rawArr(0) = 0
+    var li = 1
+    i = 0
+    while (i < size) {
       if (codepoints(i) == '\n') {
-        lineOffsets = lineOffsets :+ U32.fromZ(i + 1)
+        rawArr(li) = i + 1
+        li += 1
       }
       i += 1
     }
+    val lineOffsets = new IS[Z, U32](Z, rawArr, Z.MP(nlCount + 1), U32.fromZ(0).boxer)
     val info = message.DocInfo(uriOpt, lineOffsets)
     new Indexable.PosC {
       override def at(i: Z): C = C(codepoints(i.toInt))

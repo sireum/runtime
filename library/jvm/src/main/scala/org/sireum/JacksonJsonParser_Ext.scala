@@ -102,27 +102,33 @@ object JacksonJsonParser_Ext {
 
   private def parseObject(uriOpt: Option[String], jp: JacksonParser): parser.json.AST.Obj = {
     val pOpt = posOpt(uriOpt, jp)
-    var keyValues = ISZ[parser.json.AST.KeyValue]()
+    val buf = new java.util.ArrayList[parser.json.AST.KeyValue]()
     jp.nextToken()
     while (jp.currentToken() != JsonToken.END_OBJECT) {
       val keyPosOpt = posOpt(uriOpt, jp)
       val key = parser.json.AST.Str(String(jp.getText), keyPosOpt)
       jp.nextToken()
       val value = parseValue(uriOpt, jp)
-      keyValues = keyValues :+ parser.json.AST.KeyValue(key, value)
+      buf.add(parser.json.AST.KeyValue(key, value))
       jp.nextToken()
     }
+    val arr = new Array[AnyRef](buf.size)
+    buf.toArray(arr)
+    val keyValues = new IS[Z, parser.json.AST.KeyValue](Z, arr, Z.MP(buf.size), $internal.IdentityBoxer)
     parser.json.AST.Obj(keyValues, pOpt)
   }
 
   private def parseArray(uriOpt: Option[String], jp: JacksonParser): parser.json.AST.Arr = {
     val pOpt = posOpt(uriOpt, jp)
-    var values = ISZ[parser.json.AST]()
+    val buf = new java.util.ArrayList[parser.json.AST]()
     jp.nextToken()
     while (jp.currentToken() != JsonToken.END_ARRAY) {
-      values = values :+ parseValue(uriOpt, jp)
+      buf.add(parseValue(uriOpt, jp))
       jp.nextToken()
     }
+    val arr = new Array[AnyRef](buf.size)
+    buf.toArray(arr)
+    val values = new IS[Z, parser.json.AST](Z, arr, Z.MP(buf.size), $internal.IdentityBoxer)
     parser.json.AST.Arr(values, pOpt)
   }
 }

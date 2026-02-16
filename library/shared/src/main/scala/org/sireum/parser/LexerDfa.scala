@@ -27,7 +27,6 @@
 package org.sireum.parser
 
 import org.sireum._
-import org.sireum.U32._
 import org.sireum.S32._
 
 object LexerDfa {
@@ -51,9 +50,9 @@ object LexerDfas {
     */
   def create(dfas: ISZ[LexerDfa],
              names: ISZ[String],
-             types: ISZ[U32],
+             types: ISZ[Z],
              hiddens: ISZ[B],
-             eofTypeOpt: Option[U32]): LexerDfas = {
+             eofTypeOpt: Option[Z]): LexerDfas = {
     val (ad, nai) = computeDispatch(dfas)
     return LexerDfas(
       dfas = dfas,
@@ -124,13 +123,13 @@ object LexerDfas {
     * @param eofTypeOpt optional token type for the synthetic EOF token
     * @return a LexerDfas ready for lexing or serialization
     */
-  def fromDfas(dfaInfos: ISZ[(automaton.Dfa[(C, C)], String, U32, B)],
-               eofTypeOpt: Option[U32]): LexerDfas = {
+  def fromDfas(dfaInfos: ISZ[(automaton.Dfa[(C, C)], String, Z, B)],
+               eofTypeOpt: Option[Z]): LexerDfas = {
     val n = dfaInfos.size
     val defaultDfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
     val lexerDfasMs = MSZ.create[LexerDfa](n, defaultDfa)
     val namesMs = MSZ.create[String](n, "")
-    val typesMs = MSZ.create[U32](n, u32"0")
+    val typesMs = MSZ.create[Z](n, 0)
     val hiddensMs = MSZ.create[B](n, F)
     var ii: Z = 0
     while (ii < n) {
@@ -213,7 +212,7 @@ object LexerDfas {
       w.writeString(n)
     }
     for (t <- lds.types) {
-      w.writeU32(t)
+      w.writeU32(conversions.Z.toU32(t))
     }
     for (h <- lds.hiddens) {
       w.writeB(h)
@@ -221,7 +220,7 @@ object LexerDfas {
     lds.eofTypeOpt match {
       case Some(eofType) =>
         w.writeB(T)
-        w.writeU32(eofType)
+        w.writeU32(conversions.Z.toU32(eofType))
       case _ =>
         w.writeB(F)
     }
@@ -273,10 +272,10 @@ object LexerDfas {
       ni = ni + 1
     }
 
-    val typesMs = MSZ.create[U32](numDfas, u32"0")
+    val typesMs = MSZ.create[Z](numDfas, 0)
     var ui: Z = 0
     while (ui < numDfas) {
-      typesMs(ui) = r.readU32()
+      typesMs(ui) = conversions.U32.toZ(r.readU32())
       ui = ui + 1
     }
 
@@ -288,7 +287,7 @@ object LexerDfas {
     }
 
     val hasEof = r.readB()
-    val eofTypeOpt: Option[U32] = if (hasEof) Some(r.readU32()) else None()
+    val eofTypeOpt: Option[Z] = if (hasEof) Some(conversions.U32.toZ(r.readU32())) else None()
 
     return create(
       dfas = lexerDfasMs.toIS,
@@ -331,9 +330,9 @@ object LexerDfas {
 @datatype class LexerDfas(
   val dfas: ISZ[LexerDfa],
   val names: ISZ[String],
-  val types: ISZ[U32],
+  val types: ISZ[Z],
   val hiddens: ISZ[B],
-  val eofTypeOpt: Option[U32],
+  val eofTypeOpt: Option[Z],
   val asciiDispatch: ISZ[ISZ[Z]],
   val nonAsciiIndices: ISZ[Z]
 ) {
@@ -439,7 +438,7 @@ object LexerDfas {
     *         or the position of the first unlexable character on failure
     */
   def tokens(chars: Indexable.PosC, skipHidden: B): (Z, ISZ[Token]) = {
-    val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = u32"0", isHidden = F, posOpt = None())
+    val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = 0, isHidden = F, posOpt = None())
     var buf: MIStack[Token] = MIStack.create[Token](defaultToken, 256, 2)
     var i: Z = 0
     while (chars.has(i)) {
@@ -511,12 +510,12 @@ object LexerDfas {
         si = si + 1
       }
       dfaSTs = dfaSTs :+
-        st"""DFA ${names(di)} (type=${conversions.U32.toZ(types(di))}, hidden=${hiddens(di)}):
+        st"""DFA ${names(di)} (type=${types(di)}, hidden=${hiddens(di)}):
             |  ${(transSTs, "\n")}"""
       di = di + 1
     }
     val eofST: ST = eofTypeOpt match {
-      case Some(t) => st"EOF type: ${conversions.U32.toZ(t)}"
+      case Some(t) => st"EOF type: $t"
       case _ => st"No EOF"
     }
     return st"""LexerDfas:
