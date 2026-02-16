@@ -26,8 +26,11 @@ package org.sireum.lang.optimizer;
 
 import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
+import org.objectweb.asm.util.CheckClassAdapter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -56,30 +59,29 @@ import java.util.*;
  * <h2>Pass 2: Z local variable unboxing (escape analysis)</h2>
  * For each method:
  * <ol>
- *   <li>Identifies local variables of type Z</li>
+ *   <li>Identifies local variables of type Z (excluding method parameters)</li>
  *   <li>Performs escape analysis: a Z local "escapes" if it is passed as an
  *       argument to a method that expects Z (except recognized Z arithmetic/comparison
  *       methods), stored to a field, returned, or used in any other non-local way</li>
- *   <li>For non-escaping Z locals, rewrites:
- *     <ul>
- *       <li>ASTORE/ALOAD → LSTORE/LLOAD (reference → long)</li>
- *       <li>Z.MP$.apply(long) → identity (the long is already on stack)</li>
- *       <li>Z.toLong() / Z.toInt() → identity / L2I</li>
- *     </ul>
- *   </li>
+ *   <li>For non-escaping Z locals, remaps ASTORE/ALOAD to LSTORE/LLOAD at new
+ *       slots (avoiding slot size conflicts), eliminates boxing at stores, and
+ *       re-boxes at load sites that need a Z reference</li>
  * </ol>
+ * Pass 2 requires COMPUTE_FRAMES (local types change from reference to long).
+ * If frame computation fails for a class, it falls back to Pass 1 only.
  */
 public class ZUnboxer {
 
     // Internal names
     static final String Z_TYPE = "org/sireum/Z";
+    static final String Z_COMP = "org/sireum/Z$";          // Z companion object
     static final String Z_MP = "org/sireum/Z$MP$";
     static final String Z_MP_LONG = "org/sireum/Z$MP$Long";
     static final String Z_DESC = "L" + Z_TYPE + ";";
     static final String IS_TYPE = "org/sireum/IS";
     static final String MS_TYPE = "org/sireum/MS";
 
-    // Z.MP$ singleton field
+    // Singleton MODULE$ field (used by both Z$ and Z$MP$)
     static final String Z_MP_MODULE = "MODULE$";
 
     // Z.MP$.apply(long) → Z
@@ -118,11 +120,37 @@ public class ZUnboxer {
     static final String MATH_TYPE = "java/lang/Math";
     static final String EXACT_LL_TO_L = "(JJ)J";
 
+    // Static dispatch descriptors: (long, long) → Z or boolean
+    static final String LL_TO_Z = "(JJ)" + Z_DESC;
+    static final String LL_TO_B = "(JJ)Z";
+
+    // Internal name of this class (for INVOKESTATIC to our static helper methods)
+    static final String ZUNBOXER_TYPE = "org/sireum/lang/optimizer/ZUnboxer";
+
     // Z binary operations that have (scala.Long) overloads
     static final Set<String> Z_BIN_OPS = new HashSet<>(Arrays.asList(
             "$plus", "$minus", "$times", "$div", "$percent",
             "$greater", "$greater$eq", "$less", "$less$eq"
     ));
+
+    // Map from Scala operator name → static Java method name in ZUnboxer
+    static final Map<String, String> Z_STATIC_OPS = new HashMap<>();
+    static {
+        Z_STATIC_OPS.put("$plus", "zAdd");
+        Z_STATIC_OPS.put("$minus", "zSub");
+        Z_STATIC_OPS.put("$times", "zMul");
+        Z_STATIC_OPS.put("$div", "zDiv");
+        Z_STATIC_OPS.put("$percent", "zRem");
+        Z_STATIC_OPS.put("$greater", "zGt");
+        Z_STATIC_OPS.put("$greater$eq", "zGe");
+        Z_STATIC_OPS.put("$less", "zLt");
+        Z_STATIC_OPS.put("$less$eq", "zLe");
+    }
+
+    // classifyZUse return values
+    static final int USE_OPTIMIZABLE = 0;   // No re-boxing needed
+    static final int USE_NEEDS_REBOX = 1;   // Safe to unbox but may need re-boxing at use site
+    static final int USE_ESCAPES = 2;       // Cannot unbox — value escapes
 
     private final boolean verbose;
 
@@ -171,37 +199,102 @@ public class ZUnboxer {
         byte[] transformed = transformClassBytes(original);
         if (transformed != null) {
             Files.write(classFile, transformed);
-            int count = 0;
-            // Re-count by comparing (simple proxy: if transformed != null, at least 1)
-            // Actually let's return from transformClassBytes
-            return 1; // Approximate; actual count tracked internally
+            return 1;
         }
         return 0;
     }
 
     /**
      * Transform class bytes. Returns null if no transformation was needed.
+     *
+     * Strategy:
+     * 1. Try both Pass 1 and Pass 2. Pass 2 requires COMPUTE_FRAMES (local types change).
+     * 2. If COMPUTE_FRAMES fails (e.g., class hierarchy resolution issue), fall back to
+     *    re-reading the class and applying Pass 1 only with COMPUTE_MAXS.
      */
     public byte[] transformClassBytes(byte[] classBytes) {
+        // Try with both passes
+        try {
+            byte[] result = doTransform(classBytes, true);
+            if (result != null) return result;
+        } catch (Exception e) {
+            // Pass 2 caused frame computation error — fall back to Pass 1 only
+            if (verbose) {
+                System.err.println("ZUnboxer: Pass 2 frame error, falling back to Pass 1: " + e.getMessage());
+            }
+        }
+
+        // Fall back: Pass 1 only (re-read class from original bytes)
+        return doTransform(classBytes, false);
+    }
+
+    /**
+     * Internal transform implementation.
+     *
+     * @param classBytes original class bytes
+     * @param enablePass2 whether to run Pass 2 (escape analysis)
+     * @return transformed bytes, or null if no changes
+     */
+    private byte[] doTransform(byte[] classBytes, boolean enablePass2) {
         ClassReader cr = new ClassReader(classBytes);
         ClassNode cn = new ClassNode();
         cr.accept(cn, 0);
 
         boolean changed = false;
         for (MethodNode mn : cn.methods) {
-            if (transformMethod(cn.name, mn)) {
-                changed = true;
-            }
+            boolean[] result = transformMethod(cn.name, mn, enablePass2);
+            if (result[0]) changed = true;
         }
 
         if (!changed) return null;
 
-        // COMPUTE_MAXS only — Pass 1 doesn't change local variable types, so original frames
-        // are still valid. COMPUTE_FRAMES would require class hierarchy resolution which may
-        // fail when classes aren't on the current classloader's classpath.
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+        // Strip all frame nodes — COMPUTE_FRAMES recomputes from scratch.
+        for (MethodNode mn : cn.methods) {
+            Iterator<AbstractInsnNode> it = mn.instructions.iterator();
+            while (it.hasNext()) {
+                if (it.next() instanceof FrameNode) {
+                    it.remove();
+                }
+            }
+        }
+
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES) {
+            @Override
+            protected String getCommonSuperClass(String type1, String type2) {
+                if ("java/lang/Object".equals(type1) || "java/lang/Object".equals(type2)) {
+                    return "java/lang/Object";
+                }
+                try {
+                    return super.getCommonSuperClass(type1, type2);
+                } catch (Exception e) {
+                    return "java/lang/Object";
+                }
+            }
+        };
         cn.accept(cw);
-        return cw.toByteArray();
+        byte[] result = cw.toByteArray();
+
+        // Verify the transformed bytecode — if ASM produced bad frames,
+        // fall back to original bytes (return null).
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        try {
+            CheckClassAdapter.verify(new ClassReader(result), false, pw);
+        } catch (Exception e) {
+            if (verbose) {
+                System.err.println("ZUnboxer: verify threw for " + cn.name + ": " + e.getMessage());
+            }
+            return null;
+        }
+        String verifyErrors = sw.toString();
+        if (!verifyErrors.isEmpty()) {
+            if (verbose) {
+                System.err.println("ZUnboxer: verify failed for " + cn.name + ":\n" + verifyErrors);
+            }
+            return null;
+        }
+
+        return result;
     }
 
     /**
@@ -210,16 +303,16 @@ public class ZUnboxer {
      *   1. Peephole: rewrite z.op(Z.apply(literal)) → z.op(literal) using Long overloads
      *   2. Escape analysis: unbox non-escaping Z locals to primitive long
      *
-     * @return true if the method was modified
+     * @param enablePass2 whether to run Pass 2
+     * @return boolean[2]: [0] = any change made, [1] = (unused, reserved)
      */
-    boolean transformMethod(String className, MethodNode mn) {
-        if (mn.instructions.size() == 0) return false;
-
-        boolean changed = false;
+    boolean[] transformMethod(String className, MethodNode mn, boolean enablePass2) {
+        boolean[] result = {false, false};
+        if (mn.instructions.size() == 0) return result;
 
         // Pass 1: Peephole literal argument unboxing (no escape analysis needed)
         if (rewriteLiteralArgs(mn)) {
-            changed = true;
+            result[0] = true;
             if (verbose) {
                 System.out.println("  " + className + "." + mn.name + mn.desc +
                         ": rewrote Z literal args to use Long overloads");
@@ -227,19 +320,24 @@ public class ZUnboxer {
         }
 
         // Pass 2: Z local variable unboxing (escape analysis)
-        // TODO: disabled — remapping reference locals to long locals causes COMPUTE_FRAMES errors.
-        // The frame merger can't handle the type change at control flow merge points.
-        // Needs a more sophisticated approach (e.g., rewriting at a higher level or using
-        // COMPUTE_MAXS only with manually computed frames).
-        if (false) {
+        if (enablePass2) {
             Map<Integer, LocalInfo> zLocals = findZLocals(mn);
             if (!zLocals.isEmpty()) {
                 markEscapingLocals(mn, zLocals);
 
                 Set<Integer> unboxable = new HashSet<>();
                 for (Map.Entry<Integer, LocalInfo> entry : zLocals.entrySet()) {
-                    if (!entry.getValue().escapes) {
-                        unboxable.add(entry.getKey());
+                    LocalInfo info = entry.getValue();
+                    if (!info.escapes) {
+                        // Cost heuristic: only unbox if saves at stores outweigh re-boxing at loads.
+                        // Each store saves one Z allocation; each rebox load adds one Z allocation.
+                        if (info.reboxCount <= info.stores.size()) {
+                            unboxable.add(entry.getKey());
+                        } else if (verbose) {
+                            System.out.println("  " + className + "." + mn.name + mn.desc +
+                                    ": skipping slot " + entry.getKey() +
+                                    " (stores=" + info.stores.size() + " rebox=" + info.reboxCount + ")");
+                        }
                     }
                 }
 
@@ -249,13 +347,13 @@ public class ZUnboxer {
                                 ": unboxing Z locals " + unboxable);
                     }
                     if (rewriteInstructions(mn, unboxable)) {
-                        changed = true;
+                        result[0] = true;
                     }
                 }
             }
         }
 
-        return changed;
+        return result;
     }
 
     /**
@@ -289,11 +387,11 @@ public class ZUnboxer {
         for (AbstractInsnNode insn = insns.getFirst(); insn != null; ) {
             AbstractInsnNode next = insn.getNext();
 
-            // Look for INVOKEVIRTUAL Z.op(Lorg/sireum/Z;)... where op is a binary Z op
+            // Look for Z.op(Lorg/sireum/Z;)... where op is a binary Z op
+            // Z is a Scala trait → may be INVOKEVIRTUAL or INVOKEINTERFACE
             if (insn instanceof MethodInsnNode) {
                 MethodInsnNode call = (MethodInsnNode) insn;
-                if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
-                        isZType(call.owner) &&
+                if (isZInstanceCall(call) &&
                         Z_BIN_OPS.contains(call.name)) {
 
                     boolean isArith = Z_TO_Z.equals(call.desc);
@@ -315,22 +413,24 @@ public class ZUnboxer {
                                     if (getstatic instanceof FieldInsnNode) {
                                         FieldInsnNode field = (FieldInsnNode) getstatic;
                                         if (field.getOpcode() == Opcodes.GETSTATIC &&
-                                                Z_MP.equals(field.owner) && Z_MP_MODULE.equals(field.name)) {
+                                                Z_MP_MODULE.equals(field.name) &&
+                                                (Z_MP.equals(field.owner) || Z_COMP.equals(field.owner))) {
 
                                             // Remove GETSTATIC and boxing call
                                             insns.remove(getstatic);
                                             insns.remove(boxCall);
 
                                             if (isIntApply) {
-                                                // Convert int to long: insert I2L after the int push
-                                                insns.insert(valuePush, new InsnNode(Opcodes.I2L));
+                                                // Replace int push with long push (avoids ICONST+I2L
+                                                // two-instruction sequence that complicates Pass 2 matching)
+                                                insns.set(valuePush, intPushToLongPush(valuePush));
                                             }
 
                                             // Change the op call descriptor from (Z)Z/(Z)boolean to (J)Z/(J)boolean
                                             String newDesc = isArith ? L_TO_Z : L_TO_B;
                                             insns.set(insn, new MethodInsnNode(
-                                                    Opcodes.INVOKEVIRTUAL, call.owner, call.name,
-                                                    newDesc, false));
+                                                    call.getOpcode(), call.owner, call.name,
+                                                    newDesc, call.itf));
 
                                             changed = true;
                                             // Restart from beginning (conservative — instructions were removed)
@@ -357,6 +457,8 @@ public class ZUnboxer {
     static class LocalInfo {
         final int slot;
         boolean escapes;
+        /** Number of load sites that would require re-boxing (receiver of Z method, IS/MS.apply arg) */
+        int reboxCount;
         /** Set of instruction indices where this local is stored */
         final Set<AbstractInsnNode> stores = new HashSet<>();
         /** Set of instruction indices where this local is loaded */
@@ -365,6 +467,7 @@ public class ZUnboxer {
         LocalInfo(int slot) {
             this.slot = slot;
             this.escapes = false;
+            this.reboxCount = 0;
         }
     }
 
@@ -443,9 +546,13 @@ public class ZUnboxer {
                     continue;
                 }
 
-                if (!isSafeZUse(next, load, mn, zLocals)) {
+                int safety = classifyZUse(next, load, mn, zLocals);
+                if (safety == USE_ESCAPES) {
                     info.escapes = true;
+                } else if (safety == USE_NEEDS_REBOX) {
+                    info.reboxCount++;
                 }
+                // USE_OPTIMIZABLE: no cost — toLong/toInt/long-overload-arg/astore
             }
         }
 
@@ -472,51 +579,92 @@ public class ZUnboxer {
     }
 
     /**
-     * Check if using a Z local at this point is "safe" (doesn't cause escape).
-     * Safe uses:
-     * - Z arithmetic: z.$plus(Z), z.$minus(Z), z.$times(Z), z.increase, z.decrease
-     * - Z arithmetic with long: z.$plus(long), z.$minus(long)
-     * - Z comparison: z.$less(Z), z.$greater(Z), z.$less$eq(Z), z.$greater$eq(Z)
-     * - Z comparison with long: z.$less(long), etc.
-     * - Z.toLong, Z.toInt (extraction)
-     * - IS.apply(Z) / MS.apply(Z) (array indexing)
-     * - Being stored back to the same or another unboxable Z local
-     * - Z.MP$.$plus(Z, Z), etc. (static dispatch — the scalac plugin rewrites z.op(Z.apply(lit)) to z.op(long))
+     * Classify how a Z local is used at this point.
+     * Returns USE_OPTIMIZABLE, USE_NEEDS_REBOX, or USE_ESCAPES.
+     *
+     * Safe uses (USE_OPTIMIZABLE — no re-boxing needed at rewrite time):
+     * - As argument of Z instance method: z.op(thisLocal) — will use long overload
+     * - Z.toLong, Z.toInt extraction
+     * - Stored to another unboxable Z local
+     * - As receiver of Z.op(long): thisLocal.op(long) — will use Z.MP$ static dispatch
+     * - As receiver of Z.op(Z) where arg is another ALOAD — may optimize to Z.MP$(JJ)
+     *
+     * Safe uses (USE_NEEDS_REBOX — safe to unbox but needs re-boxing at use site):
+     * - IS.apply(Z) / MS.apply(Z) — array indexing
+     * - As receiver/argument in patterns we can't optimize to (JJ) at rewrite time
+     *
+     * Unsafe uses (USE_ESCAPES — cannot unbox):
+     * - Passed to unknown method, returned, stored to field, etc.
      */
-    boolean isSafeZUse(AbstractInsnNode next, VarInsnNode load, MethodNode mn,
-                       Map<Integer, LocalInfo> zLocals) {
-        // Case 1: INVOKEVIRTUAL on Z — instance method call
+    int classifyZUse(AbstractInsnNode next, VarInsnNode load, MethodNode mn,
+                     Map<Integer, LocalInfo> zLocals) {
+        // Case 1: next instruction IS a method call — z is the last argument (or sole receiver)
         if (next instanceof MethodInsnNode) {
             MethodInsnNode call = (MethodInsnNode) next;
 
-            // Z instance methods
-            if (call.getOpcode() == Opcodes.INVOKEVIRTUAL && isZType(call.owner)) {
-                return isRecognizedZInstanceMethod(call);
+            // Z instance methods (z is argument position)
+            if (isZInstanceCall(call)) {
+                return isRecognizedZInstanceMethod(call) ? USE_OPTIMIZABLE : USE_ESCAPES;
             }
 
-            // Z.MP$ static methods (Z, Z) → Z or (Z, Z) → boolean
+            // Z.MP$ methods
             if (call.getOpcode() == Opcodes.INVOKEVIRTUAL && Z_MP.equals(call.owner)) {
-                return isRecognizedZMPMethod(call);
+                return isRecognizedZMPMethod(call) ? USE_OPTIMIZABLE : USE_ESCAPES;
             }
 
-            // IS/MS.apply(Z) — array indexing
-            if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
+            // IS/MS.apply(Z) — array indexing (needs re-boxing)
+            if ((call.getOpcode() == Opcodes.INVOKEVIRTUAL || call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
                     (IS_TYPE.equals(call.owner) || MS_TYPE.equals(call.owner)) &&
                     "apply".equals(call.name)) {
-                return true;
+                return USE_NEEDS_REBOX;
+            }
+            return USE_ESCAPES;
+        }
+
+        // Case 2: stored to another unboxable Z local
+        if (next.getOpcode() == Opcodes.ASTORE) {
+            VarInsnNode store = (VarInsnNode) next;
+            return zLocals.containsKey(store.var) ? USE_OPTIMIZABLE : USE_ESCAPES;
+        }
+
+        // Case 3: z is the receiver — ALOAD z → <long push> → Z.op(J)Z/B
+        if (isLongPush(next)) {
+            AbstractInsnNode afterArg = nextSignificant(next);
+            if (afterArg instanceof MethodInsnNode) {
+                MethodInsnNode call = (MethodInsnNode) afterArg;
+                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name) &&
+                        (L_TO_Z.equals(call.desc) || L_TO_B.equals(call.desc))) {
+                    return USE_OPTIMIZABLE;
+                }
             }
         }
 
-        // Case 2: The loaded Z is immediately stored to another Z local
-        if (next.getOpcode() == Opcodes.ASTORE) {
-            VarInsnNode store = (VarInsnNode) next;
-            return zLocals.containsKey(store.var);
+        // Case 4: z is the receiver — ALOAD z → ALOAD z2 → Z.op(Z/J)Z/B
+        if (next.getOpcode() == Opcodes.ALOAD) {
+            AbstractInsnNode afterArg = nextSignificant(next);
+            if (afterArg instanceof MethodInsnNode) {
+                MethodInsnNode call = (MethodInsnNode) afterArg;
+                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                    if (Z_TO_Z.equals(call.desc) || Z_TO_B.equals(call.desc) ||
+                            L_TO_Z.equals(call.desc) || L_TO_B.equals(call.desc)) {
+                        return USE_NEEDS_REBOX; // may optimize to (JJ) if arg is also unboxable
+                    }
+                }
+            }
         }
 
-        // Case 3: Z is a second argument to a Z.MP$ method (loaded after the first Z arg)
-        // This is tricky — we'd need data flow analysis. For now, be conservative.
+        // Case 5: z is the receiver, arg is a boxing sequence (pre-Pass-1 pattern)
+        // ALOAD z → GETSTATIC Z$MP$.MODULE$ (or Z$.MODULE$) → <push> → apply(I/J)Z → Z.op(Z)Z
+        if (next instanceof FieldInsnNode) {
+            FieldInsnNode field = (FieldInsnNode) next;
+            if (field.getOpcode() == Opcodes.GETSTATIC &&
+                    Z_MP_MODULE.equals(field.name) &&
+                    (Z_MP.equals(field.owner) || Z_COMP.equals(field.owner))) {
+                return USE_NEEDS_REBOX; // Pass 1 will simplify this, then Pass 2 can optimize
+            }
+        }
 
-        return false;
+        return USE_ESCAPES;
     }
 
     boolean isRecognizedZInstanceMethod(MethodInsnNode call) {
@@ -560,15 +708,17 @@ public class ZUnboxer {
 
     boolean isRecognizedZMPMethod(MethodInsnNode call) {
         String name = call.name;
-        // Z.MP$.$plus, $minus, etc. (Z, Z) → Z
+        // Z.MP$.$plus, $minus, etc. (Z, Z) → Z, (Z, long) → Z, (long, long) → Z
         if ("$plus".equals(name) || "$minus".equals(name) || "$times".equals(name) ||
                 "$div".equals(name) || "$percent".equals(name)) {
-            if (ZZ_TO_Z.equals(call.desc) || ZL_TO_Z.equals(call.desc)) return true;
+            if (ZZ_TO_Z.equals(call.desc) || ZL_TO_Z.equals(call.desc) ||
+                    LL_TO_Z.equals(call.desc)) return true;
         }
-        // Comparisons
+        // Comparisons: (Z, Z) → B, (Z, long) → B, (long, long) → B
         if ("$greater".equals(name) || "$less".equals(name) ||
                 "$greater$eq".equals(name) || "$less$eq".equals(name)) {
-            if (ZZ_TO_B.equals(call.desc) || ZL_TO_B.equals(call.desc)) return true;
+            if (ZZ_TO_B.equals(call.desc) || ZL_TO_B.equals(call.desc) ||
+                    LL_TO_B.equals(call.desc)) return true;
         }
         if ("isEqual".equals(name)) return true;
         return false;
@@ -582,15 +732,14 @@ public class ZUnboxer {
      * 1. Z.MP$.apply(long) → ASTORE zLocal  becomes  LSTORE zLocal
      *    (the long is already on stack from the apply argument; we remove the apply call)
      *
-     * 2. ALOAD zLocal → INVOKEVIRTUAL Z.$plus(Z) → ASTORE zLocal
-     *    becomes  LLOAD zLocal → [box other if needed] → INVOKESTATIC Math.addExact(long,long) → LSTORE zLocal
-     *    with overflow fallback that re-boxes and calls Z.MP$.$plus(Z,Z)
-     *
-     * 3. ALOAD zLocal → INVOKEVIRTUAL Z.toLong()
+     * 2. ALOAD zLocal → INVOKEVIRTUAL Z.toLong()
      *    becomes  LLOAD zLocal (long already on stack)
      *
-     * 4. ALOAD zLocal → IS.apply(Z)
-     *    becomes  LLOAD zLocal → L2I → IS.apply(int)
+     * 3. ALOAD zLocal → INVOKEVIRTUAL Z.toInt()
+     *    becomes  LLOAD zLocal → L2I
+     *
+     * 4. ALOAD zLocal → [any other use]
+     *    becomes  LLOAD zLocal → [re-box to Z] → [original use]
      */
     boolean rewriteInstructions(MethodNode mn, Set<Integer> unboxable) {
         boolean changed = false;
@@ -615,40 +764,42 @@ public class ZUnboxer {
                 Integer newSlot = slotRemap.get(store.var);
                 if (newSlot != null) {
                     // The value on stack should be a Z reference.
-                    // We need to unbox it: call Z.toLong()
-                    // But first check if the previous instruction is Z.MP$.apply(long) —
+                    // Check if the previous instruction is Z.MP$.apply(long) —
                     // in that case we can eliminate the apply entirely.
                     AbstractInsnNode prev = previousSignificant(insn);
                     if (prev instanceof MethodInsnNode) {
                         MethodInsnNode prevCall = (MethodInsnNode) prev;
                         if (isZBoxingCall(prevCall)) {
-                            // Z.MP$.apply(long) — remove boxing, long stays on stack
+                            boolean isIntApply = ("(I)" + Z_DESC).equals(prevCall.desc);
+                            // Remove boxing (GETSTATIC + apply), raw value stays on stack
                             removeZBoxingSequence(insns, prevCall);
+                            if (isIntApply) {
+                                // apply(I)Z left an int on the stack; convert to long for LSTORE
+                                insns.insertBefore(insn, new InsnNode(Opcodes.I2L));
+                            }
                             // Replace ASTORE with LSTORE
                             insns.set(insn, new VarInsnNode(Opcodes.LSTORE, newSlot));
                             changed = true;
-                            next = insns.getFirst(); // restart scan (conservative)
-                            insn = next;
+                            insn = insns.getFirst(); // restart scan
                             continue;
                         } else if (isZArithmeticResult(prevCall)) {
-                            // Result of Z arithmetic — it returns Z, we need toLong
-                            // Insert Z.toLong() before the LSTORE
+                            // Result of Z arithmetic — it returns Z, cast to Z$MP$Long and extract
+                            insns.insertBefore(insn, new TypeInsnNode(Opcodes.CHECKCAST, Z_MP_LONG));
                             insns.insertBefore(insn, new MethodInsnNode(
-                                    Opcodes.INVOKEVIRTUAL, Z_TYPE, "toLong", TO_LONG_DESC, false));
+                                    Opcodes.INVOKEVIRTUAL, Z_MP_LONG, "toLong", TO_LONG_DESC, false));
                             insns.set(insn, new VarInsnNode(Opcodes.LSTORE, newSlot));
                             changed = true;
-                            next = insns.getFirst();
-                            insn = next;
+                            insn = insns.getFirst();
                             continue;
                         }
                     }
-                    // General case: Z ref on stack → call toLong → LSTORE
+                    // General case: Z ref on stack → cast to Z$MP$Long → toLong → LSTORE
+                    insns.insertBefore(insn, new TypeInsnNode(Opcodes.CHECKCAST, Z_MP_LONG));
                     insns.insertBefore(insn, new MethodInsnNode(
-                            Opcodes.INVOKEVIRTUAL, Z_TYPE, "toLong", TO_LONG_DESC, false));
+                            Opcodes.INVOKEVIRTUAL, Z_MP_LONG, "toLong", TO_LONG_DESC, false));
                     insns.set(insn, new VarInsnNode(Opcodes.LSTORE, newSlot));
                     changed = true;
-                    next = insns.getFirst();
-                    insn = next;
+                    insn = insns.getFirst();
                     continue;
                 }
             }
@@ -664,45 +815,123 @@ public class ZUnboxer {
                         MethodInsnNode call = (MethodInsnNode) usage;
 
                         // Z.toLong() — just load the long directly
-                        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
-                                isZType(call.owner) && "toLong".equals(call.name) &&
+                        if (isZInstanceCall(call) && "toLong".equals(call.name) &&
                                 TO_LONG_DESC.equals(call.desc)) {
                             insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
                             insns.remove(usage); // remove the toLong call
                             changed = true;
-                            next = insns.getFirst();
-                            insn = next;
+                            insn = insns.getFirst();
                             continue;
                         }
 
                         // Z.toInt() — load long, L2I
-                        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
-                                isZType(call.owner) && "toInt".equals(call.name) &&
+                        if (isZInstanceCall(call) && "toInt".equals(call.name) &&
                                 "()I".equals(call.desc)) {
                             insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
                             insns.set(usage, new InsnNode(Opcodes.L2I));
                             changed = true;
-                            next = insns.getFirst();
-                            insn = next;
+                            insn = insns.getFirst();
                             continue;
                         }
 
-                        // Z instance arithmetic: z.$plus(long) — already optimized by scalac plugin
-                        // The load puts Z ref; we need to rebox for the call since we can't
-                        // easily rewrite the entire call chain.
-                        // For now: LLOAD → box → proceed with original call
+                        // Z.op(Z)Z or Z.op(Z)boolean — unboxed local is the argument.
+                        // Use the (long) overload to avoid re-boxing.
+                        if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                            if (Z_TO_Z.equals(call.desc)) {
+                                insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                insns.set(usage, new MethodInsnNode(
+                                        call.getOpcode(), call.owner, call.name, L_TO_Z, call.itf));
+                                changed = true;
+                                insn = insns.getFirst();
+                                continue;
+                            }
+                            if (Z_TO_B.equals(call.desc)) {
+                                insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                insns.set(usage, new MethodInsnNode(
+                                        call.getOpcode(), call.owner, call.name, L_TO_B, call.itf));
+                                changed = true;
+                                insn = insns.getFirst();
+                                continue;
+                            }
+                        }
                     }
 
-                    // Default: re-box the long back to Z for any use we don't optimize
-                    // LLOAD newSlot → INVOKESTATIC Z.MP$.apply(long) → (original code sees Z ref)
-                    insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
-                    // Insert boxing after the LLOAD
-                    InsnList boxing = createBoxingSequence();
-                    AbstractInsnNode boxingLast = boxing.getLast();
-                    insns.insert(insn, boxing);
+                    // Receiver case A: ALOAD z (unboxable) → <long push> → Z.op(J)Z/B
+                    // Rewrite to: LLOAD z_long → <long push> → INVOKESTATIC ZUnboxer.zOp(JJ)Z/B
+                    if (usage != null && isLongPush(usage)) {
+                        AbstractInsnNode afterArg = nextSignificant(usage);
+                        if (afterArg instanceof MethodInsnNode) {
+                            MethodInsnNode call = (MethodInsnNode) afterArg;
+                            if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                                String staticName = Z_STATIC_OPS.get(call.name);
+                                if (staticName != null && L_TO_Z.equals(call.desc)) {
+                                    insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                    insns.set(afterArg, new MethodInsnNode(
+                                            Opcodes.INVOKESTATIC, ZUNBOXER_TYPE, staticName, LL_TO_Z, false));
+                                    changed = true;
+                                    insn = insns.getFirst();
+                                    continue;
+                                }
+                                if (staticName != null && L_TO_B.equals(call.desc)) {
+                                    insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                    insns.set(afterArg, new MethodInsnNode(
+                                            Opcodes.INVOKESTATIC, ZUNBOXER_TYPE, staticName, LL_TO_B, false));
+                                    changed = true;
+                                    insn = insns.getFirst();
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    // Receiver case B: ALOAD z1 (unboxable) → ALOAD z2 (unboxable) → Z.op(Z)Z/B
+                    // Both operands are unboxable: LLOAD z1 → LLOAD z2 → INVOKESTATIC ZUnboxer.zOp(JJ)Z/B
+                    if (usage != null && usage.getOpcode() == Opcodes.ALOAD) {
+                        VarInsnNode argLoad = (VarInsnNode) usage;
+                        Integer argNewSlot = slotRemap.get(argLoad.var);
+                        if (argNewSlot != null) {
+                            AbstractInsnNode afterArg = nextSignificant(usage);
+                            if (afterArg instanceof MethodInsnNode) {
+                                MethodInsnNode call = (MethodInsnNode) afterArg;
+                                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                                    String staticName = Z_STATIC_OPS.get(call.name);
+                                    if (staticName != null && Z_TO_Z.equals(call.desc)) {
+                                        insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                        insns.set(usage, new VarInsnNode(Opcodes.LLOAD, argNewSlot));
+                                        insns.set(afterArg, new MethodInsnNode(
+                                                Opcodes.INVOKESTATIC, ZUNBOXER_TYPE, staticName, LL_TO_Z, false));
+                                        changed = true;
+                                        insn = insns.getFirst();
+                                        continue;
+                                    }
+                                    if (staticName != null && Z_TO_B.equals(call.desc)) {
+                                        insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                        insns.set(usage, new VarInsnNode(Opcodes.LLOAD, argNewSlot));
+                                        insns.set(afterArg, new MethodInsnNode(
+                                                Opcodes.INVOKESTATIC, ZUNBOXER_TYPE, staticName, LL_TO_B, false));
+                                        changed = true;
+                                        insn = insns.getFirst();
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Default: re-box the long back to Z$MP$Long for any use we don't optimize
+                    // NEW + DUP before LLOAD so objectref is under long for <init>(J)V
+                    TypeInsnNode newInsn = new TypeInsnNode(Opcodes.NEW, Z_MP_LONG);
+                    insns.set(insn, newInsn);
+                    InsnList tail = new InsnList();
+                    tail.add(new InsnNode(Opcodes.DUP));
+                    tail.add(new VarInsnNode(Opcodes.LLOAD, newSlot));
+                    tail.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, Z_MP_LONG, "<init>",
+                            Z_MP_LONG_INIT_DESC, false));
+                    AbstractInsnNode tailLast = tail.getLast();
+                    insns.insert(newInsn, tail);
                     changed = true;
-                    // Skip past the newly inserted boxing instructions
-                    insn = boxingLast.getNext();
+                    // Skip past the newly inserted instructions
+                    insn = tailLast.getNext();
                     continue;
                 }
             }
@@ -726,20 +955,14 @@ public class ZUnboxer {
     }
 
     /**
-     * Check if a method call is Z.MP$.apply(long) or new Z$MP$Long(long) — boxing a long to Z.
+     * Check if a method call boxes an int/long to Z.
+     * Matches both Z$MP$.apply(I/J)Z and Z$.apply(I/J)Z (the Z companion).
      */
     boolean isZBoxingCall(MethodInsnNode call) {
-        // Z.MP$.apply(long): INVOKEVIRTUAL org/sireum/Z$MP$.apply (J)Lorg/sireum/Z;
-        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
-                Z_MP.equals(call.owner) && "apply".equals(call.name) &&
-                MP_APPLY_DESC.equals(call.desc)) {
-            return true;
-        }
-        // Z.MP$.apply(int): INVOKEVIRTUAL org/sireum/Z$MP$.apply (I)Lorg/sireum/Z;
-        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
-                Z_MP.equals(call.owner) && "apply".equals(call.name) &&
-                ("(I)" + Z_DESC).equals(call.desc)) {
-            return true;
+        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL && "apply".equals(call.name)) {
+            if (Z_MP.equals(call.owner) || Z_COMP.equals(call.owner)) {
+                return MP_APPLY_DESC.equals(call.desc) || ("(I)" + Z_DESC).equals(call.desc);
+            }
         }
         return false;
     }
@@ -758,55 +981,31 @@ public class ZUnboxer {
     }
 
     /**
-     * Remove the Z boxing sequence: GETSTATIC Z$MP$.MODULE$ → [long push] → INVOKEVIRTUAL apply(J)Z.
-     * After removal, only the long value remains on the stack.
+     * Remove the Z boxing sequence: GETSTATIC (Z$MP$ or Z$).MODULE$ → [value push] → apply(I/J)Z.
+     * After removal, only the int/long value remains on the stack.
      */
     void removeZBoxingSequence(InsnList insns, MethodInsnNode applyCall) {
-        // Save the predecessor before removing (getPrevious still valid on removed node)
         AbstractInsnNode scan = applyCall.getPrevious();
         insns.remove(applyCall);
 
-        // Scan backwards for the nearest GETSTATIC Z$MP$.MODULE$
+        // Scan backwards for the nearest GETSTATIC MODULE$ (Z$MP$ or Z$)
         for (AbstractInsnNode node = previousSignificant(scan); node != null; node = previousSignificant(node)) {
             if (node instanceof FieldInsnNode) {
                 FieldInsnNode field = (FieldInsnNode) node;
                 if (field.getOpcode() == Opcodes.GETSTATIC &&
-                        Z_MP.equals(field.owner) && Z_MP_MODULE.equals(field.name)) {
+                        Z_MP_MODULE.equals(field.name) &&
+                        (Z_MP.equals(field.owner) || Z_COMP.equals(field.owner))) {
                     insns.remove(field);
                     return;
                 }
             }
-            // Don't scan too far back — the GETSTATIC should be within a few instructions
+            // Don't scan too far back
             if (node.getOpcode() == Opcodes.ASTORE || node.getOpcode() == Opcodes.LSTORE ||
                     node.getOpcode() == Opcodes.ISTORE || node.getOpcode() == Opcodes.RETURN ||
-                    node instanceof LabelNode || node instanceof JumpInsnNode) {
+                    node instanceof JumpInsnNode) {
                 break;
             }
         }
-        // If we didn't find it, that's unusual but not fatal — the GETSTATIC ref will be
-        // on the stack and the COMPUTE_FRAMES will handle it (though it may cause a verifier error).
-        // In practice this shouldn't happen.
-    }
-
-    /**
-     * Create an instruction sequence that boxes a long on the stack to Z.
-     * Stack: ..., long(cat-2) → ..., Z_ref(cat-1)
-     *
-     * Uses GETSTATIC + DUP_X2 + POP to get the singleton ref under the long:
-     *   GETSTATIC Z$MP$.MODULE$   → ..., long(2), ref(1)
-     *   DUP_X2                    → ..., ref(1), long(2), ref(1)
-     *   POP                       → ..., ref(1), long(2)
-     *   INVOKEVIRTUAL apply(J)Z   → ..., Z_ref
-     */
-    InsnList createBoxingSequence() {
-        InsnList list = new InsnList();
-        list.add(new FieldInsnNode(Opcodes.GETSTATIC, Z_MP, Z_MP_MODULE,
-                "L" + Z_MP + ";"));
-        list.add(new InsnNode(Opcodes.DUP_X2));
-        list.add(new InsnNode(Opcodes.POP));
-        list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Z_MP, "apply",
-                MP_APPLY_DESC, false));
-        return list;
     }
 
     /**
@@ -826,6 +1025,52 @@ public class ZUnboxer {
     boolean isZLocalLoad(AbstractInsnNode insn, Map<Integer, LocalInfo> zLocals) {
         if (insn.getOpcode() == Opcodes.ALOAD) {
             return zLocals.containsKey(((VarInsnNode) insn).var);
+        }
+        return false;
+    }
+
+    /**
+     * Convert an int-pushing instruction to a long-pushing instruction.
+     * ICONST_0 → LCONST_0, ICONST_1 → LCONST_1, other → LDC (long value).
+     */
+    static AbstractInsnNode intPushToLongPush(AbstractInsnNode intPush) {
+        long value;
+        switch (intPush.getOpcode()) {
+            case Opcodes.ICONST_M1: value = -1L; break;
+            case Opcodes.ICONST_0: return new InsnNode(Opcodes.LCONST_0);
+            case Opcodes.ICONST_1: return new InsnNode(Opcodes.LCONST_1);
+            case Opcodes.ICONST_2: value = 2L; break;
+            case Opcodes.ICONST_3: value = 3L; break;
+            case Opcodes.ICONST_4: value = 4L; break;
+            case Opcodes.ICONST_5: value = 5L; break;
+            case Opcodes.BIPUSH: value = ((IntInsnNode) intPush).operand; break;
+            case Opcodes.SIPUSH: value = ((IntInsnNode) intPush).operand; break;
+            case Opcodes.LDC:
+                value = ((Number) ((LdcInsnNode) intPush).cst).longValue(); break;
+            default:
+                // Fallback: keep original and insert I2L after (caller handles)
+                return intPush;
+        }
+        return new LdcInsnNode(value);
+    }
+
+    /**
+     * Check if a method call is a Z instance method call (INVOKEVIRTUAL or INVOKEINTERFACE).
+     * Z is a Scala trait (Java interface), so Z instance methods may use either opcode.
+     */
+    static boolean isZInstanceCall(MethodInsnNode call) {
+        return (call.getOpcode() == Opcodes.INVOKEVIRTUAL || call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
+                isZType(call.owner);
+    }
+
+    /**
+     * Check if an instruction pushes a long value onto the stack.
+     */
+    static boolean isLongPush(AbstractInsnNode insn) {
+        int op = insn.getOpcode();
+        if (op == Opcodes.LCONST_0 || op == Opcodes.LCONST_1 || op == Opcodes.LLOAD) return true;
+        if (op == Opcodes.LDC) {
+            return ((LdcInsnNode) insn).cst instanceof Long;
         }
         return false;
     }
@@ -861,6 +1106,76 @@ public class ZUnboxer {
         }
         return next;
     }
+
+    // ========================================================================
+    // Static Z operations: (long, long) → Z or boolean
+    //
+    // Called via INVOKESTATIC by the bytecode optimizer, avoiding the
+    // Z$MP$ MODULE$ singleton indirection. The fast path (no overflow)
+    // constructs Z$MP$Long directly. The rare overflow path delegates
+    // to the Scala Z$MP$ methods (MODULE$ overhead is irrelevant there).
+    // ========================================================================
+
+    private static org.sireum.Z bigInt(java.math.BigInteger v) {
+        return new org.sireum.Z$MP$BigInt(new scala.math.BigInt(v));
+    }
+
+    /** Z addition: n1 + n2 with overflow check. */
+    public static org.sireum.Z zAdd(long n1, long n2) {
+        long r = n1 + n2;
+        if (((n1 ^ r) & (n2 ^ r)) >= 0L)
+            return new org.sireum.Z$MP$Long(r);
+        return bigInt(java.math.BigInteger.valueOf(n1).add(java.math.BigInteger.valueOf(n2)));
+    }
+
+    /** Z subtraction: n1 - n2 with overflow check. */
+    public static org.sireum.Z zSub(long n1, long n2) {
+        long r = n1 - n2;
+        if (((n1 ^ n2) & (n1 ^ r)) >= 0L)
+            return new org.sireum.Z$MP$Long(r);
+        return bigInt(java.math.BigInteger.valueOf(n1).subtract(java.math.BigInteger.valueOf(n2)));
+    }
+
+    /** Z multiplication: n1 * n2 with overflow check. */
+    public static org.sireum.Z zMul(long n1, long n2) {
+        long r = n1 * n2;
+        if (r == 0L) return new org.sireum.Z$MP$Long(0L);
+        boolean upgrade = false;
+        if (n2 > n1) {
+            if (((n2 == -1L) && (n1 == Long.MIN_VALUE)) || (r / n2 != n1))
+                upgrade = true;
+        } else {
+            if (((n1 == -1L) && (n2 == Long.MIN_VALUE)) || (r / n1 != n2))
+                upgrade = true;
+        }
+        if (!upgrade) return new org.sireum.Z$MP$Long(r);
+        return bigInt(java.math.BigInteger.valueOf(n1).multiply(java.math.BigInteger.valueOf(n2)));
+    }
+
+    /** Z division: n1 / n2 (only overflows for Long.MIN_VALUE / -1). */
+    public static org.sireum.Z zDiv(long n1, long n2) {
+        long r = n1 / n2;
+        if (!((n1 == Long.MIN_VALUE) && (n2 == -1L)))
+            return new org.sireum.Z$MP$Long(r);
+        return bigInt(java.math.BigInteger.valueOf(n1).divide(java.math.BigInteger.valueOf(n2)));
+    }
+
+    /** Z remainder: n1 % n2 (never overflows for long). */
+    public static org.sireum.Z zRem(long n1, long n2) {
+        return new org.sireum.Z$MP$Long(n1 % n2);
+    }
+
+    /** Z greater-than: n1 > n2. */
+    public static boolean zGt(long n1, long n2) { return n1 > n2; }
+
+    /** Z greater-or-equal: n1 >= n2. */
+    public static boolean zGe(long n1, long n2) { return n1 >= n2; }
+
+    /** Z less-than: n1 < n2. */
+    public static boolean zLt(long n1, long n2) { return n1 < n2; }
+
+    /** Z less-or-equal: n1 <= n2. */
+    public static boolean zLe(long n1, long n2) { return n1 <= n2; }
 
     /**
      * Entry point for command-line usage.

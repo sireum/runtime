@@ -99,16 +99,27 @@ object Z extends $ZCompanion[Z] {
 
     @inline def +(n: Z, other: Z): Z = {
       (n, other) match {
-        case (Long(n1), Long(n2)) =>
-          val r = n1 + n2
-          if (((n1 ^ r) & (n2 ^ r)) >= 0L)
-            return Long(r)
+        case (Long(n1), Long(n2)) => return n1._value + n2._value
         case (_: Z, _: Z) =>
       }
       BigInt(n.toBigInt + other.toBigInt)
     }
 
+    @inline def +(n1: scala.Long, n2: scala.Long): Z = {
+      val r = n1 + n2
+      if (((n1 ^ r) & (n2 ^ r)) >= 0L)
+        return Long(r)
+      BigInt(scala.BigInt(n1) + scala.BigInt(n2))
+    }
+
     @inline def -(n: Z, other: Z): Z = this.+(n, -other)
+
+    @inline def -(n1: scala.Long, n2: scala.Long): Z = {
+      val r = n1 - n2
+      if (((n1 ^ n2) & (n1 ^ r)) >= 0L)
+        return Long(r)
+      BigInt(scala.BigInt(n1) - scala.BigInt(n2))
+    }
 
     @inline def *(n: Z, other: Z): Z = {
       (n, other) match {
@@ -129,6 +140,21 @@ object Z extends $ZCompanion[Z] {
       BigInt(n.toBigInt * other.toBigInt)
     }
 
+    @inline def *(n1: scala.Long, n2: scala.Long): Z = {
+      val r = n1 * n2
+      if (r == 0) return zero
+      var upgrade = false
+      if (n2 > n1) {
+        if (((n2 == -1) && (n1 == scala.Long.MinValue)) || (r / n2 != n1))
+          upgrade = true
+      } else {
+        if (((n1 == -1) && (n2 == scala.Long.MinValue)) || (r / n1 != n2))
+          upgrade = true
+      }
+      if (!upgrade) return Long(r)
+      BigInt(scala.BigInt(n1) * scala.BigInt(n2))
+    }
+
     @inline def /(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) =>
@@ -140,6 +166,13 @@ object Z extends $ZCompanion[Z] {
       BigInt(n.toBigInt / other.toBigInt).pack
     }
 
+    @inline def /(n1: scala.Long, n2: scala.Long): Z = {
+      val r = n1 / n2
+      if (!((n1 == scala.Long.MinValue) && (n2 == -1)))
+        return Long(r)
+      BigInt(scala.BigInt(n1) / scala.BigInt(n2)).pack
+    }
+
     @inline def %(n: Z, other: Z): Z = {
       (n, other) match {
         case (Long(n1), Long(n2)) => return Long(n1 % n2)
@@ -148,25 +181,35 @@ object Z extends $ZCompanion[Z] {
       BigInt(n.toBigInt % other.toBigInt).pack
     }
 
+    @inline def %(n1: scala.Long, n2: scala.Long): Z = Long(n1 % n2)
+
     @inline def >(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 > n2
       case (_: Z, _: Z) => n.toBigInt > other.toBigInt
     }
+
+    @inline def >(n1: scala.Long, n2: scala.Long): B = n1 > n2
 
     @inline def >=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 >= n2
       case (_: Z, _: Z) => n.toBigInt >= other.toBigInt
     }
 
+    @inline def >=(n1: scala.Long, n2: scala.Long): B = n1 >= n2
+
     @inline def <(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 < n2
       case (_: Z, _: Z) => n.toBigInt < other.toBigInt
     }
 
+    @inline def <(n1: scala.Long, n2: scala.Long): B = n1 < n2
+
     @inline def <=(n: Z, other: Z): B = (n, other) match {
       case (Long(n1), Long(n2)) => n1 <= n2
       case (_: Z, _: Z) => n.toBigInt <= other.toBigInt
     }
+
+    @inline def <=(n1: scala.Long, n2: scala.Long): B = n1 <= n2
 
     @inline def isEqual(n: Z, other: Z): B = (n, other) match {
       case (n: Long, other: Long) => n.value == other.value
