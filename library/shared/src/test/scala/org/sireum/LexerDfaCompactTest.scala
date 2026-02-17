@@ -46,6 +46,9 @@ class LexerDfaCompactTest extends TestSuite {
     IS[S32, IS[S32, LexerDfa.Transition]](args: _*)
   def t(lo: C, hi: C, target: scala.Int): LexerDfa.Transition =
     LexerDfa.Transition(lo = lo, hi = hi, target = S32(target))
+  def dfaArr(args: LexerDfa*): IS[S32, LexerDfa] = IS[S32, LexerDfa](args: _*)
+  def strArr(args: String*): IS[S32, String] = IS[S32, String](args: _*)
+  def typeArr(args: scala.Int*): IS[S32, S32] = IS[S32, S32](args.map(S32(_)): _*)
 
   val tests = Tests {
 
@@ -54,10 +57,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Empty LexerDfas (no DFAs, no EOF)
     * - {
       val lds = LexerDfas.create(
-        dfas = ISZ(),
-        names = ISZ(),
-        types = ISZ(),
-        hiddens = ISZ(),
+        dfas = dfaArr(),
+        names = strArr(),
+        types = typeArr(),
+        hiddens = bools(),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -71,10 +74,10 @@ class LexerDfaCompactTest extends TestSuite {
         transitions = transRows(trans())
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("EMPTY"),
-        types = ISZ(Z(0)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("EMPTY"),
+        types = typeArr(0),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -91,10 +94,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("LOWER"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("LOWER"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -112,10 +115,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ALNUM"),
-        types = ISZ(Z(2)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ALNUM"),
+        types = typeArr(2),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -139,10 +142,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa1, dfa2),
-        names = ISZ("ID", "NUM"),
-        types = ISZ(Z(1), Z(2)),
-        hiddens = ISZ(F, F),
+        dfas = dfaArr(dfa1, dfa2),
+        names = strArr("ID", "NUM"),
+        types = typeArr(1, 2),
+        hiddens = bools(F, F),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -167,10 +170,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa1, dfa2),
-        names = ISZ("A", "BC"),
-        types = ISZ(Z(1), Z(2)),
-        hiddens = ISZ(F, F),
+        dfas = dfaArr(dfa1, dfa2),
+        names = strArr("A", "BC"),
+        types = typeArr(1, 2),
+        hiddens = bools(F, F),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -187,11 +190,11 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
-        eofTypeOpt = Some(Z(99))
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
+        eofTypeOpt = Some(S32(99))
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
       assert(decoded == lds)
@@ -207,10 +210,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("WS"),
-        types = ISZ(Z(0)),
-        hiddens = ISZ(T),
+        dfas = dfaArr(dfa),
+        names = strArr("WS"),
+        types = typeArr(0),
+        hiddens = bools(T),
         eofTypeOpt = None()
       )
       val decoded = LexerDfas.fromCompact(lds.toCompact)
@@ -224,10 +227,10 @@ class LexerDfaCompactTest extends TestSuite {
         transitions = transRows(trans())
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("TOK"),
-        types = ISZ(Z(0)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("TOK"),
+        types = typeArr(0),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val rendered = lds.toCompactST.render
@@ -247,11 +250,11 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
-        eofTypeOpt = Some(Z(0))
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
+        eofTypeOpt = Some(S32(0))
       )
       val rendered = lds.toST.render
       assert(ops.StringOps(rendered).contains("LexerDfas"))
@@ -279,14 +282,14 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = Some(Z(0))
       )
       assert(lds.dfas.size == 1)
-      assert(lds.names == ISZ(String("LOWER")))
-      assert(lds.types == ISZ(Z(1)))
-      assert(lds.hiddens == ISZ(F))
-      assert(lds.eofTypeOpt == Some(Z(0)))
-      assert(!lds.dfas(0).accepting(S32(0)))
-      assert(lds.dfas(0).accepting(S32(1)))
-      assert(lds.dfas(0).transitions(S32(0)).size == 1)
-      assert(lds.dfas(0).transitions(S32(1)).size == 0)
+      assert(lds.names == strArr("LOWER"))
+      assert(lds.types == typeArr(1))
+      assert(lds.hiddens == bools(F))
+      assert(lds.eofTypeOpt == Some(S32(0)))
+      assert(!lds.dfas(S32(0)).accepting(S32(0)))
+      assert(lds.dfas(S32(0)).accepting(S32(1)))
+      assert(lds.dfas(S32(0)).transitions(S32(0)).size == 1)
+      assert(lds.dfas(S32(0)).transitions(S32(1)).size == 0)
       // Compact roundtrip
       val decoded = LexerDfas.fromCompact(lds.toCompact)
       assert(decoded == lds)
@@ -315,8 +318,8 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       assert(lds.dfas.size == 2)
-      assert(lds.dfas(0).accepting.size == 2)
-      assert(lds.dfas(1).accepting.size == 3)
+      assert(lds.dfas(S32(0)).accepting.size == 2)
+      assert(lds.dfas(S32(1)).accepting.size == 3)
       // Compact roundtrip
       val decoded = LexerDfas.fromCompact(lds.toCompact)
       assert(decoded == lds)
@@ -334,10 +337,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val result = lds.lex(toInput("hello"), z"0")
@@ -358,10 +361,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("LOWER"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("LOWER"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       assert(lds.lex(toInput("123"), z"0").isEmpty)
@@ -386,10 +389,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa1, dfa2),
-        names = ISZ("LETTER", "WORD"),
-        types = ISZ(Z(1), Z(2)),
-        hiddens = ISZ(F, F),
+        dfas = dfaArr(dfa1, dfa2),
+        names = strArr("LETTER", "WORD"),
+        types = typeArr(1, 2),
+        hiddens = bools(F, F),
         eofTypeOpt = None()
       )
       val result = lds.lex(toInput("abc"), z"0")
@@ -419,11 +422,11 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(idDfa, wsDfa),
-        names = ISZ("ID", "WS"),
-        types = ISZ(Z(1), Z(2)),
-        hiddens = ISZ(F, T),
-        eofTypeOpt = Some(Z(0))
+        dfas = dfaArr(idDfa, wsDfa),
+        names = strArr("ID", "WS"),
+        types = typeArr(1, 2),
+        hiddens = bools(F, T),
+        eofTypeOpt = Some(S32(0))
       )
       val (errIdx, toks) = lds.tokens(toInput("abc def"), T)
       assert(errIdx == -1)
@@ -454,10 +457,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(idDfa, wsDfa),
-        names = ISZ("ID", "WS"),
-        types = ISZ(Z(1), Z(2)),
-        hiddens = ISZ(F, T),
+        dfas = dfaArr(idDfa, wsDfa),
+        names = strArr("ID", "WS"),
+        types = typeArr(1, 2),
+        hiddens = bools(F, T),
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput("a b"), F)
@@ -480,10 +483,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput("abc!def"), F)
@@ -502,11 +505,11 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
-        eofTypeOpt = Some(Z(0))
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
+        eofTypeOpt = Some(S32(0))
       )
       val (errIdx, toks) = lds.tokens(toInput(""), F)
       assert(errIdx == -1)
@@ -525,10 +528,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput(""), F)
@@ -563,10 +566,10 @@ class LexerDfaCompactTest extends TestSuite {
         transitions = IS[S32, IS[S32, LexerDfa.Transition]]()
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("EMPTY"),
-        types = ISZ(Z(0)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("EMPTY"),
+        types = typeArr(0),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       assert(lds.runDfa(dfa, toInput("abc"), z"0") == -1)
@@ -582,10 +585,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       // Initial state accepts, then keeps matching
@@ -606,10 +609,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ALPHA_DIGIT"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ALPHA_DIGIT"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       // "a1" matches fully
@@ -628,10 +631,10 @@ class LexerDfaCompactTest extends TestSuite {
         )
       )
       val lds = LexerDfas.create(
-        dfas = ISZ(dfa),
-        names = ISZ("ID"),
-        types = ISZ(Z(1)),
-        hiddens = ISZ(F),
+        dfas = dfaArr(dfa),
+        names = strArr("ID"),
+        types = typeArr(1),
+        hiddens = bools(F),
         eofTypeOpt = None()
       )
       val rendered = lds.toST.render
