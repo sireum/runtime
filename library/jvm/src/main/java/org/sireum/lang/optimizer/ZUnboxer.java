@@ -148,6 +148,10 @@ public class ZUnboxer {
     static final String LL_TO_Z = "(JJ)" + Z_DESC;
     static final String LL_TO_B = "(JJ)Z";
 
+    // Static dispatch descriptors: (long, Z) → Z or boolean
+    static final String LZ_TO_Z = "(J" + Z_DESC + ")" + Z_DESC;
+    static final String LZ_TO_B = "(J" + Z_DESC + ")Z";
+
     // Internal name of this class (for INVOKESTATIC to our static helper methods)
     static final String ZUNBOXER_TYPE = "org/sireum/lang/optimizer/ZUnboxer";
 
@@ -863,6 +867,40 @@ public class ZUnboxer {
             }
         }
 
+        // Receiver case A: ALOAD z → <long push> → Z.op(J)Z/B
+        // z is the receiver, next is a long push, the instruction after is a Z binary op.
+        // The rewrite phase handles this: LLOAD z → <long push> → INVOKESTATIC zOp(JJ)Z/B
+        if (next != null && isLongPush(next)) {
+            AbstractInsnNode afterArg = nextSignificant(next);
+            if (afterArg instanceof MethodInsnNode) {
+                MethodInsnNode call = (MethodInsnNode) afterArg;
+                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                    String staticName = Z_STATIC_OPS.get(call.name);
+                    if (staticName != null && (L_TO_Z.equals(call.desc) || L_TO_B.equals(call.desc))) {
+                        return USE_OPTIMIZABLE;
+                    }
+                }
+            }
+        }
+
+        // Receiver case B: ALOAD z1 → ALOAD z2 (unboxable) → Z.op(Z)Z/B
+        // Both are unboxable: rewrite to LLOAD z1 → LLOAD z2 → INVOKESTATIC zOp(JJ)Z/B
+        if (next != null && next.getOpcode() == Opcodes.ALOAD) {
+            VarInsnNode argLoad = (VarInsnNode) next;
+            if (zLocals.containsKey(argLoad.var)) {
+                AbstractInsnNode afterArg = nextSignificant(next);
+                if (afterArg instanceof MethodInsnNode) {
+                    MethodInsnNode call = (MethodInsnNode) afterArg;
+                    if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                        String staticName = Z_STATIC_OPS.get(call.name);
+                        if (staticName != null && (Z_TO_Z.equals(call.desc) || Z_TO_B.equals(call.desc))) {
+                            return USE_OPTIMIZABLE;
+                        }
+                    }
+                }
+            }
+        }
+
         // Remaining cases: defer to stack simulation (called as fallback from markEscapingLocals)
         return USE_ESCAPES;
     }
@@ -906,12 +944,97 @@ public class ZUnboxer {
     }
 
     /**
+     * Find the instruction that consumes the value loaded by the given ALOAD,
+     * and compute the argument position (0 = receiver for instance calls).
+     *
+     * @param load the ALOAD instruction whose value we're tracking
+     * @param argPosOut if non-null, receives the argument position [0] among consumed values
+     * @return the consuming instruction, or null if not found
+     */
+    AbstractInsnNode findConsumerInsn(VarInsnNode load, int[] argPosOut) {
+        int position = 0;
+        int maxDist = 30;
+        int dist = 0;
+
+        for (AbstractInsnNode insn = load.getNext(); insn != null && dist < maxDist; insn = insn.getNext()) {
+            if (insn instanceof LabelNode || insn instanceof LineNumberNode || insn instanceof FrameNode) {
+                continue;
+            }
+            dist++;
+
+            int[] effect = computeStackEffect(insn);
+            if (effect == null) {
+                return null; // branch, return, throw, or unknown — bail
+            }
+
+            int consumed = effect[0];
+            int produced = effect[1];
+
+            if (position < consumed) {
+                if (argPosOut != null) {
+                    argPosOut[0] = consumed - 1 - position;
+                }
+                return insn;
+            }
+
+            position = position - consumed + produced;
+        }
+
+        return null;
+    }
+
+    /**
+     * Compute the set of labels that are branch targets (jump destinations or exception
+     * handler entries) in a method. Used to check if ALOAD→LLOAD replacement is safe
+     * (no merge points between the load and consumer that would see different stack widths).
+     */
+    static Set<LabelNode> computeBranchTargets(MethodNode mn) {
+        Set<LabelNode> targets = new HashSet<>();
+        for (AbstractInsnNode insn = mn.instructions.getFirst(); insn != null; insn = insn.getNext()) {
+            if (insn instanceof JumpInsnNode) {
+                targets.add(((JumpInsnNode) insn).label);
+            } else if (insn instanceof TableSwitchInsnNode) {
+                TableSwitchInsnNode ts = (TableSwitchInsnNode) insn;
+                targets.add(ts.dflt);
+                targets.addAll(ts.labels);
+            } else if (insn instanceof LookupSwitchInsnNode) {
+                LookupSwitchInsnNode ls = (LookupSwitchInsnNode) insn;
+                targets.add(ls.dflt);
+                targets.addAll(ls.labels);
+            }
+        }
+        if (mn.tryCatchBlocks != null) {
+            for (TryCatchBlockNode tcb : mn.tryCatchBlocks) {
+                targets.add(tcb.handler);
+            }
+        }
+        return targets;
+    }
+
+    /**
+     * Check if any branch target label exists between two instructions (exclusive).
+     * If so, ALOAD→LLOAD replacement is unsafe because the stack width change would
+     * create inconsistent stack states at the merge point.
+     */
+    static boolean hasBranchTargetBetween(AbstractInsnNode start, AbstractInsnNode end,
+                                          Set<LabelNode> branchTargets) {
+        for (AbstractInsnNode insn = start.getNext(); insn != null && insn != end; insn = insn.getNext()) {
+            if (insn instanceof LabelNode && branchTargets.contains(insn)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Classify a use of Z based on the consuming instruction and argument position.
      * Called from the stack simulation path (findAndClassifyConsumer), meaning the
-     * ALOAD is NOT immediately before the consuming instruction. The rewrite phase
-     * uses immediate-next-instruction matching, so patterns found here can only be
-     * handled via re-boxing. Hence this method returns USE_NEEDS_REBOX or USE_ESCAPES
-     * (never USE_OPTIMIZABLE).
+     * ALOAD is NOT immediately before the consuming instruction.
+     *
+     * For Z binary ops where our value is the receiver (argPos 0), returns USE_OPTIMIZABLE
+     * because the rewrite phase can replace ALOAD→LLOAD and the Z.op(Z) call with
+     * INVOKESTATIC zOpLZ(long, Z) — provided no branch targets exist between load and consumer
+     * (checked at rewrite time). Other cases return USE_NEEDS_REBOX or USE_ESCAPES.
      *
      * @param consumer the instruction that consumes our Z value
      * @param argPos   position among consumed values (0 = receiver for instance calls)
@@ -948,6 +1071,11 @@ public class ZUnboxer {
 
             // Z instance method — our value is the receiver (argPos 0)
             if (argPos == 0 && isZInstanceCall(call)) {
+                // Z binary op with Z argument — rewrite to INVOKESTATIC zOpLZ(long, Z)
+                if (Z_BIN_OPS.contains(call.name) && Z_STATIC_OPS.containsKey(call.name) &&
+                        (Z_TO_Z.equals(call.desc) || Z_TO_B.equals(call.desc))) {
+                    return USE_OPTIMIZABLE;
+                }
                 return isRecognizedZInstanceMethod(call) ? USE_NEEDS_REBOX : USE_ESCAPES;
             }
 
@@ -970,7 +1098,7 @@ public class ZUnboxer {
             if (INDEXABLE_TYPES.contains(call.owner) && argPos == 1) {
                 if (("has".equals(call.name) && INDEXABLE_HAS_DESC.equals(call.desc)) ||
                         ("at".equals(call.name) && INDEXABLE_AT_DESC.equals(call.desc))) {
-                    return USE_NEEDS_REBOX; // can't optimize via stack sim (not immediately adjacent)
+                    return USE_NEEDS_REBOX;
                 }
             }
 
@@ -1223,6 +1351,9 @@ public class ZUnboxer {
         boolean changed = false;
         InsnList insns = mn.instructions;
 
+        // Pre-compute branch targets for receiver case C safety check
+        Set<LabelNode> branchTargets = computeBranchTargets(mn);
+
         // Allocate new slot indices for long locals (each takes 2 slots)
         // We remap each unboxable Z local to a new slot at the end of the frame
         int nextSlot = mn.maxLocals;
@@ -1442,6 +1573,42 @@ public class ZUnboxer {
                         }
                     }
 
+                    // Receiver case C: ALOAD z (unboxable) → [intervening insns] → Z.op(Z)Z/B
+                    // z is the receiver, argument computed by intervening instructions.
+                    // Use stack simulation to find the consumer. Replace ALOAD→LLOAD and
+                    // Z.op(Z)→INVOKESTATIC zOpLZ(J,Z). Safe only if no branch targets between.
+                    {
+                        int[] argPosOut = new int[1];
+                        AbstractInsnNode consumer = findConsumerInsn(load, argPosOut);
+                        if (consumer instanceof MethodInsnNode && argPosOut[0] == 0) {
+                            MethodInsnNode call = (MethodInsnNode) consumer;
+                            if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
+                                String staticName = Z_STATIC_OPS.get(call.name);
+                                if (staticName != null &&
+                                        !hasBranchTargetBetween(insn, consumer, branchTargets)) {
+                                    if (Z_TO_Z.equals(call.desc)) {
+                                        insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                        insns.set(consumer, new MethodInsnNode(
+                                                Opcodes.INVOKESTATIC, ZUNBOXER_TYPE,
+                                                staticName + "LZ", LZ_TO_Z, false));
+                                        changed = true;
+                                        insn = insns.getFirst();
+                                        continue;
+                                    }
+                                    if (Z_TO_B.equals(call.desc)) {
+                                        insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                                        insns.set(consumer, new MethodInsnNode(
+                                                Opcodes.INVOKESTATIC, ZUNBOXER_TYPE,
+                                                staticName + "LZ", LZ_TO_B, false));
+                                        changed = true;
+                                        insn = insns.getFirst();
+                                        continue;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     // Default: re-box the long back to Z$MP$Long for any use we don't optimize
                     // NEW + DUP before LLOAD so objectref is under long for <init>(J)V
                     TypeInsnNode newInsn = new TypeInsnNode(Opcodes.NEW, Z_MP_LONG);
@@ -1461,6 +1628,41 @@ public class ZUnboxer {
             }
 
             insn = next;
+        }
+
+        // Post-pass peephole: collapse INVOKESTATIC zOp(JJ)Z → CHECKCAST Z$MP$Long → toLong → LSTORE
+        // into Math.xxxExact(JJ)J → LSTORE, eliminating the intermediate Z$MP$Long allocation.
+        // This pattern arises when receiver case A rewrites pos = pos + 1 to
+        // LLOAD → LCONST_1 → INVOKESTATIC zAdd(JJ)Z, and the store rewrite had already
+        // inserted CHECKCAST → toLong → LSTORE.
+        for (AbstractInsnNode insn = insns.getFirst(); insn != null; ) {
+            AbstractInsnNode next2 = insn.getNext();
+            if (insn.getOpcode() == Opcodes.INVOKESTATIC && insn instanceof MethodInsnNode) {
+                MethodInsnNode call = (MethodInsnNode) insn;
+                if (ZUNBOXER_TYPE.equals(call.owner) && LL_TO_Z.equals(call.desc)) {
+                    String longOp = zStaticToLongArithOp(call.name);
+                    if (longOp != null) {
+                        AbstractInsnNode n1 = nextSignificant(insn);
+                        if (n1 != null && n1.getOpcode() == Opcodes.CHECKCAST &&
+                                Z_MP_LONG.equals(((TypeInsnNode) n1).desc)) {
+                            AbstractInsnNode n2 = nextSignificant(n1);
+                            if (n2 instanceof MethodInsnNode &&
+                                    "toLong".equals(((MethodInsnNode) n2).name) &&
+                                    TO_LONG_DESC.equals(((MethodInsnNode) n2).desc)) {
+                                // Replace zOp(JJ)Z with Math.xxxExact(JJ)J
+                                insns.set(insn, new MethodInsnNode(
+                                        Opcodes.INVOKESTATIC, MATH_TYPE, longOp,
+                                        EXACT_LL_TO_L, false));
+                                insns.remove(n1); // remove CHECKCAST
+                                insns.remove(n2); // remove toLong
+                                changed = true;
+                                next2 = insns.getFirst();
+                            }
+                        }
+                    }
+                }
+            }
+            insn = next2;
         }
 
         // Update local variable table if present
@@ -1629,6 +1831,19 @@ public class ZUnboxer {
     }
 
     /**
+     * Map a ZUnboxer static helper name to the corresponding Math.xxxExact method name.
+     * Returns null for operations that can't safely use long arithmetic (div, rem).
+     */
+    static String zStaticToLongArithOp(String name) {
+        switch (name) {
+            case "zAdd": return "addExact";
+            case "zSub": return "subtractExact";
+            case "zMul": return "multiplyExact";
+            default: return null;
+        }
+    }
+
+    /**
      * Check if a type is Z or a Z subtype.
      */
     static boolean isZType(String internalName) {
@@ -1772,6 +1987,37 @@ public class ZUnboxer {
 
     /** Z less-or-equal: n1 <= n2. */
     public static boolean zLe(long n1, long n2) { return n1 <= n2; }
+
+    // --- (long, Z) helpers: receiver is unboxed long, argument is Z ---
+    // Used by receiver case C rewrite where the receiver is an unboxed local
+    // and the argument is a Z computed by intervening instructions.
+
+    /** Z addition: long + Z. */
+    public static org.sireum.Z zAddLZ(long n1, org.sireum.Z n2) { return zAdd(n1, n2.toLong()); }
+
+    /** Z subtraction: long - Z. */
+    public static org.sireum.Z zSubLZ(long n1, org.sireum.Z n2) { return zSub(n1, n2.toLong()); }
+
+    /** Z multiplication: long * Z. */
+    public static org.sireum.Z zMulLZ(long n1, org.sireum.Z n2) { return zMul(n1, n2.toLong()); }
+
+    /** Z division: long / Z. */
+    public static org.sireum.Z zDivLZ(long n1, org.sireum.Z n2) { return zDiv(n1, n2.toLong()); }
+
+    /** Z remainder: long % Z. */
+    public static org.sireum.Z zRemLZ(long n1, org.sireum.Z n2) { return zRem(n1, n2.toLong()); }
+
+    /** Z greater-than: long > Z. */
+    public static boolean zGtLZ(long n1, org.sireum.Z n2) { return n1 > n2.toLong(); }
+
+    /** Z greater-or-equal: long >= Z. */
+    public static boolean zGeLZ(long n1, org.sireum.Z n2) { return n1 >= n2.toLong(); }
+
+    /** Z less-than: long < Z. */
+    public static boolean zLtLZ(long n1, org.sireum.Z n2) { return n1 < n2.toLong(); }
+
+    /** Z less-or-equal: long <= Z. */
+    public static boolean zLeLZ(long n1, org.sireum.Z n2) { return n1 <= n2.toLong(); }
 
     /**
      * Entry point for command-line usage.
