@@ -33,38 +33,38 @@ import org.sireum.S32._
   @strictpure def toST: ST
 }
 object NElement {
-  @datatype class Str(val value: String, val num: Z) extends NElement {
+  @datatype class Str(val value: String, val num: S32) extends NElement {
     @strictpure override def toST: ST =
-      st"""NElement.Str("$value", $num)"""
+      st"""NElement.Str("$value", s32"${conversions.S32.toZ(num)}")"""
   }
-  @datatype class Ref(val isTerminal: B, val ruleName: String, val num: Z) extends NElement {
+  @datatype class Ref(val isTerminal: B, val ruleName: String, val num: S32) extends NElement {
     @strictpure override def toST: ST =
-      st"""NElement.Ref($isTerminal, "$ruleName", $num)"""
+      st"""NElement.Ref($isTerminal, "$ruleName", s32"${conversions.S32.toZ(num)}")"""
   }
 }
 @datatype trait NRule {
   @pure def name: String
-  @pure def num: Z
+  @pure def num: S32
   @pure def isSynthetic: B
   /** Returns `T` if this rule is the sentinel (unused slot marker). */
-  @strictpure def isSentinel: B = num == -1
+  @strictpure def isSentinel: B = num == s32"-1"
   @strictpure def toST: ST
 }
 object NRule {
-  @datatype class Elements(val name: String, val num: Z, val isSynthetic: B, val elements: ISZ[NElement]) extends NRule {
+  @datatype class Elements(val name: String, val num: S32, val isSynthetic: B, val elements: ISZ[NElement]) extends NRule {
     @strictpure override def toST: ST = {
       val es: ISZ[ST] = for (e <- elements) yield e.toST
-      st"""NRule.Elements(name = "$name", num = $num, isSynthetic = $isSynthetic, elements = ISZ(
+      st"""NRule.Elements(name = "$name", num = s32"${conversions.S32.toZ(num)}", isSynthetic = $isSynthetic, elements = ISZ(
           |  ${(es, ",\n")}))"""
     }
   }
-  @datatype class Alts(val name: String, val num: Z, val isSynthetic: B, val alts: ISZ[Z]) extends NRule {
+  @datatype class Alts(val name: String, val num: S32, val isSynthetic: B, val alts: IS[S32, S32]) extends NRule {
     @strictpure override def toST: ST = {
-      val as: ISZ[ST] = for (a <- alts) yield st"""$a"""
-      st"""NRule.Alts(name = "$name", num = $num, isSynthetic = $isSynthetic, alts = ISZ(${(as, ", ")}))"""
+      val as: IS[S32, ST] = for (a <- alts) yield st"""s32"${conversions.S32.toZ(a)}""""
+      st"""NRule.Alts(name = "$name", num = s32"${conversions.S32.toZ(num)}", isSynthetic = $isSynthetic, alts = IS[S32, S32](${(as, ", ")}))"""
     }
   }
-  val sentinel: NRule = Elements(name = "", num = -1, isSynthetic = F, elements = ISZ())
+  val sentinel: NRule = Elements(name = "", num = s32"-1", isSynthetic = F, elements = ISZ())
 }
 
 object NGrammar {
@@ -106,12 +106,12 @@ object NGrammar {
       case e: NElement.Str =>
         w.writeZ(0)
         w.writeString(e.value)
-        w.writeU32(conversions.Z.toU32(e.num))
+        w.writeU32(conversions.S32.toU32(e.num))
       case e: NElement.Ref =>
         w.writeZ(1)
         w.writeB(e.isTerminal)
         w.writeString(e.ruleName)
-        w.writeU32(conversions.Z.toU32(e.num))
+        w.writeU32(conversions.S32.toU32(e.num))
     }
   }
 
@@ -120,12 +120,12 @@ object NGrammar {
     tag match {
       case 0 =>
         val value = r.readString()
-        val num = conversions.U32.toZ(r.readU32())
+        val num = conversions.U32.toS32(r.readU32())
         return NElement.Str(value = value, num = num)
       case 1 =>
         val isTerminal = r.readB()
         val ruleName = r.readString()
-        val num = conversions.U32.toZ(r.readU32())
+        val num = conversions.U32.toS32(r.readU32())
         return NElement.Ref(isTerminal = isTerminal, ruleName = ruleName, num = num)
       case _ => halt(s"Invalid NElement tag: $tag")
     }
@@ -136,7 +136,7 @@ object NGrammar {
       case rule: NRule.Elements =>
         w.writeZ(0)
         w.writeString(rule.name)
-        w.writeU32(conversions.Z.toU32(rule.num))
+        w.writeU32(conversions.S32.toU32(rule.num))
         w.writeB(rule.isSynthetic)
         w.writeZ(rule.elements.size)
         for (e <- rule.elements) {
@@ -145,11 +145,11 @@ object NGrammar {
       case rule: NRule.Alts =>
         w.writeZ(1)
         w.writeString(rule.name)
-        w.writeU32(conversions.Z.toU32(rule.num))
+        w.writeU32(conversions.S32.toU32(rule.num))
         w.writeB(rule.isSynthetic)
         w.writeZ(rule.alts.size)
         for (a <- rule.alts) {
-          w.writeU32(conversions.Z.toU32(a))
+          w.writeU32(conversions.S32.toU32(a))
         }
     }
   }
@@ -159,7 +159,7 @@ object NGrammar {
     tag match {
       case 0 =>
         val name = r.readString()
-        val num = conversions.U32.toZ(r.readU32())
+        val num = conversions.U32.toS32(r.readU32())
         val isSynthetic = r.readB()
         val elemSize = r.readZ()
         var elements = ISZ[NElement]()
@@ -171,13 +171,13 @@ object NGrammar {
         return NRule.Elements(name = name, num = num, isSynthetic = isSynthetic, elements = elements)
       case 1 =>
         val name = r.readString()
-        val num = conversions.U32.toZ(r.readU32())
+        val num = conversions.U32.toS32(r.readU32())
         val isSynthetic = r.readB()
         val altsSize = r.readZ()
-        var alts = ISZ[Z]()
+        var alts = IS[S32, S32]()
         var i: Z = 0
         while (i < altsSize) {
-          alts = alts :+ conversions.U32.toZ(r.readU32())
+          alts = alts :+ conversions.U32.toS32(r.readU32())
           i = i + 1
         }
         return NRule.Alts(name = name, num = num, isSynthetic = isSynthetic, alts = alts)
@@ -187,7 +187,7 @@ object NGrammar {
 }
 
 @datatype class NGrammar(val ruleMap: IS[S32, NRule], val pt: PredictiveTable) {
-  @strictpure def k: Z = pt.k
+  @strictpure def k: S32 = pt.k
 
   /** Generates a Slang expression that programmatically constructs this [[NGrammar]].
     *
@@ -235,10 +235,10 @@ object NGrammar {
   }
 
   def parseRec(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
-    def lookahead(i: S32): ISZ[Z] = {
-      var r = ISZ[Z]()
+    def lookahead(i: S32): ISZ[S32] = {
+      var r = ISZ[S32]()
       var j: S32 = s32"0"
-      val kk: S32 = pt.kS32
+      val kk: S32 = pt.k
       while (j < kk && tokens.hasS32(i + j)) {
         val t = tokens.atS32(i + j)
         r = r :+ t.num
@@ -274,7 +274,7 @@ object NGrammar {
               return None()
             }
           } else {
-            return parseRule(conversions.Z.toS32(e.num), i)
+            return parseRule(e.num, i)
           }
       }
     }
@@ -298,23 +298,23 @@ object NGrammar {
       pt.predict(alts.num, lookahead(i)) match {
         case Some(n) =>
           if (alts.isSynthetic) {
-            return parseRule(conversions.Z.toS32(alts.alts(n)), i)
+            return parseRule(alts.alts(n), i)
           } else {
-            parseRule(conversions.Z.toS32(alts.alts(n)), i) match {
+            parseRule(alts.alts(n), i) match {
               case Some((j, trees)) => return Some((j, IS[S32, ParseTree](ParseTree.Node(trees, alts.name, alts.num))))
               case _ => return None()
             }
           }
         case _ =>
           if (alts.isSynthetic) {
-            val lastAltNum = conversions.Z.toS32(alts.alts(alts.alts.size - 1))
+            val lastAltNum = alts.alts(alts.alts.sizeS32 - s32"1")
             ruleMap.atS32(lastAltNum) match {
               case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
                 return parseElements(lastAlt, i)
               case _ =>
             }
           }
-          pt.rules.atS32(conversions.Z.toS32(alts.num)) match {
+          pt.rules.atS32(alts.num) match {
             case pn: PredictiveNode.Branch =>
               val m = pt.reverseNameMap
               var expectedTokens = ISZ[String]()
@@ -322,7 +322,7 @@ object NGrammar {
               val entriesSize: S32 = pn.entries.sizeS32
               while (ii < entriesSize) {
                 if (!pn.entries.atS32(ii).isSentinel) {
-                  expectedTokens = expectedTokens :+ m.get(conversions.S32.toZ(ii)).get
+                  expectedTokens = expectedTokens :+ m.get(ii).get
                 }
                 ii = ii + s32"1"
               }
@@ -345,7 +345,7 @@ object NGrammar {
       }
     }
 
-    val num = conversions.Z.toS32(pt.nameMap.get(ruleName).get)
+    val num = pt.nameMap.get(ruleName).get
     parseRule(num, s32"0") match {
       case Some((j, trees)) if trees.sizeS32 == s32"1" =>
         if (tokens.hasS32(j)) {
@@ -367,12 +367,12 @@ object NGrammar {
         return s32"-1"
       }
       node match {
-        case leaf: PredictiveNode.Leaf => return conversions.Z.toS32(leaf.alt)
+        case leaf: PredictiveNode.Leaf => return leaf.alt
         case branch: PredictiveNode.Branch =>
           if (!tokens.hasS32(p)) {
             return s32"-1"
           }
-          val tNum = conversions.Z.toS32(tokens.atS32(p).num)
+          val tNum = tokens.atS32(p).num
           if (tNum >= branch.entries.sizeS32) {
             return s32"-1"
           }
@@ -381,7 +381,7 @@ object NGrammar {
             return s32"-1"
           }
           child match {
-            case leaf: PredictiveNode.Leaf => return conversions.Z.toS32(leaf.alt)
+            case leaf: PredictiveNode.Leaf => return leaf.alt
             case _ => return s32"-1"
           }
       }
@@ -394,12 +394,12 @@ object NGrammar {
         return s32"-1"
       }
       node match {
-        case leaf: PredictiveNode.Leaf => return conversions.Z.toS32(leaf.alt)
+        case leaf: PredictiveNode.Leaf => return leaf.alt
         case branch0: PredictiveNode.Branch =>
           if (!tokens.hasS32(p)) {
             return s32"-1"
           }
-          val tNum0 = conversions.Z.toS32(tokens.atS32(p).num)
+          val tNum0 = tokens.atS32(p).num
           if (tNum0 >= branch0.entries.sizeS32) {
             return s32"-1"
           }
@@ -408,12 +408,12 @@ object NGrammar {
             return s32"-1"
           }
           child0 match {
-            case leaf: PredictiveNode.Leaf => return conversions.Z.toS32(leaf.alt)
+            case leaf: PredictiveNode.Leaf => return leaf.alt
             case branch1: PredictiveNode.Branch =>
               if (!tokens.hasS32(p + s32"1")) {
                 return s32"-1"
               }
-              val tNum1 = conversions.Z.toS32(tokens.atS32(p + s32"1").num)
+              val tNum1 = tokens.atS32(p + s32"1").num
               if (tNum1 >= branch1.entries.sizeS32) {
                 return s32"-1"
               }
@@ -422,7 +422,7 @@ object NGrammar {
                 return s32"-1"
               }
               child1 match {
-                case leaf: PredictiveNode.Leaf => return conversions.Z.toS32(leaf.alt)
+                case leaf: PredictiveNode.Leaf => return leaf.alt
                 case _ => return s32"-1"
               }
           }
@@ -442,13 +442,13 @@ object NGrammar {
       while (searching) {
         n match {
           case leaf: PredictiveNode.Leaf =>
-            result = conversions.Z.toS32(leaf.alt)
+            result = leaf.alt
             searching = F
           case branch: PredictiveNode.Branch =>
             if (!tokens.hasS32(i)) {
               searching = F
             } else {
-              val tNum = conversions.Z.toS32(tokens.atS32(i).num)
+              val tNum = tokens.atS32(i).num
               if (tNum >= branch.entries.sizeS32) {
                 searching = F
               } else {
@@ -466,7 +466,7 @@ object NGrammar {
       return result
     }
 
-    val kkS32: S32 = pt.kS32
+    val kkS32: S32 = pt.k
 
     def predict(ruleNum: S32, p: S32): S32 = {
       if (kkS32 == s32"1") {
@@ -483,13 +483,13 @@ object NGrammar {
 
     // Optimization 2+4: Flat tree buffer — O(1) amortized push instead of ISZ :+ O(n) copy.
     // ElementsCont stores treeStart index instead of accumulated ISZ[ParseTree].
-    val emptyLeaf: ParseTree = ParseTree.Leaf(text = "", ruleName = "", tipe = 0, isHidden = F, posOpt = None())
+    val emptyLeaf: ParseTree = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"0", isHidden = F, posOpt = None())
     var treeBuf: MStack[ParseTree] = MStack.create(emptyLeaf, s32"256", s32"2")
 
     val defaultFrame: NGrammar.ParseFrame = NGrammar.ParseFrame.AltsWrap(name = "", num = s32"0")
     var stack: MStack[NGrammar.ParseFrame] = MStack.create(defaultFrame, s32"64", s32"2")
     var pos: S32 = s32"0"
-    var enterRuleNum: S32 = conversions.Z.toS32(pt.nameMap.get(ruleName).get)
+    var enterRuleNum: S32 = pt.nameMap.get(ruleName).get
     var resultTrees: IS[S32, ParseTree] = emptyTrees
     var entering: B = T
 
@@ -509,16 +509,16 @@ object NGrammar {
         while (resolving) {
           ruleMap.atS32(enterRuleNum) match {
             case alts: NRule.Alts =>
-              val predResult = predict(conversions.Z.toS32(alts.num), pos)
+              val predResult = predict(alts.num, pos)
               if (predResult >= s32"0") {
                 if (!alts.isSynthetic) {
-                  stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = conversions.Z.toS32(alts.num)))
+                  stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))
                 }
-                enterRuleNum = conversions.Z.toS32(alts.alts(conversions.S32.toZ(predResult)))
+                enterRuleNum = alts.alts(predResult)
               } else {
                 var fallback: B = F
                 if (alts.isSynthetic) {
-                  val lastAltNum = conversions.Z.toS32(alts.alts(alts.alts.size - 1))
+                  val lastAltNum = alts.alts(alts.alts.sizeS32 - s32"1")
                   ruleMap.atS32(lastAltNum) match {
                     case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
                       resultTrees = emptyTrees
@@ -529,7 +529,7 @@ object NGrammar {
                   }
                 }
                 if (!fallback) {
-                  pt.rules.atS32(conversions.Z.toS32(alts.num)) match {
+                  pt.rules.atS32(alts.num) match {
                     case pn: PredictiveNode.Branch =>
                       val m = pt.reverseNameMap
                       var expectedTokens = ISZ[String]()
@@ -537,7 +537,7 @@ object NGrammar {
                       val entriesSize: S32 = pn.entries.sizeS32
                       while (ii < entriesSize) {
                         if (!pn.entries.atS32(ii).isSentinel) {
-                          expectedTokens = expectedTokens :+ m.get(conversions.S32.toZ(ii)).get
+                          expectedTokens = expectedTokens :+ m.get(ii).get
                         }
                         ii = ii + s32"1"
                       }
@@ -582,7 +582,7 @@ object NGrammar {
               val elemSize: S32 = elements.elements.sizeS32
               var needSubRule: B = F
               while (elemIdx < elemSize && !needSubRule) {
-                elements.elements(conversions.S32.toZ(elemIdx)) match {
+                elements.elements.atS32(elemIdx) match {
                   case e: NElement.Str =>
                     if (!tokens.hasS32(j)) {
                       reporter.error(None(), "Parser", s"Unexpected end of input, expecting '${e.value}'")
@@ -617,7 +617,7 @@ object NGrammar {
                       stack.push(NGrammar.ParseFrame.ElementsCont(
                         rule = elements, elemIdx = elemIdx + s32"1", treeStart = ec.treeStart))
                       pos = j
-                      enterRuleNum = conversions.Z.toS32(e.num)
+                      enterRuleNum = e.num
                       entering = T
                       needSubRule = T
                     }
@@ -648,7 +648,7 @@ object NGrammar {
                 }
               }
             case aw: NGrammar.ParseFrame.AltsWrap =>
-              resultTrees = IS[S32, ParseTree](ParseTree.Node(resultTrees, aw.name, conversions.S32.toZ(aw.num)))
+              resultTrees = IS[S32, ParseTree](ParseTree.Node(resultTrees, aw.name, aw.num))
           }
         }
       }

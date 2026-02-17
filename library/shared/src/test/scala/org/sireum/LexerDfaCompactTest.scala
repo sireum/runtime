@@ -348,7 +348,7 @@ class LexerDfaCompactTest extends TestSuite {
       assert(result.get._1 == S32(5))
       assert(result.get._2.text == String("hello"))
       assert(result.get._2.ruleName == String("ID"))
-      assert(result.get._2.num == Z(1))
+      assert(result.get._2.num == S32(1))
     }
 
     // Lex no match returns None
@@ -400,7 +400,7 @@ class LexerDfaCompactTest extends TestSuite {
       assert(result.get._1 == S32(3))
       assert(result.get._2.text == String("abc"))
       assert(result.get._2.ruleName == String("WORD"))
-      assert(result.get._2.num == Z(2))
+      assert(result.get._2.num == S32(2))
     }
 
     // ---- tokens ----
@@ -433,11 +433,11 @@ class LexerDfaCompactTest extends TestSuite {
       // skipHidden=T: ID("abc"), ID("def"), EOF
       assert(toks.size == 3)
       assert(toks(0).text == String("abc"))
-      assert(toks(0).num == Z(1))
+      assert(toks(0).num == S32(1))
       assert(toks(1).text == String("def"))
-      assert(toks(1).num == Z(1))
+      assert(toks(1).num == S32(1))
       assert(toks(2).text == String(""))
-      assert(toks(2).num == Z(0))
+      assert(toks(2).num == S32(0))
     }
 
     // Tokens: skipHidden=F includes hidden tokens
@@ -515,7 +515,7 @@ class LexerDfaCompactTest extends TestSuite {
       assert(errIdx == S32(-1))
       assert(toks.size == 1)
       assert(toks(0).text == String(""))
-      assert(toks(0).num == Z(0))
+      assert(toks(0).num == S32(0))
     }
 
     // Tokens: empty input without EOF

@@ -441,7 +441,7 @@ object LexerDfas {
     val leaf = ParseTree.Leaf(
       text = chars.substringS32(i, bestEnd),
       ruleName = names.atS32(bestIdx),
-      tipe = conversions.S32.toZ(types.atS32(bestIdx)),
+      tipe = types.atS32(bestIdx),
       isHidden = hiddens.atS32(bestIdx),
       posOpt = chars.posOptS32(i, bestEnd - i)
     )
@@ -459,7 +459,7 @@ object LexerDfas {
     *         or the position of the first unlexable character on failure
     */
   def tokens(chars: Indexable.PosC, skipHidden: B): (S32, IS[S32, Token]) = {
-    val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = 0, isHidden = F, posOpt = None())
+    val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"0", isHidden = F, posOpt = None())
     var buf: MIStack[Token] = MIStack.create[Token](defaultToken, s32"256", s32"2")
     var i: S32 = s32"0"
     while (chars.hasS32(i)) {
@@ -478,7 +478,7 @@ object LexerDfas {
         buf.push(ParseTree.Leaf(
           text = "",
           ruleName = "EOF",
-          tipe = conversions.S32.toZ(eofType),
+          tipe = eofType,
           isHidden = F,
           posOpt = chars.posOptS32(i, s32"0")
         ))

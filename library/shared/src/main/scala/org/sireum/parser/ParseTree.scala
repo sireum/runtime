@@ -35,7 +35,7 @@ import org.sireum.message.Position
 @datatype trait ParseTree {
   @pure def ruleName: String
   @pure def toST: ST
-  @pure def tipe: Z
+  @pure def tipe: S32
   @pure def posOpt: Option[Position]
 
   override def string: String = {
@@ -47,19 +47,19 @@ object ParseTree {
 
   @datatype class Leaf(val text: String,
                        @hidden val ruleName: String,
-                       @hidden val tipe: Z,
+                       @hidden val tipe: S32,
                        @hidden val isHidden: B,
                        @hidden val posOpt: Option[Position]) extends ParseTree with Token {
     @strictpure override def toST: ST =
       if (ops.StringOps(ruleName).startsWith("'")) st""""${ops.StringOps(text).escapeST}""""
       else st"""$ruleName["${ops.StringOps(text).escapeST}"]"""
     @strictpure def toLeaf: ParseTree.Leaf = this
-    @strictpure def num: Z = tipe
+    @strictpure def num: S32 = tipe
   }
 
   @datatype class Node(val children: IS[S32, ParseTree],
                        @hidden val ruleName: String,
-                       @hidden val tipe: Z) extends ParseTree {
+                       @hidden val tipe: S32) extends ParseTree {
     @strictpure override def toST: ST =
       st"""$ruleName(
           |  ${(for (child <- children) yield child.toST, ",\n")}
@@ -113,7 +113,7 @@ object ParseTree {
   }
 
   object Node {
-    @strictpure def empty: Node = Node(IS[S32, ParseTree](), "Tree", -1)
+    @strictpure def empty: Node = Node(IS[S32, ParseTree](), "Tree", s32"-1")
   }
 
   @sig trait BinaryPrecedenceOps[Builder, T1, T2] {

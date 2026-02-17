@@ -55,13 +55,12 @@ import org.sireum.S32._
   * }}}
   *
   * @param k       the lookahead depth this table was built for
-  * @param nameMap maps rule and token names to unique Z identifiers
-  * @param rules   array-indexed from rule Z ID to its root [[PredictiveNode]] (sentinel for unused slots)
+  * @param nameMap maps rule and token names to unique S32 identifiers
+  * @param rules   array-indexed from rule S32 ID to its root [[PredictiveNode]] (sentinel for unused slots)
   */
-@datatype class PredictiveTable(val k: Z,
-                                val nameMap: HashSMap[String, Z],
+@datatype class PredictiveTable(val k: S32,
+                                val nameMap: HashSMap[String, S32],
                                 val rules: IS[S32, PredictiveNode]) {
-  @strictpure def kS32: S32 = conversions.Z.toS32(k)
 
   /** Predicts which alternative to use for the given rule and lookahead token IDs.
     *
@@ -70,23 +69,25 @@ import org.sireum.S32._
     * tokens is allowed and returns `None` if the available tokens are insufficient
     * to reach a decision.
     *
-    * @param rule   the rule's Z ID (from `nameMap`)
+    * @param rule   the rule's S32 ID (from `nameMap`)
     * @param tokens the lookahead token ID sequence (at most k tokens, each from `nameMap`)
-    * @return `Some(altIndex)` as a Z if the tokens uniquely identify an alternative,
+    * @return `Some(altIndex)` as an S32 if the tokens uniquely identify an alternative,
     *         or `None` if the rule is not found, the tokens are insufficient,
     *         or no matching entry is found.
     */
-  def predict(rule: Z, tokens: ISZ[Z]): Option[Z] = {
-    assert(tokens.size <= k, s"Expected at most $k lookahead tokens, but got ${tokens.size}")
-    val node = rules(conversions.Z.toS32(rule))
+  def predict(rule: S32, tokens: ISZ[S32]): Option[S32] = {
+    if (tokens.size > conversions.S32.toZ(k)) {
+      halt(s"Expected at most $k lookahead tokens, but got ${tokens.size}")
+    }
+    val node = rules(rule)
     if (node.isSentinel) {
       return None()
     }
-    return node.predict(tokens, 0)
+    return node.predict(tokens, s32"0")
   }
 
-  @memoize def reverseNameMap: HashSMap[Z, String] = {
-    var r = HashSMap.empty[Z, String]
+  @memoize def reverseNameMap: HashSMap[S32, String] = {
+    var r = HashSMap.empty[S32, String]
     for (p <- nameMap.entries) {
       r = r + p._2 ~> p._1
     }
@@ -102,11 +103,11 @@ import org.sireum.S32._
     */
   @strictpure def toST: ST = {
     val nameMapST: ST = if (nameMap.isEmpty) {
-      st"HashSMap.empty[String, Z]"
+      st"HashSMap.empty[String, S32]"
     } else {
       val entries: ISZ[ST] = for (e <- nameMap.entries) yield
-        st""""${e._1}" ~> ${e._2}"""
-      st"""HashSMap.empty[String, Z] +
+        st""""${e._1}" ~> s32"${conversions.S32.toZ(e._2)}""""
+      st"""HashSMap.empty[String, S32] +
           |  ${(entries, " +\n")}"""
     }
     val ruleEntries: ISZ[ST] = for (i <- s32"0" until rules.sizeS32) yield
@@ -114,7 +115,7 @@ import org.sireum.S32._
       else rules(i).toST
     val rulesST: ST = st"""ISZ[PredictiveNode](${(ruleEntries, ",\n")})"""
     st"""PredictiveTable(
-        |  $k,
+        |  s32"${conversions.S32.toZ(k)}",
         |  $nameMapST,
         |  $rulesST)"""
   }
@@ -143,7 +144,7 @@ object PredictiveTable {
     node match {
       case leaf: PredictiveNode.Leaf =>
         w.writeZ(0)
-        w.writeU32(conversions.Z.toU32(leaf.alt))
+        w.writeU32(conversions.S32.toU32(leaf.alt))
       case branch: PredictiveNode.Branch =>
         w.writeZ(1)
         val entriesSize: S32 = branch.entries.sizeS32
@@ -199,7 +200,7 @@ object PredictiveTable {
   def readPredictiveNode(r: MessagePack.Reader.Impl, numNames: Z): PredictiveNode = {
     val tag = r.readZ()
     if (tag == 0) {
-      val alt = conversions.U32.toZ(r.readU32())
+      val alt = conversions.U32.toS32(r.readU32())
       return PredictiveNode.Leaf(alt)
     } else {
       val size = r.readZ()
@@ -230,11 +231,11 @@ object PredictiveTable {
   }
 
   def writePredictiveTable(w: MessagePack.Writer.Impl, pt: PredictiveTable): Unit = {
-    w.writeZ(pt.k)
+    w.writeZ(conversions.S32.toZ(pt.k))
     w.writeZ(pt.nameMap.size)
     for (e <- pt.nameMap.entries) {
       w.writeString(e._1)
-      w.writeU32(conversions.Z.toU32(e._2))
+      w.writeU32(conversions.S32.toU32(e._2))
     }
     val rulesSize: S32 = pt.rules.sizeS32
     var count: Z = 0
@@ -258,13 +259,13 @@ object PredictiveTable {
   }
 
   def readPredictiveTable(r: MessagePack.Reader.Impl): PredictiveTable = {
-    val k = r.readZ()
+    val k = conversions.Z.toS32(r.readZ())
     val nameMapSize = r.readZ()
-    var nameMap = HashSMap.empty[String, Z]
+    var nameMap = HashSMap.empty[String, S32]
     var i: Z = 0
     while (i < nameMapSize) {
       val key = r.readString()
-      val value = conversions.U32.toZ(r.readU32())
+      val value = conversions.U32.toS32(r.readU32())
       nameMap = nameMap + key ~> value
       i = i + 1
     }
@@ -294,64 +295,63 @@ object PredictiveTable {
     *
     * @param k     the lookahead depth the table was computed with
     * @param table the flat parsing table mapping rule names to lookahead-to-alt maps
-    * @return a compact trie-based table with Z-keyed lookup
+    * @return a compact trie-based table with S32-keyed lookup
     */
   def build(k: Z, table: HashSMap[String, HashSMap[ISZ[String], Z]]): PredictiveTable = {
-    var nameMap = HashSMap.empty[String, Z]
-    var nextId: Z = 0
+    var nameMap = HashSMap.empty[String, S32]
+    var nextId: S32 = s32"0"
     for (entry <- table.entries) {
       if (!nameMap.contains(entry._1)) {
         nameMap = nameMap + entry._1 ~> nextId
-        nextId = nextId + 1
+        nextId = nextId + s32"1"
       }
       for (cell <- entry._2.entries) {
         for (token <- cell._1) {
           if (!nameMap.contains(token)) {
             nameMap = nameMap + token ~> nextId
-            nextId = nextId + 1
+            nextId = nextId + s32"1"
           }
         }
       }
     }
-    val numNames = nextId
-    val rulesMS = MS.create[S32, PredictiveNode](nameMap.size, PredictiveNode.sentinel)
+    val numNames: S32 = nextId
+    val rulesMS = MS.create[S32, PredictiveNode](conversions.S32.toZ(numNames), PredictiveNode.sentinel)
     for (entry <- table.entries) {
-      val ruleId = conversions.Z.toS32(nameMap.get(entry._1).get)
-      val idEntries: ISZ[(ISZ[Z], Z)] = for (cell <- entry._2.entries) yield
-        (for (token <- cell._1) yield nameMap.get(token).get, cell._2)
-      rulesMS(ruleId) = buildNode(idEntries, 0, numNames)
+      val ruleId = nameMap.get(entry._1).get
+      val idEntries: ISZ[(ISZ[S32], S32)] = for (cell <- entry._2.entries) yield
+        (for (token <- cell._1) yield nameMap.get(token).get, conversions.Z.toS32(cell._2))
+      rulesMS(ruleId) = buildNode(idEntries, s32"0", numNames)
     }
-    return PredictiveTable(k, nameMap, rulesMS.toIS)
+    return PredictiveTable(conversions.Z.toS32(k), nameMap, rulesMS.toIS)
   }
 
-  def buildNode(entries: ISZ[(ISZ[Z], Z)], depth: Z, numNames: Z): PredictiveNode = {
+  def buildNode(entries: ISZ[(ISZ[S32], S32)], depth: S32, numNames: S32): PredictiveNode = {
     if (entries.isEmpty) {
       return PredictiveNode.Branch(
-        entries = IS.create[S32, PredictiveNode](numNames, PredictiveNode.sentinel),
+        entries = IS.create[S32, PredictiveNode](conversions.S32.toZ(numNames), PredictiveNode.sentinel),
         defaultOpt = None())
     }
-    if (entries.size <= 1 && depth >= entries(0)._1.size) {
+    if (entries.size <= 1 && conversions.S32.toZ(depth) >= entries(0)._1.size) {
       return PredictiveNode.Leaf(entries(0)._2)
     }
-    var groups = HashSMap.empty[Z, ISZ[(ISZ[Z], Z)]]
+    var groups = HashSMap.empty[S32, ISZ[(ISZ[S32], S32)]]
     for (e <- entries) {
-      if (depth < e._1.size) {
-        val tokenId = e._1(depth)
-        val existing: ISZ[(ISZ[Z], Z)] = groups.get(tokenId) match {
+      if (conversions.S32.toZ(depth) < e._1.size) {
+        val tokenId = e._1(conversions.S32.toZ(depth))
+        val existing: ISZ[(ISZ[S32], S32)] = groups.get(tokenId) match {
           case Some(v) => v
           case _ => ISZ()
         }
         groups = groups + tokenId ~> (existing :+ e)
       }
     }
-    val numNamesS32: S32 = conversions.Z.toS32(numNames)
-    var ms = MS.create[S32, PredictiveNode](numNames, PredictiveNode.sentinel)
+    var ms = MS.create[S32, PredictiveNode](conversions.S32.toZ(numNames), PredictiveNode.sentinel)
     for (g <- groups.entries) {
-      ms(conversions.Z.toS32(g._1)) = buildNode(g._2, depth + 1, numNames)
+      ms(g._1) = buildNode(g._2, depth + s32"1", numNames)
     }
-    var altCounts = HashSMap.empty[Z, Z]
+    var altCounts = HashSMap.empty[S32, Z]
     for (g <- groups.entries) {
-      ms(conversions.Z.toS32(g._1)) match {
+      ms(g._1) match {
         case leaf: PredictiveNode.Leaf =>
           val count: Z = altCounts.get(leaf.alt) match {
             case Some(n) => n
@@ -361,7 +361,7 @@ object PredictiveTable {
         case _ =>
       }
     }
-    var maxAltOpt: Option[Z] = None()
+    var maxAltOpt: Option[S32] = None()
     var maxCount: Z = 0
     for (ac <- altCounts.entries) {
       if (ac._2 > maxCount) {
@@ -373,7 +373,7 @@ object PredictiveTable {
       val maxAlt = maxAltOpt.get
       var allDefault: B = T
       for (g <- groups.entries) {
-        ms(conversions.Z.toS32(g._1)) match {
+        ms(g._1) match {
           case leaf: PredictiveNode.Leaf =>
             if (leaf.alt != maxAlt) {
               allDefault = F
@@ -386,7 +386,7 @@ object PredictiveTable {
       } else {
         val defaultNode = PredictiveNode.Leaf(maxAlt)
         var i: S32 = s32"0"
-        while (i < numNamesS32) {
+        while (i < numNames) {
           if (ms(i).isSentinel) {
             ms(i) = defaultNode
           }
@@ -414,7 +414,7 @@ object PredictiveTable {
     * @return `Some(altIndex)` if prediction succeeds, or `None` if the tokens
     *         are exhausted before reaching a decision or no matching entry is found.
     */
-  def predict(tokens: ISZ[Z], i: Z): Option[Z]
+  def predict(tokens: ISZ[S32], i: S32): Option[S32]
 
   /** Returns `T` if this node is the sentinel (unused slot marker). */
   @strictpure def isSentinel: B
@@ -423,20 +423,20 @@ object PredictiveTable {
 }
 
 object PredictiveNode {
-  val sentinel: PredictiveNode = Leaf(-1)
+  val sentinel: PredictiveNode = Leaf(s32"-1")
 
   /** A terminal decision node that always returns the resolved alternative.
     *
     * @param alt the 0-based alternative index into the rule's alternatives
     */
-  @datatype class Leaf(val alt: Z) extends PredictiveNode {
-    override def predict(tokens: ISZ[Z], i: Z): Option[Z] = {
+  @datatype class Leaf(val alt: S32) extends PredictiveNode {
+    override def predict(tokens: ISZ[S32], i: S32): Option[S32] = {
       return Some(alt)
     }
 
-    @strictpure override def isSentinel: B = alt == -1
+    @strictpure override def isSentinel: B = alt == s32"-1"
 
-    @strictpure override def toST: ST = st"""PredictiveNode.Leaf($alt)"""
+    @strictpure override def toST: ST = st"""PredictiveNode.Leaf(s32"${conversions.S32.toZ(alt)}")"""
   }
 
   /** A branching decision node that inspects the next lookahead token ID.
@@ -450,11 +450,11 @@ object PredictiveNode {
     */
   @datatype class Branch(val entries: IS[S32, PredictiveNode],
                          val defaultOpt: Option[PredictiveNode]) extends PredictiveNode {
-    override def predict(tokens: ISZ[Z], i: Z): Option[Z] = {
-      if (i >= tokens.size) {
+    override def predict(tokens: ISZ[S32], i: S32): Option[S32] = {
+      if (conversions.S32.toZ(i) >= tokens.size) {
         return None()
       }
-      val tNum = conversions.Z.toS32(tokens(i))
+      val tNum = tokens(conversions.S32.toZ(i))
       if (tNum >= entries.sizeS32) {
         return None()
       }
@@ -462,7 +462,7 @@ object PredictiveNode {
       if (child.isSentinel) {
         return None()
       }
-      return child.predict(tokens, i + 1)
+      return child.predict(tokens, i + s32"1")
     }
 
     @strictpure override def isSentinel: B = F
