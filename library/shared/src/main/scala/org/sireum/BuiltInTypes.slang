@@ -420,6 +420,14 @@ package org.sireum
 
   @pure def size: Z
 
+  @pure def sizeS32: S32
+
+  @pure def sizeU32: U32
+
+  @pure def sizeS64: S64
+
+  @pure def sizeU64: U64
+
   @pure def firstIndex: I
 
   @pure def lastIndex: I
@@ -427,6 +435,14 @@ package org.sireum
   @pure def indices: ISZ[I]
 
   @pure def atZ(index: Z): E
+
+  @pure def atS32(index: S32): E
+
+  @pure def atU32(index: U32): E
+
+  @pure def atS64(index: S64): E
+
+  @pure def atU64(index: U64): E
 
   @pure def toMS: MS[I, E] =
     Contract.Only(
@@ -511,6 +527,14 @@ package org.sireum
 
   @pure def size: Z
 
+  @pure def sizeS32: S32
+
+  @pure def sizeU32: U32
+
+  @pure def sizeS64: S64
+
+  @pure def sizeU64: U64
+
   @pure def firstIndex: I
 
   @pure def lastIndex: I
@@ -518,6 +542,24 @@ package org.sireum
   @pure def indices: ISZ[I]
 
   @pure def atZ(index: Z): E
+
+  @pure def atS32(index: S32): E
+
+  @pure def atU32(index: U32): E
+
+  @pure def atS64(index: S64): E
+
+  @pure def atU64(index: U64): E
+
+  @pure def updateZ(index: Z, e: E): Unit
+
+  @pure def updateS32(index: S32, e: E): Unit
+
+  @pure def updateU32(index: U32, e: E): Unit
+
+  @pure def updateS64(index: S64, e: E): Unit
+
+  @pure def updateU64(index: U64, e: E): Unit
 
   @pure def toIS[@imm E2]: IS[I, E2]
 

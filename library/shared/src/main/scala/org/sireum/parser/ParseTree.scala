@@ -29,6 +29,7 @@
 package org.sireum.parser
 
 import org.sireum._
+import org.sireum.S32._
 import org.sireum.message.Position
 
 @datatype trait ParseTree {
@@ -56,7 +57,7 @@ object ParseTree {
     @strictpure def num: Z = tipe
   }
 
-  @datatype class Node(val children: ISZ[ParseTree],
+  @datatype class Node(val children: IS[S32, ParseTree],
                        @hidden val ruleName: String,
                        @hidden val tipe: Z) extends ParseTree {
     @strictpure override def toST: ST =
@@ -67,7 +68,7 @@ object ParseTree {
       if (children.isEmpty) {
         return None()
       }
-      (children(0).posOpt, children(children.size - 1).posOpt) match {
+      (children.atS32(s32"0").posOpt, children.atS32(children.sizeS32 - s32"1").posOpt) match {
         case (Some(pos1), Some(pos2)) => return Some(pos1.to(pos2))
         case (Some(pos1), _) => return Some(pos1)
         case (_, Some(pos2)) => return Some(pos2)
@@ -112,7 +113,7 @@ object ParseTree {
   }
 
   object Node {
-    @strictpure def empty: Node = Node(ISZ(), "Tree", -1)
+    @strictpure def empty: Node = Node(IS[S32, ParseTree](), "Tree", -1)
   }
 
   @sig trait BinaryPrecedenceOps[Builder, T1, T2] {

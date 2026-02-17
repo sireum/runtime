@@ -343,9 +343,9 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bools(F),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("hello"), z"0")
+      val result = lds.lex(toInput("hello"), S32(0))
       assert(result.nonEmpty)
-      assert(result.get._1 == 5)
+      assert(result.get._1 == S32(5))
       assert(result.get._2.text == String("hello"))
       assert(result.get._2.ruleName == String("ID"))
       assert(result.get._2.num == Z(1))
@@ -367,7 +367,7 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bools(F),
         eofTypeOpt = None()
       )
-      assert(lds.lex(toInput("123"), z"0").isEmpty)
+      assert(lds.lex(toInput("123"), S32(0)).isEmpty)
     }
 
     // Lex longest match across DFAs
@@ -395,9 +395,9 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bools(F, F),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("abc"), z"0")
+      val result = lds.lex(toInput("abc"), S32(0))
       assert(result.nonEmpty)
-      assert(result.get._1 == 3)
+      assert(result.get._1 == S32(3))
       assert(result.get._2.text == String("abc"))
       assert(result.get._2.ruleName == String("WORD"))
       assert(result.get._2.num == Z(2))
@@ -429,7 +429,7 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = Some(S32(0))
       )
       val (errIdx, toks) = lds.tokens(toInput("abc def"), T)
-      assert(errIdx == -1)
+      assert(errIdx == S32(-1))
       // skipHidden=T: ID("abc"), ID("def"), EOF
       assert(toks.size == 3)
       assert(toks(0).text == String("abc"))
@@ -464,7 +464,7 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput("a b"), F)
-      assert(errIdx == -1)
+      assert(errIdx == S32(-1))
       // skipHidden=F: ID("a"), WS(" "), ID("b")
       assert(toks.size == 3)
       assert(toks(0).text == String("a"))
@@ -490,7 +490,7 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput("abc!def"), F)
-      assert(errIdx == 3)
+      assert(errIdx == S32(3))
       assert(toks.size == 1)
       assert(toks(0).text == String("abc"))
     }
@@ -512,7 +512,7 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = Some(S32(0))
       )
       val (errIdx, toks) = lds.tokens(toInput(""), F)
-      assert(errIdx == -1)
+      assert(errIdx == S32(-1))
       assert(toks.size == 1)
       assert(toks(0).text == String(""))
       assert(toks(0).num == Z(0))
@@ -535,7 +535,7 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       val (errIdx, toks) = lds.tokens(toInput(""), F)
-      assert(errIdx == -1)
+      assert(errIdx == S32(-1))
       assert(toks.size == 0)
     }
 
@@ -551,9 +551,9 @@ class LexerDfaCompactTest extends TestSuite {
         dfaInfos = ISZ((dfa, "ID", Z(1), F)),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("test"), z"0")
+      val result = lds.lex(toInput("test"), S32(0))
       assert(result.nonEmpty)
-      assert(result.get._1 == 4)
+      assert(result.get._1 == S32(4))
       assert(result.get._2.text == String("test"))
     }
 
@@ -572,7 +572,7 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bools(F),
         eofTypeOpt = None()
       )
-      assert(lds.runDfa(dfa, toInput("abc"), z"0") == -1)
+      assert(lds.runDfa(dfa, toInput("abc"), S32(0)) == S32(-1))
     }
 
     // runDfa: initial state is accepting (empty match)
@@ -592,9 +592,9 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       // Initial state accepts, then keeps matching
-      assert(lds.runDfa(dfa, toInput("abc"), z"0") == 3)
+      assert(lds.runDfa(dfa, toInput("abc"), S32(0)) == S32(3))
       // Even on non-matching input, initial state still accepts at pos 0
-      assert(lds.runDfa(dfa, toInput("123"), z"0") == 0)
+      assert(lds.runDfa(dfa, toInput("123"), S32(0)) == S32(0))
     }
 
     // runDfa: transition to non-accepting state (multi-state DFA with non-accepting intermediate)
@@ -616,9 +616,9 @@ class LexerDfaCompactTest extends TestSuite {
         eofTypeOpt = None()
       )
       // "a1" matches fully
-      assert(lds.runDfa(dfa, toInput("a1"), z"0") == 2)
+      assert(lds.runDfa(dfa, toInput("a1"), S32(0)) == S32(2))
       // "ab" transitions to state 1 (non-accepting), then fails -> returns -1
-      assert(lds.runDfa(dfa, toInput("ab"), z"0") == -1)
+      assert(lds.runDfa(dfa, toInput("ab"), S32(0)) == S32(-1))
     }
 
     // toST: without EOF shows "No EOF"

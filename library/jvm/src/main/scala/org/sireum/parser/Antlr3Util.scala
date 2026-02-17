@@ -71,9 +71,10 @@ object Antlr3Util {
     override def nil(): AnyRef = Node(ListBuffer(), -1, -1)
 
     override def errorNode(input: TokenStream, start: AntlrToken, stop: AntlrToken, e: RecognitionException): AnyRef = {
-      import org.sireum._
       val name = Thread.currentThread.getStackTrace()(2).getMethodName
-      ParseTree.Node(ISZ(), s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", -1)
+      ParseTree.Node(
+        new org.sireum.IS[org.sireum.S32, ParseTree](org.sireum.S32, Array[AnyRef](), org.sireum.Z.MP(0L), org.sireum.$internal.IdentityBoxer),
+        s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", -1)
     }
 
     override def isNil(tree: Any): Boolean = halt("Infeasible")
@@ -90,7 +91,10 @@ object Antlr3Util {
       case _ =>
         val node = root.asInstanceOf[Node]
         val name = Thread.currentThread.getStackTrace()(2).getMethodName
-        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, sha3(name))
+        val arr = node.buffer.toArray.asInstanceOf[Array[AnyRef]]
+        val children = new org.sireum.IS[org.sireum.S32, ParseTree](
+          org.sireum.S32, arr, org.sireum.Z.MP(arr.length.toLong), org.sireum.$internal.IdentityBoxer)
+        ParseTree.Node(children, name, sha3(name))
     }
 
     override def getUniqueID(node: Any): Int = halt("Infeasible")

@@ -26,11 +26,14 @@
 
 package org.sireum
 
+import org.sireum.S32._
 import org.sireum.U64._
 
 @sig trait Indexable[T] {
   @pure def at(i: Z): T
   @pure def has(i: Z): B
+  @strictpure def atS32(i: S32): T = at(conversions.S32.toZ(i))
+  @strictpure def hasS32(i: S32): B = has(conversions.S32.toZ(i))
 }
 
 object Indexable {
@@ -41,9 +44,19 @@ object Indexable {
 
   @sig trait Pos[T] extends Indexable[T] {
     @pure def posOpt(offset: Z, length: Z): Option[message.Position]
+    @pure def posOptS32(offset: S32, length: S32): Option[message.Position] = {
+      return posOpt(conversions.S32.toZ(offset), conversions.S32.toZ(length))
+    }
   }
 
-  @datatype class Isz[T](val is: ISZ[T]) extends Indexable[T] {
+  @datatype class Isz[T](val is: IS[S32, T]) extends Indexable[T] {
+    @strictpure override def at(i: Z): T = is(conversions.Z.toS32(i))
+    @strictpure override def has(i: Z): B = i < is.size
+    @strictpure override def atS32(i: S32): T = is.atS32(i)
+    @strictpure override def hasS32(i: S32): B = i < is.sizeS32
+  }
+
+  @datatype class IszZ[T](val is: ISZ[T]) extends Indexable[T] {
     @strictpure override def at(i: Z): T = is(i)
     @strictpure override def has(i: Z): B = i < is.size
   }
@@ -58,6 +71,9 @@ object Indexable {
 
   @sig trait PosC extends Pos[C] {
     @pure def substring(start: Z, until: Z): String
+    @pure def substringS32(start: S32, until: S32): String = {
+      return substring(conversions.S32.toZ(start), conversions.S32.toZ(until))
+    }
   }
 
   @datatype class IszDocInfoC(val is: ISZ[C], val info: message.DocInfo) extends Indexable.PosC {
@@ -71,7 +87,9 @@ object Indexable {
     }
   }
 
-  @strictpure def fromIsz[T](is: ISZ[T]): Indexable[T] = Isz(is)
+  @strictpure def fromIs[T](is: IS[S32, T]): Indexable[T] = Isz(is)
+
+  @strictpure def fromIsz[T](is: ISZ[T]): Indexable[T] = IszZ(is)
 
   @strictpure def fromIszDocInfo[T](is: ISZ[T], info: message.DocInfo): Indexable.Pos[T] = IszDocInfo(is, info)
 

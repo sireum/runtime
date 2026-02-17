@@ -119,7 +119,9 @@ object Z_Ext {
 
   @pure def isInRangeUnsigned32(n: Z): B = 0 <= n && n <= 4294967295L
 
-  @pure def isInRangeUnsigned64(n: Z): B = 0 <= n && n <= u64Max
+  @pure def isInRangeUnsigned64(n: Z): B =
+    if (n.isInstanceOf[Z.MP.Long]) n.asInstanceOf[Z.MP.Long].value >= 0L
+    else 0 <= n && n <= u64Max
 
   @pure def toB(n: Z): B = n != Z(0)
 

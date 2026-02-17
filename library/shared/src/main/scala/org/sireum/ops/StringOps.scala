@@ -358,6 +358,7 @@ object StringOps {
     @pure def sha3(is256: B, s: String): ISZ[U8] = $
     @pure def nativeSubstring(cis: ISZ[C], start: Z, until: Z): String = $
     @pure def nativeMsSubstring(cms: MSZ[C], start: Z, until: Z): String = $
+    @pure def nativeMsSubstringS32(cms: MS[S32, C], start: S32, until: S32): String = $
   }
 }
 

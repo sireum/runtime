@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import org.sireum.S32._
 import org.sireum.test._
 
 class JacksonJsonParserTest extends TestSuite {
@@ -412,8 +413,8 @@ class JacksonJsonParserTest extends TestSuite {
         val docInfo = message.DocInfo.createFromCis(None(), cis)
         val chars = Indexable.IszDocInfoC(cis, docInfo)
         val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
-        assert(errorIndex < 0, s"Lex error at $errorIndex for: $input")
-        val indexable = Indexable.fromIsz(tokens)
+        assert(errorIndex < S32(0), s"Lex error at $errorIndex for: $input")
+        val indexable = Indexable.fromIs(tokens)
 
         val reporter = message.Reporter.create
         val result = parser.JsonParser.g.parse("valueFile", indexable, reporter)

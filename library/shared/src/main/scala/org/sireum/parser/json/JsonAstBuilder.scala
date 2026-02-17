@@ -27,6 +27,7 @@
 package org.sireum.parser.json
 
 import org.sireum._
+import org.sireum.S32._
 import org.sireum.parser.{ParseTree => Tree}
 
 object JsonAstBuilder {
@@ -54,7 +55,7 @@ object JsonAstBuilder {
   @strictpure def asLeaf(t: Tree): Tree.Leaf = t.asInstanceOf[Tree.Leaf]
 
   @strictpure def posOf(t: Tree): message.Position = t match {
-    case t: Tree.Node => posOf(t.children(0)).to(posOf(t.children(t.children.size - 1)))
+    case t: Tree.Node => posOf(t.children.atS32(s32"0")).to(posOf(t.children.atS32(t.children.sizeS32 - s32"1")))
     case t: Tree.Leaf => t.posOpt.get
   }
 
@@ -71,30 +72,30 @@ object JsonAstBuilder {
   def buildValue(tree: Tree): AST = {
     val rn = tree.ruleName
     if (rn == JsonAstBuilder.rnValueFile) {
-      return buildValue(asNode(tree).children(0))
+      return buildValue(asNode(tree).children.atS32(s32"0"))
     } else if (rn == JsonAstBuilder.rnObject) {
       return buildObject(tree)
     } else if (rn == JsonAstBuilder.rnArray) {
       return buildArray(tree)
     } else if (rn == JsonAstBuilder.rnStringLit) {
-      return toStr(asNode(tree).children(0))
+      return toStr(asNode(tree).children.atS32(s32"0"))
     } else if (rn == JsonAstBuilder.rnDoubleLit) {
-      val leaf = asLeaf(asNode(tree).children(0))
+      val leaf = asLeaf(asNode(tree).children.atS32(s32"0"))
       return AST.Dbl(F64(leaf.text).get, Some(posOf(leaf)))
     } else if (rn == JsonAstBuilder.rnIntLit) {
-      val leaf = asLeaf(asNode(tree).children(0))
+      val leaf = asLeaf(asNode(tree).children.atS32(s32"0"))
       return AST.Int(Z(leaf.text).get, Some(posOf(leaf)))
     } else if (rn == JsonAstBuilder.rnNullLit) {
-      val leaf = asLeaf(asNode(tree).children(0))
+      val leaf = asLeaf(asNode(tree).children.atS32(s32"0"))
       return AST.Null(Some(posOf(leaf)))
     } else if (rn == JsonAstBuilder.rnTrue) {
       return AST.Bool(T, Some(posOf(tree)))
     } else if (rn == JsonAstBuilder.rnFalse) {
       return AST.Bool(F, Some(posOf(tree)))
     } else if (rn == JsonAstBuilder.rnBoolLit) {
-      return buildValue(asNode(tree).children(0))
+      return buildValue(asNode(tree).children.atS32(s32"0"))
     } else if (rn == JsonAstBuilder.rnValue) {
-      return buildValue(asNode(tree).children(0))
+      return buildValue(asNode(tree).children.atS32(s32"0"))
     } else {
       halt(s"Infeasible: $tree")
     }
@@ -103,26 +104,27 @@ object JsonAstBuilder {
   def buildObject(tree: Tree): AST.Obj = {
     val children = asNode(tree).children
     // Count keyValue children, then fill pre-sized MSZ — avoids O(n²) ISZ :+ cloning
-    var count: Z = 0
-    var ci: Z = 1
-    while (ci < children.size - 1) {
-      if (children(ci).ruleName == JsonAstBuilder.rnKeyValue) {
-        count = count + 1
+    var count: S32 = s32"0"
+    var ci: S32 = s32"1"
+    val last: S32 = children.sizeS32 - s32"1"
+    while (ci < last) {
+      if (children.atS32(ci).ruleName == JsonAstBuilder.rnKeyValue) {
+        count = count + s32"1"
       }
-      ci = ci + 1
+      ci = ci + s32"1"
     }
     val defaultKV = AST.KeyValue(AST.Str("", None()), AST.Null(None()))
-    val keyValuesMs = MSZ.create[AST.KeyValue](count, defaultKV)
+    val keyValuesMs = MSZ.create[AST.KeyValue](conversions.S32.toZ(count), defaultKV)
     var ki: Z = 0
-    ci = 1
-    while (ci < children.size - 1) {
-      val child = children(ci)
+    ci = s32"1"
+    while (ci < last) {
+      val child = children.atS32(ci)
       if (child.ruleName == JsonAstBuilder.rnKeyValue) {
         val kv = asNode(child)
-        keyValuesMs(ki) = AST.KeyValue(toStr(kv.children(0)), buildValue(kv.children(2)))
+        keyValuesMs(ki) = AST.KeyValue(toStr(kv.children.atS32(s32"0")), buildValue(kv.children.atS32(s32"2")))
         ki = ki + 1
       }
-      ci = ci + 1
+      ci = ci + s32"1"
     }
     return AST.Obj(keyValuesMs.toIS, Some(posOf(tree)))
   }
@@ -131,23 +133,24 @@ object JsonAstBuilder {
     val children = asNode(tree).children
     // Count value children, then fill pre-sized MSZ — avoids O(n²) ISZ :+ cloning
     var count: Z = 0
-    var ci: Z = 1
-    while (ci < children.size - 1) {
-      if (children(ci).isInstanceOf[Tree.Node]) {
+    var ci: S32 = s32"1"
+    val last: S32 = children.sizeS32 - s32"1"
+    while (ci < last) {
+      if (children.atS32(ci).isInstanceOf[Tree.Node]) {
         count = count + 1
       }
-      ci = ci + 1
+      ci = ci + s32"1"
     }
     val valuesMs = MSZ.create[AST](count, AST.Null(None()))
     var vi: Z = 0
-    ci = 1
-    while (ci < children.size - 1) {
-      val child = children(ci)
+    ci = s32"1"
+    while (ci < last) {
+      val child = children.atS32(ci)
       if (child.isInstanceOf[Tree.Node]) {
         valuesMs(vi) = buildValue(child)
         vi = vi + 1
       }
-      ci = ci + 1
+      ci = ci + s32"1"
     }
     return AST.Arr(valuesMs.toIS, Some(posOf(tree)))
   }

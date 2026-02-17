@@ -75,27 +75,27 @@ object LexerDfas {
     * @return (asciiDispatch, nonAsciiIndices) dispatch tables
     */
   def computeDispatch(dfas: IS[S32, LexerDfa]): (IS[S32, IS[S32, S32]], IS[S32, S32]) = {
-    val n: S32 = conversions.Z.toS32(dfas.size)
+    val n: S32 = dfas.sizeS32
     val asciiMs = MS.create[S32, IS[S32, S32]](128, IS[S32, S32]())
     var nonAscii = IS[S32, S32]()
 
     var di: S32 = s32"0"
     while (di < n) {
-      val dfa = dfas(di)
-      if (dfa.transitions.size > 0) {
-        val trans0 = dfa.transitions(s32"0")
+      val dfa = dfas.atS32(di)
+      if (dfa.transitions.nonEmpty) {
+        val trans0 = dfa.transitions.atS32(s32"0")
         var hasNonAscii = F
         var ti: S32 = s32"0"
-        val trans0Size: S32 = conversions.Z.toS32(trans0.size)
+        val trans0Size: S32 = trans0.sizeS32
         while (ti < trans0Size) {
-          val t = trans0(ti)
+          val t = trans0.atS32(ti)
           if (t.lo <= '\u007F') {
             val startC: C = t.lo
             val endC: C = if (t.hi > '\u007F') '\u007F' else t.hi
             var ci: S32 = conversions.C.toS32(startC)
             val endS32: S32 = conversions.C.toS32(endC)
             while (ci <= endS32) {
-              asciiMs(ci) = asciiMs(ci) :+ di
+              asciiMs(ci) = asciiMs.atS32(ci) :+ di
               ci = ci + s32"1"
             }
           }
@@ -189,27 +189,26 @@ object LexerDfas {
     * @param lds the LexerDfas to serialize
     */
   def writeLexerDfas(w: MessagePack.Writer.Impl, lds: LexerDfas): Unit = {
-    val numDfas: S32 = conversions.Z.toS32(lds.dfas.size)
+    val numDfas: S32 = lds.dfas.sizeS32
     w.writeZ(lds.dfas.size)
     var di: S32 = s32"0"
     while (di < numDfas) {
-      val d = lds.dfas(di)
-      val numStates: Z = d.accepting.size
-      val numStatesS32: S32 = conversions.Z.toS32(numStates)
-      w.writeZ(numStates)
+      val d = lds.dfas.atS32(di)
+      val numStatesS32: S32 = d.accepting.sizeS32
+      w.writeZ(d.accepting.size)
       var si: S32 = s32"0"
       while (si < numStatesS32) {
-        w.writeB(d.accepting(si))
+        w.writeB(d.accepting.atS32(si))
         si = si + s32"1"
       }
       si = s32"0"
       while (si < numStatesS32) {
-        val trans = d.transitions(si)
-        val transSizeS32: S32 = conversions.Z.toS32(trans.size)
-        w.writeZ(conversions.S32.toZ(transSizeS32))
+        val trans = d.transitions.atS32(si)
+        val transSizeS32: S32 = trans.sizeS32
+        w.writeZ(trans.size)
         var ti: S32 = s32"0"
         while (ti < transSizeS32) {
-          val t = trans(ti)
+          val t = trans.atS32(ti)
           w.writeC(t.lo)
           w.writeC(t.hi)
           w.writeS32(t.target)
@@ -221,17 +220,17 @@ object LexerDfas {
     }
     var ni: S32 = s32"0"
     while (ni < numDfas) {
-      w.writeString(lds.names(ni))
+      w.writeString(lds.names.atS32(ni))
       ni = ni + s32"1"
     }
     var ti: S32 = s32"0"
     while (ti < numDfas) {
-      w.writeU32(conversions.S32.toU32(lds.types(ti)))
+      w.writeU32(conversions.S32.toU32(lds.types.atS32(ti)))
       ti = ti + s32"1"
     }
     var hi: S32 = s32"0"
     while (hi < numDfas) {
-      w.writeB(lds.hiddens(hi))
+      w.writeB(lds.hiddens.atS32(hi))
       hi = hi + s32"1"
     }
     lds.eofTypeOpt match {
@@ -368,27 +367,27 @@ object LexerDfas {
     * @param i     the starting position
     * @return the position after the last accepted character, or -1 if no match
     */
-  def runDfa(dfa: LexerDfa, chars: Indexable.PosC, i: Z): Z = {
-    if (dfa.accepting.size == 0) {
-      return -1
+  def runDfa(dfa: LexerDfa, chars: Indexable.PosC, i: S32): S32 = {
+    if (dfa.accepting.isEmpty) {
+      return s32"-1"
     }
     var state: S32 = s32"0"
-    var pos = i
-    var lastAccept: Z = -1
-    if (dfa.accepting(state)) {
+    var pos: S32 = i
+    var lastAccept: S32 = s32"-1"
+    if (dfa.accepting.atS32(state)) {
       lastAccept = pos
     }
-    while (chars.has(pos)) {
-      val c = chars.at(pos)
-      val trans = dfa.transitions(state)
+    while (chars.hasS32(pos)) {
+      val c = chars.atS32(pos)
+      val trans = dfa.transitions.atS32(state)
       var found = F
       var ti: S32 = s32"0"
-      val transSize: S32 = conversions.Z.toS32(trans.size)
+      val transSize: S32 = trans.sizeS32
       while (!found && ti < transSize) {
-        val t = trans(ti)
+        val t = trans.atS32(ti)
         if (t.lo <= c && c <= t.hi) {
           state = t.target
-          pos = pos + 1
+          pos = pos + s32"1"
           found = T
         }
         ti = ti + s32"1"
@@ -396,7 +395,7 @@ object LexerDfas {
       if (!found) {
         return lastAccept
       }
-      if (dfa.accepting(state)) {
+      if (dfa.accepting.atS32(state)) {
         lastAccept = pos
       }
     }
@@ -416,20 +415,20 @@ object LexerDfas {
     * @param i     the starting position
     * @return Some((afterIndex, token)) on success, None on failure
     */
-  def lex(chars: Indexable.PosC, i: Z): Option[(Z, Token)] = {
-    var bestEnd: Z = -1
+  def lex(chars: Indexable.PosC, i: S32): Option[(S32, Token)] = {
+    var bestEnd: S32 = s32"-1"
     var bestIdx: S32 = s32"-1"
-    val c = chars.at(i)
+    val c = chars.atS32(i)
     val candidates: IS[S32, S32] = if (c <= '\u007F') {
-      asciiDispatch(conversions.C.toS32(c))
+      asciiDispatch.atS32(conversions.C.toS32(c))
     } else {
       nonAsciiIndices
     }
     var ki: S32 = s32"0"
-    val candidatesSize: S32 = conversions.Z.toS32(candidates.size)
+    val candidatesSize: S32 = candidates.sizeS32
     while (ki < candidatesSize) {
-      val di = candidates(ki)
-      val end = runDfa(dfas(di), chars, i)
+      val di = candidates.atS32(ki)
+      val end = runDfa(dfas.atS32(di), chars, i)
       if (end > bestEnd) {
         bestEnd = end
         bestIdx = di
@@ -440,11 +439,11 @@ object LexerDfas {
       return None()
     }
     val leaf = ParseTree.Leaf(
-      text = chars.substring(i, bestEnd),
-      ruleName = names(bestIdx),
-      tipe = conversions.S32.toZ(types(bestIdx)),
-      isHidden = hiddens(bestIdx),
-      posOpt = chars.posOpt(i, bestEnd - i)
+      text = chars.substringS32(i, bestEnd),
+      ruleName = names.atS32(bestIdx),
+      tipe = conversions.S32.toZ(types.atS32(bestIdx)),
+      isHidden = hiddens.atS32(bestIdx),
+      posOpt = chars.posOptS32(i, bestEnd - i)
     )
     return Some((bestEnd, leaf))
   }
@@ -459,11 +458,11 @@ object LexerDfas {
     * @return (errorIndex, tokens) where errorIndex is -1 on success,
     *         or the position of the first unlexable character on failure
     */
-  def tokens(chars: Indexable.PosC, skipHidden: B): (Z, ISZ[Token]) = {
+  def tokens(chars: Indexable.PosC, skipHidden: B): (S32, IS[S32, Token]) = {
     val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = 0, isHidden = F, posOpt = None())
-    var buf: MIStack[Token] = MIStack.create[Token](defaultToken, 256, 2)
-    var i: Z = 0
-    while (chars.has(i)) {
+    var buf: MIStack[Token] = MIStack.create[Token](defaultToken, s32"256", s32"2")
+    var i: S32 = s32"0"
+    while (chars.hasS32(i)) {
       lex(chars, i) match {
         case Some((end, token)) =>
           if (!skipHidden || !token.isHidden) {
@@ -471,7 +470,7 @@ object LexerDfas {
           }
           i = end
         case _ =>
-          return (i, buf.toISZ)
+          return (i, buf.toIS)
       }
     }
     eofTypeOpt match {
@@ -481,11 +480,11 @@ object LexerDfas {
           ruleName = "EOF",
           tipe = conversions.S32.toZ(eofType),
           isHidden = F,
-          posOpt = chars.posOpt(i, 0)
+          posOpt = chars.posOptS32(i, s32"0")
         ))
       case _ =>
     }
-    return (-1, buf.toISZ)
+    return (s32"-1", buf.toIS)
   }
 
   /** Serializes this LexerDfas to a compact base64-encoded string.
@@ -519,22 +518,22 @@ object LexerDfas {
   def toST: ST = {
     var dfaSTs = IS[S32, ST]()
     var di: S32 = s32"0"
-    val numDfas: S32 = conversions.Z.toS32(dfas.size)
+    val numDfas: S32 = dfas.sizeS32
     while (di < numDfas) {
-      val d = dfas(di)
+      val d = dfas.atS32(di)
       var transSTs = IS[S32, ST]()
       var si: S32 = s32"0"
-      val numStates: S32 = conversions.Z.toS32(d.transitions.size)
+      val numStates: S32 = d.transitions.sizeS32
       while (si < numStates) {
-        val trans = d.transitions(si)
+        val trans = d.transitions.atS32(si)
         val transItemSTs: IS[S32, ST] = for (t <- trans) yield
           st"(${ops.COps(t.lo).escapeString} .. ${ops.COps(t.hi).escapeString} -> ${t.target})"
-        val acceptST: ST = if (d.accepting(si)) st"*" else st""
+        val acceptST: ST = if (d.accepting.atS32(si)) st"*" else st""
         transSTs = transSTs :+ st"$si$acceptST: ${(transItemSTs, ", ")}"
         si = si + s32"1"
       }
       dfaSTs = dfaSTs :+
-        st"""DFA ${names(di)} (type=${types(di)}, hidden=${hiddens(di)}):
+        st"""DFA ${names.atS32(di)} (type=${types.atS32(di)}, hidden=${hiddens.atS32(di)}):
             |  ${(transSTs, "\n")}"""
       di = di + s32"1"
     }

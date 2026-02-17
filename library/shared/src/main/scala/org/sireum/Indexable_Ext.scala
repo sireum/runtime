@@ -54,17 +54,32 @@ object Indexable_Ext {
 
       def at(i: scala.Long): C = C(codepoints(i.toInt))
 
+      override def atS32(i: S32): C = C(codepoints(i.value))
+
       override def has(i: Z): B = 0 <= i && i < size
 
       def has(i: scala.Long): scala.Boolean = 0L <= i && i < size
+
+      override def hasS32(i: S32): B = i.value >= 0 && i.value < size
 
       override def posOpt(offset: Z, length: Z): Option[message.Position] = {
         Some(message.PosInfo(info, (conversions.Z.toU64(offset) << U64.fromZ(32)) | conversions.Z.toU64(length)))
       }
 
+      override def posOptS32(offset: S32, length: S32): Option[message.Position] = {
+        Some(message.PosInfo(info, (conversions.Z.toU64(conversions.S32.toZ(offset)) << U64.fromZ(32)) | conversions.Z.toU64(conversions.S32.toZ(length))))
+      }
+
       override def substring(start: Z, until: Z): String = {
         val s = start.toInt
         val u = until.toInt
+        if (u - s <= 0) return ""
+        new Predef.String(codepoints, s, u - s)
+      }
+
+      override def substringS32(start: S32, until: S32): String = {
+        val s = start.value
+        val u = until.value
         if (u - s <= 0) return ""
         new Predef.String(codepoints, s, u - s)
       }

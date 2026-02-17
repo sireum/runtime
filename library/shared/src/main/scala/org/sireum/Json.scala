@@ -2183,7 +2183,7 @@ object Json {
     def parseString(): String = {
       errorIfEof(offset)
 
-      val r = MIStack.create[C]('\u0000', 64, 2)
+      val r = MIStack.create[C]('\u0000', s32"64", s32"2")
 
       var c = at(offset)
       c.native match {
@@ -2218,7 +2218,7 @@ object Json {
             c = incOffset(1)
           }
           offset = offset + 1
-          return ops.StringOps.Ext.nativeMsSubstring(r.elements, 0, r.sz)
+          return ops.StringOps.Ext.nativeMsSubstringS32(r.elements, s32"0", r.sz)
         case _ =>
           parseException(offset, s"""Expected '"' but '$c' found.""")
           return ""

@@ -29,7 +29,7 @@ import org.sireum.test._
 
 class ZTest extends TestSuite {
 
-  val numOfRandomTests = 64
+  val numOfRandomTests = 10000
 
   val x: Z = Z.random
 
@@ -76,13 +76,15 @@ class ZTest extends TestSuite {
           val n = rand()
           var m = rand()
           while (m == 0 && (op == "/" || op == "%")) m = rand()
-          assert(op1(Z(n))(Z(m)).toBigInt == op2(n)(m))
+          val expected = op2(n)(m)
+          val result = op1(Z(n))(Z(m)).toBigInt
+          assert(result == expected, s"Failed for '$n $op $m'; expected=$expected, result=$result")
         }
       }
     }
 
     * - {
-      for ((_, op1, op2) <- scala.List[
+      for ((op, op1, op2) <- scala.List[
              (Predef.String,
               Z => Z => B,
               scala.BigInt => scala.BigInt => scala.Boolean)](
@@ -95,7 +97,9 @@ class ZTest extends TestSuite {
         for (_ <- 0 until numOfRandomTests) {
           val n = rand()
           val m = rand()
-          assert(op1(Z(n))(Z(m)).value == op2(n)(m))
+          val expected = op2(n)(m)
+          val result = op1(Z(n))(Z(m)).value
+          assert(result == expected, s"Failed for '$n $op $m'; expected=$expected, result=$result")
         }
       }
     }

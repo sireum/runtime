@@ -48,4 +48,12 @@ object StringOps_Ext {
     val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
     new Predef.String(arr, s, u - s)
   }
+
+  def nativeMsSubstringS32(cms: MS[S32, C], start: S32, until: S32): String = {
+    val s = start.value
+    val u = until.value
+    if (u - s <= 0) return ""
+    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
+    new Predef.String(arr, s, u - s)
+  }
 }

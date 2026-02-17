@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import org.sireum.S32._
 import org.sireum.test._
 
 class JacksonJsonParserBenchmarkTest extends TestSuite {
@@ -55,15 +56,15 @@ class JacksonJsonParserBenchmarkTest extends TestSuite {
   def lexJson(content: String): Indexable[parser.Token] = {
     val chars = Indexable.Ext.fromString(None(), content)
     val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
-    assert(errorIndex < 0, s"Lex error at $errorIndex")
-    Indexable.fromIsz(tokens)
+    assert(errorIndex < S32(0), s"Lex error at $errorIndex")
+    Indexable.fromIs(tokens)
   }
 
   def lexJsonc(content: String): Indexable[parser.Token] = {
     val chars = Indexable.Ext.fromString(None(), content)
     val (errorIndex, tokens) = parser.JsoncParser.lexerDfas.tokens(chars, T)
-    assert(errorIndex < 0, s"Lex error at $errorIndex")
-    Indexable.fromIsz(tokens)
+    assert(errorIndex < S32(0), s"Lex error at $errorIndex")
+    Indexable.fromIs(tokens)
   }
 
   def parseLLkTree(indexable: Indexable[parser.Token]): scala.Option[parser.ParseTree] = {
