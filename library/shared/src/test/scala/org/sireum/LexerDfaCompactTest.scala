@@ -26,6 +26,7 @@
 package org.sireum
 
 import org.sireum.U32._
+import org.sireum.S32._
 import org.sireum.automaton._
 import org.sireum.parser._
 import org.sireum.test._
@@ -37,6 +38,14 @@ class LexerDfaCompactTest extends TestSuite {
     val info = message.DocInfo(uriOpt = None(), lineOffsets = ISZ(u32"0"))
     Indexable.fromIszDocInfoC(cis, info)
   }
+
+  // Helpers to construct IS[S32, ...] from varargs
+  def bools(args: B*): IS[S32, B] = IS[S32, B](args: _*)
+  def trans(args: LexerDfa.Transition*): IS[S32, LexerDfa.Transition] = IS[S32, LexerDfa.Transition](args: _*)
+  def transRows(args: IS[S32, LexerDfa.Transition]*): IS[S32, IS[S32, LexerDfa.Transition]] =
+    IS[S32, IS[S32, LexerDfa.Transition]](args: _*)
+  def t(lo: C, hi: C, target: scala.Int): LexerDfa.Transition =
+    LexerDfa.Transition(lo = lo, hi = hi, target = S32(target))
 
   val tests = Tests {
 
@@ -58,8 +67,8 @@ class LexerDfaCompactTest extends TestSuite {
     // Single DFA with one accepting state (no transitions)
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(T),
-        transitions = ISZ(ISZ[LexerDfa.Transition]())
+        accepting = bools(T),
+        transitions = transRows(trans())
       )
       val lds = LexerDfas.create(
         dfas = ISZ(dfa),
@@ -75,10 +84,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Single DFA: 2 states, transition a-z
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -95,14 +104,11 @@ class LexerDfaCompactTest extends TestSuite {
     // Multiple transitions per state
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T, T),
-        transitions = ISZ(
-          ISZ(
-            LexerDfa.Transition(lo = 'a', hi = 'z', target = 1),
-            LexerDfa.Transition(lo = '0', hi = '9', target = 2)
-          ),
-          ISZ[LexerDfa.Transition](),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1), t('0', '9', 2)),
+          trans(),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -119,17 +125,17 @@ class LexerDfaCompactTest extends TestSuite {
     // Multiple DFAs
     * - {
       val dfa1 = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val dfa2 = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = '0', hi = '9', target = 1)),
-          ISZ(LexerDfa.Transition(lo = '0', hi = '9', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('0', '9', 1)),
+          trans(t('0', '9', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -146,18 +152,18 @@ class LexerDfaCompactTest extends TestSuite {
     // DFAs with different state counts
     * - {
       val dfa1 = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'a', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'a', 1)),
+          trans()
         )
       )
       val dfa2 = LexerDfa(
-        accepting = ISZ(F, F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'b', hi = 'b', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'c', hi = 'c', target = 2)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, F, T),
+        transitions = transRows(
+          trans(t('b', 'b', 1)),
+          trans(t('c', 'c', 2)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -174,10 +180,10 @@ class LexerDfaCompactTest extends TestSuite {
     // With eofTypeOpt
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -194,10 +200,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Hidden DFA
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1)),
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t(' ', ' ', 1)),
+          trans(t(' ', ' ', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -214,8 +220,8 @@ class LexerDfaCompactTest extends TestSuite {
     // toCompactST produces correct format and roundtrips
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(T),
-        transitions = ISZ(ISZ[LexerDfa.Transition]())
+        accepting = bools(T),
+        transitions = transRows(trans())
       )
       val lds = LexerDfas.create(
         dfas = ISZ(dfa),
@@ -234,10 +240,10 @@ class LexerDfaCompactTest extends TestSuite {
     // toST produces non-empty output
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -277,10 +283,10 @@ class LexerDfaCompactTest extends TestSuite {
       assert(lds.types == ISZ(Z(1)))
       assert(lds.hiddens == ISZ(F))
       assert(lds.eofTypeOpt == Some(Z(0)))
-      assert(!lds.dfas(0).accepting(0))
-      assert(lds.dfas(0).accepting(1))
-      assert(lds.dfas(0).transitions(0).size == 1)
-      assert(lds.dfas(0).transitions(1).size == 0)
+      assert(!lds.dfas(0).accepting(S32(0)))
+      assert(lds.dfas(0).accepting(S32(1)))
+      assert(lds.dfas(0).transitions(S32(0)).size == 1)
+      assert(lds.dfas(0).transitions(S32(1)).size == 0)
       // Compact roundtrip
       val decoded = LexerDfas.fromCompact(lds.toCompact)
       assert(decoded == lds)
@@ -321,10 +327,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Lex single token
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -345,10 +351,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Lex no match returns None
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -365,18 +371,18 @@ class LexerDfaCompactTest extends TestSuite {
     * - {
       // DFA1: matches single letter
       val dfa1 = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       // DFA2: matches one or more letters
       val dfa2 = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -399,17 +405,17 @@ class LexerDfaCompactTest extends TestSuite {
     // Tokens: tokenize with hidden WS and EOF
     * - {
       val idDfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val wsDfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1)),
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t(' ', ' ', 1)),
+          trans(t(' ', ' ', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -434,17 +440,17 @@ class LexerDfaCompactTest extends TestSuite {
     // Tokens: skipHidden=F includes hidden tokens
     * - {
       val idDfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val wsDfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1)),
-          ISZ(LexerDfa.Transition(lo = ' ', hi = ' ', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t(' ', ' ', 1)),
+          trans(t(' ', ' ', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -467,10 +473,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Tokens: error on unlexable character
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -489,10 +495,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Tokens: empty input with EOF
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -512,10 +518,10 @@ class LexerDfaCompactTest extends TestSuite {
     // Tokens: empty input without EOF
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -552,7 +558,10 @@ class LexerDfaCompactTest extends TestSuite {
 
     // runDfa: empty DFA (0 states) returns -1
     * - {
-      val dfa = LexerDfa(accepting = ISZ(), transitions = ISZ())
+      val dfa = LexerDfa(
+        accepting = IS[S32, B](),
+        transitions = IS[S32, IS[S32, LexerDfa.Transition]]()
+      )
       val lds = LexerDfas.create(
         dfas = ISZ(dfa),
         names = ISZ("EMPTY"),
@@ -566,10 +575,10 @@ class LexerDfaCompactTest extends TestSuite {
     // runDfa: initial state is accepting (empty match)
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(T, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1))
+        accepting = bools(T, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('a', 'z', 1))
         )
       )
       val lds = LexerDfas.create(
@@ -589,11 +598,11 @@ class LexerDfaCompactTest extends TestSuite {
     * - {
       // DFA: state 0 -[a-z]-> state 1 (not accepting) -[0-9]-> state 2 (accepting)
       val dfa = LexerDfa(
-        accepting = ISZ(F, F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ(LexerDfa.Transition(lo = '0', hi = '9', target = 2)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans(t('0', '9', 2)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
@@ -612,10 +621,10 @@ class LexerDfaCompactTest extends TestSuite {
     // toST: without EOF shows "No EOF"
     * - {
       val dfa = LexerDfa(
-        accepting = ISZ(F, T),
-        transitions = ISZ(
-          ISZ(LexerDfa.Transition(lo = 'a', hi = 'z', target = 1)),
-          ISZ[LexerDfa.Transition]()
+        accepting = bools(F, T),
+        transitions = transRows(
+          trans(t('a', 'z', 1)),
+          trans()
         )
       )
       val lds = LexerDfas.create(
