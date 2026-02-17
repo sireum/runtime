@@ -365,6 +365,19 @@ public class ZUnboxer {
             }
         }
 
+        // Pass 1b: Fix unsafe CHECKCAST Z$MP$Long → toLong patterns.
+        // Scalac's @inline expansion of Z arithmetic Long overloads (e.g., Z$MP$.+(Z, scala.Long))
+        // generates: result → CHECKCAST Z$MP$Long → INVOKEVIRTUAL Z$MP$Long.toLong → LSTORE.
+        // This crashes with ClassCastException when the arithmetic overflows Long range and returns
+        // Z$MP$BigInt. Replace with INVOKEINTERFACE Z.toLong which handles both subtypes.
+        if (rewriteCheckcastToLong(mn)) {
+            result[0] = true;
+            if (verbose) {
+                System.out.println("  " + className + "." + mn.name + mn.desc +
+                        ": fixed CHECKCAST Z$MP$Long → toLong patterns");
+            }
+        }
+
         // Pass 2: Z local variable unboxing (escape analysis)
         if (enablePass2) {
             Map<Integer, LocalInfo> zLocals = findZLocals(mn);
@@ -630,6 +643,61 @@ public class ZUnboxer {
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            insn = next;
+        }
+
+        return changed;
+    }
+
+    /**
+     * Fix unsafe CHECKCAST Z$MP$Long → INVOKEVIRTUAL Z$MP$Long.toLong:()J patterns.
+     *
+     * Scalac's inlining of @inline Z arithmetic Long overloads (e.g., Z$MP$.+(Z, scala.Long):Z)
+     * generates this pattern when it decides to store a Z result as a primitive long local:
+     * <pre>
+     *   ... Z-producing call ...
+     *   CHECKCAST org/sireum/Z$MP$Long
+     *   INVOKEVIRTUAL org/sireum/Z$MP$Long.toLong:()J
+     *   LSTORE n
+     * </pre>
+     * This crashes with ClassCastException when the Z arithmetic overflows Long range and
+     * returns Z$MP$BigInt instead of Z$MP$Long.
+     *
+     * Fix: replace the CHECKCAST + INVOKEVIRTUAL pair with a single INVOKEINTERFACE Z.toLong:()J
+     * which dispatches polymorphically and handles both Z subtypes correctly.
+     *
+     * @return true if any rewrites were performed
+     */
+    boolean rewriteCheckcastToLong(MethodNode mn) {
+        boolean changed = false;
+        InsnList insns = mn.instructions;
+
+        for (AbstractInsnNode insn = insns.getFirst(); insn != null; ) {
+            AbstractInsnNode next = insn.getNext();
+
+            if (insn.getOpcode() == Opcodes.CHECKCAST && insn instanceof TypeInsnNode) {
+                TypeInsnNode cast = (TypeInsnNode) insn;
+                if (Z_MP_LONG.equals(cast.desc)) {
+                    // Check if the next significant instruction is INVOKEVIRTUAL Z$MP$Long.toLong:()J
+                    AbstractInsnNode n1 = nextSignificant(insn);
+                    if (n1 instanceof MethodInsnNode) {
+                        MethodInsnNode call = (MethodInsnNode) n1;
+                        if (call.getOpcode() == Opcodes.INVOKEVIRTUAL &&
+                                Z_MP_LONG.equals(call.owner) &&
+                                "toLong".equals(call.name) &&
+                                TO_LONG_DESC.equals(call.desc)) {
+                            // Replace: CHECKCAST Z$MP$Long + INVOKEVIRTUAL Z$MP$Long.toLong
+                            // With:    INVOKEINTERFACE Z.toLong
+                            insns.set(insn, new MethodInsnNode(
+                                    Opcodes.INVOKEINTERFACE, Z_TYPE, "toLong", TO_LONG_DESC, true));
+                            next = n1.getNext();
+                            insns.remove(n1);
+                            changed = true;
                         }
                     }
                 }
@@ -1392,20 +1460,18 @@ public class ZUnboxer {
                             insn = insns.getFirst(); // restart scan
                             continue;
                         } else if (isZArithmeticResult(prevCall)) {
-                            // Result of Z arithmetic — it returns Z, cast to Z$MP$Long and extract
-                            insns.insertBefore(insn, new TypeInsnNode(Opcodes.CHECKCAST, Z_MP_LONG));
+                            // Result of Z arithmetic — it returns Z, use interface toLong (handles both Z$MP$Long and Z$MP$BigInt)
                             insns.insertBefore(insn, new MethodInsnNode(
-                                    Opcodes.INVOKEVIRTUAL, Z_MP_LONG, "toLong", TO_LONG_DESC, false));
+                                    Opcodes.INVOKEINTERFACE, Z_TYPE, "toLong", TO_LONG_DESC, true));
                             insns.set(insn, new VarInsnNode(Opcodes.LSTORE, newSlot));
                             changed = true;
                             insn = insns.getFirst();
                             continue;
                         }
                     }
-                    // General case: Z ref on stack → cast to Z$MP$Long → toLong → LSTORE
-                    insns.insertBefore(insn, new TypeInsnNode(Opcodes.CHECKCAST, Z_MP_LONG));
+                    // General case: Z ref on stack → use interface toLong (handles both Z$MP$Long and Z$MP$BigInt) → LSTORE
                     insns.insertBefore(insn, new MethodInsnNode(
-                            Opcodes.INVOKEVIRTUAL, Z_MP_LONG, "toLong", TO_LONG_DESC, false));
+                            Opcodes.INVOKEINTERFACE, Z_TYPE, "toLong", TO_LONG_DESC, true));
                     insns.set(insn, new VarInsnNode(Opcodes.LSTORE, newSlot));
                     changed = true;
                     insn = insns.getFirst();
@@ -1630,11 +1696,11 @@ public class ZUnboxer {
             insn = next;
         }
 
-        // Post-pass peephole: collapse INVOKESTATIC zOp(JJ)Z → CHECKCAST Z$MP$Long → toLong → LSTORE
-        // into Math.xxxExact(JJ)J → LSTORE, eliminating the intermediate Z$MP$Long allocation.
+        // Post-pass peephole: collapse INVOKESTATIC zOp(JJ)Z → INVOKEINTERFACE Z.toLong → LSTORE
+        // into Math.xxxExact(JJ)J → LSTORE, eliminating the intermediate Z allocation.
         // This pattern arises when receiver case A rewrites pos = pos + 1 to
         // LLOAD → LCONST_1 → INVOKESTATIC zAdd(JJ)Z, and the store rewrite had already
-        // inserted CHECKCAST → toLong → LSTORE.
+        // inserted INVOKEINTERFACE toLong → LSTORE.
         for (AbstractInsnNode insn = insns.getFirst(); insn != null; ) {
             AbstractInsnNode next2 = insn.getNext();
             if (insn.getOpcode() == Opcodes.INVOKESTATIC && insn instanceof MethodInsnNode) {
@@ -1643,21 +1709,16 @@ public class ZUnboxer {
                     String longOp = zStaticToLongArithOp(call.name);
                     if (longOp != null) {
                         AbstractInsnNode n1 = nextSignificant(insn);
-                        if (n1 != null && n1.getOpcode() == Opcodes.CHECKCAST &&
-                                Z_MP_LONG.equals(((TypeInsnNode) n1).desc)) {
-                            AbstractInsnNode n2 = nextSignificant(n1);
-                            if (n2 instanceof MethodInsnNode &&
-                                    "toLong".equals(((MethodInsnNode) n2).name) &&
-                                    TO_LONG_DESC.equals(((MethodInsnNode) n2).desc)) {
-                                // Replace zOp(JJ)Z with Math.xxxExact(JJ)J
-                                insns.set(insn, new MethodInsnNode(
-                                        Opcodes.INVOKESTATIC, MATH_TYPE, longOp,
-                                        EXACT_LL_TO_L, false));
-                                insns.remove(n1); // remove CHECKCAST
-                                insns.remove(n2); // remove toLong
-                                changed = true;
-                                next2 = insns.getFirst();
-                            }
+                        if (n1 instanceof MethodInsnNode &&
+                                "toLong".equals(((MethodInsnNode) n1).name) &&
+                                TO_LONG_DESC.equals(((MethodInsnNode) n1).desc)) {
+                            // Replace zOp(JJ)Z with Math.xxxExact(JJ)J
+                            insns.set(insn, new MethodInsnNode(
+                                    Opcodes.INVOKESTATIC, MATH_TYPE, longOp,
+                                    EXACT_LL_TO_L, false));
+                            insns.remove(n1); // remove toLong
+                            changed = true;
+                            next2 = insns.getFirst();
                         }
                     }
                 }
