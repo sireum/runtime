@@ -49,7 +49,7 @@ object Antlr3Util {
       import org.sireum._
       val sha3 = crypto.SHA3.init256
       sha3.update(conversions.String.toU8is(s))
-      val r = conversions.Z.toS32(Z(st"0x${(ops.ISZOps(sha3.finalise()).take(4), "")}".render).get)
+      val r = conversions.U32.toRawS32(conversions.Z.toU32(Z(st"0x${(ops.ISZOps(sha3.finalise()).take(4), "")}".render).get))
       cache(s) = r
       return r
     }
