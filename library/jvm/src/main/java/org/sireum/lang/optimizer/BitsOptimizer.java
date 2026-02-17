@@ -64,6 +64,19 @@ import java.util.*;
  *   INVOKEVIRTUAL T.$less(Z$BV$Int)Z
  * </pre>
  * Becomes: {@code [load_x]; [load_y]; IF_ICMPxx → ICONST_0/1}
+ *
+ * <h2>Pass 4: Literal operand box elimination</h2>
+ * When a BV arithmetic op has a compile-time literal right operand (e.g., {@code x + s32"1"}),
+ * eliminates the literal's boxing. The pattern:
+ * <pre>
+ *   [left obj on stack]
+ *   NEW T; DUP; &lt;const&gt;; T.&lt;init&gt;(I)V
+ *   INVOKEVIRTUAL T.op(Z$BV$Int)Z$BV$Int
+ *   CHECKCAST T
+ * </pre>
+ * Becomes: {@code T.value()I; &lt;const&gt;; IADD; NEW T; DUP_X1; SWAP; T.&lt;init&gt;(I)V}
+ * (saves 1 allocation). If {@code T.value()} follows the CHECKCAST, eliminates all boxing
+ * (saves 2 allocations).
  */
 public class BitsOptimizer {
 
@@ -190,8 +203,12 @@ public class BitsOptimizer {
 
     /**
      * Read the {@code isWrapped} method from a companion class's bytecode.
-     * Returns true if the method body starts with ICONST_1 (wrapped),
-     * false otherwise.
+     * Handles two patterns:
+     * <ul>
+     *   <li>Direct constant: {@code ICONST_1; IRETURN}</li>
+     *   <li>Static field read: {@code GETSTATIC T$.isWrapped:Z; IRETURN}
+     *       — resolves from {@code <clinit>}</li>
+     * </ul>
      */
     private boolean readIsWrapped(byte[] classBytes) {
         ClassReader cr = new ClassReader(classBytes);
@@ -203,7 +220,41 @@ public class BitsOptimizer {
                      insn != null; insn = insn.getNext()) {
                     if (insn instanceof LabelNode || insn instanceof LineNumberNode
                             || insn instanceof FrameNode) continue;
-                    return insn.getOpcode() == Opcodes.ICONST_1;
+                    // Direct constant return
+                    if (insn.getOpcode() == Opcodes.ICONST_1) return true;
+                    if (insn.getOpcode() == Opcodes.ICONST_0) return false;
+                    // Static field read: GETSTATIC T$.isWrapped:Z
+                    if (insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.GETSTATIC) {
+                        FieldInsnNode field = (FieldInsnNode) insn;
+                        if ("isWrapped".equals(field.name) && "Z".equals(field.desc)) {
+                            return resolveStaticBoolField(cn, field.owner, field.name);
+                        }
+                    }
+                    // Unknown pattern — assume not wrapped (safe)
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Resolve a static boolean field's value from the {@code <clinit>} method.
+     * Looks for {@code ICONST_0/1; PUTSTATIC owner.fieldName:Z}.
+     */
+    private boolean resolveStaticBoolField(ClassNode cn, String owner, String fieldName) {
+        for (MethodNode mn : cn.methods) {
+            if ("<clinit>".equals(mn.name)) {
+                for (AbstractInsnNode insn = mn.instructions.getFirst();
+                     insn != null; insn = insn.getNext()) {
+                    if (insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.PUTSTATIC) {
+                        FieldInsnNode field = (FieldInsnNode) insn;
+                        if (fieldName.equals(field.name) && owner.equals(field.owner)) {
+                            AbstractInsnNode prev = previousSignificant(insn);
+                            if (prev != null && prev.getOpcode() == Opcodes.ICONST_1) return true;
+                            if (prev != null && prev.getOpcode() == Opcodes.ICONST_0) return false;
+                        }
+                    }
                 }
             }
         }
@@ -345,6 +396,15 @@ public class BitsOptimizer {
             }
         }
 
+        // Pass 4: Eliminate literal operand boxing in arithmetic
+        if (eliminateLiteralBox(mn)) {
+            changed = true;
+            if (verbose) {
+                System.out.println("  " + className + "." + mn.name + mn.desc +
+                        ": eliminated BV literal box");
+            }
+        }
+
         return changed;
     }
 
@@ -451,6 +511,77 @@ public class BitsOptimizer {
             this.initInsn = initInsn;
             this.valueDesc = valueDesc;
         }
+    }
+
+    /**
+     * Holds information about a matched literal box: NEW T; DUP; &lt;const&gt;; T.&lt;init&gt;(X)V
+     * where &lt;const&gt; is a single constant-push instruction.
+     */
+    static class LiteralBoxMatch {
+        final TypeInsnNode newInsn;       // NEW T
+        final AbstractInsnNode dupInsn;   // DUP
+        final AbstractInsnNode constInsn; // the constant push (ICONST, BIPUSH, SIPUSH, LDC, LCONST)
+        final MethodInsnNode initInsn;    // INVOKESPECIAL T.<init>:(X)V
+        final String valueDesc;           // "I", "J", "S", or "B"
+
+        LiteralBoxMatch(TypeInsnNode newInsn, AbstractInsnNode dupInsn,
+                        AbstractInsnNode constInsn, MethodInsnNode initInsn, String valueDesc) {
+            this.newInsn = newInsn;
+            this.dupInsn = dupInsn;
+            this.constInsn = constInsn;
+            this.initInsn = initInsn;
+            this.valueDesc = valueDesc;
+        }
+    }
+
+    /**
+     * Check if the instruction pushes a compile-time constant matching the value type.
+     * For int-width (I/S/B): ICONST_M1..ICONST_5, BIPUSH, SIPUSH, LDC Integer.
+     * For long-width (J): LCONST_0, LCONST_1, LDC Long.
+     */
+    static boolean isConstantPush(AbstractInsnNode insn, String valueDesc) {
+        boolean isLong = "J".equals(valueDesc);
+        int op = insn.getOpcode();
+
+        if (isLong) {
+            if (op == Opcodes.LCONST_0 || op == Opcodes.LCONST_1) return true;
+            return insn instanceof LdcInsnNode && ((LdcInsnNode) insn).cst instanceof Long;
+        } else {
+            if (op >= Opcodes.ICONST_M1 && op <= Opcodes.ICONST_5) return true;
+            if (op == Opcodes.BIPUSH || op == Opcodes.SIPUSH) return true;
+            return insn instanceof LdcInsnNode && ((LdcInsnNode) insn).cst instanceof Integer;
+        }
+    }
+
+    /**
+     * Try to match a literal box: NEW T; DUP; &lt;const&gt;; T.&lt;init&gt;(X)V
+     * where &lt;const&gt; is a single constant-push instruction.
+     * Returns null if the pattern doesn't match.
+     */
+    LiteralBoxMatch matchLiteralBox(AbstractInsnNode start, String bvType) {
+        if (!(start instanceof TypeInsnNode) || start.getOpcode() != Opcodes.NEW) return null;
+        TypeInsnNode newInsn = (TypeInsnNode) start;
+        if (!bvType.equals(newInsn.desc)) return null;
+
+        AbstractInsnNode dup = nextSignificant(newInsn);
+        if (dup == null || dup.getOpcode() != Opcodes.DUP) return null;
+
+        AbstractInsnNode constInsn = nextSignificant(dup);
+        if (constInsn == null) return null;
+
+        AbstractInsnNode initInsn = nextSignificant(constInsn);
+        if (!(initInsn instanceof MethodInsnNode)) return null;
+        MethodInsnNode initCall = (MethodInsnNode) initInsn;
+        if (initCall.getOpcode() != Opcodes.INVOKESPECIAL ||
+                !"<init>".equals(initCall.name) ||
+                !bvType.equals(initCall.owner)) return null;
+
+        String valueDesc = initDescToValueDesc(initCall.desc);
+        if (valueDesc == null) return null;
+
+        if (!isConstantPush(constInsn, valueDesc)) return null;
+
+        return new LiteralBoxMatch(newInsn, dup, constInsn, initCall, valueDesc);
     }
 
     /**
@@ -917,6 +1048,167 @@ public class BitsOptimizer {
 
         insns.insert(opCall, replacement);
         insns.remove(opCall);
+    }
+
+    // ===== Pass 4: Literal operand box elimination =====
+
+    /**
+     * Eliminates unnecessary boxing when a BV arithmetic op has a literal right operand.
+     *
+     * <p>Pattern (arithmetic, result stays boxed):
+     * <pre>
+     *   [left obj on stack]
+     *   NEW T; DUP; &lt;const&gt;; INVOKESPECIAL T.&lt;init&gt;(X)V
+     *   INVOKEVIRTUAL T.op(BV_TRAIT)BV_TRAIT
+     *   CHECKCAST T
+     * </pre>
+     * Becomes:
+     * <pre>
+     *   INVOKEVIRTUAL T.value()X
+     *   &lt;const&gt;
+     *   native_op
+     *   NEW T; DUP_X1; SWAP; INVOKESPECIAL T.&lt;init&gt;(X)V
+     * </pre>
+     *
+     * <p>Pattern (arithmetic, result immediately unboxed):
+     * <pre>
+     *   ... same as above ...
+     *   INVOKEVIRTUAL T.value()X
+     * </pre>
+     * Becomes:
+     * <pre>
+     *   INVOKEVIRTUAL T.value()X; &lt;const&gt;; native_op
+     * </pre>
+     */
+    boolean eliminateLiteralBox(MethodNode mn) {
+        boolean changed = false;
+        InsnList insns = mn.instructions;
+
+        for (AbstractInsnNode insn = insns.getFirst(); insn != null; ) {
+            AbstractInsnNode next = insn.getNext();
+
+            if (insn instanceof TypeInsnNode && insn.getOpcode() == Opcodes.NEW) {
+                String bvType = ((TypeInsnNode) insn).desc;
+
+                if (!isWrappedType(bvType)) {
+                    insn = next;
+                    continue;
+                }
+
+                LiteralBoxMatch litBox = matchLiteralBox(insn, bvType);
+                if (litBox == null) {
+                    insn = next;
+                    continue;
+                }
+
+                // After <init>, look for the arithmetic operation
+                AbstractInsnNode opInsn = nextSignificant(litBox.initInsn);
+                if (!(opInsn instanceof MethodInsnNode)) {
+                    insn = next;
+                    continue;
+                }
+                MethodInsnNode opCall = (MethodInsnNode) opInsn;
+
+                String arithTrait = extractBVArithTrait(opCall.desc);
+                if (arithTrait == null ||
+                        (!ARITH_OPS.contains(opCall.name) && !DIV_OPS.contains(opCall.name))) {
+                    insn = next;
+                    continue;
+                }
+
+                // After arith op, look for CHECKCAST T
+                AbstractInsnNode afterOp = nextSignificant(opCall);
+                if (!(afterOp instanceof TypeInsnNode) ||
+                        afterOp.getOpcode() != Opcodes.CHECKCAST ||
+                        !bvType.equals(((TypeInsnNode) afterOp).desc)) {
+                    insn = next;
+                    continue;
+                }
+
+                AbstractInsnNode nativeInsn = getNativeArithInsn(opCall.name, arithTrait, bvType);
+                if (nativeInsn == null) {
+                    insn = next;
+                    continue;
+                }
+
+                TypeInsnNode checkcast = (TypeInsnNode) afterOp;
+
+                // Check if value() follows CHECKCAST (result immediately unboxed)
+                AbstractInsnNode afterCast = nextSignificant(checkcast);
+                MethodInsnNode valueCall = null;
+                if (afterCast instanceof MethodInsnNode) {
+                    MethodInsnNode vc = (MethodInsnNode) afterCast;
+                    if ("value".equals(vc.name) && bvType.equals(vc.owner)) {
+                        valueCall = vc;
+                    }
+                }
+
+                // MATCH! Replace the sequence.
+                replaceArithLiteralBox(insns, mn, litBox, opCall, checkcast,
+                        valueCall, nativeInsn, bvType);
+                changed = true;
+                insn = insns.getFirst();
+                continue;
+            }
+
+            insn = next;
+        }
+
+        return changed;
+    }
+
+    /**
+     * Replace a literal-box arithmetic sequence.
+     *
+     * @param valueCall if non-null, value() follows CHECKCAST — eliminate all boxing;
+     *                  if null, re-box the primitive result into a new T.
+     */
+    void replaceArithLiteralBox(InsnList insns, MethodNode mn, LiteralBoxMatch litBox,
+                                MethodInsnNode opCall, TypeInsnNode checkcast,
+                                MethodInsnNode valueCall, AbstractInsnNode nativeInsn,
+                                String bvType) {
+        String valueDesc = litBox.valueDesc;
+        boolean isLong = "J".equals(valueDesc);
+        String valueMethodDesc = "()" + valueDesc;
+
+        // Remove literal box framing: NEW, DUP, <init>  (constInsn stays in place)
+        insns.remove(litBox.newInsn);
+        insns.remove(litBox.dupInsn);
+        insns.remove(litBox.initInsn);
+
+        // Insert INVOKEVIRTUAL T.value()X before constInsn (unbox left operand)
+        insns.insertBefore(litBox.constInsn, new MethodInsnNode(
+                Opcodes.INVOKEVIRTUAL, bvType, "value", valueMethodDesc, false));
+
+        // Replace opCall with native instruction
+        insns.set(opCall, nativeInsn);
+
+        if (valueCall != null) {
+            // value() follows — remove both CHECKCAST and value(), result is primitive
+            insns.remove(checkcast);
+            insns.remove(valueCall);
+        } else {
+            // No value() — re-box the primitive result
+            InsnList rebox = new InsnList();
+            if (isLong) {
+                // For long: LSTORE tmp; NEW T; DUP; LLOAD tmp; T.<init>(J)V
+                int tmp = mn.maxLocals;
+                mn.maxLocals += 2;
+                rebox.add(new VarInsnNode(Opcodes.LSTORE, tmp));
+                rebox.add(new TypeInsnNode(Opcodes.NEW, bvType));
+                rebox.add(new InsnNode(Opcodes.DUP));
+                rebox.add(new VarInsnNode(Opcodes.LLOAD, tmp));
+            } else {
+                // For int/short/byte: NEW T; DUP_X1; SWAP; T.<init>(X)V
+                rebox.add(new TypeInsnNode(Opcodes.NEW, bvType));
+                rebox.add(new InsnNode(Opcodes.DUP_X1));
+                rebox.add(new InsnNode(Opcodes.SWAP));
+            }
+            rebox.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, bvType, "<init>",
+                    "(" + valueDesc + ")V", false));
+            insns.insert(checkcast, rebox);
+            insns.remove(checkcast);
+        }
     }
 
     // ===== Utility methods =====

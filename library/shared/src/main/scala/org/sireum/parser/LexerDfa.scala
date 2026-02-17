@@ -35,11 +35,11 @@ object LexerDfa {
 
 /** A single DFA stored as parallel arrays for O(1) state lookup.
   *
-  * @param accepting    accepting(s) is T if state s is an accepting state
+  * @param accepting    bit set where bit s is set if state s is an accepting state
   * @param transitions  transitions(s) holds the outgoing (lo, hi, target) edges for state s
   */
 @datatype class LexerDfa(
-  val accepting: IS[S32, B],
+  val accepting: BitSet,
   val transitions: IS[S32, IS[S32, LexerDfa.Transition]]
 )
 
@@ -51,7 +51,7 @@ object LexerDfas {
   def create(dfas: IS[S32, LexerDfa],
              names: IS[S32, String],
              types: IS[S32, S32],
-             hiddens: IS[S32, B],
+             hiddens: BitSet,
              eofTypeOpt: Option[S32]): LexerDfas = {
     val (ad, nai) = computeDispatch(dfas)
     return LexerDfas(
@@ -128,7 +128,7 @@ object LexerDfas {
                eofTypeOpt: Option[Z]): LexerDfas = {
     val n = dfaInfos.size
     val nS32: S32 = conversions.Z.toS32(n)
-    val defaultDfa = LexerDfa(accepting = IS[S32, B](), transitions = IS[S32, IS[S32, LexerDfa.Transition]]())
+    val defaultDfa = LexerDfa(accepting = BitSet.Ext.fromISB(IS[S32, B]()), transitions = IS[S32, IS[S32, LexerDfa.Transition]]())
     val lexerDfasMs = MS.create[S32, LexerDfa](n, defaultDfa)
     val namesMs = MS.create[S32, String](n, "")
     val typesMs = MS.create[S32, S32](n, s32"0")
@@ -159,7 +159,7 @@ object LexerDfas {
         si = si + 1
       }
 
-      lexerDfasMs(ii) = LexerDfa(accepting = acceptingMs.toIS, transitions = transitionsMs.toIS)
+      lexerDfasMs(ii) = LexerDfa(accepting = BitSet.Ext.fromISB(acceptingMs.toIS), transitions = transitionsMs.toIS)
       namesMs(ii) = name
       typesMs(ii) = conversions.Z.toS32(tipe)
       hiddensMs(ii) = hidden
@@ -175,7 +175,7 @@ object LexerDfas {
       dfas = lexerDfasMs.toIS,
       names = namesMs.toIS,
       types = typesMs.toIS,
-      hiddens = hiddensMs.toIS,
+      hiddens = BitSet.Ext.fromISB(hiddensMs.toIS),
       eofTypeOpt = eofTypeOptS32
     )
   }
@@ -194,11 +194,11 @@ object LexerDfas {
     var di: S32 = s32"0"
     while (di < numDfas) {
       val d = lds.dfas.atS32(di)
-      val numStatesS32: S32 = d.accepting.sizeS32
-      w.writeZ(d.accepting.size)
+      val numStatesS32: S32 = d.transitions.sizeS32
+      w.writeZ(d.transitions.size)
       var si: S32 = s32"0"
       while (si < numStatesS32) {
-        w.writeB(d.accepting.atS32(si))
+        w.writeB(d.accepting.isSetS32(si))
         si = si + s32"1"
       }
       si = s32"0"
@@ -230,7 +230,7 @@ object LexerDfas {
     }
     var hi: S32 = s32"0"
     while (hi < numDfas) {
-      w.writeB(lds.hiddens.atS32(hi))
+      w.writeB(lds.hiddens.isSetS32(hi))
       hi = hi + s32"1"
     }
     lds.eofTypeOpt match {
@@ -251,7 +251,7 @@ object LexerDfas {
     val numDfas = r.readZ()
     val numDfasS32: S32 = conversions.Z.toS32(numDfas)
     val defaultTransition = LexerDfa.Transition(lo = '\u0000', hi = '\u0000', target = s32"0")
-    val defaultDfa = LexerDfa(accepting = IS[S32, B](), transitions = IS[S32, IS[S32, LexerDfa.Transition]]())
+    val defaultDfa = LexerDfa(accepting = BitSet.Ext.fromISB(IS[S32, B]()), transitions = IS[S32, IS[S32, LexerDfa.Transition]]())
     val lexerDfasMs = MS.create[S32, LexerDfa](numDfas, defaultDfa)
     var di: S32 = s32"0"
     while (di < numDfasS32) {
@@ -280,7 +280,7 @@ object LexerDfas {
         si = si + s32"1"
       }
 
-      lexerDfasMs(di) = LexerDfa(accepting = acceptingMs.toIS, transitions = transitionsMs.toIS)
+      lexerDfasMs(di) = LexerDfa(accepting = BitSet.Ext.fromISB(acceptingMs.toIS), transitions = transitionsMs.toIS)
       di = di + s32"1"
     }
 
@@ -312,7 +312,7 @@ object LexerDfas {
       dfas = lexerDfasMs.toIS,
       names = namesMs.toIS,
       types = typesMs.toIS,
-      hiddens = hiddensMs.toIS,
+      hiddens = BitSet.Ext.fromISB(hiddensMs.toIS),
       eofTypeOpt = eofTypeOpt
     )
   }
@@ -350,7 +350,7 @@ object LexerDfas {
   val dfas: IS[S32, LexerDfa],
   val names: IS[S32, String],
   val types: IS[S32, S32],
-  val hiddens: IS[S32, B],
+  val hiddens: BitSet,
   val eofTypeOpt: Option[S32],
   val asciiDispatch: IS[S32, IS[S32, S32]],
   val nonAsciiIndices: IS[S32, S32]
@@ -368,13 +368,13 @@ object LexerDfas {
     * @return the position after the last accepted character, or -1 if no match
     */
   def runDfa(dfa: LexerDfa, chars: Indexable.PosC, i: S32): S32 = {
-    if (dfa.accepting.isEmpty) {
+    if (dfa.transitions.isEmpty) {
       return s32"-1"
     }
     var state: S32 = s32"0"
     var pos: S32 = i
     var lastAccept: S32 = s32"-1"
-    if (dfa.accepting.atS32(state)) {
+    if (dfa.accepting.isSetS32(state)) {
       lastAccept = pos
     }
     while (chars.hasS32(pos)) {
@@ -395,7 +395,7 @@ object LexerDfas {
       if (!found) {
         return lastAccept
       }
-      if (dfa.accepting.atS32(state)) {
+      if (dfa.accepting.isSetS32(state)) {
         lastAccept = pos
       }
     }
@@ -442,7 +442,7 @@ object LexerDfas {
       text = chars.substringS32(i, bestEnd),
       ruleName = names.atS32(bestIdx),
       tipe = types.atS32(bestIdx),
-      isHidden = hiddens.atS32(bestIdx),
+      isHidden = hiddens.isSetS32(bestIdx),
       posOpt = chars.posOptS32(i, bestEnd - i)
     )
     return Some((bestEnd, leaf))
@@ -528,12 +528,12 @@ object LexerDfas {
         val trans = d.transitions.atS32(si)
         val transItemSTs: IS[S32, ST] = for (t <- trans) yield
           st"(${ops.COps(t.lo).escapeString} .. ${ops.COps(t.hi).escapeString} -> ${t.target})"
-        val acceptST: ST = if (d.accepting.atS32(si)) st"*" else st""
+        val acceptST: ST = if (d.accepting.isSetS32(si)) st"*" else st""
         transSTs = transSTs :+ st"$si$acceptST: ${(transItemSTs, ", ")}"
         si = si + s32"1"
       }
       dfaSTs = dfaSTs :+
-        st"""DFA ${names.atS32(di)} (type=${types.atS32(di)}, hidden=${hiddens.atS32(di)}):
+        st"""DFA ${names.atS32(di)} (type=${types.atS32(di)}, hidden=${hiddens.isSetS32(di)}):
             |  ${(transSTs, "\n")}"""
       di = di + s32"1"
     }
