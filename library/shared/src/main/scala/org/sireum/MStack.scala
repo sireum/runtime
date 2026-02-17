@@ -75,6 +75,10 @@ object MStack {
     sz = sz - s32"1"
     return elements.atS32(sz)
   }
+
+  def setTop(e: T): Unit = {
+    elements(sz - s32"1") = e
+  }
 }
 
 object MIStack {

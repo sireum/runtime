@@ -45,6 +45,11 @@ object LexerDfa {
 
 object LexerDfas {
 
+  /** Sentinel token returned by `LexerDfas.lex` when no match is found.
+    * Check via `token.tipe == s32"-1"`.
+    */
+  val sentinelToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"-1", isHidden = F, posOpt = None())
+
   /** Convenience factory that computes first-character dispatch tables from
     * the given DFAs and constructs a LexerDfas.
     */
@@ -408,17 +413,19 @@ object LexerDfas {
     * transition for the character at position i. For ASCII input this
     * typically reduces the number of DFA runs from N to 1-2.
     *
-    * Returns None if no DFA matches (or only matches empty string).
-    * When multiple DFAs match the same length, the first one (by index) wins.
+    * On success, returns the matched Token and advances `i.value` to the
+    * position after the match. On failure (no match or only empty match),
+    * returns the sentinel token (`sentinelToken`) and leaves `i.value` unchanged.
     *
     * @param chars the input character stream
-    * @param i     the starting position
-    * @return Some((afterIndex, token)) on success, None on failure
+    * @param i     mutable box holding the starting position; updated on success
+    * @return the matched Token, or `sentinelToken` if no match
     */
-  def lex(chars: Indexable.PosC, i: S32): Option[(S32, Token)] = {
+  def lex(chars: Indexable.PosC, i: MBox[S32]): Token = {
     var bestEnd: S32 = s32"-1"
     var bestIdx: S32 = s32"-1"
-    val c = chars.atS32(i)
+    val start: S32 = i.value
+    val c = chars.atS32(start)
     val candidates: IS[S32, S32] = if (c <= '\u007F') {
       asciiDispatch.atS32(conversions.C.toS32(c))
     } else {
@@ -428,24 +435,25 @@ object LexerDfas {
     val candidatesSize: S32 = candidates.sizeS32
     while (ki < candidatesSize) {
       val di = candidates.atS32(ki)
-      val end = runDfa(dfas.atS32(di), chars, i)
+      val end = runDfa(dfas.atS32(di), chars, start)
       if (end > bestEnd) {
         bestEnd = end
         bestIdx = di
       }
       ki = ki + s32"1"
     }
-    if (bestEnd <= i) {
-      return None()
+    if (bestEnd <= start) {
+      return LexerDfas.sentinelToken
     }
+    i.value = bestEnd
     val leaf = ParseTree.Leaf(
-      text = chars.substringS32(i, bestEnd),
+      text = chars.substringS32(start, bestEnd),
       ruleName = names.atS32(bestIdx),
       tipe = types.atS32(bestIdx),
       isHidden = hiddens.isSetS32(bestIdx),
-      posOpt = chars.posOptS32(i, bestEnd - i)
+      posOpt = chars.posOptS32(start, bestEnd - start)
     )
-    return Some((bestEnd, leaf))
+    return leaf
   }
 
   /** Tokenizes the full input stream.
@@ -461,16 +469,14 @@ object LexerDfas {
   def tokens(chars: Indexable.PosC, skipHidden: B): (S32, IS[S32, Token]) = {
     val defaultToken: Token = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"0", isHidden = F, posOpt = None())
     var buf: MIStack[Token] = MIStack.create[Token](defaultToken, s32"256", s32"2")
-    var i: S32 = s32"0"
-    while (chars.hasS32(i)) {
-      lex(chars, i) match {
-        case Some((end, token)) =>
-          if (!skipHidden || !token.isHidden) {
-            buf.push(token.toLeaf)
-          }
-          i = end
-        case _ =>
-          return (i, buf.toIS)
+    val iBox: MBox[S32] = MBox(s32"0")
+    while (chars.hasS32(iBox.value)) {
+      val token = lex(chars, iBox)
+      if (token.num == s32"-1") {
+        return (iBox.value, buf.toIS)
+      }
+      if (!skipHidden || !token.isHidden) {
+        buf.push(token.toLeaf)
       }
     }
     eofTypeOpt match {
@@ -480,7 +486,7 @@ object LexerDfas {
           ruleName = "EOF",
           tipe = eofType,
           isHidden = F,
-          posOpt = chars.posOptS32(i, s32"0")
+          posOpt = chars.posOptS32(iBox.value, s32"0")
         ))
       case _ =>
     }

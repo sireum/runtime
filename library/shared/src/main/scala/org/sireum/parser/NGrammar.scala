@@ -481,17 +481,10 @@ object NGrammar {
     // Shared empty constant avoids repeated IS() allocation
     val emptyTrees: IS[S32, ParseTree] = IS[S32, ParseTree]()
 
-    // Optimization 2+4: Flat tree buffer — O(1) amortized push instead of ISZ :+ O(n) copy.
-    // ElementsCont stores treeStart index instead of accumulated ISZ[ParseTree].
+    // Flat tree buffer — O(1) amortized push. Children accumulate here
+    // and are extracted when a rule completes.
     val emptyLeaf: ParseTree = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"0", isHidden = F, posOpt = None())
     var treeBuf: MStack[ParseTree] = MStack.create(emptyLeaf, s32"256", s32"2")
-
-    val defaultFrame: NGrammar.ParseFrame = NGrammar.ParseFrame.AltsWrap(name = "", num = s32"0")
-    var stack: MStack[NGrammar.ParseFrame] = MStack.create(defaultFrame, s32"64", s32"2")
-    var pos: S32 = s32"0"
-    var enterRuleNum: S32 = pt.nameMap.get(ruleName).get
-    var resultTrees: IS[S32, ParseTree] = emptyTrees
-    var entering: B = T
 
     // Helper: extract treeBuf[from..treeBuf.sz) as IS[S32, ParseTree]
     def extractTrees(from: S32): IS[S32, ParseTree] = {
@@ -500,6 +493,23 @@ object NGrammar {
       }
       return ops.MSZOpsUtil.slice(treeBuf.elements, from, treeBuf.sz)
     }
+
+    // Struct-of-arrays frame stacks — eliminates ParseFrame object allocation.
+    // Frame kind: T = ElementsCont, F = AltsWrap
+    var tagStack: MStack[B] = MStack.create(F, s32"64", s32"2")
+    // ElementsCont fields
+    val sentinelElements: NRule.Elements = NRule.Elements(name = "", num = s32"-1", isSynthetic = F, elements = ISZ())
+    var ecRuleStack: MStack[NRule.Elements] = MStack.create(sentinelElements, s32"64", s32"2")
+    var ecElemIdxStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
+    var ecTreeStartStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
+    // AltsWrap fields
+    var awNameStack: MStack[String] = MStack.create("", s32"32", s32"2")
+    var awNumStack: MStack[S32] = MStack.create(s32"0", s32"32", s32"2")
+    var awTreeStartStack: MStack[S32] = MStack.create(s32"0", s32"32", s32"2")
+
+    var pos: S32 = s32"0"
+    var enterRuleNum: S32 = pt.nameMap.get(ruleName).get
+    var entering: B = T
 
     var done: B = F
     while (!done) {
@@ -512,7 +522,10 @@ object NGrammar {
               val predResult = predict(alts.num, pos)
               if (predResult >= s32"0") {
                 if (!alts.isSynthetic) {
-                  stack.push(NGrammar.ParseFrame.AltsWrap(name = alts.name, num = alts.num))
+                  tagStack.push(F)
+                  awNameStack.push(alts.name)
+                  awNumStack.push(alts.num)
+                  awTreeStartStack.push(treeBuf.sizeS32)
                 }
                 enterRuleNum = alts.alts(predResult)
               } else {
@@ -521,7 +534,7 @@ object NGrammar {
                   val lastAltNum = alts.alts(alts.alts.sizeS32 - s32"1")
                   ruleMap.atS32(lastAltNum) match {
                     case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
-                      resultTrees = emptyTrees
+                      // Empty synthetic alt: no trees produced, treeBuf unchanged
                       entering = F
                       resolving = F
                       fallback = T
@@ -553,39 +566,49 @@ object NGrammar {
                 }
               }
             case elements: NRule.Elements =>
-              // Push initial continuation frame and transition to returning state;
-              // element processing is handled uniformly in the returning/continuation path
-              stack.push(NGrammar.ParseFrame.ElementsCont(rule = elements, elemIdx = s32"0", treeStart = treeBuf.sizeS32))
-              resultTrees = emptyTrees
+              // Push ElementsCont frame and transition to returning state
+              tagStack.push(T)
+              ecRuleStack.push(elements)
+              ecElemIdxStack.push(s32"0")
+              ecTreeStartStack.push(treeBuf.sizeS32)
               entering = F
               resolving = F
           }
         }
       } else {
-        // Returning with resultTrees
-        if (stack.isEmpty) {
+        // Returning: trees from child rule are already in treeBuf
+        if (tagStack.isEmpty) {
           done = T
         } else {
-          val frame = stack.pop()
-          frame match {
-            case ec: NGrammar.ParseFrame.ElementsCont =>
-              val elements = ec.rule
-              // Push resultTrees onto tree buffer (merges with existing trees from treeStart)
-              var ri: S32 = s32"0"
-              val riSize: S32 = resultTrees.sizeS32
-              while (ri < riSize) {
-                treeBuf.push(resultTrees.atS32(ri))
-                ri = ri + s32"1"
-              }
-              var j: S32 = pos
-              var elemIdx: S32 = ec.elemIdx
-              val elemSize: S32 = elements.elements.sizeS32
-              var needSubRule: B = F
-              while (elemIdx < elemSize && !needSubRule) {
-                elements.elements.atS32(elemIdx) match {
-                  case e: NElement.Str =>
+          val isEC: B = tagStack.peek
+          if (isEC) {
+            // ElementsCont: peek frame fields (don't pop yet)
+            val elements: NRule.Elements = ecRuleStack.peek
+            var elemIdx: S32 = ecElemIdxStack.peek
+            val treeStart: S32 = ecTreeStartStack.peek
+            var j: S32 = pos
+            val elemSize: S32 = elements.elements.sizeS32
+            var needSubRule: B = F
+            while (elemIdx < elemSize && !needSubRule) {
+              elements.elements.atS32(elemIdx) match {
+                case e: NElement.Str =>
+                  if (!tokens.hasS32(j)) {
+                    reporter.error(None(), "Parser", s"Unexpected end of input, expecting '${e.value}'")
+                    return None()
+                  }
+                  val token = tokens.atS32(j)
+                  if (token.num == e.num) {
+                    treeBuf.push(token.toLeaf)
+                    j = j + s32"1"
+                    elemIdx = elemIdx + s32"1"
+                  } else {
+                    reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting '${e.value}', but found '${token.text}'")
+                    return None()
+                  }
+                case e: NElement.Ref =>
+                  if (e.isTerminal) {
                     if (!tokens.hasS32(j)) {
-                      reporter.error(None(), "Parser", s"Unexpected end of input, expecting '${e.value}'")
+                      reporter.error(None(), "Parser", s"Unexpected end of input, expecting ${pt.reverseNameMap.get(e.num).get}")
                       return None()
                     }
                     val token = tokens.atS32(j)
@@ -594,74 +617,56 @@ object NGrammar {
                       j = j + s32"1"
                       elemIdx = elemIdx + s32"1"
                     } else {
-                      reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting '${e.value}', but found '${token.text}'")
+                      reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting ${pt.reverseNameMap.get(e.num).get}, but found ${pt.reverseNameMap.get(token.num).get}")
                       return None()
                     }
-                  case e: NElement.Ref =>
-                    if (e.isTerminal) {
-                      if (!tokens.hasS32(j)) {
-                        reporter.error(None(), "Parser", s"Unexpected end of input, expecting ${pt.reverseNameMap.get(e.num).get}")
-                        return None()
-                      }
-                      val token = tokens.atS32(j)
-                      if (token.num == e.num) {
-                        treeBuf.push(token.toLeaf)
-                        j = j + s32"1"
-                        elemIdx = elemIdx + s32"1"
-                      } else {
-                        reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting ${pt.reverseNameMap.get(e.num).get}, but found ${pt.reverseNameMap.get(token.num).get}")
-                        return None()
-                      }
-                    } else {
-                      // Push continuation for remaining elements, enter sub-rule
-                      stack.push(NGrammar.ParseFrame.ElementsCont(
-                        rule = elements, elemIdx = elemIdx + s32"1", treeStart = ec.treeStart))
-                      pos = j
-                      enterRuleNum = e.num
-                      entering = T
-                      needSubRule = T
-                    }
-                }
-              }
-              if (!needSubRule) {
-                pos = j
-                if (elements.isSynthetic) {
-                  var skipExtract: B = F
-                  if (stack.nonEmpty) {
-                    val parent = stack.peek
-                    parent match {
-                      case _: NGrammar.ParseFrame.ElementsCont => skipExtract = T
-                      case _ =>
-                    }
-                  }
-                  if (skipExtract) {
-                    resultTrees = emptyTrees
                   } else {
-                    val children = extractTrees(ec.treeStart)
-                    treeBuf.sz = ec.treeStart
-                    resultTrees = children
+                    // Update continuation elemIdx in place (no frame allocation)
+                    ecElemIdxStack.setTop(elemIdx + s32"1")
+                    pos = j
+                    enterRuleNum = e.num
+                    entering = T
+                    needSubRule = T
                   }
-                } else {
-                  val children = extractTrees(ec.treeStart)
-                  treeBuf.sz = ec.treeStart
-                  resultTrees = IS[S32, ParseTree](ParseTree.Node(children, elements.name, elements.num))
-                }
               }
-            case aw: NGrammar.ParseFrame.AltsWrap =>
-              resultTrees = IS[S32, ParseTree](ParseTree.Node(resultTrees, aw.name, aw.num))
+            }
+            if (!needSubRule) {
+              // Rule fully processed — pop ElementsCont frame
+              tagStack.pop()
+              ecRuleStack.pop()
+              ecElemIdxStack.pop()
+              ecTreeStartStack.pop()
+              pos = j
+              if (!elements.isSynthetic) {
+                // Non-synthetic: extract children, create Node, push to treeBuf
+                val children = extractTrees(treeStart)
+                treeBuf.sz = treeStart
+                treeBuf.push(ParseTree.Node(children, elements.name, elements.num))
+              }
+              // Synthetic: children are already in treeBuf at the parent's level
+            }
+          } else {
+            // AltsWrap: pop frame, extract children, wrap in Node
+            tagStack.pop()
+            val awName: String = awNameStack.pop()
+            val awNum: S32 = awNumStack.pop()
+            val awTreeStart: S32 = awTreeStartStack.pop()
+            val children = extractTrees(awTreeStart)
+            treeBuf.sz = awTreeStart
+            treeBuf.push(ParseTree.Node(children, awName, awNum))
           }
         }
       }
     }
 
-    // Final result after loop exits (stack empty)
-    if (resultTrees.sizeS32 == s32"1") {
+    // Final result: treeBuf should contain exactly 1 tree (the root)
+    if (treeBuf.sizeS32 == s32"1") {
       if (tokens.hasS32(pos)) {
         val token = tokens.atS32(pos).toLeaf
         reporter.error(token.posOpt, "Parser", s"Unexpected token '${token.text}' after successful parse")
         return None()
       }
-      return Some(resultTrees.atS32(s32"0"))
+      return Some(treeBuf.elements.atS32(s32"0"))
     }
     return None()
   }

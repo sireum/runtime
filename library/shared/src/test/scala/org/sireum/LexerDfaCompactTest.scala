@@ -343,12 +343,13 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bitset(F),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("hello"), S32(0))
-      assert(result.nonEmpty)
-      assert(result.get._1 == S32(5))
-      assert(result.get._2.text == String("hello"))
-      assert(result.get._2.ruleName == String("ID"))
-      assert(result.get._2.num == S32(1))
+      val iBox = MBox(S32(0))
+      val result = lds.lex(toInput("hello"), iBox)
+      assert(result.num != S32(-1))
+      assert(iBox.value == S32(5))
+      assert(result.text == String("hello"))
+      assert(result.ruleName == String("ID"))
+      assert(result.num == S32(1))
     }
 
     // Lex no match returns None
@@ -367,7 +368,8 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bitset(F),
         eofTypeOpt = None()
       )
-      assert(lds.lex(toInput("123"), S32(0)).isEmpty)
+      val iBox = MBox(S32(0))
+      assert(lds.lex(toInput("123"), iBox).num == S32(-1))
     }
 
     // Lex longest match across DFAs
@@ -395,12 +397,13 @@ class LexerDfaCompactTest extends TestSuite {
         hiddens = bitset(F, F),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("abc"), S32(0))
-      assert(result.nonEmpty)
-      assert(result.get._1 == S32(3))
-      assert(result.get._2.text == String("abc"))
-      assert(result.get._2.ruleName == String("WORD"))
-      assert(result.get._2.num == S32(2))
+      val iBox = MBox(S32(0))
+      val result = lds.lex(toInput("abc"), iBox)
+      assert(result.num != S32(-1))
+      assert(iBox.value == S32(3))
+      assert(result.text == String("abc"))
+      assert(result.ruleName == String("WORD"))
+      assert(result.num == S32(2))
     }
 
     // ---- tokens ----
@@ -551,10 +554,11 @@ class LexerDfaCompactTest extends TestSuite {
         dfaInfos = ISZ((dfa, "ID", Z(1), F)),
         eofTypeOpt = None()
       )
-      val result = lds.lex(toInput("test"), S32(0))
-      assert(result.nonEmpty)
-      assert(result.get._1 == S32(4))
-      assert(result.get._2.text == String("test"))
+      val iBox = MBox(S32(0))
+      val result = lds.lex(toInput("test"), iBox)
+      assert(result.num != S32(-1))
+      assert(iBox.value == S32(4))
+      assert(result.text == String("test"))
     }
 
     // ---- runDfa edge cases ----
