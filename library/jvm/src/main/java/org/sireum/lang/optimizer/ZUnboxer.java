@@ -81,6 +81,15 @@ public class ZUnboxer {
     static final String IS_TYPE = "org/sireum/IS";
     static final String MS_TYPE = "org/sireum/MS";
 
+    // IS/MS.apply(Object)Object — erased index lookup (apply(I): V)
+    static final String IS_APPLY_DESC = "(Ljava/lang/Object;)Ljava/lang/Object;";
+    // IS/MS.apply(long)Object — long overload for unboxed Z index
+    static final String IS_APPLY_LONG_DESC = "(J)Ljava/lang/Object;";
+    // MS.update(Object, Object)void — erased index update (update(I, V): Unit)
+    static final String MS_UPDATE_DESC = "(Ljava/lang/Object;Ljava/lang/Object;)V";
+    // MS.update(long, Object)void — long overload for unboxed Z index
+    static final String MS_UPDATE_LONG_DESC = "(JLjava/lang/Object;)V";
+
     // Singleton MODULE$ field (used by both Z$ and Z$MP$)
     static final String Z_MP_MODULE = "MODULE$";
 
@@ -612,11 +621,13 @@ public class ZUnboxer {
                 return isRecognizedZMPMethod(call) ? USE_OPTIMIZABLE : USE_ESCAPES;
             }
 
-            // IS/MS.apply(Z) — array indexing (needs re-boxing)
+            // IS/MS.apply(Object)Object — array indexing with Z index
+            // With long overloads available, we can directly use IS/MS.apply(J)Object
             if ((call.getOpcode() == Opcodes.INVOKEVIRTUAL || call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
                     (IS_TYPE.equals(call.owner) || MS_TYPE.equals(call.owner)) &&
-                    "apply".equals(call.name)) {
-                return USE_NEEDS_REBOX;
+                    "apply".equals(call.name) &&
+                    IS_APPLY_DESC.equals(call.desc)) {
+                return USE_OPTIMIZABLE;
             }
             return USE_ESCAPES;
         }
@@ -853,6 +864,22 @@ public class ZUnboxer {
                                 insn = insns.getFirst();
                                 continue;
                             }
+                        }
+
+                        // IS/MS.apply(Object)Object — unboxed Z local is the index argument
+                        // Rewrite to IS/MS.apply(J)Object — use long overload
+                        if ((call.getOpcode() == Opcodes.INVOKEVIRTUAL ||
+                                call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
+                                (IS_TYPE.equals(call.owner) || MS_TYPE.equals(call.owner)) &&
+                                "apply".equals(call.name) &&
+                                IS_APPLY_DESC.equals(call.desc)) {
+                            insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                            insns.set(usage, new MethodInsnNode(
+                                    call.getOpcode(), call.owner, call.name,
+                                    IS_APPLY_LONG_DESC, call.itf));
+                            changed = true;
+                            insn = insns.getFirst();
+                            continue;
                         }
                     }
 

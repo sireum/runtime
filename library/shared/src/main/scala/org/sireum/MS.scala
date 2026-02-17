@@ -350,6 +350,15 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
 
   def apply(index: I): V = atZ(index.asInstanceOf[ZLike[_]].toIndex)
 
+  def apply(index: scala.Long): V = {
+    if (index < 0L || index >= length.toLong)
+      halt(s"Indexing out of bounds: $index")
+    if (boxer eq $internal.IdentityBoxer)
+      data.asInstanceOf[Array[AnyRef]](index.toInt).asInstanceOf[V]
+    else
+      boxer.lookup[V](data, index)
+  }
+
   def apply(args: (I, V)*): MS[I, V] = {
     val a = boxer.clone(data, length, length, Z.MP.zero)
     for ((index, v) <- args) {
@@ -364,6 +373,15 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
     val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
+  }
+
+  def update(index: scala.Long, value: V): Unit = {
+    if (index < 0L || index >= length.toLong)
+      halt(s"Indexing out of bounds: $index")
+    if (boxer eq $internal.IdentityBoxer)
+      data.asInstanceOf[Array[AnyRef]](index.toInt) = helper.assign(value).asInstanceOf[AnyRef]
+    else
+      boxer.store(data, index, helper.assign(value))
   }
 
   def elements: scala.Seq[V] = {
