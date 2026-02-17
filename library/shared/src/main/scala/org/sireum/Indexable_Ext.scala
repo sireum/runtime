@@ -52,7 +52,11 @@ object Indexable_Ext {
     new Indexable.PosC {
       override def at(i: Z): C = C(codepoints(i.toInt))
 
+      def at(i: scala.Long): C = C(codepoints(i.toInt))
+
       override def has(i: Z): B = 0 <= i && i < size
+
+      def has(i: scala.Long): scala.Boolean = 0L <= i && i < size
 
       override def posOpt(offset: Z, length: Z): Option[message.Position] = {
         Some(message.PosInfo(info, (conversions.Z.toU64(offset) << U64.fromZ(32)) | conversions.Z.toU64(length)))

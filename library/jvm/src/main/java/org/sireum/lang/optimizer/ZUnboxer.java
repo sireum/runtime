@@ -90,6 +90,21 @@ public class ZUnboxer {
     // MS.update(long, Object)void — long overload for unboxed Z index
     static final String MS_UPDATE_LONG_DESC = "(JLjava/lang/Object;)V";
 
+    // Indexable interface hierarchy
+    static final String INDEXABLE_TYPE = "org/sireum/Indexable";
+    static final String INDEXABLE_POS_TYPE = "org/sireum/Indexable$Pos";
+    static final String INDEXABLE_POSC_TYPE = "org/sireum/Indexable$PosC";
+    // Concrete implementations
+    static final String INDEXABLE_ISZ_TYPE = "org/sireum/Indexable$Isz";
+    static final String INDEXABLE_ISZ_DOCINFO_TYPE = "org/sireum/Indexable$IszDocInfo";
+    static final String INDEXABLE_ISZ_DOCINFOC_TYPE = "org/sireum/Indexable$IszDocInfoC";
+    // Indexable.has(Z)Z and Indexable.at(Z)Object descriptors
+    static final String INDEXABLE_HAS_DESC = "(" + Z_DESC + ")Z";
+    static final String INDEXABLE_AT_DESC = "(" + Z_DESC + ")Ljava/lang/Object;";
+    // Long overload descriptors
+    static final String INDEXABLE_HAS_LONG_DESC = "(J)Z";
+    static final String INDEXABLE_AT_LONG_DESC = "(J)Ljava/lang/Object;";
+
     // Singleton MODULE$ field (used by both Z$ and Z$MP$)
     static final String Z_MP_MODULE = "MODULE$";
 
@@ -155,6 +170,16 @@ public class ZUnboxer {
         Z_STATIC_OPS.put("$less", "zLt");
         Z_STATIC_OPS.put("$less$eq", "zLe");
     }
+
+    // Set of Indexable interface types for quick lookup
+    static final Set<String> INDEXABLE_TYPES = new HashSet<>(Arrays.asList(
+            INDEXABLE_TYPE, INDEXABLE_POS_TYPE, INDEXABLE_POSC_TYPE
+    ));
+
+    // Set of concrete Indexable implementations that have IS-backed has/at
+    static final Set<String> INDEXABLE_ISZ_TYPES = new HashSet<>(Arrays.asList(
+            INDEXABLE_ISZ_TYPE, INDEXABLE_ISZ_DOCINFO_TYPE, INDEXABLE_ISZ_DOCINFOC_TYPE
+    ));
 
     // classifyZUse return values
     static final int USE_OPTIMIZABLE = 0;   // No re-boxing needed
@@ -250,6 +275,14 @@ public class ZUnboxer {
         cr.accept(cn, 0);
 
         boolean changed = false;
+
+        // Inject Long overload methods for Indexable types
+        if (INDEXABLE_TYPE.equals(cn.name)) {
+            changed |= addIndexableDefaultMethods(cn);
+        } else if (INDEXABLE_ISZ_TYPES.contains(cn.name)) {
+            changed |= addIndexableIszOptimizedMethods(cn);
+        }
+
         for (MethodNode mn : cn.methods) {
             boolean[] result = transformMethod(cn.name, mn, enablePass2);
             if (result[0]) changed = true;
@@ -331,22 +364,36 @@ public class ZUnboxer {
         // Pass 2: Z local variable unboxing (escape analysis)
         if (enablePass2) {
             Map<Integer, LocalInfo> zLocals = findZLocals(mn);
+            if (verbose && !zLocals.isEmpty()) {
+                System.out.println("  " + className + "." + mn.name + mn.desc +
+                        ": found Z locals at slots " + zLocals.keySet());
+            }
             if (!zLocals.isEmpty()) {
                 markEscapingLocals(mn, zLocals);
 
                 Set<Integer> unboxable = new HashSet<>();
                 for (Map.Entry<Integer, LocalInfo> entry : zLocals.entrySet()) {
                     LocalInfo info = entry.getValue();
-                    if (!info.escapes) {
-                        // Cost heuristic: only unbox if saves at stores outweigh re-boxing at loads.
-                        // Each store saves one Z allocation; each rebox load adds one Z allocation.
-                        if (info.reboxCount <= info.stores.size()) {
-                            unboxable.add(entry.getKey());
-                        } else if (verbose) {
+                    if (info.escapes) {
+                        if (verbose) {
                             System.out.println("  " + className + "." + mn.name + mn.desc +
-                                    ": skipping slot " + entry.getKey() +
-                                    " (stores=" + info.stores.size() + " rebox=" + info.reboxCount + ")");
+                                    ": slot " + entry.getKey() + " ESCAPES" +
+                                    " (stores=" + info.stores.size() + " loads=" + info.loads.size() + ")");
                         }
+                    } else if (info.boxingStores < info.reboxCount) {
+                        // Cost heuristic: only unbox if eliminated boxing allocations >= re-boxing.
+                        // Only stores from Z.MP$.apply (literal boxing) save an allocation;
+                        // stores from arithmetic results or other Z sources don't save any.
+                        // Each rebox load adds one Z$MP$Long allocation.
+                        // At boxingStores == reboxCount, net allocation cost is zero but code quality
+                        // improves (direct long operations at USE_OPTIMIZABLE sites like Indexable.has/at).
+                        if (verbose) {
+                            System.out.println("  " + className + "." + mn.name + mn.desc +
+                                    ": slot " + entry.getKey() + " COST-SKIP" +
+                                    " (boxingStores=" + info.boxingStores + " rebox=" + info.reboxCount + ")");
+                        }
+                    } else {
+                        unboxable.add(entry.getKey());
                     }
                 }
 
@@ -363,6 +410,136 @@ public class ZUnboxer {
         }
 
         return result;
+    }
+
+    /**
+     * Check if a class already has a method with the given name and descriptor.
+     */
+    private boolean hasMethod(ClassNode cn, String name, String desc) {
+        for (MethodNode mn : cn.methods) {
+            if (name.equals(mn.name) && desc.equals(mn.desc)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add default methods has(J)Z and at(J)Ljava/lang/Object; to the Indexable interface.
+     * These are fallback implementations that box the long to Z and delegate to the
+     * abstract has(Z)/at(Z) methods. Concrete implementations can override with
+     * optimized versions that avoid boxing.
+     *
+     * @return true if methods were added
+     */
+    boolean addIndexableDefaultMethods(ClassNode cn) {
+        boolean changed = false;
+
+        // default boolean has(long i) { return has(new Z$MP$Long(i)); }
+        if (!hasMethod(cn, "has", INDEXABLE_HAS_LONG_DESC)) {
+            MethodNode has = new MethodNode(Opcodes.ACC_PUBLIC, "has", INDEXABLE_HAS_LONG_DESC, null, null);
+            has.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));       // this
+            has.instructions.add(new TypeInsnNode(Opcodes.NEW, Z_MP_LONG));
+            has.instructions.add(new InsnNode(Opcodes.DUP));
+            has.instructions.add(new VarInsnNode(Opcodes.LLOAD, 1));       // i (long, slots 1-2)
+            has.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, Z_MP_LONG, "<init>",
+                    Z_MP_LONG_INIT_DESC, false));
+            has.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, INDEXABLE_TYPE, "has",
+                    INDEXABLE_HAS_DESC, true));
+            has.instructions.add(new InsnNode(Opcodes.IRETURN));
+            has.maxStack = 4;
+            has.maxLocals = 3;
+            cn.methods.add(has);
+            changed = true;
+            if (verbose) {
+                System.out.println("  Added default has(J)Z to " + cn.name);
+            }
+        }
+
+        // default Object at(long i) { return at(new Z$MP$Long(i)); }
+        if (!hasMethod(cn, "at", INDEXABLE_AT_LONG_DESC)) {
+            MethodNode at = new MethodNode(Opcodes.ACC_PUBLIC, "at", INDEXABLE_AT_LONG_DESC, null, null);
+            at.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));        // this
+            at.instructions.add(new TypeInsnNode(Opcodes.NEW, Z_MP_LONG));
+            at.instructions.add(new InsnNode(Opcodes.DUP));
+            at.instructions.add(new VarInsnNode(Opcodes.LLOAD, 1));        // i (long, slots 1-2)
+            at.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, Z_MP_LONG, "<init>",
+                    Z_MP_LONG_INIT_DESC, false));
+            at.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, INDEXABLE_TYPE, "at",
+                    INDEXABLE_AT_DESC, true));
+            at.instructions.add(new InsnNode(Opcodes.ARETURN));
+            at.maxStack = 4;
+            at.maxLocals = 3;
+            cn.methods.add(at);
+            changed = true;
+            if (verbose) {
+                System.out.println("  Added default at(J)Object to " + cn.name);
+            }
+        }
+
+        return changed;
+    }
+
+    /**
+     * Add optimized has(J)Z and at(J)Ljava/lang/Object; to IS-backed Indexable
+     * implementations (Isz, IszDocInfo, IszDocInfoC).
+     *
+     * has(long i): return i < this.is().length().toLong();
+     * at(long i):  return this.is().apply(i);  // uses IS.apply(long)
+     *
+     * @return true if methods were added
+     */
+    boolean addIndexableIszOptimizedMethods(ClassNode cn) {
+        boolean changed = false;
+
+        // boolean has(long i) { return i < this.is().length().toLong(); }
+        if (!hasMethod(cn, "has", INDEXABLE_HAS_LONG_DESC)) {
+            MethodNode has = new MethodNode(Opcodes.ACC_PUBLIC, "has", INDEXABLE_HAS_LONG_DESC, null, null);
+            LabelNode falseLabel = new LabelNode();
+            LabelNode endLabel = new LabelNode();
+            has.instructions.add(new VarInsnNode(Opcodes.LLOAD, 1));       // i (long)
+            has.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));       // this
+            has.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, cn.name, "is",
+                    "()Lorg/sireum/IS;", false));
+            has.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, IS_TYPE, "length",
+                    "()" + Z_DESC, false));
+            has.instructions.add(new MethodInsnNode(Opcodes.INVOKEINTERFACE, Z_TYPE, "toLong",
+                    TO_LONG_DESC, true));
+            has.instructions.add(new InsnNode(Opcodes.LCMP));
+            has.instructions.add(new JumpInsnNode(Opcodes.IFGE, falseLabel));  // if i >= length → false
+            has.instructions.add(new InsnNode(Opcodes.ICONST_1));
+            has.instructions.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
+            has.instructions.add(falseLabel);
+            has.instructions.add(new InsnNode(Opcodes.ICONST_0));
+            has.instructions.add(endLabel);
+            has.instructions.add(new InsnNode(Opcodes.IRETURN));
+            has.maxStack = 4;
+            has.maxLocals = 3;
+            cn.methods.add(has);
+            changed = true;
+            if (verbose) {
+                System.out.println("  Added optimized has(J)Z to " + cn.name);
+            }
+        }
+
+        // Object at(long i) { return this.is().apply(i); }
+        if (!hasMethod(cn, "at", INDEXABLE_AT_LONG_DESC)) {
+            MethodNode at = new MethodNode(Opcodes.ACC_PUBLIC, "at", INDEXABLE_AT_LONG_DESC, null, null);
+            at.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));        // this
+            at.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, cn.name, "is",
+                    "()Lorg/sireum/IS;", false));
+            at.instructions.add(new VarInsnNode(Opcodes.LLOAD, 1));        // i (long)
+            at.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, IS_TYPE, "apply",
+                    IS_APPLY_LONG_DESC, false));
+            at.instructions.add(new InsnNode(Opcodes.ARETURN));
+            at.maxStack = 3;
+            at.maxLocals = 3;
+            cn.methods.add(at);
+            changed = true;
+            if (verbose) {
+                System.out.println("  Added optimized at(J)Object to " + cn.name);
+            }
+        }
+
+        return changed;
     }
 
     /**
@@ -466,8 +643,10 @@ public class ZUnboxer {
     static class LocalInfo {
         final int slot;
         boolean escapes;
-        /** Number of load sites that would require re-boxing (receiver of Z method, IS/MS.apply arg) */
+        /** Number of load sites that would require re-boxing */
         int reboxCount;
+        /** Number of stores where Z.MP$.apply boxing can be eliminated (actual allocation savings) */
+        int boxingStores;
         /** Set of instruction indices where this local is stored */
         final Set<AbstractInsnNode> stores = new HashSet<>();
         /** Set of instruction indices where this local is loaded */
@@ -477,6 +656,7 @@ public class ZUnboxer {
             this.slot = slot;
             this.escapes = false;
             this.reboxCount = 0;
+            this.boxingStores = 0;
         }
     }
 
@@ -516,6 +696,7 @@ public class ZUnboxer {
         }
 
         // Also scan for ASTORE after Z-producing calls (for cases without debug info)
+        // and count boxing stores (Z.MP$.apply calls that can be eliminated)
         for (AbstractInsnNode insn = mn.instructions.getFirst(); insn != null; insn = insn.getNext()) {
             if (insn.getOpcode() == Opcodes.ASTORE) {
                 VarInsnNode store = (VarInsnNode) insn;
@@ -523,7 +704,12 @@ public class ZUnboxer {
                 AbstractInsnNode prev = previousSignificant(insn);
                 if (prev != null && producesZ(prev)) {
                     result.computeIfAbsent(store.var, LocalInfo::new);
-                    result.get(store.var).stores.add(insn);
+                    LocalInfo info = result.get(store.var);
+                    info.stores.add(insn);
+                    // Count stores where we can actually eliminate a boxing allocation
+                    if (prev instanceof MethodInsnNode && isZBoxingCall((MethodInsnNode) prev)) {
+                        info.boxingStores++;
+                    }
                 }
             }
             if (insn.getOpcode() == Opcodes.ALOAD) {
@@ -557,7 +743,14 @@ public class ZUnboxer {
 
                 int safety = classifyZUse(next, load, mn, zLocals);
                 if (safety == USE_ESCAPES) {
+                    // Try stack simulation as fallback
+                    safety = findAndClassifyConsumer(load, zLocals);
+                }
+                if (safety == USE_ESCAPES) {
                     info.escapes = true;
+                    if (verbose) {
+                        System.out.println("    slot " + load.var + " escapes at load → " + insnToString(next));
+                    }
                 } else if (safety == USE_NEEDS_REBOX) {
                     info.reboxCount++;
                 }
@@ -578,104 +771,378 @@ public class ZUnboxer {
                     continue;
                 }
 
-                // The value being stored must come from a Z-producing instruction
-                // or from another Z local (ALOAD of a Z local)
-                if (!producesZ(prev) && !isZLocalLoad(prev, zLocals)) {
+                // The value being stored must come from a Z-producing instruction,
+                // another Z local (ALOAD of a Z local), or a Z method parameter
+                if (!producesZ(prev) && !isZLocalLoad(prev, zLocals) &&
+                        !isZMethodParamLoad(prev, mn)) {
                     info.escapes = true;
+                    if (verbose) {
+                        System.out.println("    slot " + store.var + " escapes at store ← " + insnToString(prev));
+                    }
                 }
             }
         }
     }
 
     /**
-     * Classify how a Z local is used at this point.
+     * Classify how a Z local is used after being loaded.
      * Returns USE_OPTIMIZABLE, USE_NEEDS_REBOX, or USE_ESCAPES.
      *
-     * Safe uses (USE_OPTIMIZABLE — no re-boxing needed at rewrite time):
-     * - As argument of Z instance method: z.op(thisLocal) — will use long overload
-     * - Z.toLong, Z.toInt extraction
-     * - Stored to another unboxable Z local
-     * - As receiver of Z.op(long): thisLocal.op(long) — will use Z.MP$ static dispatch
-     * - As receiver of Z.op(Z) where arg is another ALOAD — may optimize to Z.MP$(JJ)
+     * Uses stack simulation to find the instruction that actually consumes the
+     * loaded Z value, handling complex argument expressions between the load
+     * and the consuming instruction.
      *
-     * Safe uses (USE_NEEDS_REBOX — safe to unbox but needs re-boxing at use site):
-     * - IS.apply(Z) / MS.apply(Z) — array indexing
-     * - As receiver/argument in patterns we can't optimize to (JJ) at rewrite time
-     *
-     * Unsafe uses (USE_ESCAPES — cannot unbox):
-     * - Passed to unknown method, returned, stored to field, etc.
+     * USE_OPTIMIZABLE: rewrite phase can eliminate boxing entirely
+     *   (toLong/toInt extraction, long overload arg, IS/MS.apply(J), Z local store,
+     *    receiver of Z.op(long) → INVOKESTATIC)
+     * USE_NEEDS_REBOX: safe to unbox but needs re-boxing at load site
+     *   (receiver of Z.op(Z), arg to any method accepting Z/Object, ARETURN, etc.)
+     * USE_ESCAPES: analysis failed (branch, unknown instruction, etc.)
      */
     int classifyZUse(AbstractInsnNode next, VarInsnNode load, MethodNode mn,
                      Map<Integer, LocalInfo> zLocals) {
-        // Case 1: next instruction IS a method call — z is the last argument (or sole receiver)
+        // === Quick checks for immediate-next patterns (no stack simulation needed) ===
+
+        // Case: stored to another Z local
+        if (next.getOpcode() == Opcodes.ASTORE) {
+            VarInsnNode store = (VarInsnNode) next;
+            return zLocals.containsKey(store.var) ? USE_OPTIMIZABLE : USE_NEEDS_REBOX;
+        }
+
+        // Case: returned
+        if (next.getOpcode() == Opcodes.ARETURN) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // Case: null check (=== / =!= pattern)
+        if (next.getOpcode() == Opcodes.IFNULL || next.getOpcode() == Opcodes.IFNONNULL) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // Case: stored to field
+        if (next.getOpcode() == Opcodes.PUTFIELD || next.getOpcode() == Opcodes.PUTSTATIC) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // Case: next is a method call where z is the last argument pushed
         if (next instanceof MethodInsnNode) {
             MethodInsnNode call = (MethodInsnNode) next;
 
-            // Z instance methods (z is argument position)
+            // Z instance methods — z is the argument (the receiver was pushed before z)
             if (isZInstanceCall(call)) {
-                return isRecognizedZInstanceMethod(call) ? USE_OPTIMIZABLE : USE_ESCAPES;
+                return isRecognizedZInstanceMethod(call) ? USE_OPTIMIZABLE : USE_NEEDS_REBOX;
             }
 
             // Z.MP$ methods
             if (call.getOpcode() == Opcodes.INVOKEVIRTUAL && Z_MP.equals(call.owner)) {
-                return isRecognizedZMPMethod(call) ? USE_OPTIMIZABLE : USE_ESCAPES;
+                return isRecognizedZMPMethod(call) ? USE_OPTIMIZABLE : USE_NEEDS_REBOX;
             }
 
-            // IS/MS.apply(Object)Object — array indexing with Z index
-            // With long overloads available, we can directly use IS/MS.apply(J)Object
+            // IS/MS.apply(Object)Object — z is the index argument
             if ((call.getOpcode() == Opcodes.INVOKEVIRTUAL || call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
                     (IS_TYPE.equals(call.owner) || MS_TYPE.equals(call.owner)) &&
                     "apply".equals(call.name) &&
                     IS_APPLY_DESC.equals(call.desc)) {
-                return USE_OPTIMIZABLE;
+                return USE_OPTIMIZABLE; // long overload available
             }
+
+            // MS.update(Object, Object) — z is the index (first) argument
+            if ((call.getOpcode() == Opcodes.INVOKEVIRTUAL || call.getOpcode() == Opcodes.INVOKEINTERFACE) &&
+                    MS_TYPE.equals(call.owner) && "update".equals(call.name) &&
+                    MS_UPDATE_DESC.equals(call.desc)) {
+                return USE_OPTIMIZABLE; // long overload available
+            }
+
+            // Indexable.has(Z)Z or Indexable.at(Z)Object — z is the argument (not receiver)
+            if (call.getOpcode() == Opcodes.INVOKEINTERFACE &&
+                    INDEXABLE_TYPES.contains(call.owner)) {
+                if (("has".equals(call.name) && INDEXABLE_HAS_DESC.equals(call.desc)) ||
+                        ("at".equals(call.name) && INDEXABLE_AT_DESC.equals(call.desc))) {
+                    return USE_OPTIMIZABLE; // long overload available
+                }
+            }
+        }
+
+        // Remaining cases: defer to stack simulation (called as fallback from markEscapingLocals)
+        return USE_ESCAPES;
+    }
+
+    /**
+     * Find the instruction that consumes the value loaded by the given ALOAD,
+     * and classify the use.
+     *
+     * @return USE_OPTIMIZABLE, USE_NEEDS_REBOX, or USE_ESCAPES
+     */
+    int findAndClassifyConsumer(VarInsnNode load, Map<Integer, LocalInfo> zLocals) {
+        int position = 0;
+        int maxDist = 30;
+        int dist = 0;
+
+        for (AbstractInsnNode insn = load.getNext(); insn != null && dist < maxDist; insn = insn.getNext()) {
+            if (insn instanceof LabelNode || insn instanceof LineNumberNode || insn instanceof FrameNode) {
+                continue;
+            }
+            dist++;
+
+            int[] effect = computeStackEffect(insn);
+            if (effect == null) {
+                return USE_ESCAPES; // branch, return, throw, or unknown — bail
+            }
+
+            int consumed = effect[0];
+            int produced = effect[1];
+
+            if (position < consumed) {
+                // Our value is consumed by this instruction.
+                // argPos: 0 = bottom of consumed values (receiver for instance calls)
+                int argPos = consumed - 1 - position;
+                return classifyConsumer(insn, argPos, zLocals);
+            }
+
+            position = position - consumed + produced;
+        }
+
+        return USE_ESCAPES; // couldn't find consumer
+    }
+
+    /**
+     * Classify a use of Z based on the consuming instruction and argument position.
+     * Called from the stack simulation path (findAndClassifyConsumer), meaning the
+     * ALOAD is NOT immediately before the consuming instruction. The rewrite phase
+     * uses immediate-next-instruction matching, so patterns found here can only be
+     * handled via re-boxing. Hence this method returns USE_NEEDS_REBOX or USE_ESCAPES
+     * (never USE_OPTIMIZABLE).
+     *
+     * @param consumer the instruction that consumes our Z value
+     * @param argPos   position among consumed values (0 = receiver for instance calls)
+     */
+    int classifyConsumer(AbstractInsnNode consumer, int argPos, Map<Integer, LocalInfo> zLocals) {
+        // ASTORE: storing to a local
+        if (consumer.getOpcode() == Opcodes.ASTORE) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // ARETURN
+        if (consumer.getOpcode() == Opcodes.ARETURN) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // PUTFIELD / PUTSTATIC
+        if (consumer.getOpcode() == Opcodes.PUTFIELD || consumer.getOpcode() == Opcodes.PUTSTATIC) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // IFNULL / IFNONNULL
+        if (consumer.getOpcode() == Opcodes.IFNULL || consumer.getOpcode() == Opcodes.IFNONNULL) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // POP (unused value)
+        if (consumer.getOpcode() == Opcodes.POP) {
+            return USE_NEEDS_REBOX;
+        }
+
+        // Method call
+        if (consumer instanceof MethodInsnNode) {
+            MethodInsnNode call = (MethodInsnNode) consumer;
+
+            // Z instance method — our value is the receiver (argPos 0)
+            if (argPos == 0 && isZInstanceCall(call)) {
+                return isRecognizedZInstanceMethod(call) ? USE_NEEDS_REBOX : USE_ESCAPES;
+            }
+
+            // Z instance method — our value is the argument
+            if (isZInstanceCall(call)) {
+                return USE_NEEDS_REBOX;
+            }
+
+            // Z.MP$ methods
+            if (Z_MP.equals(call.owner)) {
+                return isRecognizedZMPMethod(call) ? USE_NEEDS_REBOX : USE_ESCAPES;
+            }
+
+            // IS/MS methods
+            if (IS_TYPE.equals(call.owner) || MS_TYPE.equals(call.owner)) {
+                return USE_NEEDS_REBOX;
+            }
+
+            // Indexable.has(Z)/at(Z) — z is the argument (argPos 1 for instance call)
+            if (INDEXABLE_TYPES.contains(call.owner) && argPos == 1) {
+                if (("has".equals(call.name) && INDEXABLE_HAS_DESC.equals(call.desc)) ||
+                        ("at".equals(call.name) && INDEXABLE_AT_DESC.equals(call.desc))) {
+                    return USE_NEEDS_REBOX; // can't optimize via stack sim (not immediately adjacent)
+                }
+            }
+
+            // Any method: check if it accepts Z or Object at our arg position
+            Type[] paramTypes = Type.getArgumentTypes(call.desc);
+            int paramIdx;
+            if (call.getOpcode() == Opcodes.INVOKESTATIC) {
+                paramIdx = argPos;
+            } else {
+                paramIdx = argPos - 1; // subtract receiver
+            }
+
+            if (paramIdx >= 0 && paramIdx < paramTypes.length) {
+                String paramDesc = paramTypes[paramIdx].getDescriptor();
+                if (Z_DESC.equals(paramDesc) || "Ljava/lang/Object;".equals(paramDesc)) {
+                    return USE_NEEDS_REBOX;
+                }
+            }
+
+            // Z as receiver of Object.equals or similar
+            if (argPos == 0) {
+                return USE_NEEDS_REBOX;
+            }
+
             return USE_ESCAPES;
         }
 
-        // Case 2: stored to another unboxable Z local
-        if (next.getOpcode() == Opcodes.ASTORE) {
-            VarInsnNode store = (VarInsnNode) next;
-            return zLocals.containsKey(store.var) ? USE_OPTIMIZABLE : USE_ESCAPES;
-        }
-
-        // Case 3: z is the receiver — ALOAD z → <long push> → Z.op(J)Z/B
-        if (isLongPush(next)) {
-            AbstractInsnNode afterArg = nextSignificant(next);
-            if (afterArg instanceof MethodInsnNode) {
-                MethodInsnNode call = (MethodInsnNode) afterArg;
-                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name) &&
-                        (L_TO_Z.equals(call.desc) || L_TO_B.equals(call.desc))) {
-                    return USE_OPTIMIZABLE;
-                }
-            }
-        }
-
-        // Case 4: z is the receiver — ALOAD z → ALOAD z2 → Z.op(Z/J)Z/B
-        if (next.getOpcode() == Opcodes.ALOAD) {
-            AbstractInsnNode afterArg = nextSignificant(next);
-            if (afterArg instanceof MethodInsnNode) {
-                MethodInsnNode call = (MethodInsnNode) afterArg;
-                if (isZInstanceCall(call) && Z_BIN_OPS.contains(call.name)) {
-                    if (Z_TO_Z.equals(call.desc) || Z_TO_B.equals(call.desc) ||
-                            L_TO_Z.equals(call.desc) || L_TO_B.equals(call.desc)) {
-                        return USE_NEEDS_REBOX; // may optimize to (JJ) if arg is also unboxable
-                    }
-                }
-            }
-        }
-
-        // Case 5: z is the receiver, arg is a boxing sequence (pre-Pass-1 pattern)
-        // ALOAD z → GETSTATIC Z$MP$.MODULE$ (or Z$.MODULE$) → <push> → apply(I/J)Z → Z.op(Z)Z
-        if (next instanceof FieldInsnNode) {
-            FieldInsnNode field = (FieldInsnNode) next;
-            if (field.getOpcode() == Opcodes.GETSTATIC &&
-                    Z_MP_MODULE.equals(field.name) &&
-                    (Z_MP.equals(field.owner) || Z_COMP.equals(field.owner))) {
-                return USE_NEEDS_REBOX; // Pass 1 will simplify this, then Pass 2 can optimize
-            }
+        // InvokeDynamic — Z passed to lambda
+        if (consumer instanceof InvokeDynamicInsnNode) {
+            return USE_NEEDS_REBOX;
         }
 
         return USE_ESCAPES;
+    }
+
+    /**
+     * Compute the stack effect of an instruction: [values consumed, values produced].
+     * Returns null for branch/return instructions or unknown opcodes (analysis should bail out).
+     *
+     * Note: counts VALUES not slots (long/double count as 1 value).
+     */
+    static int[] computeStackEffect(AbstractInsnNode insn) {
+        int op = insn.getOpcode();
+
+        // Method calls — handle first since MethodInsnNode has specific logic
+        if (insn instanceof MethodInsnNode) {
+            MethodInsnNode m = (MethodInsnNode) insn;
+            int args = Type.getArgumentTypes(m.desc).length;
+            int ret = Type.getReturnType(m.desc) == Type.VOID_TYPE ? 0 : 1;
+            if (m.getOpcode() == Opcodes.INVOKESTATIC) {
+                return new int[]{args, ret};
+            } else {
+                return new int[]{args + 1, ret}; // +1 for receiver
+            }
+        }
+
+        // InvokeDynamic
+        if (insn instanceof InvokeDynamicInsnNode) {
+            InvokeDynamicInsnNode id = (InvokeDynamicInsnNode) insn;
+            int args = Type.getArgumentTypes(id.desc).length;
+            int ret = Type.getReturnType(id.desc) == Type.VOID_TYPE ? 0 : 1;
+            return new int[]{args, ret};
+        }
+
+        switch (op) {
+            // Push constants
+            case Opcodes.ACONST_NULL:
+            case Opcodes.ICONST_M1: case Opcodes.ICONST_0: case Opcodes.ICONST_1:
+            case Opcodes.ICONST_2: case Opcodes.ICONST_3: case Opcodes.ICONST_4: case Opcodes.ICONST_5:
+            case Opcodes.LCONST_0: case Opcodes.LCONST_1:
+            case Opcodes.FCONST_0: case Opcodes.FCONST_1: case Opcodes.FCONST_2:
+            case Opcodes.DCONST_0: case Opcodes.DCONST_1:
+            case Opcodes.BIPUSH: case Opcodes.SIPUSH:
+            case Opcodes.LDC:
+                return new int[]{0, 1};
+
+            // Loads
+            case Opcodes.ALOAD: case Opcodes.ILOAD: case Opcodes.LLOAD:
+            case Opcodes.FLOAD: case Opcodes.DLOAD:
+                return new int[]{0, 1};
+
+            // Stores
+            case Opcodes.ASTORE: case Opcodes.ISTORE: case Opcodes.LSTORE:
+            case Opcodes.FSTORE: case Opcodes.DSTORE:
+                return new int[]{1, 0};
+
+            // Stack manipulation
+            case Opcodes.POP: return new int[]{1, 0};
+            case Opcodes.POP2: return new int[]{2, 0};
+            case Opcodes.DUP: return new int[]{0, 1};
+            case Opcodes.DUP_X1: case Opcodes.DUP_X2:
+                return null; // complex stack manipulation — bail
+            case Opcodes.DUP2: case Opcodes.DUP2_X1: case Opcodes.DUP2_X2:
+                return null; // bail
+            case Opcodes.SWAP: return new int[]{0, 0}; // reorders but net zero
+
+            // Arithmetic (2 → 1)
+            case Opcodes.IADD: case Opcodes.LADD: case Opcodes.FADD: case Opcodes.DADD:
+            case Opcodes.ISUB: case Opcodes.LSUB: case Opcodes.FSUB: case Opcodes.DSUB:
+            case Opcodes.IMUL: case Opcodes.LMUL: case Opcodes.FMUL: case Opcodes.DMUL:
+            case Opcodes.IDIV: case Opcodes.LDIV: case Opcodes.FDIV: case Opcodes.DDIV:
+            case Opcodes.IREM: case Opcodes.LREM: case Opcodes.FREM: case Opcodes.DREM:
+            case Opcodes.IAND: case Opcodes.LAND: case Opcodes.IOR: case Opcodes.LOR:
+            case Opcodes.IXOR: case Opcodes.LXOR:
+            case Opcodes.ISHL: case Opcodes.LSHL: case Opcodes.ISHR: case Opcodes.LSHR:
+            case Opcodes.IUSHR: case Opcodes.LUSHR:
+            case Opcodes.LCMP: case Opcodes.FCMPL: case Opcodes.FCMPG:
+            case Opcodes.DCMPL: case Opcodes.DCMPG:
+                return new int[]{2, 1};
+
+            // Unary / conversions (1 → 1)
+            case Opcodes.INEG: case Opcodes.LNEG: case Opcodes.FNEG: case Opcodes.DNEG:
+            case Opcodes.I2L: case Opcodes.I2F: case Opcodes.I2D:
+            case Opcodes.L2I: case Opcodes.L2F: case Opcodes.L2D:
+            case Opcodes.F2I: case Opcodes.F2L: case Opcodes.F2D:
+            case Opcodes.D2I: case Opcodes.D2L: case Opcodes.D2F:
+            case Opcodes.I2B: case Opcodes.I2C: case Opcodes.I2S:
+                return new int[]{1, 1};
+
+            case Opcodes.IINC: return new int[]{0, 0};
+
+            // Object creation
+            case Opcodes.NEW: return new int[]{0, 1};
+            case Opcodes.NEWARRAY: case Opcodes.ANEWARRAY: return new int[]{1, 1};
+            case Opcodes.ARRAYLENGTH: return new int[]{1, 1};
+
+            // Type operations
+            case Opcodes.CHECKCAST: return new int[]{0, 0}; // value stays, type changes
+            case Opcodes.INSTANCEOF: return new int[]{1, 1};
+
+            // Field access
+            case Opcodes.GETFIELD: return new int[]{1, 1};
+            case Opcodes.GETSTATIC: return new int[]{0, 1};
+            case Opcodes.PUTFIELD: return new int[]{2, 0};
+            case Opcodes.PUTSTATIC: return new int[]{1, 0};
+
+            // Array access
+            case Opcodes.AALOAD: case Opcodes.IALOAD: case Opcodes.LALOAD:
+            case Opcodes.FALOAD: case Opcodes.DALOAD:
+            case Opcodes.BALOAD: case Opcodes.CALOAD: case Opcodes.SALOAD:
+                return new int[]{2, 1};
+            case Opcodes.AASTORE: case Opcodes.IASTORE: case Opcodes.LASTORE:
+            case Opcodes.FASTORE: case Opcodes.DASTORE:
+            case Opcodes.BASTORE: case Opcodes.CASTORE: case Opcodes.SASTORE:
+                return new int[]{3, 0};
+
+            // Monitor
+            case Opcodes.MONITORENTER: case Opcodes.MONITOREXIT:
+                return new int[]{1, 0};
+
+            // Multi-array
+            case Opcodes.MULTIANEWARRAY:
+                return new int[]{((MultiANewArrayInsnNode) insn).dims, 1};
+
+            // Branches and returns — bail out (control flow diverges)
+            case Opcodes.IFEQ: case Opcodes.IFNE: case Opcodes.IFLT:
+            case Opcodes.IFGE: case Opcodes.IFGT: case Opcodes.IFLE:
+            case Opcodes.IFNULL: case Opcodes.IFNONNULL:
+            case Opcodes.IF_ICMPEQ: case Opcodes.IF_ICMPNE:
+            case Opcodes.IF_ICMPLT: case Opcodes.IF_ICMPGE:
+            case Opcodes.IF_ICMPGT: case Opcodes.IF_ICMPLE:
+            case Opcodes.IF_ACMPEQ: case Opcodes.IF_ACMPNE:
+            case Opcodes.GOTO:
+            case Opcodes.IRETURN: case Opcodes.LRETURN: case Opcodes.FRETURN:
+            case Opcodes.DRETURN: case Opcodes.ARETURN: case Opcodes.RETURN:
+            case Opcodes.ATHROW:
+            case Opcodes.TABLESWITCH: case Opcodes.LOOKUPSWITCH:
+                return null; // bail — control flow boundary
+
+            default:
+                return null; // unknown — bail
+        }
     }
 
     boolean isRecognizedZInstanceMethod(MethodInsnNode call) {
@@ -881,6 +1348,36 @@ public class ZUnboxer {
                             insn = insns.getFirst();
                             continue;
                         }
+
+                        // Indexable.has(Z)Z — unboxed Z local is the argument
+                        // Rewrite to Indexable.has(J)Z — use long overload
+                        if (call.getOpcode() == Opcodes.INVOKEINTERFACE &&
+                                INDEXABLE_TYPES.contains(call.owner) &&
+                                "has".equals(call.name) &&
+                                INDEXABLE_HAS_DESC.equals(call.desc)) {
+                            insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                            insns.set(usage, new MethodInsnNode(
+                                    Opcodes.INVOKEINTERFACE, call.owner, "has",
+                                    INDEXABLE_HAS_LONG_DESC, true));
+                            changed = true;
+                            insn = insns.getFirst();
+                            continue;
+                        }
+
+                        // Indexable.at(Z)Object — unboxed Z local is the argument
+                        // Rewrite to Indexable.at(J)Object — use long overload
+                        if (call.getOpcode() == Opcodes.INVOKEINTERFACE &&
+                                INDEXABLE_TYPES.contains(call.owner) &&
+                                "at".equals(call.name) &&
+                                INDEXABLE_AT_DESC.equals(call.desc)) {
+                            insns.set(insn, new VarInsnNode(Opcodes.LLOAD, newSlot));
+                            insns.set(usage, new MethodInsnNode(
+                                    Opcodes.INVOKEINTERFACE, call.owner, "at",
+                                    INDEXABLE_AT_LONG_DESC, true));
+                            changed = true;
+                            insn = insns.getFirst();
+                            continue;
+                        }
                     }
 
                     // Receiver case A: ALOAD z (unboxable) → <long push> → Z.op(J)Z/B
@@ -1036,12 +1533,41 @@ public class ZUnboxer {
     }
 
     /**
-     * Check if an instruction produces a Z value.
+     * Check if an instruction produces a Z value on the stack.
+     * Handles method calls returning Z, CHECKCAST to Z types,
+     * and NEW Z$MP$Long constructor sequences.
      */
     boolean producesZ(AbstractInsnNode insn) {
         if (insn instanceof MethodInsnNode) {
             MethodInsnNode call = (MethodInsnNode) insn;
-            return call.desc.endsWith(")" + Z_DESC);
+            // Method returning Z
+            if (call.desc.endsWith(")" + Z_DESC)) return true;
+            // INVOKESPECIAL Z$MP$Long.<init>(J)V — the constructor is void,
+            // but the value on the stack (from the NEW before DUP) is a Z
+            if (call.getOpcode() == Opcodes.INVOKESPECIAL &&
+                    "<init>".equals(call.name) && Z_MP_LONG.equals(call.owner)) {
+                return true;
+            }
+            return false;
+        }
+        // CHECKCAST to Z type — value on stack becomes typed as Z
+        if (insn.getOpcode() == Opcodes.CHECKCAST) {
+            return isZType(((TypeInsnNode) insn).desc);
+        }
+        return false;
+    }
+
+    /**
+     * Check if an ALOAD loads a Z-typed method parameter.
+     */
+    boolean isZMethodParamLoad(AbstractInsnNode insn, MethodNode mn) {
+        if (insn.getOpcode() != Opcodes.ALOAD) return false;
+        int slot = ((VarInsnNode) insn).var;
+        int s = (mn.access & Opcodes.ACC_STATIC) != 0 ? 0 : 1;
+        Type[] argTypes = Type.getArgumentTypes(mn.desc);
+        for (Type t : argTypes) {
+            if (s == slot) return Z_DESC.equals(t.getDescriptor());
+            s += t.getSize();
         }
         return false;
     }
@@ -1132,6 +1658,49 @@ public class ZUnboxer {
             next = next.getNext();
         }
         return next;
+    }
+
+    /**
+     * Convert an AbstractInsnNode to a readable string for diagnostics.
+     */
+    static String insnToString(AbstractInsnNode insn) {
+        if (insn == null) return "null";
+        String[] OPCODES = org.objectweb.asm.util.Printer.OPCODES;
+        int op = insn.getOpcode();
+        String opName = (op >= 0 && op < OPCODES.length) ? OPCODES[op] : "op" + op;
+        if (insn instanceof MethodInsnNode) {
+            MethodInsnNode m = (MethodInsnNode) insn;
+            return opName + " " + m.owner + "." + m.name + m.desc;
+        }
+        if (insn instanceof FieldInsnNode) {
+            FieldInsnNode f = (FieldInsnNode) insn;
+            return opName + " " + f.owner + "." + f.name + ":" + f.desc;
+        }
+        if (insn instanceof VarInsnNode) {
+            return opName + " " + ((VarInsnNode) insn).var;
+        }
+        if (insn instanceof TypeInsnNode) {
+            return opName + " " + ((TypeInsnNode) insn).desc;
+        }
+        if (insn instanceof LdcInsnNode) {
+            return opName + " " + ((LdcInsnNode) insn).cst;
+        }
+        if (insn instanceof IntInsnNode) {
+            return opName + " " + ((IntInsnNode) insn).operand;
+        }
+        if (insn instanceof JumpInsnNode) {
+            return opName + " L" + System.identityHashCode(((JumpInsnNode) insn).label);
+        }
+        if (insn instanceof LabelNode) {
+            return "LABEL L" + System.identityHashCode(insn);
+        }
+        if (insn instanceof LineNumberNode) {
+            return "LINE " + ((LineNumberNode) insn).line;
+        }
+        if (insn instanceof FrameNode) {
+            return "FRAME";
+        }
+        return opName;
     }
 
     // ========================================================================
