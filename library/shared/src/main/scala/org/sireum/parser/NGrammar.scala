@@ -495,8 +495,8 @@ object NGrammar {
     }
 
     // Struct-of-arrays frame stacks — eliminates ParseFrame object allocation.
-    // Frame kind: T = ElementsCont, F = AltsWrap
-    var tagStack: MStack[B] = MStack.create(F, s32"64", s32"2")
+    // Frame kind: s32"1" = ElementsCont, s32"0" = AltsWrap (cached S32 values, zero allocation)
+    var tagStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
     // ElementsCont fields
     val sentinelElements: NRule.Elements = NRule.Elements(name = "", num = s32"-1", isSynthetic = F, elements = ISZ())
     var ecRuleStack: MStack[NRule.Elements] = MStack.create(sentinelElements, s32"64", s32"2")
@@ -522,7 +522,7 @@ object NGrammar {
               val predResult = predict(alts.num, pos)
               if (predResult >= s32"0") {
                 if (!alts.isSynthetic) {
-                  tagStack.push(F)
+                  tagStack.push(s32"0")
                   awNameStack.push(alts.name)
                   awNumStack.push(alts.num)
                   awTreeStartStack.push(treeBuf.sizeS32)
@@ -567,7 +567,7 @@ object NGrammar {
               }
             case elements: NRule.Elements =>
               // Push ElementsCont frame and transition to returning state
-              tagStack.push(T)
+              tagStack.push(s32"1")
               ecRuleStack.push(elements)
               ecElemIdxStack.push(s32"0")
               ecTreeStartStack.push(treeBuf.sizeS32)
@@ -580,7 +580,7 @@ object NGrammar {
         if (tagStack.isEmpty) {
           done = T
         } else {
-          val isEC: B = tagStack.peek
+          val isEC: B = tagStack.peek != s32"0"
           if (isEC) {
             // ElementsCont: peek frame fields (don't pop yet)
             val elements: NRule.Elements = ecRuleStack.peek
