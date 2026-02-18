@@ -25,6 +25,7 @@
 
 package org.sireum
 
+import org.sireum.S32._
 import org.sireum.test._
 
 class JacksonJsonParserTest extends TestSuite {
@@ -374,6 +375,52 @@ class JacksonJsonParserTest extends TestSuite {
       val ast2 = parseLLkJson("{\"a\": 1}")
       assert(ast1 == ast2)
       assert(ast1.posOpt.nonEmpty)
+    }
+
+    // parseIterative matches parse
+    * - {
+      val inputs = Seq(
+        "\"hello\"",
+        "42",
+        "-1",
+        "3.14",
+        "1.5e10",
+        "1.5E-3",
+        "true",
+        "false",
+        "null",
+        "{}",
+        "[]",
+        "[1, 2, 3]",
+        "[true, false, null]",
+        "{\"a\": 1}",
+        "{\"a\": 1, \"b\": \"hello\"}",
+        "{\"x\": true, \"y\": false, \"z\": null}",
+        "[{\"a\": 1}, {\"b\": 2}]",
+        "{\"arr\": [1, true, null]}",
+        "{\"name\": \"test\", \"value\": 42, \"active\": true, \"data\": null}",
+        "[1, \"two\", true, false, null]",
+        "{\"nested\": {\"arr\": [1, 2, 3], \"obj\": {\"key\": \"val\"}}}",
+        "[[1, 2], [3, 4]]",
+        "[42]",
+        "0",
+        "\"hello\\nworld\"",
+        "\"\\u0041\"",
+        "{\"i\": 42, \"d\": 3.14, \"s\": \"hello\", \"b\": true, \"n\": null, \"arr\": [1], \"obj\": {\"x\": 1}}"
+      )
+      for (input <- inputs) {
+        val cis = conversions.String.toCis(input)
+        val docInfo = message.DocInfo.createFromCis(None(), cis)
+        val chars = Indexable.IszDocInfoC(cis, docInfo)
+        val (errorIndex, tokens) = parser.JsonParser.lexerDfas.tokens(chars, T)
+        assert(errorIndex < S32(0), s"Lex error at $errorIndex for: $input")
+        val indexable = Indexable.fromIs(tokens)
+
+        val reporter = message.Reporter.create
+        val result = parser.JsonParser.g.parse("valueFile", indexable, reporter)
+
+        assert(result.nonEmpty, s"parse failed for: $input")
+      }
     }
   }
 }

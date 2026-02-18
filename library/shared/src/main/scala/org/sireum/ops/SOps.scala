@@ -828,6 +828,8 @@ object ISZOps {
 
   @pure def sortWith[@mut T](s: MS[Z, T], lt: (T, T) => B @pure): MS[Z, T] = $
 
+  @pure def slice[@imm I, V](s: MS[I, V], start: I, until: I): IS[I, V] = $
+
 }
 
 @record class MSZOps[@mut T](val s: MS[Z, T]) extends MSOps[Z, T] {

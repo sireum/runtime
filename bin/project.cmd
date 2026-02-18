@@ -69,6 +69,7 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "com.lihaoyi::os-lib:",
     "org.kohsuke:github-api:",
     "org.ow2.asm:asm-tree:",
+    "org.ow2.asm:asm-util:",
     "org.antlr:antlr-runtime:",
     "org.antlr:antlr4-runtime:",
     "org.sireum:automaton:",
@@ -76,7 +77,11 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "org.scalameta::scalafmt-cli:",
     "org.apache.commons:commons-compress:",
     "it.unimi.dsi:fastutil-core:",
-    "org.commonmark:commonmark-ext-yaml-front-matter:"
+    "org.commonmark:commonmark-ext-yaml-front-matter:",
+    "org.graalvm.compiler:compiler:",
+    "org.graalvm.polyglot:polyglot:",
+    "org.graalvm.wasm:wasm-language:",
+    "org.graalvm.truffle:truffle-runtime:"
   ),
   pubOpt = pub(
     desc = "Slang Runtime Library",

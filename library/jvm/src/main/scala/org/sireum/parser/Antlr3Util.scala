@@ -40,8 +40,8 @@ object Antlr3Util {
 
     import org.antlr.runtime.{Token => AntlrToken}
 
-    var cache: scala.collection.mutable.HashMap[String, org.sireum.U32] = scala.collection.mutable.HashMap.empty
-    def sha3(s: String): org.sireum.U32 = {
+    var cache: scala.collection.mutable.HashMap[String, org.sireum.S32] = scala.collection.mutable.HashMap.empty
+    def sha3(s: String): org.sireum.S32 = {
       cache.get(s) match {
         case Some(r) => return r
         case _ =>
@@ -49,7 +49,7 @@ object Antlr3Util {
       import org.sireum._
       val sha3 = crypto.SHA3.init256
       sha3.update(conversions.String.toU8is(s))
-      val r = U32(st"0x${(ops.ISZOps(sha3.finalise()).take(4), "")}".render).get
+      val r = conversions.U32.toRawS32(conversions.Z.toU32(Z(st"0x${(ops.ISZOps(sha3.finalise()).take(4), "")}".render).get))
       cache(s) = r
       return r
     }
@@ -60,7 +60,7 @@ object Antlr3Util {
       val offset = docInfo.lineOffsets(org.sireum.Z(payload.getLine - 1)).toZ + org.sireum.Z(payload.getCharPositionInLine)
       val length = payload.getText.length
       val offsetLength = (org.sireum.conversions.Z.toU64(offset) << org.sireum.U64(32)) | org.sireum.U64(length)
-      ParseTree.Leaf(payload.getText, name, org.sireum.U32(payload.getType), false,
+      ParseTree.Leaf(payload.getText, name, org.sireum.S32(payload.getType), false,
         org.sireum.Some(org.sireum.message.PosInfo(docInfo, offsetLength)))
     }
 
@@ -71,9 +71,10 @@ object Antlr3Util {
     override def nil(): AnyRef = Node(ListBuffer(), -1, -1)
 
     override def errorNode(input: TokenStream, start: AntlrToken, stop: AntlrToken, e: RecognitionException): AnyRef = {
-      import org.sireum._
       val name = Thread.currentThread.getStackTrace()(2).getMethodName
-      ParseTree.Node(ISZ(), s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", U32(-1))
+      ParseTree.Node(
+        new org.sireum.IS[org.sireum.S32, ParseTree](org.sireum.S32, Array[AnyRef](), org.sireum.Z.MP(0L), org.sireum.$internal.IdentityBoxer),
+        s"$name: ${if (e.getMessage == null) e.getClass.getName else e.getMessage}", org.sireum.S32(-1))
     }
 
     override def isNil(tree: Any): Boolean = halt("Infeasible")
@@ -90,7 +91,10 @@ object Antlr3Util {
       case _ =>
         val node = root.asInstanceOf[Node]
         val name = Thread.currentThread.getStackTrace()(2).getMethodName
-        ParseTree.Node(org.sireum.ISZ.apply(node.buffer.toSeq: _*), name, sha3(name))
+        val arr = node.buffer.toArray.asInstanceOf[Array[AnyRef]]
+        val children = new org.sireum.IS[org.sireum.S32, ParseTree](
+          org.sireum.S32, arr, org.sireum.Z.MP(arr.length.toLong), org.sireum.$internal.IdentityBoxer)
+        ParseTree.Node(children, name, sha3(name))
     }
 
     override def getUniqueID(node: Any): Int = halt("Infeasible")

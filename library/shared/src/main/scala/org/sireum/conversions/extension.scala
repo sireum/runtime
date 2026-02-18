@@ -93,12 +93,15 @@ object B_Ext {
 }
 
 object C_Ext {
+  @pure def toS32(c: C): S32 = org.sireum.S32(c.value)
   @pure def toU32(c: C): U32 = org.sireum.U32(c.value)
 
   @pure def toCodePoints(c: C): ISZ[C] = ISZ(Character.toChars(c.value).map(C(_)).toSeq: _*)
 }
 
 object Z_Ext {
+
+  private val u64Max: Z = Z(scala.BigInt("18446744073709551615"))
 
   @pure def isInRangeSigned8(n: Z): B = -128 <= n && n <= 127
 
@@ -116,9 +119,11 @@ object Z_Ext {
 
   @pure def isInRangeUnsigned32(n: Z): B = 0 <= n && n <= 4294967295L
 
-  @pure def isInRangeUnsigned64(n: Z): B = 0 <= n && n <= z"18446744073709551615"
+  @pure def isInRangeUnsigned64(n: Z): B =
+    if (n.isInstanceOf[Z.MP.Long]) n.asInstanceOf[Z.MP.Long].value >= 0L
+    else 0 <= n && n <= u64Max
 
-  @pure def toB(n: Z): B = n != z"0"
+  @pure def toB(n: Z): B = n != Z(0)
 
   @pure def toZ(n: Z): Z = n
 
@@ -2174,6 +2179,11 @@ object String_Ext {
 
   @pure def toCis(s: String): IS[Z, C] = {
     toCms(s).toIS
+  }
+
+  @pure def toCisS32(s: String): IS[S32, C] = {
+    val a = s.value.codePoints.toArray
+    new IS[S32, C](S32, a, Z.MP(a.length), C.Boxer)
   }
 
   @pure def toCStream(s: String): Jen[C] =

@@ -27,60 +27,78 @@
 package org.sireum.parser
 
 import org.sireum._
-import org.sireum.U32._
+import org.sireum.S32._
 
 @datatype trait NElement {
   @strictpure def toST: ST
 }
 object NElement {
-  @datatype class Str(val value: String, val num: U32) extends NElement {
+  @datatype class Str(val value: String, val num: S32) extends NElement {
     @strictpure override def toST: ST =
-      st"""NElement.Str("$value", u32"${conversions.U32.toZ(num)}")"""
+      st"""NElement.Str("$value", s32"${conversions.S32.toZ(num)}")"""
   }
-  @datatype class Ref(val isTerminal: B, val ruleName: String, val num: U32) extends NElement {
+  @datatype class Ref(val isTerminal: B, val ruleName: String, val num: S32) extends NElement {
     @strictpure override def toST: ST =
-      st"""NElement.Ref($isTerminal, "$ruleName", u32"${conversions.U32.toZ(num)}")"""
+      st"""NElement.Ref($isTerminal, "$ruleName", s32"${conversions.S32.toZ(num)}")"""
   }
 }
 @datatype trait NRule {
   @pure def name: String
-  @pure def num: U32
+  @pure def num: S32
   @pure def isSynthetic: B
+  /** Returns `T` if this rule is the sentinel (unused slot marker). */
+  @strictpure def isSentinel: B = num == s32"-1"
   @strictpure def toST: ST
 }
 object NRule {
-  @datatype class Elements(val name: String, val num: U32, val isSynthetic: B, val elements: ISZ[NElement]) extends NRule {
+  @datatype class Elements(val name: String, val num: S32, val isSynthetic: B, val elements: ISZ[NElement]) extends NRule {
     @strictpure override def toST: ST = {
       val es: ISZ[ST] = for (e <- elements) yield e.toST
-      st"""NRule.Elements(name = "$name", num = u32"${conversions.U32.toZ(num)}", isSynthetic = $isSynthetic, elements = ISZ(
+      st"""NRule.Elements(name = "$name", num = s32"${conversions.S32.toZ(num)}", isSynthetic = $isSynthetic, elements = ISZ(
           |  ${(es, ",\n")}))"""
     }
   }
-  @datatype class Alts(val name: String, val num: U32, val isSynthetic: B, val alts: ISZ[U32]) extends NRule {
+  @datatype class Alts(val name: String, val num: S32, val isSynthetic: B, val alts: IS[S32, S32]) extends NRule {
     @strictpure override def toST: ST = {
-      val as: ISZ[ST] = for (a <- alts) yield st"""u32"${conversions.U32.toZ(a)}""""
-      st"""NRule.Alts(name = "$name", num = u32"${conversions.U32.toZ(num)}", isSynthetic = $isSynthetic, alts = ISZ(${(as, ", ")}))"""
+      val as: IS[S32, ST] = for (a <- alts) yield st"""s32"${conversions.S32.toZ(a)}""""
+      st"""NRule.Alts(name = "$name", num = s32"${conversions.S32.toZ(num)}", isSynthetic = $isSynthetic, alts = IS[S32, S32](${(as, ", ")}))"""
     }
   }
+  val sentinel: NRule = Elements(name = "", num = s32"-1", isSynthetic = F, elements = ISZ())
 }
 
 object NGrammar {
+
+  @datatype trait ParseFrame
+
+  object ParseFrame {
+    @datatype class ElementsCont(val rule: NRule.Elements, val elemIdx: S32, val treeStart: S32) extends ParseFrame
+    @datatype class AltsWrap(val name: String, val num: S32) extends ParseFrame
+  }
 
   def fromCompact(s: String): NGrammar = {
     val data = ops.ISZOps.lz4Decompress(ops.StringOps.fromBase64(s).left).left
     val r = MessagePack.reader(data)
     r.init()
-    val ruleMapSize = r.readZ()
-    var ruleMap = HashSMap.empty[U32, NRule]
+    val entryCount = r.readZ()
+    var maxKey: S32 = s32"-1"
+    var entries = ISZ[(S32, NRule)]()
     var i: Z = 0
-    while (i < ruleMapSize) {
-      val key = r.readU32()
+    while (i < entryCount) {
+      val key = conversions.U32.toS32(r.readU32())
       val rule = readNRule(r)
-      ruleMap = ruleMap + key ~> rule
+      entries = entries :+ ((key, rule))
+      if (key > maxKey) {
+        maxKey = key
+      }
       i = i + 1
     }
+    var ruleMap = MS.create[S32, NRule](conversions.S32.toZ(maxKey + s32"1"), NRule.sentinel)
+    for (e <- entries) {
+      ruleMap(e._1) = e._2
+    }
     val pt = PredictiveTable.readPredictiveTable(r)
-    return NGrammar(ruleMap = ruleMap, pt = pt)
+    return NGrammar(ruleMap = ruleMap.toIS, pt = pt)
   }
 
   def writeNElement(w: MessagePack.Writer.Impl, e: NElement): Unit = {
@@ -88,12 +106,12 @@ object NGrammar {
       case e: NElement.Str =>
         w.writeZ(0)
         w.writeString(e.value)
-        w.writeU32(e.num)
+        w.writeU32(conversions.S32.toU32(e.num))
       case e: NElement.Ref =>
         w.writeZ(1)
         w.writeB(e.isTerminal)
         w.writeString(e.ruleName)
-        w.writeU32(e.num)
+        w.writeU32(conversions.S32.toU32(e.num))
     }
   }
 
@@ -102,12 +120,12 @@ object NGrammar {
     tag match {
       case 0 =>
         val value = r.readString()
-        val num = r.readU32()
+        val num = conversions.U32.toS32(r.readU32())
         return NElement.Str(value = value, num = num)
       case 1 =>
         val isTerminal = r.readB()
         val ruleName = r.readString()
-        val num = r.readU32()
+        val num = conversions.U32.toS32(r.readU32())
         return NElement.Ref(isTerminal = isTerminal, ruleName = ruleName, num = num)
       case _ => halt(s"Invalid NElement tag: $tag")
     }
@@ -118,7 +136,7 @@ object NGrammar {
       case rule: NRule.Elements =>
         w.writeZ(0)
         w.writeString(rule.name)
-        w.writeU32(rule.num)
+        w.writeU32(conversions.S32.toU32(rule.num))
         w.writeB(rule.isSynthetic)
         w.writeZ(rule.elements.size)
         for (e <- rule.elements) {
@@ -127,11 +145,11 @@ object NGrammar {
       case rule: NRule.Alts =>
         w.writeZ(1)
         w.writeString(rule.name)
-        w.writeU32(rule.num)
+        w.writeU32(conversions.S32.toU32(rule.num))
         w.writeB(rule.isSynthetic)
         w.writeZ(rule.alts.size)
         for (a <- rule.alts) {
-          w.writeU32(a)
+          w.writeU32(conversions.S32.toU32(a))
         }
     }
   }
@@ -141,7 +159,7 @@ object NGrammar {
     tag match {
       case 0 =>
         val name = r.readString()
-        val num = r.readU32()
+        val num = conversions.U32.toS32(r.readU32())
         val isSynthetic = r.readB()
         val elemSize = r.readZ()
         var elements = ISZ[NElement]()
@@ -153,13 +171,13 @@ object NGrammar {
         return NRule.Elements(name = name, num = num, isSynthetic = isSynthetic, elements = elements)
       case 1 =>
         val name = r.readString()
-        val num = r.readU32()
+        val num = conversions.U32.toS32(r.readU32())
         val isSynthetic = r.readB()
         val altsSize = r.readZ()
-        var alts = ISZ[U32]()
+        var alts = IS[S32, S32]()
         var i: Z = 0
         while (i < altsSize) {
-          alts = alts :+ r.readU32()
+          alts = alts :+ conversions.U32.toS32(r.readU32())
           i = i + 1
         }
         return NRule.Alts(name = name, num = num, isSynthetic = isSynthetic, alts = alts)
@@ -168,37 +186,45 @@ object NGrammar {
   }
 }
 
-@datatype class NGrammar(val ruleMap: HashSMap[U32, NRule], val pt: PredictiveTable) {
-  @strictpure def k: Z = pt.k
+@datatype class NGrammar(val ruleMap: IS[S32, NRule], val pt: PredictiveTable) {
+  @strictpure def k: S32 = pt.k
 
   /** Generates a Slang expression that programmatically constructs this [[NGrammar]].
     *
     * The rendered ST produces a self-contained Slang expression of type `NGrammar`.
-    * The caller's scope must import `org.sireum._`, `org.sireum.U32._`, and
-    * `org.sireum.parser._`.
+    * The caller's scope must import `org.sireum._` and `org.sireum.parser._`.
     *
     * @return an ST whose `render` produces the Slang construction expression
     */
   @strictpure def toST: ST = {
-    val ruleMapST: ST = if (ruleMap.isEmpty) {
-      st"HashSMap.empty[U32, NRule]"
-    } else {
-      val entries: ISZ[ST] = for (e <- ruleMap.entries) yield
-        st"""u32"${conversions.U32.toZ(e._1)}" ~> ${e._2.toST}"""
-      st"""HashSMap.empty[U32, NRule] +
-          |  ${(entries, " +\n")}"""
-    }
+    val rulesST: ISZ[ST] = for (i <- s32"0" until ruleMap.sizeS32) yield
+      if (ruleMap.atS32(i).isSentinel) st"NRule.sentinel"
+      else ruleMap.atS32(i).toST
     st"""NGrammar(
-        |  $ruleMapST,
+        |  ISZ[NRule](${(rulesST, ",\n")}),
         |  ${pt.toST})"""
   }
 
   def toCompact: String = {
     val w = MessagePack.writer(T)
-    w.writeZ(ruleMap.size)
-    for (e <- ruleMap.entries) {
-      w.writeU32(e._1)
-      NGrammar.writeNRule(w, e._2)
+    val ruleMapSize: S32 = ruleMap.sizeS32
+    var count: Z = 0
+    var i: S32 = s32"0"
+    while (i < ruleMapSize) {
+      if (!ruleMap.atS32(i).isSentinel) {
+        count = count + 1
+      }
+      i = i + s32"1"
+    }
+    w.writeZ(count)
+    i = s32"0"
+    while (i < ruleMapSize) {
+      val r = ruleMap.atS32(i)
+      if (!r.isSentinel) {
+        w.writeU32(conversions.S32.toU32(i))
+        NGrammar.writeNRule(w, r)
+      }
+      i = i + s32"1"
     }
     PredictiveTable.writePredictiveTable(w, pt)
     return ops.StringOps.toBase64(ops.ISZOps.lz4Compress(w.result))
@@ -208,40 +234,43 @@ object NGrammar {
     return st"""NGrammar.fromCompact("${toCompact}")"""
   }
 
-  def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
-    def lookahead(i: Z): ISZ[U32] = {
-      var r = ISZ[U32]()
-      for (j <- 0 until pt.k if tokens.has(i + j)) {
-        val t = tokens.at(i + j)
+  def parseRec(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
+    def lookahead(i: S32): ISZ[S32] = {
+      var r = ISZ[S32]()
+      var j: S32 = s32"0"
+      val kk: S32 = pt.k
+      while (j < kk && tokens.hasS32(i + j)) {
+        val t = tokens.atS32(i + j)
         r = r :+ t.num
+        j = j + s32"1"
       }
       return r
     }
-    def parseElement(e: NElement, i: Z): Option[(Z, ISZ[ParseTree])] = {
+    def parseElement(e: NElement, i: S32): Option[(S32, IS[S32, ParseTree])] = {
       e match {
         case e: NElement.Str =>
-          if (!tokens.has(i)) {
+          if (!tokens.hasS32(i)) {
             reporter.error(None(), "Parser", s"Unexpected end of input, expecting '${e.value}'")
             return None()
           }
-          val r = tokens.at(i)
-          if (r.text == e.value) {
-            return Some((i + 1, ISZ(r.toLeaf)))
+          val r = tokens.atS32(i)
+          if (r.num == e.num) {
+            return Some((i + s32"1", IS[S32, ParseTree](r.toLeaf)))
           } else {
             reporter.error(r.toLeaf.posOpt, "Parser", s"Expecting '${e.value}', but found '${r.text}'")
             return None()
           }
         case e: NElement.Ref =>
           if (e.isTerminal) {
-            if (!tokens.has(i)) {
-              reporter.error(None(), "Parser", s"Unexpected end of input, expecting ${pt.reverseNameMap.get(e.num)}")
+            if (!tokens.hasS32(i)) {
+              reporter.error(None(), "Parser", s"Unexpected end of input, expecting ${pt.reverseNameMap.get(e.num).get}")
               return None()
             }
-            val r = tokens.at(i)
+            val r = tokens.atS32(i)
             if (r.num == e.num) {
-              return Some((i + 1, ISZ(r.toLeaf)))
+              return Some((i + s32"1", IS[S32, ParseTree](r.toLeaf)))
             } else {
-              reporter.error(r.toLeaf.posOpt, "Parser", s"Expecting ${pt.reverseNameMap.get(e.num)}, but found ${pt.reverseNameMap.get(r.num)}")
+              reporter.error(r.toLeaf.posOpt, "Parser", s"Expecting ${pt.reverseNameMap.get(e.num).get}, but found ${pt.reverseNameMap.get(r.num).get}")
               return None()
             }
           } else {
@@ -249,9 +278,9 @@ object NGrammar {
           }
       }
     }
-    def parseElements(elements: NRule.Elements, i: Z): Option[(Z, ISZ[ParseTree])] = {
-      var trees = ISZ[ParseTree]()
-      var j = i
+    def parseElements(elements: NRule.Elements, i: S32): Option[(S32, IS[S32, ParseTree])] = {
+      var trees = IS[S32, ParseTree]()
+      var j: S32 = i
       for (e <- elements.elements) {
         parseElement(e, j) match {
           case Some((k, ts)) =>
@@ -263,65 +292,382 @@ object NGrammar {
       if (elements.isSynthetic) {
         return Some((j, trees))
       }
-      return Some((j, ISZ(ParseTree.Node(trees, elements.name, elements.num))))
+      return Some((j, IS[S32, ParseTree](ParseTree.Node(trees, elements.name, elements.num))))
     }
-    def parseAlts(alts: NRule.Alts, i: Z): Option[(Z, ISZ[ParseTree])] = {
+    def parseAlts(alts: NRule.Alts, i: S32): Option[(S32, IS[S32, ParseTree])] = {
       pt.predict(alts.num, lookahead(i)) match {
         case Some(n) =>
           if (alts.isSynthetic) {
             return parseRule(alts.alts(n), i)
           } else {
             parseRule(alts.alts(n), i) match {
-              case Some((j, trees)) => return Some((j, ISZ(ParseTree.Node(trees, alts.name, alts.num))))
+              case Some((j, trees)) => return Some((j, IS[S32, ParseTree](ParseTree.Node(trees, alts.name, alts.num))))
               case _ => return None()
             }
           }
         case _ =>
-          // For synthetic choice rules (star/opt), if the last alt is an empty
-          // synthetic rule, use it as a default stop/skip when prediction fails.
-          // This handles cases where FOLLOW_k is incomplete (e.g., the start rule
-          // has no FOLLOW, or the lookahead is shorter than k near end of input).
           if (alts.isSynthetic) {
-            val lastAltNum = alts.alts(alts.alts.size - 1)
-            ruleMap.get(lastAltNum).get match {
+            val lastAltNum = alts.alts(alts.alts.sizeS32 - s32"1")
+            ruleMap.atS32(lastAltNum) match {
               case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
                 return parseElements(lastAlt, i)
               case _ =>
             }
           }
-          val expectedTokens: ISZ[String] = pt.rules.get(alts.num) match {
-            case Some(n: PredictiveNode.Branch) =>
+          pt.rules.atS32(alts.num) match {
+            case pn: PredictiveNode.Branch =>
               val m = pt.reverseNameMap
-              for (k <- n.entries.keys) yield m.get(k).get
+              var expectedTokens = ISZ[String]()
+              var ii: S32 = s32"0"
+              val entriesSize: S32 = pn.entries.sizeS32
+              while (ii < entriesSize) {
+                if (!pn.entries.atS32(ii).isSentinel) {
+                  expectedTokens = expectedTokens :+ m.get(ii).get
+                }
+                ii = ii + s32"1"
+              }
+              if (!tokens.hasS32(i)) {
+                reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
+              } else {
+                val token = tokens.atS32(i).toLeaf
+                reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
+              }
             case _ => halt(s"Infeasible")
-          }
-          if (!tokens.has(i)) {
-            reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
-          } else {
-            val token = tokens.at(i).toLeaf
-            reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
           }
           return None()
       }
     }
 
-    def parseRule(ruleNum: U32, i: Z): Option[(Z, ISZ[ParseTree])] = {
-      ruleMap.get(ruleNum).get match {
+    def parseRule(ruleNum: S32, i: S32): Option[(S32, IS[S32, ParseTree])] = {
+      ruleMap.atS32(ruleNum) match {
         case r: NRule.Alts => return parseAlts(r, i)
         case r: NRule.Elements => return parseElements(r, i)
       }
     }
 
     val num = pt.nameMap.get(ruleName).get
-    parseRule(num, 0) match {
-      case Some((j, ISZ(t))) =>
-        if (tokens.has(j)) {
-          val token = tokens.at(j).toLeaf
+    parseRule(num, s32"0") match {
+      case Some((j, trees)) if trees.sizeS32 == s32"1" =>
+        if (tokens.hasS32(j)) {
+          val token = tokens.atS32(j).toLeaf
           reporter.error(token.posOpt, "Parser", s"Unexpected token '${token.text}' after successful parse")
           return None()
         }
-        return Some(t)
+        return Some(trees.atS32(s32"0"))
       case _ => return None()
     }
+  }
+
+  def parse(ruleName: String, tokens: Indexable[Token], reporter: message.Reporter): Option[ParseTree] = {
+    // Inline predict: returns S32 alt index, or -1 if no prediction.
+    // k=1 special case: unrolled single-level trie lookup (no loop, no var reassignment)
+    def predictK1(ruleNum: S32, p: S32): S32 = {
+      val node = pt.rules.atS32(ruleNum)
+      if (node.isSentinel) {
+        return s32"-1"
+      }
+      node match {
+        case leaf: PredictiveNode.Leaf => return leaf.alt
+        case branch: PredictiveNode.Branch =>
+          if (!tokens.hasS32(p)) {
+            return s32"-1"
+          }
+          val tNum = tokens.atS32(p).num
+          if (tNum >= branch.entries.sizeS32) {
+            return s32"-1"
+          }
+          val child = branch.entries.atS32(tNum)
+          if (child.isSentinel) {
+            return s32"-1"
+          }
+          child match {
+            case leaf: PredictiveNode.Leaf => return leaf.alt
+            case _ => return s32"-1"
+          }
+      }
+    }
+
+    // k=2 special case: unrolled two-level trie lookup
+    def predictK2(ruleNum: S32, p: S32): S32 = {
+      val node = pt.rules.atS32(ruleNum)
+      if (node.isSentinel) {
+        return s32"-1"
+      }
+      node match {
+        case leaf: PredictiveNode.Leaf => return leaf.alt
+        case branch0: PredictiveNode.Branch =>
+          if (!tokens.hasS32(p)) {
+            return s32"-1"
+          }
+          val tNum0 = tokens.atS32(p).num
+          if (tNum0 >= branch0.entries.sizeS32) {
+            return s32"-1"
+          }
+          val child0 = branch0.entries.atS32(tNum0)
+          if (child0.isSentinel) {
+            return s32"-1"
+          }
+          child0 match {
+            case leaf: PredictiveNode.Leaf => return leaf.alt
+            case branch1: PredictiveNode.Branch =>
+              if (!tokens.hasS32(p + s32"1")) {
+                return s32"-1"
+              }
+              val tNum1 = tokens.atS32(p + s32"1").num
+              if (tNum1 >= branch1.entries.sizeS32) {
+                return s32"-1"
+              }
+              val child1 = branch1.entries.atS32(tNum1)
+              if (child1.isSentinel) {
+                return s32"-1"
+              }
+              child1 match {
+                case leaf: PredictiveNode.Leaf => return leaf.alt
+                case _ => return s32"-1"
+              }
+          }
+      }
+    }
+
+    // General case for k>2: loop-based trie traversal
+    def predictGeneral(ruleNum: S32, p: S32): S32 = {
+      val node = pt.rules.atS32(ruleNum)
+      if (node.isSentinel) {
+        return s32"-1"
+      }
+      var n: PredictiveNode = node
+      var i: S32 = p
+      var result: S32 = s32"-1"
+      var searching: B = T
+      while (searching) {
+        n match {
+          case leaf: PredictiveNode.Leaf =>
+            result = leaf.alt
+            searching = F
+          case branch: PredictiveNode.Branch =>
+            if (!tokens.hasS32(i)) {
+              searching = F
+            } else {
+              val tNum = tokens.atS32(i).num
+              if (tNum >= branch.entries.sizeS32) {
+                searching = F
+              } else {
+                val child = branch.entries.atS32(tNum)
+                if (child.isSentinel) {
+                  searching = F
+                } else {
+                  n = child
+                  i = i + s32"1"
+                }
+              }
+            }
+        }
+      }
+      return result
+    }
+
+    val kkS32: S32 = pt.k
+
+    def predict(ruleNum: S32, p: S32): S32 = {
+      if (kkS32 == s32"1") {
+        return predictK1(ruleNum, p)
+      } else if (kkS32 == s32"2") {
+        return predictK2(ruleNum, p)
+      } else {
+        return predictGeneral(ruleNum, p)
+      }
+    }
+
+    // Shared empty constant avoids repeated IS() allocation
+    val emptyTrees: IS[S32, ParseTree] = IS[S32, ParseTree]()
+
+    // Flat tree buffer — O(1) amortized push. Children accumulate here
+    // and are extracted when a rule completes.
+    val emptyLeaf: ParseTree = ParseTree.Leaf(text = "", ruleName = "", tipe = s32"0", isHidden = F, posOpt = None())
+    var treeBuf: MStack[ParseTree] = MStack.create(emptyLeaf, s32"256", s32"2")
+
+    // Helper: extract treeBuf[from..treeBuf.sz) as IS[S32, ParseTree]
+    def extractTrees(from: S32): IS[S32, ParseTree] = {
+      if (treeBuf.sz <= from) {
+        return emptyTrees
+      }
+      return ops.MSZOpsUtil.slice(treeBuf.elements, from, treeBuf.sz)
+    }
+
+    // Struct-of-arrays frame stacks — eliminates ParseFrame object allocation.
+    // Frame kind: s32"1" = ElementsCont, s32"0" = AltsWrap (cached S32 values, zero allocation)
+    var tagStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
+    // ElementsCont fields
+    val sentinelElements: NRule.Elements = NRule.Elements(name = "", num = s32"-1", isSynthetic = F, elements = ISZ())
+    var ecRuleStack: MStack[NRule.Elements] = MStack.create(sentinelElements, s32"64", s32"2")
+    var ecElemIdxStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
+    var ecTreeStartStack: MStack[S32] = MStack.create(s32"0", s32"64", s32"2")
+    // AltsWrap fields
+    var awNameStack: MStack[String] = MStack.create("", s32"32", s32"2")
+    var awNumStack: MStack[S32] = MStack.create(s32"0", s32"32", s32"2")
+    var awTreeStartStack: MStack[S32] = MStack.create(s32"0", s32"32", s32"2")
+
+    var pos: S32 = s32"0"
+    var enterRuleNum: S32 = pt.nameMap.get(ruleName).get
+    var entering: B = T
+
+    var done: B = F
+    while (!done) {
+      if (entering) {
+        // Resolve Alts chain until we reach an Elements rule
+        var resolving: B = T
+        while (resolving) {
+          ruleMap.atS32(enterRuleNum) match {
+            case alts: NRule.Alts =>
+              val predResult = predict(alts.num, pos)
+              if (predResult >= s32"0") {
+                if (!alts.isSynthetic) {
+                  tagStack.push(s32"0")
+                  awNameStack.push(alts.name)
+                  awNumStack.push(alts.num)
+                  awTreeStartStack.push(treeBuf.sizeS32)
+                }
+                enterRuleNum = alts.alts(predResult)
+              } else {
+                var fallback: B = F
+                if (alts.isSynthetic) {
+                  val lastAltNum = alts.alts(alts.alts.sizeS32 - s32"1")
+                  ruleMap.atS32(lastAltNum) match {
+                    case lastAlt: NRule.Elements if lastAlt.isSynthetic && lastAlt.elements.isEmpty =>
+                      // Empty synthetic alt: no trees produced, treeBuf unchanged
+                      entering = F
+                      resolving = F
+                      fallback = T
+                    case _ =>
+                  }
+                }
+                if (!fallback) {
+                  pt.rules.atS32(alts.num) match {
+                    case pn: PredictiveNode.Branch =>
+                      val m = pt.reverseNameMap
+                      var expectedTokens = ISZ[String]()
+                      var ii: S32 = s32"0"
+                      val entriesSize: S32 = pn.entries.sizeS32
+                      while (ii < entriesSize) {
+                        if (!pn.entries.atS32(ii).isSentinel) {
+                          expectedTokens = expectedTokens :+ m.get(ii).get
+                        }
+                        ii = ii + s32"1"
+                      }
+                      if (!tokens.hasS32(pos)) {
+                        reporter.error(None(), "Parser", st"Unexpected end of input, expecting ${(expectedTokens, ", ")}".render)
+                      } else {
+                        val token = tokens.atS32(pos).toLeaf
+                        reporter.error(token.posOpt, "Parser", st"Expecting ${(expectedTokens, ", ")}, but found ${token.text}".render)
+                      }
+                    case _ => halt("Infeasible")
+                  }
+                  return None()
+                }
+              }
+            case elements: NRule.Elements =>
+              // Push ElementsCont frame and transition to returning state
+              tagStack.push(s32"1")
+              ecRuleStack.push(elements)
+              ecElemIdxStack.push(s32"0")
+              ecTreeStartStack.push(treeBuf.sizeS32)
+              entering = F
+              resolving = F
+          }
+        }
+      } else {
+        // Returning: trees from child rule are already in treeBuf
+        if (tagStack.isEmpty) {
+          done = T
+        } else {
+          val isEC: B = tagStack.peek != s32"0"
+          if (isEC) {
+            // ElementsCont: peek frame fields (don't pop yet)
+            val elements: NRule.Elements = ecRuleStack.peek
+            var elemIdx: S32 = ecElemIdxStack.peek
+            val treeStart: S32 = ecTreeStartStack.peek
+            var j: S32 = pos
+            val elemSize: S32 = elements.elements.sizeS32
+            var needSubRule: B = F
+            while (elemIdx < elemSize && !needSubRule) {
+              elements.elements.atS32(elemIdx) match {
+                case e: NElement.Str =>
+                  if (!tokens.hasS32(j)) {
+                    reporter.error(None(), "Parser", s"Unexpected end of input, expecting '${e.value}'")
+                    return None()
+                  }
+                  val token = tokens.atS32(j)
+                  if (token.num == e.num) {
+                    treeBuf.push(token.toLeaf)
+                    j = j + s32"1"
+                    elemIdx = elemIdx + s32"1"
+                  } else {
+                    reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting '${e.value}', but found '${token.text}'")
+                    return None()
+                  }
+                case e: NElement.Ref =>
+                  if (e.isTerminal) {
+                    if (!tokens.hasS32(j)) {
+                      reporter.error(None(), "Parser", s"Unexpected end of input, expecting ${pt.reverseNameMap.get(e.num).get}")
+                      return None()
+                    }
+                    val token = tokens.atS32(j)
+                    if (token.num == e.num) {
+                      treeBuf.push(token.toLeaf)
+                      j = j + s32"1"
+                      elemIdx = elemIdx + s32"1"
+                    } else {
+                      reporter.error(token.toLeaf.posOpt, "Parser", s"Expecting ${pt.reverseNameMap.get(e.num).get}, but found ${pt.reverseNameMap.get(token.num).get}")
+                      return None()
+                    }
+                  } else {
+                    // Update continuation elemIdx in place (no frame allocation)
+                    ecElemIdxStack.setTop(elemIdx + s32"1")
+                    pos = j
+                    enterRuleNum = e.num
+                    entering = T
+                    needSubRule = T
+                  }
+              }
+            }
+            if (!needSubRule) {
+              // Rule fully processed — pop ElementsCont frame
+              tagStack.pop()
+              ecRuleStack.pop()
+              ecElemIdxStack.pop()
+              ecTreeStartStack.pop()
+              pos = j
+              if (!elements.isSynthetic) {
+                // Non-synthetic: extract children, create Node, push to treeBuf
+                val children = extractTrees(treeStart)
+                treeBuf.sz = treeStart
+                treeBuf.push(ParseTree.Node(children, elements.name, elements.num))
+              }
+              // Synthetic: children are already in treeBuf at the parent's level
+            }
+          } else {
+            // AltsWrap: pop frame, extract children, wrap in Node
+            tagStack.pop()
+            val awName: String = awNameStack.pop()
+            val awNum: S32 = awNumStack.pop()
+            val awTreeStart: S32 = awTreeStartStack.pop()
+            val children = extractTrees(awTreeStart)
+            treeBuf.sz = awTreeStart
+            treeBuf.push(ParseTree.Node(children, awName, awNum))
+          }
+        }
+      }
+    }
+
+    // Final result: treeBuf should contain exactly 1 tree (the root)
+    if (treeBuf.sizeS32 == s32"1") {
+      if (tokens.hasS32(pos)) {
+        val token = tokens.atS32(pos).toLeaf
+        reporter.error(token.posOpt, "Parser", s"Unexpected token '${token.text}' after successful parse")
+        return None()
+      }
+      return Some(treeBuf.elements.atS32(s32"0"))
+    }
+    return None()
   }
 }

@@ -22,38 +22,48 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.sireum.ops
+
+package org.sireum.parser.json
 
 import org.sireum._
 
-object StringOps_Ext {
-  def sha3(is256: B, s: String): ISZ[U8] = {
-    val md = _root_.java.security.MessageDigest.getInstance(if (is256) "SHA3-256" else "SHA3-512")
-    val digest = md.digest(s.value.getBytes("UTF-8"))
-    new IS[Z, U8](Z, digest, digest.length, U8.Boxer)
-  }
+object JsonAstBuilder_Ext {
 
-  def nativeSubstring(cis: ISZ[C], start: Z, until: Z): String = {
-    val s = start.toBigInt.toInt
-    val u = until.toBigInt.toInt
-    if (u - s <= 0) return ""
-    val arr = cis.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
-  }
-
-  def nativeMsSubstring(cms: MSZ[C], start: Z, until: Z): String = {
-    val s = start.toBigInt.toInt
-    val u = until.toBigInt.toInt
-    if (u - s <= 0) return ""
-    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
-  }
-
-  def nativeMsSubstringS32(cms: MS[S32, C], start: S32, until: S32): String = {
-    val s = start.value
-    val u = until.value
-    if (u - s <= 0) return ""
-    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
+  def unescapeJsonString(raw: String): String = {
+    val s = raw.value
+    // Strip surrounding quotes
+    val inner = s.substring(1, s.length - 1)
+    // Fast path: no escape sequences
+    if (inner.indexOf('\\') < 0) {
+      return String(inner)
+    }
+    // Slow path: process escape sequences
+    val sb = new java.lang.StringBuilder(inner.length)
+    var i = 0
+    while (i < inner.length) {
+      val c = inner.charAt(i)
+      if (c == '\\' && i + 1 < inner.length) {
+        i += 1
+        inner.charAt(i) match {
+          case '"' => sb.append('"')
+          case '\\' => sb.append('\\')
+          case '/' => sb.append('/')
+          case 'b' => sb.append('\b')
+          case 'f' => sb.append('\f')
+          case 'n' => sb.append('\n')
+          case 'r' => sb.append('\r')
+          case 't' => sb.append('\t')
+          case 'u' =>
+            val hex = inner.substring(i + 1, i + 5)
+            sb.appendCodePoint(Integer.parseInt(hex, 16))
+            i += 4
+          case other => sb.append(other)
+        }
+      } else {
+        sb.append(c)
+      }
+      i += 1
+    }
+    String(sb.toString)
   }
 }

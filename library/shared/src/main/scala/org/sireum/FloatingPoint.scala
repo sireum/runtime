@@ -56,8 +56,16 @@ object F32 {
       case a: Array[scala.Float] => box(a(i))
     }
 
+    override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
+      case a: Array[scala.Float] => box(a(i.toInt))
+    }
+
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Float] => a(i) = unbox(v)
+    }
+
+    override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
+      case a: Array[scala.Float] => a(i.toInt) = unbox(v)
     }
   }
 
@@ -183,8 +191,16 @@ object F64 {
       case a: Array[scala.Double] => box(a(i))
     }
 
+    override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
+      case a: Array[scala.Double] => box(a(i.toInt))
+    }
+
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Double] => a(i) = unbox(v)
+    }
+
+    override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
+      case a: Array[scala.Double] => a(i.toInt) = unbox(v)
     }
   }
 

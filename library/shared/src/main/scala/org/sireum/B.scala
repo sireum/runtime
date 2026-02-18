@@ -103,8 +103,16 @@ object B {
       case a: scala.Array[scala.Byte] => box(at(a, i))
     }
 
+    override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
+      case a: scala.Array[scala.Byte] => box(at(a, i.toInt))
+    }
+
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: scala.Array[scala.Byte] => up(a, i, unbox(v))
+    }
+
+    override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
+      case a: scala.Array[scala.Byte] => up(a, i.toInt, unbox(v))
     }
 
     override def size(a: scala.AnyRef): Z = a match {
@@ -162,7 +170,7 @@ object B {
 
 }
 
-final class B(val value: Boolean) extends AnyVal with Immutable with $internal.HasBoxer
+final class B private(val value: Boolean) extends AnyVal with Immutable with $internal.HasBoxer
   with Contract.SequentBuilder with Contract.StepBuilder2 {
 
   @inline def &(other: B): B = value & other.value

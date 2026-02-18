@@ -25,16 +25,16 @@
 
 package org.sireum
 
-import org.sireum.U32._
+import org.sireum.S32._
 import org.sireum.parser._
 import org.sireum.test._
 
 class NGrammarCompactTest extends TestSuite {
 
   def emptyPT: PredictiveTable = PredictiveTable(
-    k = 1,
-    nameMap = HashSMap.empty[String, U32],
-    rules = HashSMap.empty[U32, PredictiveNode]
+    k = s32"1",
+    nameMap = HashSMap.empty[String, S32],
+    rules = IS[S32, PredictiveNode]()
   )
 
   val tests = Tests {
@@ -52,79 +52,101 @@ class NGrammarCompactTest extends TestSuite {
     // PredictiveTable: table with Leaf nodes only
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "TOK" ~> u32"1",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Leaf(0)
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0" + "TOK" ~> s32"1",
+        rules = IS[S32, PredictiveNode](PredictiveNode.Leaf(s32"0"))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
     }
 
     // PredictiveTable: Branch with entries, no default
+    // nameMap: "rule"->0, "A"->1, "B"->2 (size 3)
+    // entries: slot 1->Leaf(0), slot 2->Leaf(1), slot 0->sentinel
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0) +
-              u32"2" ~> PredictiveNode.Leaf(1),
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0" + "A" ~> s32"1" + "B" ~> s32"2",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(s32"0"),
+              PredictiveNode.Leaf(s32"1")
+            ),
             defaultOpt = None()
-          )
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
     }
 
     // PredictiveTable: Branch with entries AND default
+    // nameMap: "rule"->0, "A"->1 (size 2)
+    // entries: slot 0->Leaf(1) (default-filled), slot 1->Leaf(0) (explicit)
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0),
-            defaultOpt = Some(PredictiveNode.Leaf(1))
-          )
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0" + "A" ~> s32"1",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.Leaf(s32"1"),
+              PredictiveNode.Leaf(s32"0")
+            ),
+            defaultOpt = Some(PredictiveNode.Leaf(s32"1"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
     }
 
     // PredictiveTable: Branch with empty entries and no default
+    // nameMap: "rule"->0 (size 1)
+    // entries: slot 0->sentinel
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode],
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.sentinel
+            ),
             defaultOpt = None()
-          )
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
     }
 
     // PredictiveTable: nested Branch nodes
+    // nameMap: "rule"->0, "A"->1, "B"->2, "C"->3 (size 4)
+    // outer: slot 1->inner Branch (explicit), slots 0,2,3->Leaf(2) (default-filled)
+    // inner: slot 2->Leaf(0), slot 3->Leaf(1), slots 0,1->sentinel
     * - {
+      val innerBranch = PredictiveNode.Branch(
+        entries = IS[S32, PredictiveNode](
+          PredictiveNode.sentinel,
+          PredictiveNode.sentinel,
+          PredictiveNode.Leaf(s32"0"),
+          PredictiveNode.Leaf(s32"1")
+        ),
+        defaultOpt = None()
+      )
       val pt = PredictiveTable(
-        k = 2,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2" + "C" ~> u32"3",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Branch(
-                entries = HashSMap.empty[U32, PredictiveNode] +
-                  u32"2" ~> PredictiveNode.Leaf(0) +
-                  u32"3" ~> PredictiveNode.Leaf(1),
-                defaultOpt = None()
-              ),
-            defaultOpt = Some(PredictiveNode.Leaf(2))
-          )
+        k = s32"2",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0" + "A" ~> s32"1" + "B" ~> s32"2" + "C" ~> s32"3",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.Leaf(s32"2"),
+              innerBranch,
+              PredictiveNode.Leaf(s32"2"),
+              PredictiveNode.Leaf(s32"2")
+            ),
+            defaultOpt = Some(PredictiveNode.Leaf(s32"2"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
@@ -146,7 +168,7 @@ class NGrammarCompactTest extends TestSuite {
 
     // NGrammar: empty ruleMap
     * - {
-      val ng = NGrammar(ruleMap = HashSMap.empty[U32, NRule], pt = emptyPT)
+      val ng = NGrammar(ruleMap = IS[S32, NRule](), pt = emptyPT)
       val decoded = NGrammar.fromCompact(ng.toCompact)
       assert(decoded == ng)
     }
@@ -154,13 +176,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Str
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(
             name = "program",
-            num = u32"0",
+            num = s32"0",
             isSynthetic = F,
-            elements = ISZ(NElement.Str(value = "hello", num = u32"10"))
-          ),
+            elements = ISZ(NElement.Str(value = "hello", num = s32"10"))
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -170,13 +193,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Ref (isTerminal = T)
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(
             name = "rule1",
-            num = u32"0",
+            num = s32"0",
             isSynthetic = F,
-            elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"5"))
-          ),
+            elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = s32"5"))
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -186,13 +210,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with NElement.Ref (isTerminal = F)
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(
             name = "rule2",
-            num = u32"0",
+            num = s32"0",
             isSynthetic = T,
-            elements = ISZ(NElement.Ref(isTerminal = F, ruleName = "expr", num = u32"3"))
-          ),
+            elements = ISZ(NElement.Ref(isTerminal = F, ruleName = "expr", num = s32"3"))
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -202,13 +227,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Alts
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(
+        ruleMap = IS[S32, NRule](
+          NRule.Alts(
             name = "choice",
-            num = u32"0",
+            num = s32"0",
             isSynthetic = F,
-            alts = ISZ(u32"1", u32"2", u32"3")
-          ),
+            alts = IS[S32, S32](s32"1", s32"2", s32"3")
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -218,18 +244,19 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with multiple NElement variants
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(
             name = "complex",
-            num = u32"0",
+            num = s32"0",
             isSynthetic = F,
             elements = ISZ(
-              NElement.Str(value = "(", num = u32"10"),
-              NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"11"),
-              NElement.Ref(isTerminal = F, ruleName = "body", num = u32"15"),
-              NElement.Str(value = ")", num = u32"16")
+              NElement.Str(value = "(", num = s32"10"),
+              NElement.Ref(isTerminal = T, ruleName = "ID", num = s32"11"),
+              NElement.Ref(isTerminal = F, ruleName = "body", num = s32"15"),
+              NElement.Str(value = ")", num = s32"16")
             )
-          ),
+          )
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -237,38 +264,44 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // NGrammar: multiple rules (both Elements and Alts) with non-trivial PredictiveTable
+    // nameMap: "stmt"->0, "ifStmt"->1, "exprStmt"->2, "IF"->3, "ID"->4 (size 5)
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] +
-          "stmt" ~> u32"0" + "ifStmt" ~> u32"1" + "exprStmt" ~> u32"2" +
-          "IF" ~> u32"3" + "ID" ~> u32"4",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(0) +
-              u32"4" ~> PredictiveNode.Leaf(1),
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] +
+          "stmt" ~> s32"0" + "ifStmt" ~> s32"1" + "exprStmt" ~> s32"2" +
+          "IF" ~> s32"3" + "ID" ~> s32"4",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(s32"0"),
+              PredictiveNode.Leaf(s32"1")
+            ),
             defaultOpt = None()
-          )
+          ))
       )
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(name = "stmt", num = u32"0", isSynthetic = F, alts = ISZ(u32"1", u32"2")) +
-          u32"1" ~> NRule.Elements(
+        ruleMap = IS[S32, NRule](
+          NRule.Alts(name = "stmt", num = s32"0", isSynthetic = F, alts = IS[S32, S32](s32"1", s32"2")),
+          NRule.Elements(
             name = "ifStmt",
-            num = u32"1",
+            num = s32"1",
             isSynthetic = F,
             elements = ISZ(
-              NElement.Str(value = "if", num = u32"3"),
-              NElement.Ref(isTerminal = F, ruleName = "expr", num = u32"5")
+              NElement.Str(value = "if", num = s32"3"),
+              NElement.Ref(isTerminal = F, ruleName = "expr", num = s32"5")
             )
-          ) +
-          u32"2" ~> NRule.Elements(
-            name = "exprStmt",
-            num = u32"2",
-            isSynthetic = F,
-            elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = u32"4"))
           ),
+          NRule.Elements(
+            name = "exprStmt",
+            num = s32"2",
+            isSynthetic = F,
+            elements = ISZ(NElement.Ref(isTerminal = T, ruleName = "ID", num = s32"4"))
+          )
+        ),
         pt = pt
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -278,13 +311,14 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: toCompactST produces correct format and roundtrips
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "r" ~> u32"0",
-        rules = HashSMap.empty[U32, PredictiveNode] + u32"0" ~> PredictiveNode.Leaf(0)
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "r" ~> s32"0",
+        rules = IS[S32, PredictiveNode](PredictiveNode.Leaf(s32"0"))
       )
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(name = "r", num = u32"0", isSynthetic = F, elements = ISZ()),
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(name = "r", num = s32"0", isSynthetic = F, elements = ISZ())
+        ),
         pt = pt
       )
       val st = ng.toCompactST
@@ -299,8 +333,9 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Alts with empty alts list
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Alts(name = "empty", num = u32"0", isSynthetic = T, alts = ISZ()),
+        ruleMap = IS[S32, NRule](
+          NRule.Alts(name = "empty", num = s32"0", isSynthetic = T, alts = IS[S32, S32]())
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -310,8 +345,9 @@ class NGrammarCompactTest extends TestSuite {
     // NGrammar: NRule.Elements with empty elements list
     * - {
       val ng = NGrammar(
-        ruleMap = HashSMap.empty[U32, NRule] +
-          u32"0" ~> NRule.Elements(name = "eps", num = u32"0", isSynthetic = T, elements = ISZ()),
+        ruleMap = IS[S32, NRule](
+          NRule.Elements(name = "eps", num = s32"0", isSynthetic = T, elements = ISZ())
+        ),
         pt = emptyPT
       )
       val decoded = NGrammar.fromCompact(ng.toCompact)
@@ -319,41 +355,62 @@ class NGrammarCompactTest extends TestSuite {
     }
 
     // PredictiveTable: Branch with default being a Branch (nested default)
+    // nameMap: "rule"->0, "A"->1, "B"->2 (size 3)
+    // inner: slot 0->Leaf(2) (default), slot 1->Leaf(2) (default), slot 2->Leaf(1) (explicit)
+    // outer: slot 0->inner (default fill), slot 1->Leaf(0) (explicit), slot 2->inner (default fill)
     * - {
+      val innerBranch = PredictiveNode.Branch(
+        entries = IS[S32, PredictiveNode](
+          PredictiveNode.Leaf(s32"2"),
+          PredictiveNode.Leaf(s32"2"),
+          PredictiveNode.Leaf(s32"1")
+        ),
+        defaultOpt = Some(PredictiveNode.Leaf(s32"2"))
+      )
       val pt = PredictiveTable(
-        k = 2,
-        nameMap = HashSMap.empty[String, U32] + "rule" ~> u32"0" + "A" ~> u32"1" + "B" ~> u32"2",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"1" ~> PredictiveNode.Leaf(0),
-            defaultOpt = Some(PredictiveNode.Branch(
-              entries = HashSMap.empty[U32, PredictiveNode] +
-                u32"2" ~> PredictiveNode.Leaf(1),
-              defaultOpt = Some(PredictiveNode.Leaf(2))
-            ))
-          )
+        k = s32"2",
+        nameMap = HashSMap.empty[String, S32] + "rule" ~> s32"0" + "A" ~> s32"1" + "B" ~> s32"2",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              innerBranch,
+              PredictiveNode.Leaf(s32"0"),
+              innerBranch
+            ),
+            defaultOpt = None()
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)
     }
 
     // PredictiveTable: multiple rules
+    // nameMap: "r1"->0, "r2"->1, "A"->2, "B"->3 (size 4)
+    // rule 0: slot 2->Leaf(0), rest sentinel
+    // rule 1: slot 3->Leaf(0), rest->Leaf(1) (default)
     * - {
       val pt = PredictiveTable(
-        k = 1,
-        nameMap = HashSMap.empty[String, U32] + "r1" ~> u32"0" + "r2" ~> u32"1" + "A" ~> u32"2" + "B" ~> u32"3",
-        rules = HashSMap.empty[U32, PredictiveNode] +
-          u32"0" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"2" ~> PredictiveNode.Leaf(0),
+        k = s32"1",
+        nameMap = HashSMap.empty[String, S32] + "r1" ~> s32"0" + "r2" ~> s32"1" + "A" ~> s32"2" + "B" ~> s32"3",
+        rules = IS[S32, PredictiveNode](
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.sentinel,
+              PredictiveNode.sentinel,
+              PredictiveNode.Leaf(s32"0"),
+              PredictiveNode.sentinel
+            ),
             defaultOpt = None()
-          ) +
-          u32"1" ~> PredictiveNode.Branch(
-            entries = HashSMap.empty[U32, PredictiveNode] +
-              u32"3" ~> PredictiveNode.Leaf(0),
-            defaultOpt = Some(PredictiveNode.Leaf(1))
-          )
+          ),
+          PredictiveNode.Branch(
+            entries = IS[S32, PredictiveNode](
+              PredictiveNode.Leaf(s32"1"),
+              PredictiveNode.Leaf(s32"1"),
+              PredictiveNode.Leaf(s32"1"),
+              PredictiveNode.Leaf(s32"0")
+            ),
+            defaultOpt = Some(PredictiveNode.Leaf(s32"1"))
+          ))
       )
       val decoded = PredictiveTable.fromCompact(pt.toCompact)
       assert(decoded == pt)

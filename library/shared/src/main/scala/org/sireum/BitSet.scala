@@ -1,3 +1,4 @@
+// #Sireum
 /*
  Copyright (c) 2017-2026,Robby, Kansas State University
  All rights reserved.
@@ -22,38 +23,18 @@
  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.sireum.ops
+package org.sireum
 
-import org.sireum._
+@sig trait BitSet {
+  def isSet(i: Z): B
+  def isSetS32(i: S32): B
+  def isSetS64(i: S64): B
+  def isSetU32(i: U32): B
+  def isSetU64(i: U64): B
+}
 
-object StringOps_Ext {
-  def sha3(is256: B, s: String): ISZ[U8] = {
-    val md = _root_.java.security.MessageDigest.getInstance(if (is256) "SHA3-256" else "SHA3-512")
-    val digest = md.digest(s.value.getBytes("UTF-8"))
-    new IS[Z, U8](Z, digest, digest.length, U8.Boxer)
-  }
-
-  def nativeSubstring(cis: ISZ[C], start: Z, until: Z): String = {
-    val s = start.toBigInt.toInt
-    val u = until.toBigInt.toInt
-    if (u - s <= 0) return ""
-    val arr = cis.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
-  }
-
-  def nativeMsSubstring(cms: MSZ[C], start: Z, until: Z): String = {
-    val s = start.toBigInt.toInt
-    val u = until.toBigInt.toInt
-    if (u - s <= 0) return ""
-    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
-  }
-
-  def nativeMsSubstringS32(cms: MS[S32, C], start: S32, until: S32): String = {
-    val s = start.value
-    val u = until.value
-    if (u - s <= 0) return ""
-    val arr = cms.data.asInstanceOf[scala.Array[scala.Int]]
-    new Predef.String(arr, s, u - s)
+object BitSet {
+  @ext("BitSet_Ext") object Ext {
+    def fromISB(a: IS[S32, B]): BitSet = $
   }
 }

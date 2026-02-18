@@ -2183,7 +2183,7 @@ object Json {
     def parseString(): String = {
       errorIfEof(offset)
 
-      var r = ISZ[C]()
+      val r = MIStack.create[C]('\u0000', s32"64", s32"2")
 
       var c = at(offset)
       c.native match {
@@ -2194,31 +2194,31 @@ object Json {
               case '\\' =>
                 c = incOffset(1)
                 c.native match {
-                  case '"' => r = r :+ '"'
-                  case '\\' => r = r :+ '\\'
-                  case '/' => r = r :+ '/'
-                  case 'b' => r = r :+ '\b'
-                  case 'f' => r = r :+ '\f'
-                  case 'n' => r = r :+ '\n'
-                  case 'r' => r = r :+ '\r'
-                  case 't' => r = r :+ '\t'
+                  case '"' => r.push('"')
+                  case '\\' => r.push('\\')
+                  case '/' => r.push('/')
+                  case 'b' => r.push('\b')
+                  case 'f' => r.push('\f')
+                  case 'n' => r.push('\n')
+                  case 'r' => r.push('\r')
+                  case 't' => r.push('\t')
                   case 'u' =>
                     incOffset(4)
                     val hex = slice(offset - 3, offset + 1)
                     COps.fromUnicodeHex(hex) match {
-                      case Some(ch) => r = r :+ ch
+                      case Some(ch) => r.push(ch)
                       case _ =>
                         parseException(offset - 3, s"Expected a character hex but '$hex' found.")
                     }
                   case _ =>
                     parseException(offset, s"Expected an escaped character but '$c' found.")
                 }
-              case _ => r = r :+ c
+              case _ => r.push(c)
             }
             c = incOffset(1)
           }
           offset = offset + 1
-          return conversions.String.fromCis(r)
+          return ops.StringOps.Ext.nativeMsSubstringS32(r.elements, s32"0", r.sz)
         case _ =>
           parseException(offset, s"""Expected '"' but '$c' found.""")
           return ""

@@ -66,6 +66,9 @@ import org.sireum.U32._
 
 object Position {
   val none: Position = FlatPos(None(), u32"1", u32"1", u32"1", u32"1", u32"0", u32"0")
+  val u64x1: U64 = u64"1"
+  val u64x32: U64 = u64"32"
+  val u64xLowMask: U64 = u64"0xFFFFFFFF"
 }
 
 @datatype trait Position {
@@ -127,7 +130,7 @@ object Position {
     }
     docInfoOpt match {
       case Some(info) =>
-        return PosInfo(info, (conversions.Z.toU64(pos1.offset) << u64"32") |
+        return PosInfo(info, (conversions.Z.toU64(pos1.offset) << Position.u64x32) |
           conversions.Z.toU64(pos2.offset + pos2.length - pos1.offset))
       case _ =>
         return FlatPos(
@@ -186,39 +189,39 @@ object Position {
   }
 
   @pure override def beginLine: Z = {
-    return conversions.U64.toZ(info.lineColumn(offsetLength) >>> u64"32")
+    return conversions.U64.toZ(info.lineColumn(offsetLength) >>> Position.u64x32)
   }
 
   @pure override def beginColumn: Z = {
-    return conversions.U64.toZ(info.lineColumn(offsetLength) & u64"0xFFFFFFFF")
+    return conversions.U64.toZ(info.lineColumn(offsetLength) & Position.u64xLowMask)
   }
 
   @pure override def endLine: Z = {
-    val endOffset = offsetLength + ((offsetLength - u64"1") << u64"32")
-    return conversions.U64.toZ(info.lineColumn(endOffset) >>> u64"32")
+    val endOffset = offsetLength + ((offsetLength - Position.u64x1) << Position.u64x32)
+    return conversions.U64.toZ(info.lineColumn(endOffset) >>> Position.u64x32)
   }
 
   @pure override def endColumn: Z = {
-    val endOffset = offsetLength + ((offsetLength - u64"1") << u64"32")
-    return conversions.U64.toZ(info.lineColumn(endOffset) & u64"0xFFFFFFFF")
+    val endOffset = offsetLength + ((offsetLength - Position.u64x1) << Position.u64x32)
+    return conversions.U64.toZ(info.lineColumn(endOffset) & Position.u64xLowMask)
   }
 
   @pure override def offset: Z = {
-    return conversions.U64.toZ(offsetLength >>> u64"32")
+    return conversions.U64.toZ(offsetLength >>> Position.u64x32)
   }
 
   @pure override def length: Z = {
-    return conversions.U64.toZ(offsetLength & u64"0xFFFFFFFF")
+    return conversions.U64.toZ(offsetLength & Position.u64xLowMask)
   }
 }
 
 @datatype class DocInfo(val uriOpt: Option[String], val lineOffsets: ISZ[U32]) {
 
   @pure def lineColumn(offsetLength: U64): U64 = {
-    val offsetLine = conversions.U64.toU32(offsetLength >>> u64"32")
+    val offsetLine = conversions.U64.toU32(offsetLength >>> Position.u64x32)
     @pure def computeLC(i: Z): U64 = {
-      val line = conversions.Z.toU64(i + 1) << u64"32"
-      val column = conversions.U32.toU64(offsetLine - lineOffsets(i)) + u64"1"
+      val line = conversions.Z.toU64(i + 1) << Position.u64x32
+      val column = conversions.U32.toU64(offsetLine - lineOffsets(i)) + Position.u64x1
       return line | column
     }
     val size = lineOffsets.size
