@@ -48,7 +48,9 @@ val testShared = moduleSharedPub(
   baseDir = homeDir / test,
   sharedDeps = ISZ(macrosShared.id),
   sharedIvyDeps = ISZ(
-    "org.scalatest::scalatest::"
+    "org.scalatest::scalatest::",
+    "org.scalatestplus::junit-5-10:",
+    "org.junit.platform:junit-platform-launcher:"
   ),
   pubOpt = pub(
     desc = "Test Framework for Slang",
