@@ -87,23 +87,14 @@ object IS {
   }
 
   def apply[@index I, V](args: V*)(implicit companion: $ZCompanion[I]): IS[I, V] = {
-    val length = Z.MP(args.length)
-    IS.checkSize(length)(companion)
+    IS.checkSize(Z.MP(args.length))(companion)
     val boxer = Boxer.boxerSeq(args)
+    val length = Z.MP(args.length)
     val a = boxer.create(length)
-    if (boxer eq $internal.IdentityBoxer) {
-      val arr = a.asInstanceOf[Array[scala.Any]]
-      var i = 0
-      for (arg <- args) {
-        arr(i) = arg
-        i += 1
-      }
-    } else {
-      var i = Z.MP.zero
-      for (arg <- args) {
-        boxer.store(a, i, arg)
-        i = i.increase
-      }
+    var i = Z.MP.zero
+    for (arg <- args) {
+      boxer.store(a, i, arg)
+      i = i.increase
     }
     IS[I, V](companion, a, length, boxer)
   }
@@ -113,14 +104,10 @@ object IS {
     IS.checkSize(length)(companion)
     val boxer = Boxer.boxer(default)
     val a = boxer.create(length)
-    if (boxer eq $internal.IdentityBoxer) {
-      java.util.Arrays.fill(a.asInstanceOf[Array[AnyRef]], default.asInstanceOf[AnyRef])
-    } else {
-      var i = Z.MP.zero
-      while (i < length) {
-        boxer.store(a, i, default)
-        i = i.increase
-      }
+    var i = Z.MP.zero
+    while (i < length) {
+      boxer.store(a, i, default)
+      i = i.increase
     }
     IS[I, V](companion, a, length, boxer)
   }
@@ -132,7 +119,7 @@ object IS {
 }
 
 final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRef, val length: Z, val boxer: Boxer)
-    extends Immutable with ISMarker with _root_.java.lang.Iterable[V] {
+  extends Immutable with ISMarker with _root_.java.lang.Iterable[V] {
 
   def hash: Z = hashCode
 
@@ -171,16 +158,12 @@ final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
     val newLength = length + other.length
     IS.checkSize(newLength)(companion)
     val a = bxr.clone(data, length, newLength, Z.MP.zero)
-    if ((bxr eq $internal.IdentityBoxer) && (other.boxer eq $internal.IdentityBoxer)) {
-      System.arraycopy(other.data, 0, a, length.toInt, other.length.toInt)
-    } else {
-      var i = length
-      var j = Z.MP.zero
-      while (i < newLength) {
-        bxr.store(a, i, other.boxer.lookup[V](other.data, j))
-        i = i.increase
-        j = j.increase
-      }
+    var i = length
+    var j = Z.MP.zero
+    while (i < newLength) {
+      bxr.store(a, i, other.boxer.lookup[V](other.data, j))
+      i = i.increase
+      j = j.increase
     }
     IS[I, V](companion, a, newLength, bxr)
   }
@@ -348,57 +331,40 @@ final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
 
   def toMSZ: MSZ[V] = MSZ(elements: _*)
 
-  def apply(index: I): V =
-    if (index.isInstanceOf[S32]) atS32(index.asInstanceOf[S32])
-    else atZ(index.asInstanceOf[ZLike[_]].toIndex)
+  def apply(index: I): V = atZ(index.asInstanceOf[ZLike[_]].toIndex)
 
   def apply(index: scala.Long): V = {
     if (index < 0L || index >= length.toLong)
       halt(s"Indexing out of bounds: $index")
-    if (boxer eq $internal.IdentityBoxer)
-      data.asInstanceOf[Array[AnyRef]](index.toInt).asInstanceOf[V]
-    else
-      boxer.lookup[V](data, index)
+    boxer.lookup[V](data, index)
   }
 
   def atS32(i: S32): V = {
     val index = i.value.toLong
     if (index < 0L || index >= length.toLong)
       halt(s"Indexing out of bounds: $i")
-    if (boxer eq $internal.IdentityBoxer)
-      data.asInstanceOf[Array[AnyRef]](i.value).asInstanceOf[V]
-    else
-      boxer.lookup[V](data, index)
+    boxer.lookup[V](data, index)
   }
 
   def atU32(i: U32): V = {
     val index = i.value.toLong & 0xFFFFFFFFL
     if (index >= length.toLong)
       halt(s"Indexing out of bounds: $i")
-    if (boxer eq $internal.IdentityBoxer)
-      data.asInstanceOf[Array[AnyRef]](index.toInt).asInstanceOf[V]
-    else
-      boxer.lookup[V](data, index)
+    boxer.lookup[V](data, index)
   }
 
   def atS64(i: S64): V = {
     val index = i.value
     if (index < 0L || index >= length.toLong)
       halt(s"Indexing out of bounds: $i")
-    if (boxer eq $internal.IdentityBoxer)
-      data.asInstanceOf[Array[AnyRef]](index.toInt).asInstanceOf[V]
-    else
-      boxer.lookup[V](data, index)
+    boxer.lookup[V](data, index)
   }
 
   def atU64(i: U64): V = {
     val index = i.value
     if (index < 0L || index >= length.toLong)
       halt(s"Indexing out of bounds: $i")
-    if (boxer eq $internal.IdentityBoxer)
-      data.asInstanceOf[Array[AnyRef]](index.toInt).asInstanceOf[V]
-    else
-      boxer.lookup[V](data, index)
+    boxer.lookup[V](data, index)
   }
 
   def apply(args: (I, V)*): IS[I, V] =
