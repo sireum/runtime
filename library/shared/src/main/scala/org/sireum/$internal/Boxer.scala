@@ -51,14 +51,9 @@ trait Boxer {
     case a: Array[_] => box(a(i))
   }
 
-  def lookup[T](a: scala.AnyRef, i: scala.Long): T = lookup[T](a, Z.MP(i))
-
   def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
     case a: Array[scala.Any] => a(i) = unbox(v)
   }
-
-  def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit =
-    store(a, Z.MP(i), v)
 
   def size(a: scala.AnyRef): Z = a match {
     case a: Array[_] => Z.MP(a.length)

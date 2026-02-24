@@ -392,16 +392,8 @@ object Z extends $ZCompanion[Z] {
         case a: Array[scala.Byte] => box(a(i))
       }
 
-      override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-        case a: Array[scala.Byte] => box(a(i.toInt))
-      }
-
       override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Byte] => a(i) = unbox(v)
-      }
-
-      override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-        case a: Array[scala.Byte] => a(i.toInt) = unbox(v)
       }
 
       def make(o: scala.Byte): scala.Any
@@ -429,16 +421,8 @@ object Z extends $ZCompanion[Z] {
         case a: Array[scala.Short] => box(a(i))
       }
 
-      override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-        case a: Array[scala.Short] => box(a(i.toInt))
-      }
-
       override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Short] => a(i) = unbox(v)
-      }
-
-      override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-        case a: Array[scala.Short] => a(i.toInt) = unbox(v)
       }
 
       def make(o: scala.Short): scala.Any
@@ -464,16 +448,8 @@ object Z extends $ZCompanion[Z] {
         case a: Array[scala.Int] => box(a(i))
       }
 
-      override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-        case a: Array[scala.Int] => box(a(i.toInt))
-      }
-
       override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Int] => a(i) = unbox(v)
-      }
-
-      override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-        case a: Array[scala.Int] => a(i.toInt) = unbox(v)
       }
 
       def make(o: scala.Int): scala.Any
@@ -499,16 +475,8 @@ object Z extends $ZCompanion[Z] {
         case a: Array[scala.Long] => box(a(i))
       }
 
-      override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-        case a: Array[scala.Long] => box(a(i.toInt))
-      }
-
       override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
         case a: Array[scala.Long] => a(i) = unbox(v)
-      }
-
-      override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-        case a: Array[scala.Long] => a(i.toInt) = unbox(v)
       }
 
       def make(o: scala.Long): scala.Any

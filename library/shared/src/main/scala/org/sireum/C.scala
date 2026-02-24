@@ -46,16 +46,8 @@ object C {
       case a: Array[scala.Int] => box(a(i))
     }
 
-    override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-      case a: Array[scala.Int] => box(a(i.toInt))
-    }
-
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: Array[scala.Int] => a(i) = unbox(v)
-    }
-
-    override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-      case a: Array[scala.Int] => a(i.toInt) = unbox(v)
     }
   }
 

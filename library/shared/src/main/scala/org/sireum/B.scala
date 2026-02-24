@@ -103,16 +103,8 @@ object B {
       case a: scala.Array[scala.Byte] => box(at(a, i))
     }
 
-    override def lookup[T](a: scala.AnyRef, i: scala.Long): T = a match {
-      case a: scala.Array[scala.Byte] => box(at(a, i.toInt))
-    }
-
     override def store(a: scala.AnyRef, i: Z, v: scala.Any): Unit = a match {
       case a: scala.Array[scala.Byte] => up(a, i, unbox(v))
-    }
-
-    override def store(a: scala.AnyRef, i: scala.Long, v: scala.Any): Unit = a match {
-      case a: scala.Array[scala.Byte] => up(a, i.toInt, unbox(v))
     }
 
     override def size(a: scala.AnyRef): Z = a match {
