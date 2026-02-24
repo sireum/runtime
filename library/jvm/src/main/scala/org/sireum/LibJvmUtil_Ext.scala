@@ -38,188 +38,194 @@ import LibJvmUtil_Ext._
 class LibJvmUtil_Ext extends Reflection_Ext {
 
   private lazy val nameMap: Int2ObjectOpenHashMap[Reflection.Info] = {
-    val r = new Int2ObjectOpenHashMap[Info](176)
+    val r = new Int2ObjectOpenHashMap[Info](182)
     r.put(0xBF340B69, info0) // objectOrTypeKey("org.sireum.AssocS.Entries").value
+    r.put(0xC4F70824, info1) // objectOrTypeKey("org.sireum.BitSet.Ext").value
     r.put(0x8620E4A5, enumInfo) // objectOrTypeKey("org.sireum.CircularQueue.Policy").value
     r.put(0xEDE310F1, enumInfo) // objectOrTypeKey("org.sireum.CircularQueue.Policy.Type").value
-    r.put(0x0A395928, info3) // objectOrTypeKey("org.sireum.ContractUtil").value
-    r.put(0xC2495125, info4) // objectOrTypeKey("org.sireum.Graph.Internal").value
-    r.put(0x00F54577, info5) // objectOrTypeKey("org.sireum.Hash").value
-    r.put(0x50D63C7A, info6) // objectOrTypeKey("org.sireum.Jen.Internal").value
-    r.put(0x14B93CB4, info7) // objectOrTypeKey("org.sireum.Json").value
+    r.put(0x0A395928, info4) // objectOrTypeKey("org.sireum.ContractUtil").value
+    r.put(0xC2495125, info5) // objectOrTypeKey("org.sireum.Graph.Internal").value
+    r.put(0x00F54577, info6) // objectOrTypeKey("org.sireum.Hash").value
+    r.put(0x739DE1E9, info7) // objectOrTypeKey("org.sireum.Indexable.Ext").value
+    r.put(0x50D63C7A, info8) // objectOrTypeKey("org.sireum.Jen.Internal").value
+    r.put(0x14B93CB4, info9) // objectOrTypeKey("org.sireum.Json").value
     r.put(0xBA1D8D4C, enumInfo) // objectOrTypeKey("org.sireum.Json.ValueKind").value
     r.put(0xCD60C27D, enumInfo) // objectOrTypeKey("org.sireum.Json.ValueKind.Type").value
-    r.put(0xC7EA7002, info10) // objectOrTypeKey("org.sireum.Json.Printer").value
-    r.put(0x9FF5C2B0, info11) // objectOrTypeKey("org.sireum.Json.Fun").value
-    r.put(0x754EACAC, info12) // objectOrTypeKey("org.sireum.LibUtil").value
-    r.put(0x6E5F5F55, info13) // objectOrTypeKey("org.sireum.LibUtil.IS").value
-    r.put(0xA793A41C, info14) // objectOrTypeKey("org.sireum.Library").value
-    r.put(0x0E1A94DA, info15) // objectOrTypeKey("org.sireum.MJen.Internal").value
-    r.put(0x04D8C3B5, info16) // objectOrTypeKey("org.sireum.Map.Entries").value
-    r.put(0xEB44D893, info17) // objectOrTypeKey("org.sireum.OsProto").value
-    r.put(0x1C08E5AC, info18) // objectOrTypeKey("org.sireum.Poset.Internal").value
-    r.put(0x9E01815E, info19) // objectOrTypeKey("org.sireum.Random").value
-    r.put(0xE94336DC, info20) // objectOrTypeKey("org.sireum.Random.Impl").value
-    r.put(0x72D7E325, info21) // objectOrTypeKey("org.sireum.Random.Ext").value
-    r.put(0x65C0B3B4, info22) // objectOrTypeKey("org.sireum.Set.Elements").value
-    r.put(0x2306EA3F, info23) // objectOrTypeKey("org.sireum.UnionFind.Internal").value
-    r.put(0x5A1EBCEC, info24) // objectOrTypeKey("org.sireum.justification").value
-    r.put(0xB3F5A778, info25) // objectOrTypeKey("org.sireum.justification.natded").value
-    r.put(0x0B82CB8A, info26) // objectOrTypeKey("org.sireum.justification.natded.prop").value
-    r.put(0xB964ADEE, info27) // objectOrTypeKey("org.sireum.justification.natded.pred").value
-    r.put(0xB689416D, info28) // objectOrTypeKey("org.sireum.Asm").value
+    r.put(0xC7EA7002, info12) // objectOrTypeKey("org.sireum.Json.Printer").value
+    r.put(0x9FF5C2B0, info13) // objectOrTypeKey("org.sireum.Json.Fun").value
+    r.put(0x754EACAC, info14) // objectOrTypeKey("org.sireum.LibUtil").value
+    r.put(0x6E5F5F55, info15) // objectOrTypeKey("org.sireum.LibUtil.IS").value
+    r.put(0xA793A41C, info16) // objectOrTypeKey("org.sireum.Library").value
+    r.put(0x0E1A94DA, info17) // objectOrTypeKey("org.sireum.MJen.Internal").value
+    r.put(0x04D8C3B5, info18) // objectOrTypeKey("org.sireum.Map.Entries").value
+    r.put(0xEB44D893, info19) // objectOrTypeKey("org.sireum.OsProto").value
+    r.put(0x1C08E5AC, info20) // objectOrTypeKey("org.sireum.Poset.Internal").value
+    r.put(0x9E01815E, info21) // objectOrTypeKey("org.sireum.Random").value
+    r.put(0xE94336DC, info22) // objectOrTypeKey("org.sireum.Random.Impl").value
+    r.put(0x72D7E325, info23) // objectOrTypeKey("org.sireum.Random.Ext").value
+    r.put(0x65C0B3B4, info24) // objectOrTypeKey("org.sireum.Set.Elements").value
+    r.put(0x2306EA3F, info25) // objectOrTypeKey("org.sireum.UnionFind.Internal").value
+    r.put(0x5A1EBCEC, info26) // objectOrTypeKey("org.sireum.justification").value
+    r.put(0xB3F5A778, info27) // objectOrTypeKey("org.sireum.justification.natded").value
+    r.put(0x0B82CB8A, info28) // objectOrTypeKey("org.sireum.justification.natded.prop").value
+    r.put(0xB964ADEE, info29) // objectOrTypeKey("org.sireum.justification.natded.pred").value
+    r.put(0xB689416D, info30) // objectOrTypeKey("org.sireum.Asm").value
     r.put(0x846190A8, enumInfo) // objectOrTypeKey("org.sireum.CoursierClassifier").value
     r.put(0x05B64D38, enumInfo) // objectOrTypeKey("org.sireum.CoursierClassifier.Type").value
-    r.put(0x146E7442, info31) // objectOrTypeKey("org.sireum.Coursier").value
-    r.put(0x01A0B5C2, info32) // objectOrTypeKey("org.sireum.GitHub").value
-    r.put(0xD9DEF21A, info33) // objectOrTypeKey("org.sireum.GitHub.Ext").value
-    r.put(0x28E928C8, info34) // objectOrTypeKey("org.sireum.LibJvmUtil").value
-    r.put(0x33F535A1, info35) // objectOrTypeKey("org.sireum.LibJvmUtil.Ext").value
-    r.put(0xBB04BE7C, info36) // objectOrTypeKey("org.sireum.Os").value
+    r.put(0x146E7442, info33) // objectOrTypeKey("org.sireum.Coursier").value
+    r.put(0x01A0B5C2, info34) // objectOrTypeKey("org.sireum.GitHub").value
+    r.put(0xD9DEF21A, info35) // objectOrTypeKey("org.sireum.GitHub.Ext").value
+    r.put(0x66B01D24, info36) // objectOrTypeKey("org.sireum.JacksonJsonParser").value
+    r.put(0x28E928C8, info37) // objectOrTypeKey("org.sireum.LibJvmUtil").value
+    r.put(0x33F535A1, info38) // objectOrTypeKey("org.sireum.LibJvmUtil.Ext").value
+    r.put(0x94614860, info39) // objectOrTypeKey("org.sireum.Llm").value
+    r.put(0xBB04BE7C, info40) // objectOrTypeKey("org.sireum.Os").value
     r.put(0x06932F23, enumInfo) // objectOrTypeKey("org.sireum.Os.Kind").value
     r.put(0xF9DB7A5F, enumInfo) // objectOrTypeKey("org.sireum.Os.Kind.Type").value
     r.put(0x16F0305E, enumInfo) // objectOrTypeKey("org.sireum.Os.Path.Kind").value
     r.put(0xA509AA25, enumInfo) // objectOrTypeKey("org.sireum.Os.Path.Kind.Type").value
     r.put(0x111F32DB, enumInfo) // objectOrTypeKey("org.sireum.Os.Path.WriteMode").value
     r.put(0xCAFD89A4, enumInfo) // objectOrTypeKey("org.sireum.Os.Path.WriteMode.Type").value
-    r.put(0x298F2B40, info43) // objectOrTypeKey("org.sireum.Os.Ext").value
-    r.put(0x5F9DDA1F, info44) // objectOrTypeKey("org.sireum.Scalafmt").value
-    r.put(0x97BB94A6, info45) // objectOrTypeKey("org.sireum.Unit").value
-    r.put(0xD292453A, info46) // objectOrTypeKey("org.sireum.Nothing").value
-    r.put(0x4B6BCF82, info47) // objectOrTypeKey("org.sireum.AssocS").value
-    r.put(0xF9FC3D12, info48) // objectOrTypeKey("org.sireum.Bag").value
-    r.put(0x9D4EC2EB, info49) // objectOrTypeKey("org.sireum.StepId").value
-    r.put(0xC68F5781, info50) // objectOrTypeKey("org.sireum.CircularQueue").value
-    r.put(0x8FB81288, info51) // objectOrTypeKey("org.sireum.CircularQueue.NoDrop").value
-    r.put(0x5F444BD4, info52) // objectOrTypeKey("org.sireum.CircularQueue.DropFront").value
-    r.put(0xE129FFA4, info53) // objectOrTypeKey("org.sireum.CircularQueue.DropRear").value
-    r.put(0x31666B93, info54) // objectOrTypeKey("org.sireum.Either").value
-    r.put(0x19E203F0, info55) // objectOrTypeKey("org.sireum.Either.Left").value
-    r.put(0xE373A36D, info56) // objectOrTypeKey("org.sireum.Either.Right").value
-    r.put(0xDFE49387, info57) // objectOrTypeKey("org.sireum.Graph.Edge").value
-    r.put(0x7A143155, info58) // objectOrTypeKey("org.sireum.Graph.Edge.Plain").value
-    r.put(0x0FBB6850, info59) // objectOrTypeKey("org.sireum.Graph.Edge.Data").value
-    r.put(0x047E61CC, info60) // objectOrTypeKey("org.sireum.Graph.Internal.Edge").value
-    r.put(0x17E44376, info61) // objectOrTypeKey("org.sireum.Graph.Internal.Edges").value
-    r.put(0xE619E2A5, info62) // objectOrTypeKey("org.sireum.Graph.Internal.Edges.Set").value
-    r.put(0xB788F86D, info63) // objectOrTypeKey("org.sireum.Graph.Internal.Edges.Bag").value
-    r.put(0x31657A1F, info64) // objectOrTypeKey("org.sireum.Graph.Internal.Edge.Plain").value
-    r.put(0x158AA86A, info65) // objectOrTypeKey("org.sireum.Graph.Internal.Edge.Data").value
-    r.put(0x9C2C0C94, info66) // objectOrTypeKey("org.sireum.Graph").value
-    r.put(0x883E9A99, info67) // objectOrTypeKey("org.sireum.HashBag").value
-    r.put(0xC1C8FDA4, info68) // objectOrTypeKey("org.sireum.HashMap").value
-    r.put(0xEBADDB0C, info69) // objectOrTypeKey("org.sireum.HashSBag").value
-    r.put(0xFB8738A0, info70) // objectOrTypeKey("org.sireum.HashSMap").value
-    r.put(0xF13418B2, info71) // objectOrTypeKey("org.sireum.HashSSet").value
-    r.put(0x842F9727, info72) // objectOrTypeKey("org.sireum.HashSet").value
-    r.put(0x0DB5A38F, info73) // objectOrTypeKey("org.sireum.IndexMap").value
-    r.put(0x6A9C0C3F, info74) // objectOrTypeKey("org.sireum.Indexable").value
-    r.put(0x15561D5B, info75) // objectOrTypeKey("org.sireum.Indexable.Pos").value
-    r.put(0x8F9F62AF, info76) // objectOrTypeKey("org.sireum.Indexable.Isz").value
-    r.put(0x68CE5E47, info77) // objectOrTypeKey("org.sireum.Indexable.IszDocInfo").value
-    r.put(0x1BD55A1E, info78) // objectOrTypeKey("org.sireum.Jen").value
-    r.put(0x3DE02576, info79) // objectOrTypeKey("org.sireum.Jen.Internal.ISImpl").value
-    r.put(0x00F6F10D, info80) // objectOrTypeKey("org.sireum.Jen.Internal.MapImpl").value
-    r.put(0xA6059042, info81) // objectOrTypeKey("org.sireum.Jen.Internal.HashMapImpl").value
-    r.put(0x8BD3A96F, info82) // objectOrTypeKey("org.sireum.Jen.Internal.Filtered").value
-    r.put(0x6FC3A2A2, info83) // objectOrTypeKey("org.sireum.Jen.Internal.Mapped").value
-    r.put(0x6E1636F5, info84) // objectOrTypeKey("org.sireum.Jen.Internal.FlatMapped").value
-    r.put(0x74EEC5C0, info85) // objectOrTypeKey("org.sireum.Jen.Internal.Sliced").value
-    r.put(0x7BAD7D88, info86) // objectOrTypeKey("org.sireum.Jen.Internal.TakeWhile").value
-    r.put(0x5B1FD227, info87) // objectOrTypeKey("org.sireum.Jen.Internal.DropWhile").value
-    r.put(0xCB753410, info88) // objectOrTypeKey("org.sireum.Jen.Internal.ZipWithIndexed").value
-    r.put(0xBB793B19, info89) // objectOrTypeKey("org.sireum.Jen.Internal.Zipped").value
-    r.put(0x007A1385, info90) // objectOrTypeKey("org.sireum.Jen.Internal.Concat").value
-    r.put(0x1200DEFB, info91) // objectOrTypeKey("org.sireum.Jen.Internal.Product").value
-    r.put(0x7149BA6B, info92) // objectOrTypeKey("org.sireum.Json.JsonAstBinding").value
-    r.put(0xF84DADED, info93) // objectOrTypeKey("org.sireum.Json.ErrorMsg").value
-    r.put(0x09B503BF, info94) // objectOrTypeKey("org.sireum.Json.Parser").value
-    r.put(0x22D9BA60, info95) // objectOrTypeKey("org.sireum.MBox").value
-    r.put(0x85596090, info96) // objectOrTypeKey("org.sireum.MBox2").value
-    r.put(0x19620664, info97) // objectOrTypeKey("org.sireum.MBox3").value
-    r.put(0x17E6C186, info98) // objectOrTypeKey("org.sireum.MBox4").value
-    r.put(0x49391657, info99) // objectOrTypeKey("org.sireum.MBox5").value
-    r.put(0x90C028AA, info100) // objectOrTypeKey("org.sireum.MBox6").value
-    r.put(0x00547F85, info101) // objectOrTypeKey("org.sireum.MBox7").value
-    r.put(0x4010E999, info102) // objectOrTypeKey("org.sireum.MBox8").value
-    r.put(0x4367D13F, info103) // objectOrTypeKey("org.sireum.MBox9").value
-    r.put(0xD087D69D, info104) // objectOrTypeKey("org.sireum.MBox10").value
-    r.put(0xAB355F5F, info105) // objectOrTypeKey("org.sireum.MBox11").value
-    r.put(0x5695E90D, info106) // objectOrTypeKey("org.sireum.MBox12").value
-    r.put(0x6A36A51C, info107) // objectOrTypeKey("org.sireum.MBox13").value
-    r.put(0x9479D861, info108) // objectOrTypeKey("org.sireum.MBox14").value
-    r.put(0x88C35A8D, info109) // objectOrTypeKey("org.sireum.MBox15").value
-    r.put(0x42D49241, info110) // objectOrTypeKey("org.sireum.MBox16").value
-    r.put(0xC36F65D5, info111) // objectOrTypeKey("org.sireum.MBox17").value
-    r.put(0x73158A8A, info112) // objectOrTypeKey("org.sireum.MBox18").value
-    r.put(0x8C268331, info113) // objectOrTypeKey("org.sireum.MBox19").value
-    r.put(0x75BBCAA6, info114) // objectOrTypeKey("org.sireum.MBox20").value
-    r.put(0x043C4FA8, info115) // objectOrTypeKey("org.sireum.MBox21").value
-    r.put(0x33B3CA6B, info116) // objectOrTypeKey("org.sireum.MBox22").value
-    r.put(0x789B9607, info117) // objectOrTypeKey("org.sireum.MEither").value
-    r.put(0x8E5C2AF7, info118) // objectOrTypeKey("org.sireum.MEither.Left").value
-    r.put(0xA8BFF8F9, info119) // objectOrTypeKey("org.sireum.MEither.Right").value
-    r.put(0xE0B7A907, info120) // objectOrTypeKey("org.sireum.MJen").value
-    r.put(0x89D55DB4, info121) // objectOrTypeKey("org.sireum.MJen.Internal.ISImpl").value
-    r.put(0x604300B1, info122) // objectOrTypeKey("org.sireum.MJen.Internal.MSImpl").value
-    r.put(0xFAF9A5C6, info123) // objectOrTypeKey("org.sireum.MJen.Internal.MapImpl").value
-    r.put(0xFBB3388F, info124) // objectOrTypeKey("org.sireum.MJen.Internal.HashMapImpl").value
-    r.put(0x7593553A, info125) // objectOrTypeKey("org.sireum.MJen.Internal.Filtered").value
-    r.put(0xA021C7B2, info126) // objectOrTypeKey("org.sireum.MJen.Internal.Mapped").value
-    r.put(0xDD7B9281, info127) // objectOrTypeKey("org.sireum.MJen.Internal.FlatMapped").value
-    r.put(0x26B896DF, info128) // objectOrTypeKey("org.sireum.MJen.Internal.Sliced").value
-    r.put(0x04A2D591, info129) // objectOrTypeKey("org.sireum.MJen.Internal.TakeWhile").value
-    r.put(0x42A4EB51, info130) // objectOrTypeKey("org.sireum.MJen.Internal.DropWhile").value
-    r.put(0x2EB52536, info131) // objectOrTypeKey("org.sireum.MJen.Internal.ZipWithIndexed").value
-    r.put(0xF9106E42, info132) // objectOrTypeKey("org.sireum.MJen.Internal.Zipped").value
-    r.put(0x95939F2E, info133) // objectOrTypeKey("org.sireum.MJen.Internal.Concat").value
-    r.put(0x7097D42B, info134) // objectOrTypeKey("org.sireum.MJen.Internal.Product").value
-    r.put(0xBFA96725, info135) // objectOrTypeKey("org.sireum.MOption").value
-    r.put(0x55BD72AC, info136) // objectOrTypeKey("org.sireum.MNone").value
-    r.put(0xDD7FCF81, info137) // objectOrTypeKey("org.sireum.MSome").value
-    r.put(0xDB9D0399, info138) // objectOrTypeKey("org.sireum.Map").value
-    r.put(0xC001D0F8, info139) // objectOrTypeKey("org.sireum.ObjPrinter").value
-    r.put(0x14C6A50F, info140) // objectOrTypeKey("org.sireum.Option").value
-    r.put(0xC7F1E051, info141) // objectOrTypeKey("org.sireum.None").value
-    r.put(0xAAFF1217, info142) // objectOrTypeKey("org.sireum.Some").value
-    r.put(0x49AE4217, info143) // objectOrTypeKey("org.sireum.OsProto.Path").value
-    r.put(0x14E10E5F, info144) // objectOrTypeKey("org.sireum.OsProto.Proc.Result").value
-    r.put(0x81966518, info145) // objectOrTypeKey("org.sireum.OsProto.Proc").value
-    r.put(0xDF372A83, info146) // objectOrTypeKey("org.sireum.Poset").value
-    r.put(0x773232EE, info147) // objectOrTypeKey("org.sireum.Random.Gen.TestRunner").value
-    r.put(0x20CD55DB, info148) // objectOrTypeKey("org.sireum.Random.Gen").value
-    r.put(0x0120E7AB, info149) // objectOrTypeKey("org.sireum.Random.Gen64").value
-    r.put(0x7F636E7F, info150) // objectOrTypeKey("org.sireum.Random.Gen64Impl").value
-    r.put(0x775186D0, info151) // objectOrTypeKey("org.sireum.Random.Impl.SplitMix64").value
-    r.put(0x0C40779D, info152) // objectOrTypeKey("org.sireum.Random.Impl.Xoshiro256").value
-    r.put(0x7F11D172, info153) // objectOrTypeKey("org.sireum.Random.Impl.Xoroshiro128").value
-    r.put(0x8010C428, info154) // objectOrTypeKey("org.sireum.Set").value
-    r.put(0x2B1C8D90, info155) // objectOrTypeKey("org.sireum.Stack").value
-    r.put(0x45FD9933, info156) // objectOrTypeKey("org.sireum.UnionFind").value
-    r.put(0x8D7F602F, info157) // objectOrTypeKey("org.sireum.CoursierFileInfo").value
-    r.put(0xBD7F2C41, info158) // objectOrTypeKey("org.sireum.Coursier.Proxy").value
-    r.put(0x3CC69620, info159) // objectOrTypeKey("org.sireum.GitHub.Credential").value
-    r.put(0xF38C97D4, info160) // objectOrTypeKey("org.sireum.GitHub.Repository").value
-    r.put(0xF0EADD92, info161) // objectOrTypeKey("org.sireum.GitHub.Release").value
-    r.put(0x2924BD4D, info162) // objectOrTypeKey("org.sireum.GitHub.Asset").value
-    r.put(0x984F1492, info163) // objectOrTypeKey("org.sireum.Init.Plugin").value
-    r.put(0x656AD968, info164) // objectOrTypeKey("org.sireum.Init").value
-    r.put(0x9639C557, info165) // objectOrTypeKey("org.sireum.Os.Path.Impl").value
-    r.put(0x467528A7, info166) // objectOrTypeKey("org.sireum.Os.Path.Jen").value
-    r.put(0xFC765856, info167) // objectOrTypeKey("org.sireum.Os.Path.MJen").value
-    r.put(0x88822D20, info168) // objectOrTypeKey("org.sireum.Os.Proc.LineFilter").value
-    r.put(0xCA390F1D, info169) // objectOrTypeKey("org.sireum.Os.Proc.FunLineFilter").value
-    r.put(0xDBA67033, info170) // objectOrTypeKey("org.sireum.Os.Proc.Result").value
-    r.put(0xD6DC0267, info171) // objectOrTypeKey("org.sireum.Os.Proc.Result.Normal").value
-    r.put(0x3EAB24E6, info172) // objectOrTypeKey("org.sireum.Os.Proc.Result.Exception").value
-    r.put(0x8B77F5D3, info173) // objectOrTypeKey("org.sireum.Os.Proc.Result.Timeout").value
-    r.put(0x8989ABF6, info174) // objectOrTypeKey("org.sireum.Os.Proc").value
-    r.put(0xE8D15C6E, info175) // objectOrTypeKey("org.sireum.Os.Path").value
+    r.put(0x298F2B40, info47) // objectOrTypeKey("org.sireum.Os.Ext").value
+    r.put(0x5F9DDA1F, info48) // objectOrTypeKey("org.sireum.Scalafmt").value
+    r.put(0x97BB94A6, info49) // objectOrTypeKey("org.sireum.Unit").value
+    r.put(0xD292453A, info50) // objectOrTypeKey("org.sireum.Nothing").value
+    r.put(0x4B6BCF82, info51) // objectOrTypeKey("org.sireum.AssocS").value
+    r.put(0xF9FC3D12, info52) // objectOrTypeKey("org.sireum.Bag").value
+    r.put(0x526526A0, info53) // objectOrTypeKey("org.sireum.BitSet").value
+    r.put(0x9D4EC2EB, info54) // objectOrTypeKey("org.sireum.StepId").value
+    r.put(0xC68F5781, info55) // objectOrTypeKey("org.sireum.CircularQueue").value
+    r.put(0x8FB81288, info56) // objectOrTypeKey("org.sireum.CircularQueue.NoDrop").value
+    r.put(0x5F444BD4, info57) // objectOrTypeKey("org.sireum.CircularQueue.DropFront").value
+    r.put(0xE129FFA4, info58) // objectOrTypeKey("org.sireum.CircularQueue.DropRear").value
+    r.put(0x31666B93, info59) // objectOrTypeKey("org.sireum.Either").value
+    r.put(0x19E203F0, info60) // objectOrTypeKey("org.sireum.Either.Left").value
+    r.put(0xE373A36D, info61) // objectOrTypeKey("org.sireum.Either.Right").value
+    r.put(0xDFE49387, info62) // objectOrTypeKey("org.sireum.Graph.Edge").value
+    r.put(0x7A143155, info63) // objectOrTypeKey("org.sireum.Graph.Edge.Plain").value
+    r.put(0x0FBB6850, info64) // objectOrTypeKey("org.sireum.Graph.Edge.Data").value
+    r.put(0x047E61CC, info65) // objectOrTypeKey("org.sireum.Graph.Internal.Edge").value
+    r.put(0x17E44376, info66) // objectOrTypeKey("org.sireum.Graph.Internal.Edges").value
+    r.put(0xE619E2A5, info67) // objectOrTypeKey("org.sireum.Graph.Internal.Edges.Set").value
+    r.put(0xB788F86D, info68) // objectOrTypeKey("org.sireum.Graph.Internal.Edges.Bag").value
+    r.put(0x31657A1F, info69) // objectOrTypeKey("org.sireum.Graph.Internal.Edge.Plain").value
+    r.put(0x158AA86A, info70) // objectOrTypeKey("org.sireum.Graph.Internal.Edge.Data").value
+    r.put(0x9C2C0C94, info71) // objectOrTypeKey("org.sireum.Graph").value
+    r.put(0x883E9A99, info72) // objectOrTypeKey("org.sireum.HashBag").value
+    r.put(0xC1C8FDA4, info73) // objectOrTypeKey("org.sireum.HashMap").value
+    r.put(0xEBADDB0C, info74) // objectOrTypeKey("org.sireum.HashSBag").value
+    r.put(0xFB8738A0, info75) // objectOrTypeKey("org.sireum.HashSMap").value
+    r.put(0xF13418B2, info76) // objectOrTypeKey("org.sireum.HashSSet").value
+    r.put(0x842F9727, info77) // objectOrTypeKey("org.sireum.HashSet").value
+    r.put(0x0DB5A38F, info78) // objectOrTypeKey("org.sireum.IndexMap").value
+    r.put(0x6A9C0C3F, info79) // objectOrTypeKey("org.sireum.Indexable").value
+    r.put(0x15561D5B, info80) // objectOrTypeKey("org.sireum.Indexable.Pos").value
+    r.put(0x8F9F62AF, info81) // objectOrTypeKey("org.sireum.Indexable.Isz").value
+    r.put(0xE31B411E, info82) // objectOrTypeKey("org.sireum.Indexable.IszZ").value
+    r.put(0x68CE5E47, info83) // objectOrTypeKey("org.sireum.Indexable.IszDocInfo").value
+    r.put(0xE936C66D, info84) // objectOrTypeKey("org.sireum.Indexable.PosC").value
+    r.put(0x225996D5, info85) // objectOrTypeKey("org.sireum.Indexable.IszDocInfoC").value
+    r.put(0x1BD55A1E, info86) // objectOrTypeKey("org.sireum.Jen").value
+    r.put(0x3DE02576, info87) // objectOrTypeKey("org.sireum.Jen.Internal.ISImpl").value
+    r.put(0x00F6F10D, info88) // objectOrTypeKey("org.sireum.Jen.Internal.MapImpl").value
+    r.put(0xA6059042, info89) // objectOrTypeKey("org.sireum.Jen.Internal.HashMapImpl").value
+    r.put(0x8BD3A96F, info90) // objectOrTypeKey("org.sireum.Jen.Internal.Filtered").value
+    r.put(0x6FC3A2A2, info91) // objectOrTypeKey("org.sireum.Jen.Internal.Mapped").value
+    r.put(0x6E1636F5, info92) // objectOrTypeKey("org.sireum.Jen.Internal.FlatMapped").value
+    r.put(0x74EEC5C0, info93) // objectOrTypeKey("org.sireum.Jen.Internal.Sliced").value
+    r.put(0x7BAD7D88, info94) // objectOrTypeKey("org.sireum.Jen.Internal.TakeWhile").value
+    r.put(0x5B1FD227, info95) // objectOrTypeKey("org.sireum.Jen.Internal.DropWhile").value
+    r.put(0xCB753410, info96) // objectOrTypeKey("org.sireum.Jen.Internal.ZipWithIndexed").value
+    r.put(0xBB793B19, info97) // objectOrTypeKey("org.sireum.Jen.Internal.Zipped").value
+    r.put(0x007A1385, info98) // objectOrTypeKey("org.sireum.Jen.Internal.Concat").value
+    r.put(0x1200DEFB, info99) // objectOrTypeKey("org.sireum.Jen.Internal.Product").value
+    r.put(0x7149BA6B, info100) // objectOrTypeKey("org.sireum.Json.JsonAstBinding").value
+    r.put(0xF84DADED, info101) // objectOrTypeKey("org.sireum.Json.ErrorMsg").value
+    r.put(0x09B503BF, info102) // objectOrTypeKey("org.sireum.Json.Parser").value
+    r.put(0x22D9BA60, info103) // objectOrTypeKey("org.sireum.MBox").value
+    r.put(0x85596090, info104) // objectOrTypeKey("org.sireum.MBox2").value
+    r.put(0x19620664, info105) // objectOrTypeKey("org.sireum.MBox3").value
+    r.put(0x17E6C186, info106) // objectOrTypeKey("org.sireum.MBox4").value
+    r.put(0x49391657, info107) // objectOrTypeKey("org.sireum.MBox5").value
+    r.put(0x90C028AA, info108) // objectOrTypeKey("org.sireum.MBox6").value
+    r.put(0x00547F85, info109) // objectOrTypeKey("org.sireum.MBox7").value
+    r.put(0x4010E999, info110) // objectOrTypeKey("org.sireum.MBox8").value
+    r.put(0x4367D13F, info111) // objectOrTypeKey("org.sireum.MBox9").value
+    r.put(0xD087D69D, info112) // objectOrTypeKey("org.sireum.MBox10").value
+    r.put(0xAB355F5F, info113) // objectOrTypeKey("org.sireum.MBox11").value
+    r.put(0x5695E90D, info114) // objectOrTypeKey("org.sireum.MBox12").value
+    r.put(0x6A36A51C, info115) // objectOrTypeKey("org.sireum.MBox13").value
+    r.put(0x9479D861, info116) // objectOrTypeKey("org.sireum.MBox14").value
+    r.put(0x88C35A8D, info117) // objectOrTypeKey("org.sireum.MBox15").value
+    r.put(0x42D49241, info118) // objectOrTypeKey("org.sireum.MBox16").value
+    r.put(0xC36F65D5, info119) // objectOrTypeKey("org.sireum.MBox17").value
+    r.put(0x73158A8A, info120) // objectOrTypeKey("org.sireum.MBox18").value
+    r.put(0x8C268331, info121) // objectOrTypeKey("org.sireum.MBox19").value
+    r.put(0x75BBCAA6, info122) // objectOrTypeKey("org.sireum.MBox20").value
+    r.put(0x043C4FA8, info123) // objectOrTypeKey("org.sireum.MBox21").value
+    r.put(0x33B3CA6B, info124) // objectOrTypeKey("org.sireum.MBox22").value
+    r.put(0x789B9607, info125) // objectOrTypeKey("org.sireum.MEither").value
+    r.put(0x8E5C2AF7, info126) // objectOrTypeKey("org.sireum.MEither.Left").value
+    r.put(0xA8BFF8F9, info127) // objectOrTypeKey("org.sireum.MEither.Right").value
+    r.put(0xE0B7A907, info128) // objectOrTypeKey("org.sireum.MJen").value
+    r.put(0x89D55DB4, info129) // objectOrTypeKey("org.sireum.MJen.Internal.ISImpl").value
+    r.put(0x604300B1, info130) // objectOrTypeKey("org.sireum.MJen.Internal.MSImpl").value
+    r.put(0xFAF9A5C6, info131) // objectOrTypeKey("org.sireum.MJen.Internal.MapImpl").value
+    r.put(0xFBB3388F, info132) // objectOrTypeKey("org.sireum.MJen.Internal.HashMapImpl").value
+    r.put(0x7593553A, info133) // objectOrTypeKey("org.sireum.MJen.Internal.Filtered").value
+    r.put(0xA021C7B2, info134) // objectOrTypeKey("org.sireum.MJen.Internal.Mapped").value
+    r.put(0xDD7B9281, info135) // objectOrTypeKey("org.sireum.MJen.Internal.FlatMapped").value
+    r.put(0x26B896DF, info136) // objectOrTypeKey("org.sireum.MJen.Internal.Sliced").value
+    r.put(0x04A2D591, info137) // objectOrTypeKey("org.sireum.MJen.Internal.TakeWhile").value
+    r.put(0x42A4EB51, info138) // objectOrTypeKey("org.sireum.MJen.Internal.DropWhile").value
+    r.put(0x2EB52536, info139) // objectOrTypeKey("org.sireum.MJen.Internal.ZipWithIndexed").value
+    r.put(0xF9106E42, info140) // objectOrTypeKey("org.sireum.MJen.Internal.Zipped").value
+    r.put(0x95939F2E, info141) // objectOrTypeKey("org.sireum.MJen.Internal.Concat").value
+    r.put(0x7097D42B, info142) // objectOrTypeKey("org.sireum.MJen.Internal.Product").value
+    r.put(0xBFA96725, info143) // objectOrTypeKey("org.sireum.MOption").value
+    r.put(0x55BD72AC, info144) // objectOrTypeKey("org.sireum.MNone").value
+    r.put(0xDD7FCF81, info145) // objectOrTypeKey("org.sireum.MSome").value
+    r.put(0x27B94E51, info146) // objectOrTypeKey("org.sireum.MStack").value
+    r.put(0x1CB4467D, info147) // objectOrTypeKey("org.sireum.MIStack").value
+    r.put(0xDB9D0399, info148) // objectOrTypeKey("org.sireum.Map").value
+    r.put(0xC001D0F8, info149) // objectOrTypeKey("org.sireum.ObjPrinter").value
+    r.put(0x14C6A50F, info150) // objectOrTypeKey("org.sireum.Option").value
+    r.put(0xC7F1E051, info151) // objectOrTypeKey("org.sireum.None").value
+    r.put(0xAAFF1217, info152) // objectOrTypeKey("org.sireum.Some").value
+    r.put(0x49AE4217, info153) // objectOrTypeKey("org.sireum.OsProto.Path").value
+    r.put(0x14E10E5F, info154) // objectOrTypeKey("org.sireum.OsProto.Proc.Result").value
+    r.put(0x81966518, info155) // objectOrTypeKey("org.sireum.OsProto.Proc").value
+    r.put(0xDF372A83, info156) // objectOrTypeKey("org.sireum.Poset").value
+    r.put(0x773232EE, info157) // objectOrTypeKey("org.sireum.Random.Gen.TestRunner").value
+    r.put(0x20CD55DB, info158) // objectOrTypeKey("org.sireum.Random.Gen").value
+    r.put(0x0120E7AB, info159) // objectOrTypeKey("org.sireum.Random.Gen64").value
+    r.put(0x7F636E7F, info160) // objectOrTypeKey("org.sireum.Random.Gen64Impl").value
+    r.put(0x775186D0, info161) // objectOrTypeKey("org.sireum.Random.Impl.SplitMix64").value
+    r.put(0x0C40779D, info162) // objectOrTypeKey("org.sireum.Random.Impl.Xoshiro256").value
+    r.put(0x7F11D172, info163) // objectOrTypeKey("org.sireum.Random.Impl.Xoroshiro128").value
+    r.put(0x8010C428, info164) // objectOrTypeKey("org.sireum.Set").value
+    r.put(0x2B1C8D90, info165) // objectOrTypeKey("org.sireum.Stack").value
+    r.put(0x45FD9933, info166) // objectOrTypeKey("org.sireum.UnionFind").value
+    r.put(0x8D7F602F, info167) // objectOrTypeKey("org.sireum.CoursierFileInfo").value
+    r.put(0xBD7F2C41, info168) // objectOrTypeKey("org.sireum.Coursier.Proxy").value
+    r.put(0x3CC69620, info169) // objectOrTypeKey("org.sireum.GitHub.Credential").value
+    r.put(0xF38C97D4, info170) // objectOrTypeKey("org.sireum.GitHub.Repository").value
+    r.put(0xF0EADD92, info171) // objectOrTypeKey("org.sireum.GitHub.Release").value
+    r.put(0x2924BD4D, info172) // objectOrTypeKey("org.sireum.GitHub.Asset").value
+    r.put(0x984F1492, info173) // objectOrTypeKey("org.sireum.Init.Plugin").value
+    r.put(0x656AD968, info174) // objectOrTypeKey("org.sireum.Init").value
+    r.put(0x3C5CC0AC, info175) // objectOrTypeKey("org.sireum.LlmParams").value
+    r.put(0x9639C557, info176) // objectOrTypeKey("org.sireum.Os.Path.Impl").value
+    r.put(0x467528A7, info177) // objectOrTypeKey("org.sireum.Os.Path.Jen").value
+    r.put(0xFC765856, info178) // objectOrTypeKey("org.sireum.Os.Path.MJen").value
+    r.put(0xDBA67033, info179) // objectOrTypeKey("org.sireum.Os.Proc.Result").value
+    r.put(0x8989ABF6, info180) // objectOrTypeKey("org.sireum.Os.Proc").value
+    r.put(0xE8D15C6E, info181) // objectOrTypeKey("org.sireum.Os.Path").value
     r
   }
 
   private lazy val method0Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1222)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any](1238)
     r.put(0xB845B50D3B02FA78L, _ => org.sireum.CircularQueue.Policy.NoDrop) // methodKey(T, "org.sireum.CircularQueue.Policy", "NoDrop").value
     r.put(0x6CB47D05D6EFBA0BL, _ => org.sireum.CircularQueue.Policy.DropFront) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropFront").value
     r.put(0x116832077C0E11BFL, _ => org.sireum.CircularQueue.Policy.DropRear) // methodKey(T, "org.sireum.CircularQueue.Policy", "DropRear").value
@@ -487,8 +493,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xAB964318F56E2603L, X[org.sireum.IndexMap[_, _]](_).prettyST) // methodKey(F, "org.sireum.IndexMap", "prettyST").value
     r.put(0x36978CB2B0C86340L, X[org.sireum.IndexMap[_, _]](_).string) // methodKey(F, "org.sireum.IndexMap", "string").value
     r.put(0xB0BEE7CCBA4CDB92L, X[org.sireum.Indexable.Isz[_]](_).is) // methodKey(F, "org.sireum.Indexable.Isz", "is").value
+    r.put(0xA2E2776DB0F2C650L, X[org.sireum.Indexable.IszZ[_]](_).is) // methodKey(F, "org.sireum.Indexable.IszZ", "is").value
     r.put(0xA3A23BD88A988B7BL, X[org.sireum.Indexable.IszDocInfo[_]](_).is) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "is").value
     r.put(0x66CC763BE087E76DL, X[org.sireum.Indexable.IszDocInfo[_]](_).info) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "info").value
+    r.put(0x27950C15D08861A1L, X[org.sireum.Indexable.IszDocInfoC](_).is) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "is").value
+    r.put(0x48BE2AE86D6B474BL, X[org.sireum.Indexable.IszDocInfoC](_).info) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "info").value
     r.put(0x1BB03D0342BB4BC7L, X[org.sireum.Jen[_]](_).count()) // methodKey(F, "org.sireum.Jen", "count").value
     r.put(0x49AB3033CC454E67L, X[org.sireum.Jen[_]](_).zipWithIndex) // methodKey(F, "org.sireum.Jen", "zipWithIndex").value
     r.put(0x278C8E8E5C1BACFBL, X[org.sireum.Jen[_]](_).head) // methodKey(F, "org.sireum.Jen", "head").value
@@ -1054,6 +1063,25 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x6D922EAF7D6877A2L, X[org.sireum.MSome[_]](_).nonEmpty) // methodKey(F, "org.sireum.MSome", "nonEmpty").value
     r.put(0x196790B18C1EA704L, X[org.sireum.MSome[_]](_).get) // methodKey(F, "org.sireum.MSome", "get").value
     r.put(0x0966E955F9B80C4EL, X[org.sireum.MSome[_]](_).toMS) // methodKey(F, "org.sireum.MSome", "toMS").value
+    r.put(0x430B2ACFA257D1B0L, X[org.sireum.MStack[_]](_).elements) // methodKey(F, "org.sireum.MStack", "elements").value
+    r.put(0xA445F2A4476C56DCL, X[org.sireum.MStack[_]](_).growthFactor) // methodKey(F, "org.sireum.MStack", "growthFactor").value
+    r.put(0x4C527C6919B31315L, X[org.sireum.MStack[_]](_).sz) // methodKey(F, "org.sireum.MStack", "sz").value
+    r.put(0xDA7A6C21BAF0D0ADL, X[org.sireum.MStack[_]](_).size) // methodKey(F, "org.sireum.MStack", "size").value
+    r.put(0xFA01F360EE7FC09AL, X[org.sireum.MStack[_]](_).sizeS32) // methodKey(F, "org.sireum.MStack", "sizeS32").value
+    r.put(0xBD104D9622141B84L, X[org.sireum.MStack[_]](_).isEmpty) // methodKey(F, "org.sireum.MStack", "isEmpty").value
+    r.put(0x64A9E20F74BDD684L, X[org.sireum.MStack[_]](_).nonEmpty) // methodKey(F, "org.sireum.MStack", "nonEmpty").value
+    r.put(0xAE95683A7B0BFFCBL, X[org.sireum.MStack[_]](_).peek) // methodKey(F, "org.sireum.MStack", "peek").value
+    r.put(0xB7701A20B7A91B6EL, X[org.sireum.MStack[_]](_).pop()) // methodKey(F, "org.sireum.MStack", "pop").value
+    r.put(0x783AAF71C3D51969L, X[org.sireum.MIStack[_]](_).elements) // methodKey(F, "org.sireum.MIStack", "elements").value
+    r.put(0x8534C3EA00DC09EEL, X[org.sireum.MIStack[_]](_).growthFactor) // methodKey(F, "org.sireum.MIStack", "growthFactor").value
+    r.put(0xDD287D34B99D90C7L, X[org.sireum.MIStack[_]](_).sz) // methodKey(F, "org.sireum.MIStack", "sz").value
+    r.put(0xDA70E627FFA7B148L, X[org.sireum.MIStack[_]](_).size) // methodKey(F, "org.sireum.MIStack", "size").value
+    r.put(0x4F921DA20CECAFF7L, X[org.sireum.MIStack[_]](_).sizeS32) // methodKey(F, "org.sireum.MIStack", "sizeS32").value
+    r.put(0x56C46BCC27714C81L, X[org.sireum.MIStack[_]](_).isEmpty) // methodKey(F, "org.sireum.MIStack", "isEmpty").value
+    r.put(0x90B9B66960681F8DL, X[org.sireum.MIStack[_]](_).nonEmpty) // methodKey(F, "org.sireum.MIStack", "nonEmpty").value
+    r.put(0xE91F5D608AB80D95L, X[org.sireum.MIStack[_]](_).peek) // methodKey(F, "org.sireum.MIStack", "peek").value
+    r.put(0x4E59AADA9760E783L, X[org.sireum.MIStack[_]](_).pop()) // methodKey(F, "org.sireum.MIStack", "pop").value
+    r.put(0xA10FC96DDBE51A0DL, X[org.sireum.MIStack[_]](_).toIS) // methodKey(F, "org.sireum.MIStack", "toIS").value
     r.put(0x39008A07B8040E60L, X[org.sireum.Map[_, _]](_).entries) // methodKey(F, "org.sireum.Map", "entries").value
     r.put(0x7858D1EB852B9473L, X[org.sireum.Map[_, _]](_).keys) // methodKey(F, "org.sireum.Map", "keys").value
     r.put(0x6716220D903A2C3EL, X[org.sireum.Map[_, _]](_).values) // methodKey(F, "org.sireum.Map", "values").value
@@ -1300,6 +1328,12 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xD878810D05D5DD20L, X[org.sireum.Init](_).proyekCompileDeps()) // methodKey(F, "org.sireum.Init", "proyekCompileDeps").value
     r.put(0x253BA259D4C72EA3L, X[org.sireum.Init](_).logikaDeps()) // methodKey(F, "org.sireum.Init", "logikaDeps").value
     r.put(0xAFCA44E74EF326E5L, X[org.sireum.Init](_).deps()) // methodKey(F, "org.sireum.Init", "deps").value
+    r.put(0x0DD34EF1341C266BL, X[org.sireum.LlmParams](_).model) // methodKey(F, "org.sireum.LlmParams", "model").value
+    r.put(0x592E00C4EC5552E9L, X[org.sireum.LlmParams](_).maxTokens) // methodKey(F, "org.sireum.LlmParams", "maxTokens").value
+    r.put(0x2C1FA51FACEE03ECL, X[org.sireum.LlmParams](_).temperature) // methodKey(F, "org.sireum.LlmParams", "temperature").value
+    r.put(0x157551D90642AF41L, X[org.sireum.LlmParams](_).systemPrompt) // methodKey(F, "org.sireum.LlmParams", "systemPrompt").value
+    r.put(0xFFC8CC69F916260DL, X[org.sireum.LlmParams](_).apiKey) // methodKey(F, "org.sireum.LlmParams", "apiKey").value
+    r.put(0x1ECF722EE24A3358L, X[org.sireum.LlmParams](_).endpoint) // methodKey(F, "org.sireum.LlmParams", "endpoint").value
     r.put(0xC0213A716A8664FBL, X[org.sireum.Os.Path.Impl](_).value) // methodKey(F, "org.sireum.Os.Path.Impl", "value").value
     r.put(0x51BAFEDF90121833L, X[org.sireum.Os.Path.Impl](_).string) // methodKey(F, "org.sireum.Os.Path.Impl", "string").value
     r.put(0xF195EEACA5668080L, X[org.sireum.Os.Path.Impl](_).procString) // methodKey(F, "org.sireum.Os.Path.Impl", "procString").value
@@ -1358,23 +1392,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x88AC050CB3F50896L, X[org.sireum.Os.Path.MJen[_]](_).head) // methodKey(F, "org.sireum.Os.Path.MJen", "head").value
     r.put(0x8BBF5C1FD2B64C0DL, X[org.sireum.Os.Path.MJen[_]](_).headOption) // methodKey(F, "org.sireum.Os.Path.MJen", "headOption").value
     r.put(0x136A9CD428AD5398L, X[org.sireum.Os.Path.MJen[_]](_).toMSZ) // methodKey(F, "org.sireum.Os.Path.MJen", "toMSZ").value
-    r.put(0xFFA674CE69506E84L, X[org.sireum.Os.Proc.FunLineFilter](_).f) // methodKey(F, "org.sireum.Os.Proc.FunLineFilter", "f").value
-    r.put(0x45E25F50F6921939L, X[org.sireum.Os.Proc.Result](_).ok) // methodKey(F, "org.sireum.Os.Proc.Result", "ok").value
+    r.put(0x9F33F5616C1219CFL, X[org.sireum.Os.Proc.Result](_).status) // methodKey(F, "org.sireum.Os.Proc.Result", "status").value
+    r.put(0x62545190B0655E48L, X[org.sireum.Os.Proc.Result](_).exitCode) // methodKey(F, "org.sireum.Os.Proc.Result", "exitCode").value
     r.put(0x0FAB8127EB30AA83L, X[org.sireum.Os.Proc.Result](_).out) // methodKey(F, "org.sireum.Os.Proc.Result", "out").value
     r.put(0x5EF8B77D0D43274DL, X[org.sireum.Os.Proc.Result](_).err) // methodKey(F, "org.sireum.Os.Proc.Result", "err").value
-    r.put(0x62545190B0655E48L, X[org.sireum.Os.Proc.Result](_).exitCode) // methodKey(F, "org.sireum.Os.Proc.Result", "exitCode").value
-    r.put(0xAF1C09A79821DE03L, X[org.sireum.Os.Proc.Result.Normal](_).exitCode) // methodKey(F, "org.sireum.Os.Proc.Result.Normal", "exitCode").value
-    r.put(0xDEAEA22E03806D25L, X[org.sireum.Os.Proc.Result.Normal](_).out) // methodKey(F, "org.sireum.Os.Proc.Result.Normal", "out").value
-    r.put(0x1932A12302762539L, X[org.sireum.Os.Proc.Result.Normal](_).err) // methodKey(F, "org.sireum.Os.Proc.Result.Normal", "err").value
-    r.put(0x22CB1AD01E471320L, X[org.sireum.Os.Proc.Result.Normal](_).ok) // methodKey(F, "org.sireum.Os.Proc.Result.Normal", "ok").value
-    r.put(0xB91DEEC96677E85AL, X[org.sireum.Os.Proc.Result.Exception](_).err) // methodKey(F, "org.sireum.Os.Proc.Result.Exception", "err").value
-    r.put(0xC9DCEF3F5408B581L, X[org.sireum.Os.Proc.Result.Exception](_).out) // methodKey(F, "org.sireum.Os.Proc.Result.Exception", "out").value
-    r.put(0x5866CF9DFBDDB6F8L, X[org.sireum.Os.Proc.Result.Exception](_).exitCode) // methodKey(F, "org.sireum.Os.Proc.Result.Exception", "exitCode").value
-    r.put(0x48919E3218C4D2D9L, X[org.sireum.Os.Proc.Result.Exception](_).ok) // methodKey(F, "org.sireum.Os.Proc.Result.Exception", "ok").value
-    r.put(0xD7DA598AB4050F8EL, X[org.sireum.Os.Proc.Result.Timeout](_).out) // methodKey(F, "org.sireum.Os.Proc.Result.Timeout", "out").value
-    r.put(0xDE44842BA5717574L, X[org.sireum.Os.Proc.Result.Timeout](_).err) // methodKey(F, "org.sireum.Os.Proc.Result.Timeout", "err").value
-    r.put(0xC4B515AEA99091AEL, X[org.sireum.Os.Proc.Result.Timeout](_).exitCode) // methodKey(F, "org.sireum.Os.Proc.Result.Timeout", "exitCode").value
-    r.put(0x4EB14452A1B66C8EL, X[org.sireum.Os.Proc.Result.Timeout](_).ok) // methodKey(F, "org.sireum.Os.Proc.Result.Timeout", "ok").value
+    r.put(0x45E25F50F6921939L, X[org.sireum.Os.Proc.Result](_).ok) // methodKey(F, "org.sireum.Os.Proc.Result", "ok").value
     r.put(0x5E889CBF516A2D98L, X[org.sireum.Os.Proc](_).cmds) // methodKey(F, "org.sireum.Os.Proc", "cmds").value
     r.put(0x8A1D33F621B3BB8EL, X[org.sireum.Os.Proc](_).wd) // methodKey(F, "org.sireum.Os.Proc", "wd").value
     r.put(0xA39AC17106D97021L, X[org.sireum.Os.Proc](_).envMap) // methodKey(F, "org.sireum.Os.Proc", "envMap").value
@@ -1446,10 +1468,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method1Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1695)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1728)
     r.put(0x1854D576D83AF7E4L, _ => (o1: Any) => org.sireum.AssocS.Entries.uniqueKeys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "uniqueKeys").value
     r.put(0xE5CBF86C0B8F9696L, _ => (o1: Any) => org.sireum.AssocS.Entries.keys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "keys").value
     r.put(0xCEBF203EDC8BD12DL, _ => (o1: Any) => org.sireum.AssocS.Entries.values(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "values").value
+    r.put(0x8CF791EEF1A50316L, _ => (o1: Any) => org.sireum.BitSet.Ext.fromISB(X(o1))) // methodKey(T, "org.sireum.BitSet.Ext", "fromISB").value
     r.put(0xBFB0622683D47E61L, _ => (o1: Any) => org.sireum.Json.Printer.printB(X(o1))) // methodKey(T, "org.sireum.Json.Printer", "printB").value
     r.put(0xB9EC0293B10666B9L, _ => (o1: Any) => org.sireum.Json.Printer.printC(X(o1))) // methodKey(T, "org.sireum.Json.Printer", "printC").value
     r.put(0x4C7AB6B4078EB741L, _ => (o1: Any) => org.sireum.Json.Printer.printZ(X(o1))) // methodKey(T, "org.sireum.Json.Printer", "printZ").value
@@ -1540,6 +1563,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x22EAEEB5EB5E0D89L, _ => (o1: Any) => org.sireum.GitHub.Ext.latestRelease(X(o1))) // methodKey(T, "org.sireum.GitHub.Ext", "latestRelease").value
     r.put(0xE3B4C7390C3E1BE0L, _ => (o1: Any) => org.sireum.GitHub.Ext.releases(X(o1))) // methodKey(T, "org.sireum.GitHub.Ext", "releases").value
     r.put(0x1B5C15598D84A189L, _ => (o1: Any) => org.sireum.GitHub.Ext.assets(X(o1))) // methodKey(T, "org.sireum.GitHub.Ext", "assets").value
+    r.put(0xC0E8E88D3D155793L, _ => (o1: Any) => org.sireum.Llm.params(X(o1))) // methodKey(T, "org.sireum.Llm", "params").value
     r.put(0x29BBF2727F5FF44DL, _ => (o1: Any) => org.sireum.Os.exit(X(o1))) // methodKey(T, "org.sireum.Os", "exit").value
     r.put(0xF1DFEE31D449E56AL, _ => (o1: Any) => org.sireum.Os.env(X(o1))) // methodKey(T, "org.sireum.Os", "env").value
     r.put(0xC187877C8C9D667CL, _ => (o1: Any) => org.sireum.Os.javaExe(X(o1))) // methodKey(T, "org.sireum.Os", "javaExe").value
@@ -1628,6 +1652,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x580AACA68A226AF0L, r => (o1: Any) => X[org.sireum.Bag[_]](r).`\u222A`(X(o1))) // methodKey(F, "org.sireum.Bag", "\u222A").value
     r.put(0x3D9003066414219CL, r => (o1: Any) => X[org.sireum.Bag[_]](r).intersect(X(o1))) // methodKey(F, "org.sireum.Bag", "intersect").value
     r.put(0x7AE9E2879FF2D3E0L, r => (o1: Any) => X[org.sireum.Bag[_]](r).`\u2229`(X(o1))) // methodKey(F, "org.sireum.Bag", "\u2229").value
+    r.put(0x4ED5D9204CB4F1B1L, r => (o1: Any) => X[org.sireum.BitSet](r).isSet(X(o1))) // methodKey(F, "org.sireum.BitSet", "isSet").value
+    r.put(0x74670B68515D8D5BL, r => (o1: Any) => X[org.sireum.BitSet](r).isSetS32(X(o1))) // methodKey(F, "org.sireum.BitSet", "isSetS32").value
+    r.put(0xB884AF363BE69C36L, r => (o1: Any) => X[org.sireum.BitSet](r).isSetS64(X(o1))) // methodKey(F, "org.sireum.BitSet", "isSetS64").value
+    r.put(0x427BF7419B006725L, r => (o1: Any) => X[org.sireum.BitSet](r).isSetU32(X(o1))) // methodKey(F, "org.sireum.BitSet", "isSetU32").value
+    r.put(0x1BB7349BEF516580L, r => (o1: Any) => X[org.sireum.BitSet](r).isSetU64(X(o1))) // methodKey(F, "org.sireum.BitSet", "isSetU64").value
     r.put(0xBF1FB262FB0491C8L, r => (o1: Any) => X[org.sireum.CircularQueue[_]](r).enqueue(X(o1))) // methodKey(F, "org.sireum.CircularQueue", "enqueue").value
     r.put(0xAE128494C0056022L, _ => (o1: Any) => org.sireum.CircularQueue.NoDrop.unapply(X(o1)) match {
       case scala.Some((o0, o1, o2, o3, o4, o5, o6)) => MSome((o0, o1, o2, o3, o4, o5, o6))
@@ -1823,8 +1852,12 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x21FC6362EF3EB274L, r => (o1: Any) => X[org.sireum.IndexMap[_, _]](r).get(X(o1))) // methodKey(F, "org.sireum.IndexMap", "get").value
     r.put(0xF98BB83B2BCD410AL, r => (o1: Any) => X[org.sireum.Indexable[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable", "at").value
     r.put(0x777373F372FC29FAL, r => (o1: Any) => X[org.sireum.Indexable[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable", "has").value
+    r.put(0xAACAD8D4F02C773DL, r => (o1: Any) => X[org.sireum.Indexable[_]](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable", "atS32").value
+    r.put(0xE9FF346BBDE0D139L, r => (o1: Any) => X[org.sireum.Indexable[_]](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable", "hasS32").value
     r.put(0xC99DD8AD8ED5B4BBL, r => (o1: Any) => X[org.sireum.Indexable.Pos[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.Pos", "at").value
     r.put(0xE8DEE8204B6975D8L, r => (o1: Any) => X[org.sireum.Indexable.Pos[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.Pos", "has").value
+    r.put(0xFCA1BFECEAEFCED0L, r => (o1: Any) => X[org.sireum.Indexable.Pos[_]](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.Pos", "atS32").value
+    r.put(0xDEF46FDAD1B78EE4L, r => (o1: Any) => X[org.sireum.Indexable.Pos[_]](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.Pos", "hasS32").value
     r.put(0x86024C81261236BFL, _ => (o1: Any) => org.sireum.Indexable.Isz.apply(X(o1))) // methodKey(T, "org.sireum.Indexable.Isz", "apply").value
     r.put(0x56D67B232E75303CL, _ => (o1: Any) => org.sireum.Indexable.Isz.unapply(X(o1)) match {
       case scala.Some(o) => MSome(o)
@@ -1832,12 +1865,37 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     }) // methodKey(T, "org.sireum.Indexable.Isz", "unapply").value
     r.put(0x1B2C4D0447C26BC6L, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "at").value
     r.put(0x0CC1D563A132AAABL, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "has").value
+    r.put(0x5BAC7B3E139571BDL, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "atS32").value
+    r.put(0x1E32412F8D9A194BL, r => (o1: Any) => X[org.sireum.Indexable.Isz[_]](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.Isz", "hasS32").value
+    r.put(0x3A061851262E2661L, _ => (o1: Any) => org.sireum.Indexable.IszZ.apply(X(o1))) // methodKey(T, "org.sireum.Indexable.IszZ", "apply").value
+    r.put(0x7129A919E6763A09L, _ => (o1: Any) => org.sireum.Indexable.IszZ.unapply(X(o1)) match {
+      case scala.Some(o) => MSome(o)
+      case _ => MNone()
+    }) // methodKey(T, "org.sireum.Indexable.IszZ", "unapply").value
+    r.put(0xE5F6573DBB94C8CFL, r => (o1: Any) => X[org.sireum.Indexable.IszZ[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.IszZ", "at").value
+    r.put(0xE619A9D3D9BB8D93L, r => (o1: Any) => X[org.sireum.Indexable.IszZ[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.IszZ", "has").value
+    r.put(0x4E32EA84576C83B3L, r => (o1: Any) => X[org.sireum.Indexable.IszZ[_]](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszZ", "atS32").value
+    r.put(0xA2CDC006A04FC686L, r => (o1: Any) => X[org.sireum.Indexable.IszZ[_]](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszZ", "hasS32").value
     r.put(0x5AB9FB1645CDDF4CL, _ => (o1: Any) => org.sireum.Indexable.IszDocInfo.unapply(X(o1)) match {
       case scala.Some((o0, o1)) => MSome((o0, o1))
       case _ => MNone()
     }) // methodKey(T, "org.sireum.Indexable.IszDocInfo", "unapply").value
     r.put(0x7BA930D8E6F0AAAEL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "at").value
     r.put(0xA33A566D3398C70DL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "has").value
+    r.put(0x9D83182D20F596BDL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "atS32").value
+    r.put(0x50C965C313D458C8L, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "hasS32").value
+    r.put(0x654B2E07E4D06FB3L, r => (o1: Any) => X[org.sireum.Indexable.PosC](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.PosC", "at").value
+    r.put(0xA92C2C367491CD77L, r => (o1: Any) => X[org.sireum.Indexable.PosC](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.PosC", "has").value
+    r.put(0xF04AF8DB87BB4997L, r => (o1: Any) => X[org.sireum.Indexable.PosC](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.PosC", "atS32").value
+    r.put(0x33EBA1FA03A10D24L, r => (o1: Any) => X[org.sireum.Indexable.PosC](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.PosC", "hasS32").value
+    r.put(0x1290A9E8523A7A71L, _ => (o1: Any) => org.sireum.Indexable.IszDocInfoC.unapply(X(o1)) match {
+      case scala.Some((o0, o1)) => MSome((o0, o1))
+      case _ => MNone()
+    }) // methodKey(T, "org.sireum.Indexable.IszDocInfoC", "unapply").value
+    r.put(0x3550C8E818B47E6CL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfoC](r).at(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "at").value
+    r.put(0xFD0F763ACEFE38D5L, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfoC](r).has(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "has").value
+    r.put(0xC732347E03AEC24AL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfoC](r).atS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "atS32").value
+    r.put(0xC837B180B30A57BCL, r => (o1: Any) => X[org.sireum.Indexable.IszDocInfoC](r).hasS32(X(o1))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "hasS32").value
     r.put(0x696079B2288A0789L, r => (o1: Any) => X[org.sireum.Jen[_]](r).generate(X(o1))) // methodKey(F, "org.sireum.Jen", "generate").value
     r.put(0x65BDA0C4BE89B4FAL, r => (o1: Any) => X[org.sireum.Jen[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.Jen", "foreach").value
     r.put(0xFA824C2EEBF91A39L, r => (o1: Any) => X[org.sireum.Jen[_]](r).find(X(o1))) // methodKey(F, "org.sireum.Jen", "find").value
@@ -3094,6 +3152,21 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xB255A5F713274A38L, r => (o1: Any) => X[org.sireum.MSome[_]](r).getOrElse(X(X[(() => _)](o1)()))) // methodKey(F, "org.sireum.MSome", "getOrElse").value
     r.put(0xD0C64824CE838D44L, r => (o1: Any) => X[org.sireum.MSome[_]](r).getOrElseEager(X(o1))) // methodKey(F, "org.sireum.MSome", "getOrElseEager").value
     r.put(0x5A733A62DE4FE625L, r => (o1: Any) => X[org.sireum.MSome[_]](r).foreach(X(o1))) // methodKey(F, "org.sireum.MSome", "foreach").value
+    r.put(0xCA93CD6BC1D78839L, _ => (o1: Any) => org.sireum.MStack.unapply(X(o1)) match {
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
+    }) // methodKey(T, "org.sireum.MStack", "unapply").value
+    r.put(0x9B89C17CEB14B878L, r => (o1: Any) => X[org.sireum.MStack[_]](r).`elements_=`(X(o1))) // methodKey(F, "org.sireum.MStack", "elements_=").value
+    r.put(0x7B2675AD7B0AFB21L, r => (o1: Any) => X[org.sireum.MStack[_]](r).`sz_=`(X(o1))) // methodKey(F, "org.sireum.MStack", "sz_=").value
+    r.put(0xBD3E1A632E3CE67BL, r => (o1: Any) => X[org.sireum.MStack[_]](r).push(X(o1))) // methodKey(F, "org.sireum.MStack", "push").value
+    r.put(0xD8C538770EC72B7CL, r => (o1: Any) => X[org.sireum.MStack[_]](r).setTop(X(o1))) // methodKey(F, "org.sireum.MStack", "setTop").value
+    r.put(0xCFEEA4514B0B2A0FL, _ => (o1: Any) => org.sireum.MIStack.unapply(X(o1)) match {
+      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
+      case _ => MNone()
+    }) // methodKey(T, "org.sireum.MIStack", "unapply").value
+    r.put(0x38300489432B0F8EL, r => (o1: Any) => X[org.sireum.MIStack[_]](r).`elements_=`(X(o1))) // methodKey(F, "org.sireum.MIStack", "elements_=").value
+    r.put(0xAA04E71060B4D13FL, r => (o1: Any) => X[org.sireum.MIStack[_]](r).`sz_=`(X(o1))) // methodKey(F, "org.sireum.MIStack", "sz_=").value
+    r.put(0x5155BA58919E836FL, r => (o1: Any) => X[org.sireum.MIStack[_]](r).push(X(o1))) // methodKey(F, "org.sireum.MIStack", "push").value
     r.put(0x468370A0081F2479L, _ => (o1: Any) => org.sireum.Map.apply(X(o1))) // methodKey(T, "org.sireum.Map", "apply").value
     r.put(0x7A38FE2715A3348AL, _ => (o1: Any) => org.sireum.Map.unapply(X(o1)) match {
       case scala.Some(o) => MSome(o)
@@ -3257,6 +3330,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x885C121A873E93F3L, r => (o1: Any) => X[org.sireum.Init](r).ideaSandbox(X(o1))) // methodKey(F, "org.sireum.Init", "ideaSandbox").value
     r.put(0x5AF834521D4992C0L, r => (o1: Any) => X[org.sireum.Init](r).anvilDeps(X(o1))) // methodKey(F, "org.sireum.Init", "anvilDeps").value
     r.put(0xB42ABE770C9ECC42L, r => (o1: Any) => X[org.sireum.Init](r).init(X(o1))) // methodKey(F, "org.sireum.Init", "init").value
+    r.put(0x15FF76059C3B54FCL, _ => (o1: Any) => org.sireum.LlmParams.unapply(X(o1)) match {
+      case scala.Some((o0, o1, o2, o3, o4, o5)) => MSome((o0, o1, o2, o3, o4, o5))
+      case _ => MNone()
+    }) // methodKey(T, "org.sireum.LlmParams", "unapply").value
     r.put(0xE9DC95EFDFAF94C7L, _ => (o1: Any) => org.sireum.Os.Path.Impl.apply(X(o1))) // methodKey(T, "org.sireum.Os.Path.Impl", "apply").value
     r.put(0x16BF72C5C67B6932L, _ => (o1: Any) => org.sireum.Os.Path.Impl.unapply(X(o1)) match {
       case scala.Some(o) => MSome(o)
@@ -3360,26 +3437,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x10A32BBBB2EAEF4BL, r => (o1: Any) => X[org.sireum.Os.Path.MJen[_]](r).`++`(X(o1))) // methodKey(F, "org.sireum.Os.Path.MJen", "++").value
     r.put(0xC7A8C8746CDF7FBBL, r => (o1: Any) => X[org.sireum.Os.Path.MJen[_]](r).toMS(X(o1))) // methodKey(F, "org.sireum.Os.Path.MJen", "toMS").value
     r.put(0x65FAAAA4F2E97AFEL, r => (o1: Any) => X[org.sireum.Os.Path.MJen[_]](r).mkString(X(o1))) // methodKey(F, "org.sireum.Os.Path.MJen", "mkString").value
-    r.put(0xB3693C2306B12ED9L, r => (o1: Any) => X[org.sireum.Os.Proc.LineFilter](r).filter(X(o1))) // methodKey(F, "org.sireum.Os.Proc.LineFilter", "filter").value
-    r.put(0x25D4185D3171F924L, _ => (o1: Any) => org.sireum.Os.Proc.FunLineFilter.apply(X(o1))) // methodKey(T, "org.sireum.Os.Proc.FunLineFilter", "apply").value
-    r.put(0x439C9310C9507110L, _ => (o1: Any) => org.sireum.Os.Proc.FunLineFilter.unapply(X(o1)) match {
-      case scala.Some(o) => MSome(o)
+    r.put(0x9469816E18499744L, _ => (o1: Any) => org.sireum.Os.Proc.Result.unapply(X(o1)) match {
+      case scala.Some((o0, o1, o2, o3)) => MSome((o0, o1, o2, o3))
       case _ => MNone()
-    }) // methodKey(T, "org.sireum.Os.Proc.FunLineFilter", "unapply").value
-    r.put(0xF02501562FEAFBC4L, r => (o1: Any) => X[org.sireum.Os.Proc.FunLineFilter](r).filter(X(o1))) // methodKey(F, "org.sireum.Os.Proc.FunLineFilter", "filter").value
-    r.put(0x95307A2A007D1C02L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Normal.unapply(X(o1)) match {
-      case scala.Some((o0, o1, o2)) => MSome((o0, o1, o2))
-      case _ => MNone()
-    }) // methodKey(T, "org.sireum.Os.Proc.Result.Normal", "unapply").value
-    r.put(0x3CDCC31B5CF13A37L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Exception.apply(X(o1))) // methodKey(T, "org.sireum.Os.Proc.Result.Exception", "apply").value
-    r.put(0xBC87FE5BCA7D4999L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Exception.unapply(X(o1)) match {
-      case scala.Some(o) => MSome(o)
-      case _ => MNone()
-    }) // methodKey(T, "org.sireum.Os.Proc.Result.Exception", "unapply").value
-    r.put(0x09CC8A8CF8586482L, _ => (o1: Any) => org.sireum.Os.Proc.Result.Timeout.unapply(X(o1)) match {
-      case scala.Some((o0, o1)) => MSome((o0, o1))
-      case _ => MNone()
-    }) // methodKey(T, "org.sireum.Os.Proc.Result.Timeout", "unapply").value
+    }) // methodKey(T, "org.sireum.Os.Proc.Result", "unapply").value
     r.put(0xF48724F667564882L, _ => (o1: Any) => org.sireum.Os.Proc.unapply(X(o1)) match {
       case scala.Some((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14)) => MSome((o0, o1, o2, o3, o4, o5, o6, o7, o8, o9, o10, o11, o12, o13, o14))
       case _ => MNone()
@@ -3446,7 +3507,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method2Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](332)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any](346)
     r.put(0x4D89D302473509F8L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.contain(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "contain").value
     r.put(0x178633CC914B88ACL, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containKey(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containKey").value
     r.put(0x4E5075BEB3306304L, _ => (o1: Any) => (o2: Any) => org.sireum.AssocS.Entries.containValue(X(o1), X(o2))) // methodKey(T, "org.sireum.AssocS.Entries", "containValue").value
@@ -3462,6 +3523,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x53B7E0C7DF3E3F43L, _ => (o1: Any) => (o2: Any) => org.sireum.Graph.Internal.outgoing(X(o1), X(o2))) // methodKey(T, "org.sireum.Graph.Internal", "outgoing").value
     r.put(0x82E7E2C688CFAA3EL, _ => (o1: Any) => (o2: Any) => org.sireum.Hash.murmur3a(X(o1), X(o2))) // methodKey(T, "org.sireum.Hash", "murmur3a").value
     r.put(0x1AC38055921AEF7DL, _ => (o1: Any) => (o2: Any) => org.sireum.Hash.t1ha0(X(o1), X(o2))) // methodKey(T, "org.sireum.Hash", "t1ha0").value
+    r.put(0xEBD36BCD69852EC2L, _ => (o1: Any) => (o2: Any) => org.sireum.Indexable.Ext.fromString(X(o1), X(o2))) // methodKey(T, "org.sireum.Indexable.Ext", "fromString").value
     r.put(0xD0A1400B1678D77AL, _ => (o1: Any) => (o2: Any) => org.sireum.Json.parseAst(X(o1), X(o2))) // methodKey(T, "org.sireum.Json", "parseAst").value
     r.put(0xC6680594D4A56EEAL, _ => (o1: Any) => (o2: Any) => org.sireum.Json.printAst(X(o1), X(o2))) // methodKey(T, "org.sireum.Json", "printAst").value
     r.put(0x010B624A430AF0BAL, _ => (o1: Any) => (o2: Any) => org.sireum.Json.Printer.printZS(X(o1), X(o2))) // methodKey(T, "org.sireum.Json.Printer", "printZS").value
@@ -3545,6 +3607,9 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x8B0B01BC9C6EEE54L, _ => (o1: Any) => (o2: Any) => org.sireum.justification.natded.pred.existsI(X(o1), X(o2))) // methodKey(T, "org.sireum.justification.natded.pred", "existsI").value
     r.put(0x6307744B6E77C1A7L, _ => (o1: Any) => (o2: Any) => org.sireum.Coursier.isRuntimePublishedLocally(X(o1), X(o2))) // methodKey(T, "org.sireum.Coursier", "isRuntimePublishedLocally").value
     r.put(0x1DA92106EB6589D4L, _ => (o1: Any) => (o2: Any) => org.sireum.GitHub.repo(X(o1), X(o2))) // methodKey(T, "org.sireum.GitHub", "repo").value
+    r.put(0x3004715A4FA0AC46L, _ => (o1: Any) => (o2: Any) => org.sireum.JacksonJsonParser.parse(X(o1), X(o2))) // methodKey(T, "org.sireum.JacksonJsonParser", "parse").value
+    r.put(0x64EF690266484065L, _ => (o1: Any) => (o2: Any) => org.sireum.JacksonJsonParser.parseJsonc(X(o1), X(o2))) // methodKey(T, "org.sireum.JacksonJsonParser", "parseJsonc").value
+    r.put(0x8FB8293AC7D2A316L, _ => (o1: Any) => (o2: Any) => org.sireum.Llm.complete(X(o1), X(o2))) // methodKey(T, "org.sireum.Llm", "complete").value
     r.put(0xF300BD9CE5AC1119L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.javaHomeOpt(X(o1), X(o2))) // methodKey(T, "org.sireum.Os", "javaHomeOpt").value
     r.put(0x862E599A4E9195F8L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.tempFix(X(o1), X(o2))) // methodKey(T, "org.sireum.Os", "tempFix").value
     r.put(0x4DA63867A8230393L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Ext.download(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Ext", "download").value
@@ -3578,8 +3643,19 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xE31AD83762526B77L, r => (o1: Any) => (o2: Any) => X[org.sireum.HashSBag[_]](r).removeN(X(o1), X(o2))) // methodKey(F, "org.sireum.HashSBag", "removeN").value
     r.put(0xB7B7A30167138B13L, _ => (o1: Any) => (o2: Any) => org.sireum.HashSMap.apply(X(o1), X(o2))) // methodKey(T, "org.sireum.HashSMap", "apply").value
     r.put(0x9EC0B1DA5C9CCE89L, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.Pos[_]](r).posOpt(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.Pos", "posOpt").value
+    r.put(0xF43FC1E58001717BL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.Pos[_]](r).posOptS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.Pos", "posOptS32").value
     r.put(0x9F7CDF54AFAA71DBL, _ => (o1: Any) => (o2: Any) => org.sireum.Indexable.IszDocInfo.apply(X(o1), X(o2))) // methodKey(T, "org.sireum.Indexable.IszDocInfo", "apply").value
     r.put(0x6D58B4D33B940EEEL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).posOpt(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "posOpt").value
+    r.put(0x49CC74997B05349EL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfo[_]](r).posOptS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfo", "posOptS32").value
+    r.put(0x6D99CE1BB130328EL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.PosC](r).substring(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.PosC", "substring").value
+    r.put(0x55DE96E80C406054L, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.PosC](r).substringS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.PosC", "substringS32").value
+    r.put(0xDA81D1A08925F2ACL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.PosC](r).posOpt(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.PosC", "posOpt").value
+    r.put(0x30B28AB9A532074CL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.PosC](r).posOptS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.PosC", "posOptS32").value
+    r.put(0xF4BF58A43DF9BFC2L, _ => (o1: Any) => (o2: Any) => org.sireum.Indexable.IszDocInfoC.apply(X(o1), X(o2))) // methodKey(T, "org.sireum.Indexable.IszDocInfoC", "apply").value
+    r.put(0x704DE5B0D40A707CL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfoC](r).posOpt(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "posOpt").value
+    r.put(0x05E4430B5CBEC8D5L, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfoC](r).substring(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "substring").value
+    r.put(0x46F068CBB360A3D6L, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfoC](r).substringS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "substringS32").value
+    r.put(0x17894959A10D66ADL, r => (o1: Any) => (o2: Any) => X[org.sireum.Indexable.IszDocInfoC](r).posOptS32(X(o1), X(o2))) // methodKey(F, "org.sireum.Indexable.IszDocInfoC", "posOptS32").value
     r.put(0x041DA465174F906EL, r => (o1: Any) => (o2: Any) => X[org.sireum.Jen[_]](r).fold(X(o1), X(o2))) // methodKey(F, "org.sireum.Jen", "fold").value
     r.put(0x4D751DF563BB3F9DL, r => (o1: Any) => (o2: Any) => X[org.sireum.Jen[_]](r).foldLeft(X(o1), X(o2))) // methodKey(F, "org.sireum.Jen", "foldLeft").value
     r.put(0x8959AC5C355C37CFL, r => (o1: Any) => (o2: Any) => X[org.sireum.Jen[_]](r).slice(X(o1), X(o2))) // methodKey(F, "org.sireum.Jen", "slice").value
@@ -3778,12 +3854,11 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x124B90849498E509L, r => (o1: Any) => (o2: Any) => X[org.sireum.Os.Path.MJen[_]](r).fold(X(o1), X(o2))) // methodKey(F, "org.sireum.Os.Path.MJen", "fold").value
     r.put(0xD1ABFCD4B646E299L, r => (o1: Any) => (o2: Any) => X[org.sireum.Os.Path.MJen[_]](r).foldLeft(X(o1), X(o2))) // methodKey(F, "org.sireum.Os.Path.MJen", "foldLeft").value
     r.put(0x9829504A22CFA7B4L, r => (o1: Any) => (o2: Any) => X[org.sireum.Os.Path.MJen[_]](r).slice(X(o1), X(o2))) // methodKey(F, "org.sireum.Os.Path.MJen", "slice").value
-    r.put(0xB1C03B3B08BB65F4L, _ => (o1: Any) => (o2: Any) => org.sireum.Os.Proc.Result.Timeout.apply(X(o1), X(o2))) // methodKey(T, "org.sireum.Os.Proc.Result.Timeout", "apply").value
     r
   }
 
   private lazy val method3Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](146)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any](147)
     r.put(0x6FDEC8AB0C968E16L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.keyIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "keyIndexOfFrom").value
     r.put(0x52BB07D48F688896L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.valueIndexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "valueIndexOfFrom").value
     r.put(0x228EEDE99FBBA817L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.AssocS.Entries.indexOfFrom(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.AssocS.Entries", "indexOfFrom").value
@@ -3900,6 +3975,8 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xA1FA8195943CC5D1L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.MJen.Internal.Zipped[_, _]](r).mkStringWrap(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.MJen.Internal.Zipped", "mkStringWrap").value
     r.put(0xF342D7048857B3D3L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.MJen.Internal.Concat[_]](r).mkStringWrap(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.MJen.Internal.Concat", "mkStringWrap").value
     r.put(0x05BE6A5CF5B9FC9BL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.MJen.Internal.Product[_, _]](r).mkStringWrap(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.MJen.Internal.Product", "mkStringWrap").value
+    r.put(0x9D909F86950BBE2EL, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.MStack.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.MStack", "apply").value
+    r.put(0xD87341A1D8817D70L, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.MIStack.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.MIStack", "apply").value
     r.put(0x682510235FFB2F29L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.ObjPrinter](r).addMethod(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.ObjPrinter", "addMethod").value
     r.put(0xC774C4E905CD863DL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.ObjPrinter](r).printISZ(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.ObjPrinter", "printISZ").value
     r.put(0x7DF8D8888E89477EL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.ObjPrinter](r).printSet(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.ObjPrinter", "printSet").value
@@ -3923,7 +4000,6 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0xD1095420663E952EL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Impl](r).writeAppendU8Partms(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Impl", "writeAppendU8Partms").value
     r.put(0x2D7ACDB284BE9041L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.Jen[_]](r).mkStringWrap(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.Jen", "mkStringWrap").value
     r.put(0x5DAE25747AEE6BA1L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path.MJen[_]](r).mkStringWrap(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path.MJen", "mkStringWrap").value
-    r.put(0xC510A095F9E1E58DL, _ => (o1: Any) => (o2: Any) => (o3: Any) => org.sireum.Os.Proc.Result.Normal.apply(X(o1), X(o2), X(o3))) // methodKey(T, "org.sireum.Os.Proc.Result.Normal", "apply").value
     r.put(0x141CAD03B7C461B2L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path](r).writeU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path", "writeU8Parts").value
     r.put(0x3CE9773FD4E1E75DL, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path](r).writeOverU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path", "writeOverU8Parts").value
     r.put(0x3482D1D12596E8E4L, r => (o1: Any) => (o2: Any) => (o3: Any) => X[org.sireum.Os.Path](r).writeAppendU8Parts(X(o1), X(o2), X(o3))) // methodKey(F, "org.sireum.Os.Path", "writeAppendU8Parts").value
@@ -3934,7 +4010,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method4Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](18)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any](19)
     r.put(0x06CE4C1C6299A4B7L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.isEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "isEqualExcept2").value
     r.put(0x462192823D0C380DL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.ContractUtil.msEqualExcept2(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.ContractUtil", "msEqualExcept2").value
     r.put(0x42524DE40C4B0149L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Graph.Internal.addDataEdge(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Graph.Internal", "addDataEdge").value
@@ -3953,6 +4029,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x0AC204F233E5D49EL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Init.Plugin.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Init.Plugin", "apply").value
     r.put(0x3A7F5D7D5E0081EDL, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).installVSCodium(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "installVSCodium").value
     r.put(0x02E547788D981E95L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => X[org.sireum.Init](r).ideaConfig(X(o1), X(o2), X(o3), X(o4))) // methodKey(F, "org.sireum.Init", "ideaConfig").value
+    r.put(0x8A1B7BFE1FC817D0L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => org.sireum.Os.Proc.Result.apply(X(o1), X(o2), X(o3), X(o4))) // methodKey(T, "org.sireum.Os.Proc.Result", "apply").value
     r
   }
 
@@ -3976,13 +4053,14 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method6Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any](6)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any](7)
     r.put(0x4FA7CB1E41AEA038L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.resolve(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier", "resolve").value
     r.put(0x953C464460D14B29L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.fetchClassifiers(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier", "fetchClassifiers").value
     r.put(0x0A7E12ED73F8644FL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Graph.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Graph", "apply").value
     r.put(0xE8EF57F0E31EDDF8L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.MBox6.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.MBox6", "apply").value
     r.put(0xF6A1101DA2660EB3L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.Coursier.Proxy.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.Coursier.Proxy", "apply").value
     r.put(0x05BE5790F8372819L, r => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => X[org.sireum.Init](r).distro(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(F, "org.sireum.Init", "distro").value
+    r.put(0x159951E6F7B9FBDDL, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => org.sireum.LlmParams.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6))) // methodKey(T, "org.sireum.LlmParams", "apply").value
     r
   }
 
@@ -4127,7 +4205,9 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       case o: org.sireum.HashSet[_] => return Some("org.sireum.HashSet")
       case o: org.sireum.IndexMap[_, _] => return Some("org.sireum.IndexMap")
       case o: org.sireum.Indexable.Isz[_] => return Some("org.sireum.Indexable.Isz")
+      case o: org.sireum.Indexable.IszZ[_] => return Some("org.sireum.Indexable.IszZ")
       case o: org.sireum.Indexable.IszDocInfo[_] => return Some("org.sireum.Indexable.IszDocInfo")
+      case o: org.sireum.Indexable.IszDocInfoC => return Some("org.sireum.Indexable.IszDocInfoC")
       case o: org.sireum.Jen.Internal.ISImpl[_, _] => return Some("org.sireum.Jen.Internal.ISImpl")
       case o: org.sireum.Jen.Internal.MapImpl[_, _] => return Some("org.sireum.Jen.Internal.MapImpl")
       case o: org.sireum.Jen.Internal.HashMapImpl[_, _] => return Some("org.sireum.Jen.Internal.HashMapImpl")
@@ -4183,6 +4263,8 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       case o: org.sireum.MJen.Internal.Product[_, _] => return Some("org.sireum.MJen.Internal.Product")
       case o: org.sireum.MNone[_] => return Some("org.sireum.MNone")
       case o: org.sireum.MSome[_] => return Some("org.sireum.MSome")
+      case o: org.sireum.MStack[_] => return Some("org.sireum.MStack")
+      case o: org.sireum.MIStack[_] => return Some("org.sireum.MIStack")
       case o: org.sireum.Map[_, _] => return Some("org.sireum.Map")
       case o: org.sireum.None[_] => return Some("org.sireum.None")
       case o: org.sireum.Some[_] => return Some("org.sireum.Some")
@@ -4201,11 +4283,9 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       case o: org.sireum.GitHub.Asset => return Some("org.sireum.GitHub.Asset")
       case o: org.sireum.Init.Plugin => return Some("org.sireum.Init.Plugin")
       case o: org.sireum.Init => return Some("org.sireum.Init")
+      case o: org.sireum.LlmParams => return Some("org.sireum.LlmParams")
       case o: org.sireum.Os.Path.Impl => return Some("org.sireum.Os.Path.Impl")
-      case o: org.sireum.Os.Proc.FunLineFilter => return Some("org.sireum.Os.Proc.FunLineFilter")
-      case o: org.sireum.Os.Proc.Result.Normal => return Some("org.sireum.Os.Proc.Result.Normal")
-      case o: org.sireum.Os.Proc.Result.Exception => return Some("org.sireum.Os.Proc.Result.Exception")
-      case o: org.sireum.Os.Proc.Result.Timeout => return Some("org.sireum.Os.Proc.Result.Timeout")
+      case o: org.sireum.Os.Proc.Result => return Some("org.sireum.Os.Proc.Result")
       case o: org.sireum.Os.Proc => return Some("org.sireum.Os.Proc")
       case _ => return None()
     }
@@ -4530,7 +4610,15 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info3 = Info( // org.sireum.ContractUtil
+  def info1 = Info( // org.sireum.BitSet.Ext
+    kind = Kind.Ext,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = true, isByName = F, name = "fromISB", params = ISZ("a"))
+    )
+  )
+
+  def info4 = Info( // org.sireum.ContractUtil
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4545,7 +4633,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info4 = Info( // org.sireum.Graph.Internal
+  def info5 = Info( // org.sireum.Graph.Internal
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4558,7 +4646,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info5 = Info( // org.sireum.Hash
+  def info6 = Info( // org.sireum.Hash
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4568,13 +4656,21 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info6 = Info( // org.sireum.Jen.Internal
+  def info7 = Info( // org.sireum.Indexable.Ext
+    kind = Kind.Ext,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = true, isByName = F, name = "fromString", params = ISZ("uriOpt", "s"))
+    )
+  )
+
+  def info8 = Info( // org.sireum.Jen.Internal
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info7 = Info( // org.sireum.Json
+  def info9 = Info( // org.sireum.Json
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4583,7 +4679,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info10 = Info( // org.sireum.Json.Printer
+  def info12 = Info( // org.sireum.Json.Printer
     kind = Kind.Object,
     fields = ISZ(
       Field(isInObject = true, isVal = T, kind = Field.Kind.Normal, name = "trueSt"),
@@ -4680,7 +4776,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info11 = Info( // org.sireum.Json.Fun
+  def info13 = Info( // org.sireum.Json.Fun
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4779,7 +4875,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info12 = Info( // org.sireum.LibUtil
+  def info14 = Info( // org.sireum.LibUtil
     kind = Kind.Object,
     fields = ISZ(
       Field(isInObject = true, isVal = T, kind = Field.Kind.Normal, name = "setOptions")
@@ -4792,7 +4888,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info13 = Info( // org.sireum.LibUtil.IS
+  def info15 = Info( // org.sireum.LibUtil.IS
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4800,7 +4896,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info14 = Info( // org.sireum.Library
+  def info16 = Info( // org.sireum.Library
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4812,25 +4908,25 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info15 = Info( // org.sireum.MJen.Internal
+  def info17 = Info( // org.sireum.MJen.Internal
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info16 = Info( // org.sireum.Map.Entries
+  def info18 = Info( // org.sireum.Map.Entries
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info17 = Info( // org.sireum.OsProto
+  def info19 = Info( // org.sireum.OsProto
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info18 = Info( // org.sireum.Poset.Internal
+  def info20 = Info( // org.sireum.Poset.Internal
     kind = Kind.Object,
     fields = ISZ(
       Field(isInObject = true, isVal = T, kind = Field.Kind.Normal, name = "emptySet")
@@ -4854,7 +4950,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info19 = Info( // org.sireum.Random
+  def info21 = Info( // org.sireum.Random
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4866,13 +4962,13 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info20 = Info( // org.sireum.Random.Impl
+  def info22 = Info( // org.sireum.Random.Impl
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info21 = Info( // org.sireum.Random.Ext
+  def info23 = Info( // org.sireum.Random.Ext
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4881,7 +4977,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info22 = Info( // org.sireum.Set.Elements
+  def info24 = Info( // org.sireum.Set.Elements
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4891,7 +4987,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info23 = Info( // org.sireum.UnionFind.Internal
+  def info25 = Info( // org.sireum.UnionFind.Internal
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4901,19 +4997,19 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info24 = Info( // org.sireum.justification
+  def info26 = Info( // org.sireum.justification
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info25 = Info( // org.sireum.justification.natded
+  def info27 = Info( // org.sireum.justification.natded
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info26 = Info( // org.sireum.justification.natded.prop
+  def info28 = Info( // org.sireum.justification.natded.prop
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4934,7 +5030,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info27 = Info( // org.sireum.justification.natded.pred
+  def info29 = Info( // org.sireum.justification.natded.pred
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4943,7 +5039,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info28 = Info( // org.sireum.Asm
+  def info30 = Info( // org.sireum.Asm
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4953,7 +5049,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info31 = Info( // org.sireum.Coursier
+  def info33 = Info( // org.sireum.Coursier
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4966,7 +5062,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info32 = Info( // org.sireum.GitHub
+  def info34 = Info( // org.sireum.GitHub
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -4974,7 +5070,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info33 = Info( // org.sireum.GitHub.Ext
+  def info35 = Info( // org.sireum.GitHub.Ext
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4985,13 +5081,22 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info34 = Info( // org.sireum.LibJvmUtil
+  def info36 = Info( // org.sireum.JacksonJsonParser
+    kind = Kind.Ext,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = true, isByName = F, name = "parse", params = ISZ("uriOpt", "content")),
+      Method(isInObject = true, isByName = F, name = "parseJsonc", params = ISZ("uriOpt", "content"))
+    )
+  )
+
+  def info37 = Info( // org.sireum.LibJvmUtil
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info35 = Info( // org.sireum.LibJvmUtil.Ext
+  def info38 = Info( // org.sireum.LibJvmUtil.Ext
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -4999,7 +5104,16 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info36 = Info( // org.sireum.Os
+  def info39 = Info( // org.sireum.Llm
+    kind = Kind.Ext,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = true, isByName = F, name = "params", params = ISZ("model")),
+      Method(isInObject = true, isByName = F, name = "complete", params = ISZ("prompt", "params"))
+    )
+  )
+
+  def info40 = Info( // org.sireum.Os
     kind = Kind.Object,
     fields = ISZ(),
     methods = ISZ(
@@ -5050,7 +5164,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info43 = Info( // org.sireum.Os.Ext
+  def info47 = Info( // org.sireum.Os.Ext
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -5141,7 +5255,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info44 = Info( // org.sireum.Scalafmt
+  def info48 = Info( // org.sireum.Scalafmt
     kind = Kind.Ext,
     fields = ISZ(),
     methods = ISZ(
@@ -5152,19 +5266,19 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info45 = Info( // org.sireum.Unit
+  def info49 = Info( // org.sireum.Unit
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info46 = Info( // org.sireum.Nothing
+  def info50 = Info( // org.sireum.Nothing
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info47 = Info( // org.sireum.AssocS
+  def info51 = Info( // org.sireum.AssocS
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "entries")
@@ -5191,7 +5305,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info48 = Info( // org.sireum.Bag
+  def info52 = Info( // org.sireum.Bag
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map")
@@ -5221,13 +5335,25 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info49 = Info( // org.sireum.StepId
+  def info53 = Info( // org.sireum.BitSet
+    kind = Kind.Sig,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = false, isByName = F, name = "isSet", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "isSetS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "isSetS64", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "isSetU32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "isSetU64", params = ISZ("i"))
+    )
+  )
+
+  def info54 = Info( // org.sireum.StepId
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info50 = Info( // org.sireum.CircularQueue
+  def info55 = Info( // org.sireum.CircularQueue
     kind = Kind.RecordTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -5246,7 +5372,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info51 = Info( // org.sireum.CircularQueue.NoDrop
+  def info56 = Info( // org.sireum.CircularQueue.NoDrop
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "max"),
@@ -5270,7 +5396,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info52 = Info( // org.sireum.CircularQueue.DropFront
+  def info57 = Info( // org.sireum.CircularQueue.DropFront
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "max"),
@@ -5294,7 +5420,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info53 = Info( // org.sireum.CircularQueue.DropRear
+  def info58 = Info( // org.sireum.CircularQueue.DropRear
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "max"),
@@ -5318,7 +5444,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info54 = Info( // org.sireum.Either
+  def info59 = Info( // org.sireum.Either
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -5331,7 +5457,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info55 = Info( // org.sireum.Either.Left
+  def info60 = Info( // org.sireum.Either.Left
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -5346,7 +5472,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info56 = Info( // org.sireum.Either.Right
+  def info61 = Info( // org.sireum.Either.Right
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -5361,7 +5487,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info57 = Info( // org.sireum.Graph.Edge
+  def info62 = Info( // org.sireum.Graph.Edge
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -5371,7 +5497,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info58 = Info( // org.sireum.Graph.Edge.Plain
+  def info63 = Info( // org.sireum.Graph.Edge.Plain
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "source"),
@@ -5382,7 +5508,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info59 = Info( // org.sireum.Graph.Edge.Data
+  def info64 = Info( // org.sireum.Graph.Edge.Data
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "source"),
@@ -5394,7 +5520,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info60 = Info( // org.sireum.Graph.Internal.Edge
+  def info65 = Info( // org.sireum.Graph.Internal.Edge
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -5404,7 +5530,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info61 = Info( // org.sireum.Graph.Internal.Edges
+  def info66 = Info( // org.sireum.Graph.Internal.Edges
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -5416,7 +5542,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info62 = Info( // org.sireum.Graph.Internal.Edges.Set
+  def info67 = Info( // org.sireum.Graph.Internal.Edges.Set
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "set")
@@ -5430,7 +5556,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info63 = Info( // org.sireum.Graph.Internal.Edges.Bag
+  def info68 = Info( // org.sireum.Graph.Internal.Edges.Bag
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "set")
@@ -5444,7 +5570,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info64 = Info( // org.sireum.Graph.Internal.Edge.Plain
+  def info69 = Info( // org.sireum.Graph.Internal.Edge.Plain
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "source"),
@@ -5455,7 +5581,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info65 = Info( // org.sireum.Graph.Internal.Edge.Data
+  def info70 = Info( // org.sireum.Graph.Internal.Edge.Data
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "source"),
@@ -5467,7 +5593,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info66 = Info( // org.sireum.Graph
+  def info71 = Info( // org.sireum.Graph
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "nodes"),
@@ -5502,7 +5628,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info67 = Info( // org.sireum.HashBag
+  def info72 = Info( // org.sireum.HashBag
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map")
@@ -5532,7 +5658,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info68 = Info( // org.sireum.HashMap
+  def info73 = Info( // org.sireum.HashMap
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "mapEntries"),
@@ -5561,7 +5687,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info69 = Info( // org.sireum.HashSBag
+  def info74 = Info( // org.sireum.HashSBag
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map")
@@ -5591,7 +5717,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info70 = Info( // org.sireum.HashSMap
+  def info75 = Info( // org.sireum.HashSMap
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map"),
@@ -5618,7 +5744,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info71 = Info( // org.sireum.HashSSet
+  def info76 = Info( // org.sireum.HashSSet
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map")
@@ -5644,7 +5770,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info72 = Info( // org.sireum.HashSet
+  def info77 = Info( // org.sireum.HashSet
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "map")
@@ -5670,7 +5796,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info73 = Info( // org.sireum.IndexMap
+  def info78 = Info( // org.sireum.IndexMap
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "s")
@@ -5688,37 +5814,57 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info74 = Info( // org.sireum.Indexable
+  def info79 = Info( // org.sireum.Indexable
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
       Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
-      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i"))
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
     )
   )
 
-  def info75 = Info( // org.sireum.Indexable.Pos
+  def info80 = Info( // org.sireum.Indexable.Pos
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
       Method(isInObject = false, isByName = F, name = "posOpt", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "posOptS32", params = ISZ("offset", "length")),
       Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
-      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i"))
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
     )
   )
 
-  def info76 = Info( // org.sireum.Indexable.Isz
+  def info81 = Info( // org.sireum.Indexable.Isz
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "is")
     ),
     methods = ISZ(
       Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
-      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i"))
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
     )
   )
 
-  def info77 = Info( // org.sireum.Indexable.IszDocInfo
+  def info82 = Info( // org.sireum.Indexable.IszZ
+    kind = Kind.DatatypeClass,
+    fields = ISZ(
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "is")
+    ),
+    methods = ISZ(
+      Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
+    )
+  )
+
+  def info83 = Info( // org.sireum.Indexable.IszDocInfo
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "is"),
@@ -5727,11 +5873,47 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ(
       Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
       Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
-      Method(isInObject = false, isByName = F, name = "posOpt", params = ISZ("offset", "length"))
+      Method(isInObject = false, isByName = F, name = "posOpt", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "posOptS32", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
     )
   )
 
-  def info78 = Info( // org.sireum.Jen
+  def info84 = Info( // org.sireum.Indexable.PosC
+    kind = Kind.Sig,
+    fields = ISZ(),
+    methods = ISZ(
+      Method(isInObject = false, isByName = F, name = "substring", params = ISZ("start", "until")),
+      Method(isInObject = false, isByName = F, name = "substringS32", params = ISZ("start", "until")),
+      Method(isInObject = false, isByName = F, name = "posOpt", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "posOptS32", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
+    )
+  )
+
+  def info85 = Info( // org.sireum.Indexable.IszDocInfoC
+    kind = Kind.DatatypeClass,
+    fields = ISZ(
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "is"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "info")
+    ),
+    methods = ISZ(
+      Method(isInObject = false, isByName = F, name = "at", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "has", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "posOpt", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "substring", params = ISZ("start", "until")),
+      Method(isInObject = false, isByName = F, name = "substringS32", params = ISZ("start", "until")),
+      Method(isInObject = false, isByName = F, name = "posOptS32", params = ISZ("offset", "length")),
+      Method(isInObject = false, isByName = F, name = "atS32", params = ISZ("i")),
+      Method(isInObject = false, isByName = F, name = "hasS32", params = ISZ("i"))
+    )
+  )
+
+  def info86 = Info( // org.sireum.Jen
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
@@ -5772,7 +5954,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info79 = Info( // org.sireum.Jen.Internal.ISImpl
+  def info87 = Info( // org.sireum.Jen.Internal.ISImpl
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "s")
@@ -5816,7 +5998,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info80 = Info( // org.sireum.Jen.Internal.MapImpl
+  def info88 = Info( // org.sireum.Jen.Internal.MapImpl
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "m")
@@ -5860,7 +6042,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info81 = Info( // org.sireum.Jen.Internal.HashMapImpl
+  def info89 = Info( // org.sireum.Jen.Internal.HashMapImpl
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "m")
@@ -5904,7 +6086,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info82 = Info( // org.sireum.Jen.Internal.Filtered
+  def info90 = Info( // org.sireum.Jen.Internal.Filtered
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -5949,7 +6131,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info83 = Info( // org.sireum.Jen.Internal.Mapped
+  def info91 = Info( // org.sireum.Jen.Internal.Mapped
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -5994,7 +6176,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info84 = Info( // org.sireum.Jen.Internal.FlatMapped
+  def info92 = Info( // org.sireum.Jen.Internal.FlatMapped
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6039,7 +6221,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info85 = Info( // org.sireum.Jen.Internal.Sliced
+  def info93 = Info( // org.sireum.Jen.Internal.Sliced
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6085,7 +6267,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info86 = Info( // org.sireum.Jen.Internal.TakeWhile
+  def info94 = Info( // org.sireum.Jen.Internal.TakeWhile
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6130,7 +6312,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info87 = Info( // org.sireum.Jen.Internal.DropWhile
+  def info95 = Info( // org.sireum.Jen.Internal.DropWhile
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6175,7 +6357,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info88 = Info( // org.sireum.Jen.Internal.ZipWithIndexed
+  def info96 = Info( // org.sireum.Jen.Internal.ZipWithIndexed
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen")
@@ -6219,7 +6401,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info89 = Info( // org.sireum.Jen.Internal.Zipped
+  def info97 = Info( // org.sireum.Jen.Internal.Zipped
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6264,7 +6446,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info90 = Info( // org.sireum.Jen.Internal.Concat
+  def info98 = Info( // org.sireum.Jen.Internal.Concat
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6309,7 +6491,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info91 = Info( // org.sireum.Jen.Internal.Product
+  def info99 = Info( // org.sireum.Jen.Internal.Product
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -6354,7 +6536,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info92 = Info( // org.sireum.Json.JsonAstBinding
+  def info100 = Info( // org.sireum.Json.JsonAstBinding
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
@@ -6373,7 +6555,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info93 = Info( // org.sireum.Json.ErrorMsg
+  def info101 = Info( // org.sireum.Json.ErrorMsg
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "line"),
@@ -6383,7 +6565,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info94 = Info( // org.sireum.Json.Parser
+  def info102 = Info( // org.sireum.Json.Parser
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "input"),
@@ -6498,7 +6680,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info95 = Info( // org.sireum.MBox
+  def info103 = Info( // org.sireum.MBox
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value")
@@ -6506,7 +6688,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info96 = Info( // org.sireum.MBox2
+  def info104 = Info( // org.sireum.MBox2
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6515,7 +6697,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info97 = Info( // org.sireum.MBox3
+  def info105 = Info( // org.sireum.MBox3
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6525,7 +6707,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info98 = Info( // org.sireum.MBox4
+  def info106 = Info( // org.sireum.MBox4
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6536,7 +6718,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info99 = Info( // org.sireum.MBox5
+  def info107 = Info( // org.sireum.MBox5
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6548,7 +6730,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info100 = Info( // org.sireum.MBox6
+  def info108 = Info( // org.sireum.MBox6
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6561,7 +6743,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info101 = Info( // org.sireum.MBox7
+  def info109 = Info( // org.sireum.MBox7
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6575,7 +6757,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info102 = Info( // org.sireum.MBox8
+  def info110 = Info( // org.sireum.MBox8
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6590,7 +6772,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info103 = Info( // org.sireum.MBox9
+  def info111 = Info( // org.sireum.MBox9
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6606,7 +6788,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info104 = Info( // org.sireum.MBox10
+  def info112 = Info( // org.sireum.MBox10
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6623,7 +6805,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info105 = Info( // org.sireum.MBox11
+  def info113 = Info( // org.sireum.MBox11
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6641,7 +6823,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info106 = Info( // org.sireum.MBox12
+  def info114 = Info( // org.sireum.MBox12
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6660,7 +6842,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info107 = Info( // org.sireum.MBox13
+  def info115 = Info( // org.sireum.MBox13
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6680,7 +6862,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info108 = Info( // org.sireum.MBox14
+  def info116 = Info( // org.sireum.MBox14
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6701,7 +6883,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info109 = Info( // org.sireum.MBox15
+  def info117 = Info( // org.sireum.MBox15
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6723,7 +6905,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info110 = Info( // org.sireum.MBox16
+  def info118 = Info( // org.sireum.MBox16
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6746,7 +6928,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info111 = Info( // org.sireum.MBox17
+  def info119 = Info( // org.sireum.MBox17
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6770,7 +6952,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info112 = Info( // org.sireum.MBox18
+  def info120 = Info( // org.sireum.MBox18
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6795,7 +6977,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info113 = Info( // org.sireum.MBox19
+  def info121 = Info( // org.sireum.MBox19
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6821,7 +7003,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info114 = Info( // org.sireum.MBox20
+  def info122 = Info( // org.sireum.MBox20
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6848,7 +7030,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info115 = Info( // org.sireum.MBox21
+  def info123 = Info( // org.sireum.MBox21
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6876,7 +7058,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info116 = Info( // org.sireum.MBox22
+  def info124 = Info( // org.sireum.MBox22
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "value1"),
@@ -6905,7 +7087,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info117 = Info( // org.sireum.MEither
+  def info125 = Info( // org.sireum.MEither
     kind = Kind.RecordTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -6918,7 +7100,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info118 = Info( // org.sireum.MEither.Left
+  def info126 = Info( // org.sireum.MEither.Left
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -6933,7 +7115,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info119 = Info( // org.sireum.MEither.Right
+  def info127 = Info( // org.sireum.MEither.Right
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -6948,7 +7130,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info120 = Info( // org.sireum.MJen
+  def info128 = Info( // org.sireum.MJen
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -6987,7 +7169,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info121 = Info( // org.sireum.MJen.Internal.ISImpl
+  def info129 = Info( // org.sireum.MJen.Internal.ISImpl
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "s")
@@ -7029,7 +7211,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info122 = Info( // org.sireum.MJen.Internal.MSImpl
+  def info130 = Info( // org.sireum.MJen.Internal.MSImpl
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "s")
@@ -7071,7 +7253,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info123 = Info( // org.sireum.MJen.Internal.MapImpl
+  def info131 = Info( // org.sireum.MJen.Internal.MapImpl
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "m")
@@ -7113,7 +7295,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info124 = Info( // org.sireum.MJen.Internal.HashMapImpl
+  def info132 = Info( // org.sireum.MJen.Internal.HashMapImpl
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "m")
@@ -7155,7 +7337,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info125 = Info( // org.sireum.MJen.Internal.Filtered
+  def info133 = Info( // org.sireum.MJen.Internal.Filtered
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7198,7 +7380,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info126 = Info( // org.sireum.MJen.Internal.Mapped
+  def info134 = Info( // org.sireum.MJen.Internal.Mapped
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7241,7 +7423,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info127 = Info( // org.sireum.MJen.Internal.FlatMapped
+  def info135 = Info( // org.sireum.MJen.Internal.FlatMapped
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7284,7 +7466,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info128 = Info( // org.sireum.MJen.Internal.Sliced
+  def info136 = Info( // org.sireum.MJen.Internal.Sliced
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7328,7 +7510,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info129 = Info( // org.sireum.MJen.Internal.TakeWhile
+  def info137 = Info( // org.sireum.MJen.Internal.TakeWhile
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7371,7 +7553,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info130 = Info( // org.sireum.MJen.Internal.DropWhile
+  def info138 = Info( // org.sireum.MJen.Internal.DropWhile
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7414,7 +7596,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info131 = Info( // org.sireum.MJen.Internal.ZipWithIndexed
+  def info139 = Info( // org.sireum.MJen.Internal.ZipWithIndexed
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen")
@@ -7456,7 +7638,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info132 = Info( // org.sireum.MJen.Internal.Zipped
+  def info140 = Info( // org.sireum.MJen.Internal.Zipped
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7499,7 +7681,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info133 = Info( // org.sireum.MJen.Internal.Concat
+  def info141 = Info( // org.sireum.MJen.Internal.Concat
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7542,7 +7724,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info134 = Info( // org.sireum.MJen.Internal.Product
+  def info142 = Info( // org.sireum.MJen.Internal.Product
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen"),
@@ -7585,7 +7767,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info135 = Info( // org.sireum.MOption
+  def info143 = Info( // org.sireum.MOption
     kind = Kind.RecordTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -7603,7 +7785,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info136 = Info( // org.sireum.MNone
+  def info144 = Info( // org.sireum.MNone
     kind = Kind.RecordClass,
     fields = ISZ(),
     methods = ISZ(
@@ -7621,7 +7803,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info137 = Info( // org.sireum.MSome
+  def info145 = Info( // org.sireum.MSome
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -7641,7 +7823,45 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info138 = Info( // org.sireum.Map
+  def info146 = Info( // org.sireum.MStack
+    kind = Kind.RecordClass,
+    fields = ISZ(
+      Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "elements"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "growthFactor"),
+      Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "sz")
+    ),
+    methods = ISZ(
+      Method(isInObject = false, isByName = T, name = "size", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "sizeS32", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "isEmpty", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "nonEmpty", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "peek", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "push", params = ISZ("e")),
+      Method(isInObject = false, isByName = F, name = "pop", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "setTop", params = ISZ("e"))
+    )
+  )
+
+  def info147 = Info( // org.sireum.MIStack
+    kind = Kind.RecordClass,
+    fields = ISZ(
+      Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "elements"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "growthFactor"),
+      Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "sz")
+    ),
+    methods = ISZ(
+      Method(isInObject = false, isByName = T, name = "size", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "sizeS32", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "isEmpty", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "nonEmpty", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "peek", params = ISZ()),
+      Method(isInObject = false, isByName = F, name = "push", params = ISZ("e")),
+      Method(isInObject = false, isByName = F, name = "pop", params = ISZ()),
+      Method(isInObject = false, isByName = T, name = "toIS", params = ISZ())
+    )
+  )
+
+  def info148 = Info( // org.sireum.Map
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "entries")
@@ -7670,7 +7890,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info139 = Info( // org.sireum.ObjPrinter
+  def info149 = Info( // org.sireum.ObjPrinter
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -7700,7 +7920,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info140 = Info( // org.sireum.Option
+  def info150 = Info( // org.sireum.Option
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ(
@@ -7718,7 +7938,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info141 = Info( // org.sireum.None
+  def info151 = Info( // org.sireum.None
     kind = Kind.DatatypeClass,
     fields = ISZ(),
     methods = ISZ(
@@ -7736,7 +7956,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info142 = Info( // org.sireum.Some
+  def info152 = Info( // org.sireum.Some
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -7756,13 +7976,13 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info143 = Info( // org.sireum.OsProto.Path
+  def info153 = Info( // org.sireum.OsProto.Path
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info144 = Info( // org.sireum.OsProto.Proc.Result
+  def info154 = Info( // org.sireum.OsProto.Proc.Result
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
@@ -7773,7 +7993,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info145 = Info( // org.sireum.OsProto.Proc
+  def info155 = Info( // org.sireum.OsProto.Proc
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
@@ -7802,7 +8022,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info146 = Info( // org.sireum.Poset
+  def info156 = Info( // org.sireum.Poset
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "nodes"),
@@ -7835,7 +8055,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info147 = Info( // org.sireum.Random.Gen.TestRunner
+  def info157 = Info( // org.sireum.Random.Gen.TestRunner
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -7846,7 +8066,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info148 = Info( // org.sireum.Random.Gen
+  def info158 = Info( // org.sireum.Random.Gen
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -7898,7 +8118,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info149 = Info( // org.sireum.Random.Gen64
+  def info159 = Info( // org.sireum.Random.Gen64
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -7951,7 +8171,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info150 = Info( // org.sireum.Random.Gen64Impl
+  def info160 = Info( // org.sireum.Random.Gen64Impl
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "gen")
@@ -8006,7 +8226,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info151 = Info( // org.sireum.Random.Impl.SplitMix64
+  def info161 = Info( // org.sireum.Random.Impl.SplitMix64
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "seed")
@@ -8016,7 +8236,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info152 = Info( // org.sireum.Random.Impl.Xoshiro256
+  def info162 = Info( // org.sireum.Random.Impl.Xoshiro256
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "seed0"),
@@ -8032,7 +8252,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info153 = Info( // org.sireum.Random.Impl.Xoroshiro128
+  def info163 = Info( // org.sireum.Random.Impl.Xoroshiro128
     kind = Kind.RecordClass,
     fields = ISZ(
       Field(isInObject = false, isVal = F, kind = Field.Kind.Param, name = "seed0"),
@@ -8048,7 +8268,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info154 = Info( // org.sireum.Set
+  def info164 = Info( // org.sireum.Set
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "elements")
@@ -8074,7 +8294,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info155 = Info( // org.sireum.Stack
+  def info165 = Info( // org.sireum.Stack
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "elements")
@@ -8089,7 +8309,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info156 = Info( // org.sireum.UnionFind
+  def info166 = Info( // org.sireum.UnionFind
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "elements"),
@@ -8111,7 +8331,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info157 = Info( // org.sireum.CoursierFileInfo
+  def info167 = Info( // org.sireum.CoursierFileInfo
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "org"),
@@ -8124,7 +8344,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info158 = Info( // org.sireum.Coursier.Proxy
+  def info168 = Info( // org.sireum.Coursier.Proxy
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "hostOpt"),
@@ -8137,13 +8357,13 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info159 = Info( // org.sireum.GitHub.Credential
+  def info169 = Info( // org.sireum.GitHub.Credential
     kind = Kind.DatatypeTrait,
     fields = ISZ(),
     methods = ISZ()
   )
 
-  def info160 = Info( // org.sireum.GitHub.Repository
+  def info170 = Info( // org.sireum.GitHub.Repository
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "connection"),
@@ -8157,7 +8377,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info161 = Info( // org.sireum.GitHub.Release
+  def info171 = Info( // org.sireum.GitHub.Release
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "repo"),
@@ -8176,7 +8396,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info162 = Info( // org.sireum.GitHub.Asset
+  def info172 = Info( // org.sireum.GitHub.Asset
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "release"),
@@ -8192,7 +8412,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info163 = Info( // org.sireum.Init.Plugin
+  def info173 = Info( // org.sireum.Init.Plugin
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "id"),
@@ -8203,7 +8423,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     methods = ISZ()
   )
 
-  def info164 = Info( // org.sireum.Init
+  def info174 = Info( // org.sireum.Init
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "home"),
@@ -8268,7 +8488,20 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info165 = Info( // org.sireum.Os.Path.Impl
+  def info175 = Info( // org.sireum.LlmParams
+    kind = Kind.DatatypeClass,
+    fields = ISZ(
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "model"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "maxTokens"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "temperature"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "systemPrompt"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "apiKey"),
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "endpoint")
+    ),
+    methods = ISZ()
+  )
+
+  def info176 = Info( // org.sireum.Os.Path.Impl
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "value")
@@ -8378,7 +8611,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info166 = Info( // org.sireum.Os.Path.Jen
+  def info177 = Info( // org.sireum.Os.Path.Jen
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
@@ -8421,7 +8654,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info167 = Info( // org.sireum.Os.Path.MJen
+  def info178 = Info( // org.sireum.Os.Path.MJen
     kind = Kind.MSig,
     fields = ISZ(),
     methods = ISZ(
@@ -8462,38 +8695,10 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info168 = Info( // org.sireum.Os.Proc.LineFilter
-    kind = Kind.Sig,
-    fields = ISZ(),
-    methods = ISZ(
-      Method(isInObject = false, isByName = F, name = "filter", params = ISZ("line"))
-    )
-  )
-
-  def info169 = Info( // org.sireum.Os.Proc.FunLineFilter
+  def info179 = Info( // org.sireum.Os.Proc.Result
     kind = Kind.DatatypeClass,
     fields = ISZ(
-      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "f")
-    ),
-    methods = ISZ(
-      Method(isInObject = false, isByName = F, name = "filter", params = ISZ("line"))
-    )
-  )
-
-  def info170 = Info( // org.sireum.Os.Proc.Result
-    kind = Kind.Sig,
-    fields = ISZ(),
-    methods = ISZ(
-      Method(isInObject = false, isByName = T, name = "ok", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "out", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "err", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "exitCode", params = ISZ())
-    )
-  )
-
-  def info171 = Info( // org.sireum.Os.Proc.Result.Normal
-    kind = Kind.DatatypeClass,
-    fields = ISZ(
+      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "status"),
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "exitCode"),
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "out"),
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "err")
@@ -8503,31 +8708,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info172 = Info( // org.sireum.Os.Proc.Result.Exception
-    kind = Kind.DatatypeClass,
-    fields = ISZ(
-      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "err")
-    ),
-    methods = ISZ(
-      Method(isInObject = false, isByName = T, name = "out", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "exitCode", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "ok", params = ISZ())
-    )
-  )
-
-  def info173 = Info( // org.sireum.Os.Proc.Result.Timeout
-    kind = Kind.DatatypeClass,
-    fields = ISZ(
-      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "out"),
-      Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "err")
-    ),
-    methods = ISZ(
-      Method(isInObject = false, isByName = T, name = "exitCode", params = ISZ()),
-      Method(isInObject = false, isByName = T, name = "ok", params = ISZ())
-    )
-  )
-
-  def info174 = Info( // org.sireum.Os.Proc
+  def info180 = Info( // org.sireum.Os.Proc
     kind = Kind.DatatypeClass,
     fields = ISZ(
       Field(isInObject = false, isVal = T, kind = Field.Kind.Param, name = "cmds"),
@@ -8567,7 +8748,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     )
   )
 
-  def info175 = Info( // org.sireum.Os.Path
+  def info181 = Info( // org.sireum.Os.Path
     kind = Kind.Sig,
     fields = ISZ(),
     methods = ISZ(
