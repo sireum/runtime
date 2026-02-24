@@ -181,7 +181,7 @@ object Os {
   }
 
   @pure def proc(commands: ISZ[String]): Proc = {
-    return Proc(commands, cwd, ISZ(), T, None(), F, F, F, F, F, 0, F, F, None(), None())
+    return Proc(commands, cwd.canon.string, ISZ(), T, None(), F, F, F, F, F, 0, F, F, None(), None())
   }
 
   @pure def procs(commands: String): Proc = {
@@ -394,42 +394,17 @@ object Os {
 
   object Proc {
 
-    @sig trait LineFilter {
-      def filter(line: String): B
-    }
-
-    @datatype class FunLineFilter(val f: String => B @pure) extends LineFilter {
-      def filter(line: String): B = {
-        return f(line)
-      }
-    }
-
-    @sig sealed trait Result extends OsProto.Proc.Result
+    @datatype class Result(val status: Z, val exitCode: Z, val out: String, val err: String) extends OsProto.Proc.Result
 
     object Result {
-
-      @datatype class Normal(val exitCode: Z, val out: String, val err: String) extends Result
-
-      @datatype class Exception(val err: String) extends Result {
-        def out: String = {
-          return ""
-        }
-        def exitCode: Z = {
-          return -100
-        }
-      }
-
-      @datatype class Timeout(val out: String, val err: String) extends Result {
-        def exitCode: Z = {
-          return -101
-        }
-      }
-
+      val Normal: Z = 0
+      val Exception: Z = 1
+      val Timeout: Z = 2
     }
   }
 
   @datatype class Proc(val cmds: ISZ[String],
-                       val wd: Path,
+                       val wd: String,
                        val envMap: ISZ[(String, String)],
                        val shouldAddEnv: B,
                        val in: Option[String],
@@ -441,8 +416,8 @@ object Os {
                        val timeoutInMillis: Z,
                        val shouldUseStandardLib: B,
                        val isScript: B,
-                       val outLineActionOpt: Option[Proc.LineFilter],
-                       val errLineActionOpt: Option[Proc.LineFilter]) extends OsProto.Proc {
+                       val outLineActionOpt: Option[String => B @pure],
+                       val errLineActionOpt: Option[String => B @pure]) extends OsProto.Proc {
 
     @pure def commands(cs: ISZ[String]): Proc = {
       val thisL = this
@@ -451,7 +426,7 @@ object Os {
 
     @pure def at(dir: OsProto.Path): Proc = {
       val thisL = this
-      return thisL(wd = Os.Path.Impl(dir.string))
+      return thisL(wd = dir.string)
     }
 
     @pure def env(m: ISZ[(String, String)]): Proc = {
@@ -511,12 +486,12 @@ object Os {
 
     @pure def outLineAction(f: String => B @pure): Proc = {
       val thisL = this
-      return thisL(outLineActionOpt = Some(Proc.FunLineFilter(f)))
+      return thisL(outLineActionOpt = Some(f))
     }
 
     @pure def errLineAction(f: String => B @pure): Proc = {
       val thisL = this
-      return thisL(errLineActionOpt = Some(Proc.FunLineFilter(f)))
+      return thisL(errLineActionOpt = Some(f))
     }
 
     def run(): Proc.Result = {

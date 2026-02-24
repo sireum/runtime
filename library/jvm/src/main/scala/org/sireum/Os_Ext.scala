@@ -1043,7 +1043,7 @@ object Os_Ext {
             val ss = s.split('\n')
             for (i <- 0 until ss.length - 1) {
               val line = ss(i)
-              if (la.filter(line)) {
+              if (la(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -1056,7 +1056,7 @@ object Os_Ext {
             baosLine.reset()
             baos.write(line.getBytes(SC.UTF_8))
             if (bytes(n - 1) == newLine) {
-              if (la.filter(line)) {
+              if (la(line)) {
                 if (shouldOutputConsole) {
                   pw.println(line)
                   pw.flush()
@@ -1145,7 +1145,7 @@ object Os_Ext {
         term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
         if (term) {
           val (pout, perr) = po.fEnd()
-          return Os.Proc.Result.Normal(sp.exitCode(), pout, perr)
+          return Os.Proc.Result(Os.Proc.Result.Timeout, sp.exitCode(), pout, perr)
         }
       } catch {
         case _: InterruptedException =>
@@ -1154,7 +1154,7 @@ object Os_Ext {
         sp.destroy(shutdownGracePeriod = 500, async = true)
       }
       val (pout, perr) = po.fEnd()
-      Os.Proc.Result.Timeout(pout, perr)
+      Os.Proc.Result(Os.Proc.Result.Timeout, -100, pout, perr)
     }
     def nuProcess(): Os.Proc.Result = {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
@@ -1208,7 +1208,7 @@ object Os_Ext {
           val exitCode = np.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else 0, TU.MILLISECONDS)
           if (exitCode != scala.Int.MinValue) {
             val (pout, perr) = po.fEnd()
-            return Os.Proc.Result.Normal(exitCode, pout, perr)
+            return Os.Proc.Result(Os.Proc.Result.Normal, exitCode, pout, perr)
           }
         } catch {
           case _: InterruptedException =>
@@ -1225,8 +1225,8 @@ object Os_Ext {
             case _: Throwable =>
           }
         val (pout, perr) = po.fEnd()
-        Os.Proc.Result.Timeout(pout, perr)
-      } else Os.Proc.Result.Exception(s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
+        Os.Proc.Result(Os.Proc.Result.Timeout, -100, pout, perr)
+      } else Os.Proc.Result(Os.Proc.Result.Exception, -101, "", s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
       val useStandardLib = isNative || p.shouldUseStandardLib || (osKind match {
@@ -1249,7 +1249,7 @@ object Os_Ext {
       case t: Throwable =>
         val sw = new java.io.StringWriter
         t.printStackTrace(new PrintWriter(sw))
-        Os.Proc.Result.Exception(sw.toString)
+        Os.Proc.Result(Os.Proc.Result.Exception, -101, "", sw.toString)
     }
   }
 
