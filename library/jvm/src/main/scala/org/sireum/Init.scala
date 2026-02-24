@@ -1093,6 +1093,8 @@ import Init._
       if (ops.StringOps(pjContent).contains(""""editor.semanticHighlighting.enabled": false""")) {
         return
       }
+      println("Patching SysIDE Editor ...")
+      (path.up / s"${path.name}.bak").writeOver(pjContent)
       pjContent = ops.StringOps(pjContent).replaceAllLiterally(""""contributes": {""",
         st""""contributes": {
             |		"configurationDefaults": {
@@ -1100,9 +1102,9 @@ import Init._
             |				"editor.semanticHighlighting.enabled": false
             |			}
             |		},""".render)
-      pjContent = removeJsonArrayElement(pjContent, """"id": "sysml"""")
-      pjContent = removeJsonArrayElement(pjContent, """"language": "sysml"""")
-      pjContent = removeJsonArrayElement(pjContent, """"scopeName": "markdown.sysml.codeblock"""")
+      //pjContent = removeJsonArrayElement(pjContent, """"id": "sysml"""")
+      //pjContent = removeJsonArrayElement(pjContent, """"language": "sysml"""")
+      //pjContent = removeJsonArrayElement(pjContent, """"scopeName": "markdown.sysml.codeblock"""")
       path.setWritable(T)
       path.writeOver(pjContent)
       path.setWritable(F)
@@ -1145,9 +1147,8 @@ import Init._
         f.writeOver(patchPrefix(patchPrefix(f.read, "comment("), "textualRep("))
         f.setWritable(F)
       }
-      println("Patching SysIDE ...")
-      patchTml()
       patchPackageJson(d / "package.json")
+      patchTml()
       for (f <- Os.Path.walk(d / "dist", F, F, (p: Os.Path) => p.ext == "js")) {
         patchJs(f)
       }
@@ -1197,8 +1198,7 @@ import Init._
         f.writeOver(text)
         f.setWritable(F)
       }
-      println("Patching SysIDE ...")
-      patchTmlEditor()
+      //patchTmlEditor()
       patchPackageJson(d / "package.json")
       //patchJsEditor(d / "dist" / "extension.js")
       println()
