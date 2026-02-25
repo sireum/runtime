@@ -50,6 +50,7 @@ object DependencyManager {
   val scalaJsKey: String = "org.scala-js::scalajs-library:"
   val scalaJsCompilerKey: String = "org.scala-js:::scalajs-compiler:"
   val scalaTestKey: String = "org.scalatest::scalatest::"
+  val junitPlatformLauncherKey: String = "org.junit.platform:junit-platform-launcher:"
   val macrosKey: String = "org.sireum.kekinian::macros:"
   val testKey: String = "org.sireum.kekinian::test:"
   val libraryKey: String = "org.sireum.kekinian::library:"
@@ -161,6 +162,11 @@ import DependencyManager._
   val scalaTestVersion: String = versions.get(DependencyManager.scalaTestKey) match {
     case Some(v) => v
     case _ => halt(s"Could not find ScalaTest version (key: ${DependencyManager.scalaTestKey})")
+  }
+
+  val junitPlatformLauncherVersion: String = versions.get(DependencyManager.junitPlatformLauncherKey) match {
+    case Some(v) => v
+    case _ => halt(s"Could not find JUnit Platform Launcher version (key: ${DependencyManager.junitPlatformLauncherKey})")
   }
 
   val ivyDeps: HashSMap[String, String] = {
