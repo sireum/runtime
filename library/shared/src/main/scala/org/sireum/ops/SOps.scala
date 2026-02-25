@@ -828,7 +828,7 @@ object ISZOps {
 
   @pure def sortWith[@mut T](s: MS[Z, T], lt: (T, T) => B @pure): MS[Z, T] = $
 
-  @pure def slice[@imm I, V](s: MS[I, V], start: I, until: I): IS[I, V] = $
+  @pure def slice[@index I, V](s: MS[I, V], start: I, until: I): IS[I, V] = $
 
 }
 
