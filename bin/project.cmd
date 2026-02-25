@@ -48,7 +48,8 @@ val testShared = moduleSharedPub(
   baseDir = homeDir / test,
   sharedDeps = ISZ(macrosShared.id),
   sharedIvyDeps = ISZ(
-    "org.scalatest::scalatest::"
+    "org.scalatest::scalatest::",
+    "org.junit.platform:junit-platform-launcher:"
   ),
   pubOpt = pub(
     desc = "Test Framework for Slang",
@@ -69,6 +70,7 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "com.lihaoyi::os-lib:",
     "org.kohsuke:github-api:",
     "org.ow2.asm:asm-tree:",
+    "org.ow2.asm:asm-util:",
     "org.antlr:antlr-runtime:",
     "org.antlr:antlr4-runtime:",
     "org.sireum:automaton:",
