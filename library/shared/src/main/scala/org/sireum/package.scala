@@ -259,27 +259,27 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def string: String = Z(_value).string
 
-    @inline def <(other: Z): B = Z.MP.<(_value.toLong, other)
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z.MP.<=(_value.toLong, other)
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z.MP.>(_value.toLong, other)
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z.MP.>=(_value.toLong, other)
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z.MP.isEqual(other, _value)
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = !Z.MP.isEqual(other, _value)
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z.MP.+(_value.toLong, other)
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z.MP.-(_value.toLong, other)
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z.MP.*(_value.toLong, other)
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z.MP./(_value.toLong, other)
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z.MP.%(_value.toLong, other)
+    @inline def %(other: Z): Z = Z(_value) % other
 
     @inline def increase: Z = Z(_value).increase
 
@@ -312,27 +312,27 @@ package object sireum extends $internal.PackageTrait with contract {
 
     @inline def string: String = Z(_value).string
 
-    @inline def <(other: Z): B = Z.MP.<(_value, other)
+    @inline def <(other: Z): B = Z(_value) < other
 
-    @inline def <=(other: Z): B = Z.MP.<=(_value, other)
+    @inline def <=(other: Z): B = Z(_value) <= other
 
-    @inline def >(other: Z): B = Z.MP.>(_value, other)
+    @inline def >(other: Z): B = Z(_value) > other
 
-    @inline def >=(other: Z): B = Z.MP.>=(_value, other)
+    @inline def >=(other: Z): B = Z(_value) >= other
 
-    @inline def ===(other: Z): B = Z.MP.isEqual(other, _value)
+    @inline def ===(other: Z): B = Z(_value) == other
 
-    @inline def =!=(other: Z): B = !Z.MP.isEqual(other, _value)
+    @inline def =!=(other: Z): B = Z(_value) != other
 
-    @inline def +(other: Z): Z = Z.MP.+(_value, other)
+    @inline def +(other: Z): Z = Z(_value) + other
 
-    @inline def -(other: Z): Z = Z.MP.-(_value, other)
+    @inline def -(other: Z): Z = Z(_value) - other
 
-    @inline def *(other: Z): Z = Z.MP.*(_value, other)
+    @inline def *(other: Z): Z = Z(_value) * other
 
-    @inline def /(other: Z): Z = Z.MP./(_value, other)
+    @inline def /(other: Z): Z = Z(_value) / other
 
-    @inline def %(other: Z): Z = Z.MP.%(_value, other)
+    @inline def %(other: Z): Z = Z(_value) % other
 
     @inline def increase: Z = Z(_value).increase
 

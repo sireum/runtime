@@ -435,12 +435,12 @@ class LexerDfaCompactTest extends TestSuite {
       assert(errIdx == S32(-1))
       // skipHidden=T: ID("abc"), ID("def"), EOF
       assert(toks.size == 3)
-      assert(toks(0).text == String("abc"))
-      assert(toks(0).num == S32(1))
-      assert(toks(1).text == String("def"))
-      assert(toks(1).num == S32(1))
-      assert(toks(2).text == String(""))
-      assert(toks(2).num == S32(0))
+      assert(toks(S32(0)).text == String("abc"))
+      assert(toks(S32(0)).num == S32(1))
+      assert(toks(S32(1)).text == String("def"))
+      assert(toks(S32(1)).num == S32(1))
+      assert(toks(S32(2)).text == String(""))
+      assert(toks(S32(2)).num == S32(0))
     }
 
     // Tokens: skipHidden=F includes hidden tokens
@@ -470,10 +470,10 @@ class LexerDfaCompactTest extends TestSuite {
       assert(errIdx == S32(-1))
       // skipHidden=F: ID("a"), WS(" "), ID("b")
       assert(toks.size == 3)
-      assert(toks(0).text == String("a"))
-      assert(toks(1).text == String(" "))
-      assert(toks(1).isHidden)
-      assert(toks(2).text == String("b"))
+      assert(toks(S32(0)).text == String("a"))
+      assert(toks(S32(1)).text == String(" "))
+      assert(toks(S32(1)).isHidden)
+      assert(toks(S32(2)).text == String("b"))
     }
 
     // Tokens: error on unlexable character
@@ -495,7 +495,7 @@ class LexerDfaCompactTest extends TestSuite {
       val (errIdx, toks) = lds.tokens(toInput("abc!def"), F)
       assert(errIdx == S32(3))
       assert(toks.size == 1)
-      assert(toks(0).text == String("abc"))
+      assert(toks(S32(0)).text == String("abc"))
     }
 
     // Tokens: empty input with EOF
@@ -517,8 +517,8 @@ class LexerDfaCompactTest extends TestSuite {
       val (errIdx, toks) = lds.tokens(toInput(""), F)
       assert(errIdx == S32(-1))
       assert(toks.size == 1)
-      assert(toks(0).text == String(""))
-      assert(toks(0).num == S32(0))
+      assert(toks(S32(0)).text == String(""))
+      assert(toks(S32(0)).num == S32(0))
     }
 
     // Tokens: empty input without EOF

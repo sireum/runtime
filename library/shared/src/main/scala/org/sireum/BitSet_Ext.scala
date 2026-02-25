@@ -33,7 +33,7 @@ object BitSet_Ext {
     // Read directly from the IS[S32, B] backing byte array (bit-packed by B.Boxer)
     var i = 0L
     while (i < n) {
-      if (a(i).value) {
+      if (a(S32(i.toInt)).value) {
         val wordIndex = (i >>> 6).toInt
         words(wordIndex) = words(wordIndex) | (1L << i.toInt)
       }

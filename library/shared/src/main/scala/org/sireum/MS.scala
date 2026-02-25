@@ -235,6 +235,12 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
 
   @inline def =!=(other: MS[I, V]): B = !(this === other)
 
+  def atS32(iS32: S32): V = {
+    val i = iS32.toZ
+    assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
+    boxer.lookup[V](data, i)
+  }
+
   def atZ(i: Z): V = {
     assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
     boxer.lookup[V](data, i)
@@ -326,15 +332,9 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
   }
 
 
+  def sizeS32: S32 = S32(length)
+
   def size: Z = length
-
-  def sizeS32: S32 = S32(length.toInt)
-
-  def sizeU32: U32 = U32(length.toInt)
-
-  def sizeS64: S64 = S64(length.toLong)
-
-  def sizeU64: U64 = U64(length.toLong)
 
   def firstIndex: I = {
     assert(nonEmpty, "firstIndex can only be used on non-empty MS")
@@ -358,40 +358,6 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
 
   def apply(index: I): V = atZ(index.asInstanceOf[ZLike[_]].toIndex)
 
-  def apply(index: scala.Long): V = {
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $index")
-    boxer.lookup[V](data, index)
-  }
-
-  def atS32(i: S32): V = {
-    val index = i.value.toLong
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-      boxer.lookup[V](data, index)
-  }
-
-  def atU32(i: U32): V = {
-    val index = i.value.toLong & 0xFFFFFFFFL
-    if (index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-      boxer.lookup[V](data, index)
-  }
-
-  def atS64(i: S64): V = {
-    val index = i.value
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-      boxer.lookup[V](data, index)
-  }
-
-  def atU64(i: U64): V = {
-    val index = i.value
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-      boxer.lookup[V](data, index)
-  }
-
   def apply(args: (I, V)*): MS[I, V] = {
     val a = boxer.clone(data, length, length, Z.MP.zero)
     for ((index, v) <- args) {
@@ -406,45 +372,6 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
     val i = index.asInstanceOf[ZLike[_]].toIndex
     assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $index")
     boxer.store(data, i, helper.assign(value))
-  }
-
-  def update(index: scala.Long, value: V): Unit = {
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $index")
-    boxer.store(data, index, helper.assign(value))
-  }
-
-  def updateS32(i: S32, value: V): Unit = {
-    val index = i.value.toLong
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-    boxer.store(data, index, helper.assign(value))
-  }
-
-  def updateU32(i: U32, value: V): Unit = {
-    val index = i.value.toLong & 0xFFFFFFFFL
-    if (index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-    boxer.store(data, index, helper.assign(value))
-  }
-
-  def updateZ(i: Z, value: V): Unit = {
-    assert(Z.MP.zero <= i && i < length, s"Indexing out of bounds: $i")
-    boxer.store(data, i, helper.assign(value))
-  }
-
-  def updateS64(i: S64, value: V): Unit = {
-    val index = i.value
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-    boxer.store(data, index, helper.assign(value))
-  }
-
-  def updateU64(i: U64, value: V): Unit = {
-    val index = i.value
-    if (index < 0L || index >= length.toLong)
-      halt(s"Indexing out of bounds: $i")
-    boxer.store(data, index, helper.assign(value))
   }
 
   def elements: scala.Seq[V] = {

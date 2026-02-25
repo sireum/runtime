@@ -162,7 +162,7 @@ object B {
 
 }
 
-final class B private(val value: Boolean) extends AnyVal with Immutable with $internal.HasBoxer
+final class B(val value: Boolean) extends AnyVal with Immutable with $internal.HasBoxer
   with Contract.SequentBuilder with Contract.StepBuilder2 {
 
   @inline def &(other: B): B = value & other.value
