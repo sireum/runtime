@@ -928,7 +928,7 @@ import Init._
       ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
     val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
-    val sysIdeVersion = Os.env("SYSIDE_V").getOrElse(versions.get("org.sireum.version.vscodium.extension.syside").get)
+    val sysIdeVersion = if (Os.isLinuxArm || Os.isWinArm) "0.9.1" else Os.env("SYSIDE_V").getOrElse(versions.get("org.sireum.version.vscodium.extension.syside").get)
     val es: ISZ[String] = if (sysIdeVersion == "0.9.1") extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion" else extensions :+ s"sensmetry.syside-editor@$sysIdeVersion"
     val urlPrefix = s"https://github.com/VSCodium/vscodium/releases/download/$vscodiumVersion"
     val sireumExtUrl = s"https://github.com/sireum/vscode-extension/releases/download/$sireumExtVersion/sireum-vscode-extension.vsix"
