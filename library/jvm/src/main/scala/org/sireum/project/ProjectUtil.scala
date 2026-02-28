@@ -379,6 +379,10 @@ object ProjectUtil {
         }
       }
       if (!loaded) {
+        if (!cmdFile.exists) {
+          eprintln(s"Could not find $cmdFile")
+          return None()
+        }
         println(s"Loading from $cmdFile ...")
         val cmds: ISZ[String] =
           if (Os.isWin) ISZ[String]("cmd", "/C", cmdFile.name, "json")
