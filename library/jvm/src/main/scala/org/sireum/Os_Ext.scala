@@ -83,15 +83,17 @@ object Os_Ext {
     r
   }
 
-  lazy val osKind: Os.Kind.Type = {
+  lazy val _osKind: Os.Kind.Type = {
     val r = if (scala.util.Properties.isMac) Os.Kind.Mac
     else if (scala.util.Properties.isLinux)
-      if (prop("os.arch").get == string"aarch64") Os.Kind.LinuxArm
+      if (prop("os.arch") == string"aarch64") Os.Kind.LinuxArm
       else Os.Kind.Linux
     else if (scala.util.Properties.isWin) Os.Kind.Win
     else Os.Kind.Unsupported
     r
   }
+
+  def osKind: Z = _osKind.ordinal
 
   lazy val numOfProcessors: Z = Runtime.getRuntime.availableProcessors
 
@@ -99,10 +101,10 @@ object Os_Ext {
 
   lazy val p7zzOpt: Option[Os.Path] = Os.sireumHomeOpt match {
     case Some(dir) =>
-      val p7zz: String = if (osKind == Os.Kind.Win) "7zz.com" else "7zz"
+      val p7zz: String = if (_osKind == Os.Kind.Win) "7zz.com" else "7zz"
       val p = dir / "bin" / p7zz
       if (p.exists) {
-        if (osKind == Os.Kind.Win || osKind == Os.Kind.Mac) {
+        if (_osKind == Os.Kind.Win || _osKind == Os.Kind.Mac) {
           Some(p)
         } else {
           if (Os.proc(ISZ[String]("bash", "-c", s"$p7zz -h")).run().ok) Some(p) else None()
@@ -138,7 +140,7 @@ object Os_Ext {
   def cliArgs: ISZ[String] = App.args
 
   def chmod(path: String, mask: String, all: B): Unit = {
-    if (osKind == Os.Kind.Win) return
+    if (_osKind == Os.Kind.Win) return
     val p = path.value.replace(' ', '␣')
     if (all) proc"""sh -c chmod␣-fR␣$mask␣"$p"""".run()
     else proc"""sh -c chmod␣$mask␣"$p"""".run()
@@ -229,15 +231,15 @@ object Os_Ext {
     }
   }
 
-  def env(name: String): Option[String] = {
+  def env(name: String): String = {
     val value = System.getenv(name.value)
-    if (value != null) Some(value) else None()
+    if (value != null) value else ""
   }
 
-  def envs: Map[String, String] = {
-    var r = Map.empty[String, String]
+  def envs: ISZ[(String, String)] = {
+    var r = ISZ[(String, String)]()
     for ((k, v) <- System.getenv().asScala) {
-      r = r + k ~> v
+      r = r :+ ((String(k), String(v)))
     }
     r
   }
@@ -260,12 +262,13 @@ object Os_Ext {
 
   def isWritable(path: String): B = toIO(path).canWrite
 
-  def kind(path: String): Os.Path.Kind.Type = {
+  def kind(path: String): Z = {
     val p = toNIO(path)
-    if (JFiles.isSymbolicLink(p)) Os.Path.Kind.SymLink
+    val r = if (JFiles.isSymbolicLink(p)) Os.Path.Kind.SymLink
     else if (JFiles.isDirectory(p)) Os.Path.Kind.Dir
     else if (JFiles.isRegularFile(p)) Os.Path.Kind.File
     else Os.Path.Kind.Other
+    r.ordinal
   }
 
   def lastModified(path: String): Z = toIO(path).lastModified
@@ -356,27 +359,27 @@ object Os_Ext {
 
   @pure def norm(path: String): String = toIO(path).getPath
 
-  def prop(name: String): Option[String] = {
+  def prop(name: String): String = {
     val r = System.getProperty(name.value)
-    return if (r == null) None() else Some(r)
+    return if (r != null) r else ""
   }
 
-  def props: Map[String, String] = {
-    var r = Map.empty[String, String]
+  def props: ISZ[(String, String)] = {
+    var r = ISZ[(String, String)]()
     for ((k, v) <- System.getProperties.asScala) {
-      r = r + k ~> v
+      r = r :+ ((String(k), String(v)))
     }
     return r
   }
 
-  def properties(path: String): Map[String, String] = {
+  def properties(path: String): ISZ[(String, String)] = {
     val p = new java.util.Properties()
     val reader = new FR(toIO(path))
     try p.load(reader)
     finally reader.close()
-    var r = Map.empty[String, String]
+    var r = ISZ[(String, String)]()
     for (k <- p.stringPropertyNames.asScala) {
-      r = r + k ~> p.getProperty(k)
+      r = r :+ ((String(k), String(p.getProperty(k))))
     }
     r
   }
@@ -674,7 +677,7 @@ object Os_Ext {
   def removeAll(path: String): Unit = if (exists(path)) {
     val p = path.value.replace(' ', '␣')
     if (isDir(path)) {
-      osKind match {
+      _osKind match {
         case Os.Kind.Win => proc"""cmd /c RD /S /Q $p""".run()
         case _ => proc"""sh -c rm␣-fR␣"$p"""".run()
       }
@@ -786,7 +789,7 @@ object Os_Ext {
           mkdir(out, T)
         } else {
           JFiles.copy(tais, outPath, SCO.REPLACE_EXISTING)
-          if (osKind != Os.Kind.Win) {
+          if (_osKind != Os.Kind.Win) {
             JFiles.setPosixFilePermissions(outPath, posixPermissionsFromMode(tae.getMode))
           }
         }
@@ -1075,7 +1078,28 @@ object Os_Ext {
     }
   }
 
-  def proc(pr: Os.Proc): Os.Proc.Result = {
+  def proc(cmds: ISZ[String],
+           wd: String,
+           envMap: ISZ[(String, String)],
+           shouldAddEnv: B,
+           in: Option[String],
+           isErrAsOut: B,
+           shouldOutputConsole: B,
+           isErrBuffered: B,
+           shouldPrintEnv: B,
+           shouldPrintCommands: B,
+           timeoutInMillis: Z,
+           shouldUseStandardLib: B,
+           isScript: B,
+           hasOutLineAction: B,
+           outLineAction: String => B,
+           hasErrLineAction: B,
+           errLineAction: String => B): (Z, Z, String, String) = {
+    val outLineActionOpt: Option[String => B] = if (hasOutLineAction) Some(outLineAction) else None()
+    val errLineActionOpt: Option[String => B] = if (hasErrLineAction) Some(errLineAction) else None()
+    val pr = Os.Proc(cmds, wd, envMap, shouldAddEnv, in, isErrAsOut, shouldOutputConsole,
+      isErrBuffered, shouldPrintEnv, shouldPrintCommands, timeoutInMillis,
+      shouldUseStandardLib, isScript, outLineActionOpt, errLineActionOpt)
     def enhanceJavaCommand(cmds: ISZ[String]): ISZ[String] = {
       def isSireumJava(path: String): B = {
         val f = Os.path(path)
@@ -1094,10 +1118,10 @@ object Os_Ext {
     }
     val p: Os.Proc =
       if (pr.isScript)
-        if (osKind == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ enhanceJavaCommand(pr.cmds))
+        if (_osKind == Os.Kind.Win) pr(cmds = ISZ[String]("cmd", "/c") ++ enhanceJavaCommand(pr.cmds))
         else pr(cmds = "sh" +: enhanceJavaCommand(pr.cmds))
       else pr(cmds = enhanceJavaCommand(pr.cmds))
-    def standardLib(): Os.Proc.Result = {
+    def standardLib(): (Z, Z, String, String) = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
         for ((key, value) <- System.getenv().asScala) {
@@ -1145,7 +1169,7 @@ object Os_Ext {
         term = sp.join(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else -1)
         if (term) {
           val (pout, perr) = po.fEnd()
-          return Os.Proc.Result(Os.Proc.Result.Timeout, sp.exitCode(), pout, perr)
+          return (Os.Proc.Result.Timeout, sp.exitCode(), pout, perr)
         }
       } catch {
         case _: InterruptedException =>
@@ -1154,9 +1178,9 @@ object Os_Ext {
         sp.destroy(shutdownGracePeriod = 500, async = true)
       }
       val (pout, perr) = po.fEnd()
-      Os.Proc.Result(Os.Proc.Result.Timeout, -100, pout, perr)
+      (Os.Proc.Result.Timeout, -100, pout, perr)
     }
-    def nuProcess(): Os.Proc.Result = {
+    def nuProcess(): (Z, Z, String, String) = {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
@@ -1208,7 +1232,7 @@ object Os_Ext {
           val exitCode = np.waitFor(if (p.timeoutInMillis > 0) p.timeoutInMillis.toLong else 0, TU.MILLISECONDS)
           if (exitCode != scala.Int.MinValue) {
             val (pout, perr) = po.fEnd()
-            return Os.Proc.Result(Os.Proc.Result.Normal, exitCode, pout, perr)
+            return (Os.Proc.Result.Normal, exitCode, pout, perr)
           }
         } catch {
           case _: InterruptedException =>
@@ -1225,11 +1249,11 @@ object Os_Ext {
             case _: Throwable =>
           }
         val (pout, perr) = po.fEnd()
-        Os.Proc.Result(Os.Proc.Result.Timeout, -100, pout, perr)
-      } else Os.Proc.Result(Os.Proc.Result.Exception, -101, "", s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
+        (Os.Proc.Result.Timeout, -100, pout, perr)
+      } else (Os.Proc.Result.Exception, -101, "", s"Could not execute command: ${p.cmds.elements.mkString(" ")}")
     }
     try {
-      val useStandardLib = isNative || p.shouldUseStandardLib || (osKind match {
+      val useStandardLib = isNative || p.shouldUseStandardLib || (_osKind match {
         case Os.Kind.LinuxArm => T
         case Os.Kind.Unsupported => T
         case _ => F
@@ -1249,7 +1273,7 @@ object Os_Ext {
       case t: Throwable =>
         val sw = new java.io.StringWriter
         t.printStackTrace(new PrintWriter(sw))
-        Os.Proc.Result(Os.Proc.Result.Exception, -101, "", sw.toString)
+        (Os.Proc.Result.Exception, -101, "", sw.toString)
     }
   }
 

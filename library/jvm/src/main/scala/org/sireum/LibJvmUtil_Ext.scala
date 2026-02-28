@@ -1468,7 +1468,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method1Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1728)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any](1727)
     r.put(0x1854D576D83AF7E4L, _ => (o1: Any) => org.sireum.AssocS.Entries.uniqueKeys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "uniqueKeys").value
     r.put(0xE5CBF86C0B8F9696L, _ => (o1: Any) => org.sireum.AssocS.Entries.keys(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "keys").value
     r.put(0xCEBF203EDC8BD12DL, _ => (o1: Any) => org.sireum.AssocS.Entries.values(X(o1))) // methodKey(T, "org.sireum.AssocS.Entries", "values").value
@@ -1620,7 +1620,6 @@ class LibJvmUtil_Ext extends Reflection_Ext {
     r.put(0x34BA7C4F89FEE10BL, _ => (o1: Any) => org.sireum.Os.Ext.tempDir(X(o1))) // methodKey(T, "org.sireum.Os.Ext", "tempDir").value
     r.put(0xB6ABB9E19C3F01E2L, _ => (o1: Any) => org.sireum.Os.Ext.toUri(X(o1))) // methodKey(T, "org.sireum.Os.Ext", "toUri").value
     r.put(0x175181727A1304B0L, _ => (o1: Any) => org.sireum.Os.Ext.parent(X(o1))) // methodKey(T, "org.sireum.Os.Ext", "parent").value
-    r.put(0x5B7D21E947D83182L, _ => (o1: Any) => org.sireum.Os.Ext.proc(X(o1))) // methodKey(T, "org.sireum.Os.Ext", "proc").value
     r.put(0x89C0705BC7C1FC1EL, _ => (o1: Any) => org.sireum.AssocS.apply(X(o1))) // methodKey(T, "org.sireum.AssocS", "apply").value
     r.put(0x5705C5608F220805L, _ => (o1: Any) => org.sireum.AssocS.unapply(X(o1)) match {
       case scala.Some(o) => MSome(o)
@@ -4131,7 +4130,8 @@ class LibJvmUtil_Ext extends Reflection_Ext {
   }
 
   private lazy val method17Map: Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any] = {
-    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any](1)
+    val r = new Long2ObjectOpenHashMap[Option[AnyRef] => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any => Any](2)
+    r.put(0x5B7D21E947D83182L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => (o7: Any) => (o8: Any) => (o9: Any) => (o10: Any) => (o11: Any) => (o12: Any) => (o13: Any) => (o14: Any) => (o15: Any) => (o16: Any) => (o17: Any) => org.sireum.Os.Ext.proc(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6), X(o7), X(o8), X(o9), X(o10), X(o11), X(o12), X(o13), X(o14), X(o15), X(o16), X(o17))) // methodKey(T, "org.sireum.Os.Ext", "proc").value
     r.put(0xAB525661561D8484L, _ => (o1: Any) => (o2: Any) => (o3: Any) => (o4: Any) => (o5: Any) => (o6: Any) => (o7: Any) => (o8: Any) => (o9: Any) => (o10: Any) => (o11: Any) => (o12: Any) => (o13: Any) => (o14: Any) => (o15: Any) => (o16: Any) => (o17: Any) => org.sireum.MBox17.apply(X(o1), X(o2), X(o3), X(o4), X(o5), X(o6), X(o7), X(o8), X(o9), X(o10), X(o11), X(o12), X(o13), X(o14), X(o15), X(o16), X(o17))) // methodKey(T, "org.sireum.MBox17", "apply").value
     r
   }
@@ -5251,7 +5251,7 @@ class LibJvmUtil_Ext extends Reflection_Ext {
       Method(isInObject = true, isByName = F, name = "unzip", params = ISZ("path", "target")),
       Method(isInObject = true, isByName = F, name = "unTarGz", params = ISZ("path", "target")),
       Method(isInObject = true, isByName = F, name = "parent", params = ISZ("path")),
-      Method(isInObject = true, isByName = F, name = "proc", params = ISZ("e"))
+      Method(isInObject = true, isByName = F, name = "proc", params = ISZ("cmds", "wd", "envMap", "shouldAddEnv", "in", "isErrAsOut", "shouldOutputConsole", "isErrBuffered", "shouldPrintEnv", "shouldPrintCommands", "timeoutInMillis", "shouldUseStandardLib", "isScript", "hasOutLineAction", "outLineAction", "hasErrLineAction", "errLineAction"))
     )
   )
 

@@ -40,11 +40,12 @@ object Os {
   }
 
   def env(name: String): Option[String] = {
-    return Ext.env(name)
+    val r = Ext.env(name)
+    return if (r.size > 0) Some(r) else None()
   }
 
   def envs: Map[String, String] = {
-    return Ext.envs
+    return Map.empty[String, String] ++ Ext.envs
   }
 
   @pure def fileSep: String = {
@@ -119,7 +120,7 @@ object Os {
   }
 
   @pure def kind: Kind.Type = {
-    return Ext.osKind
+    return Kind.byOrdinal(Ext.osKind).get
   }
 
   @pure def lineSep: String = {
@@ -191,11 +192,12 @@ object Os {
   }
 
   def prop(name: String): Option[String] = {
-    return Ext.prop(name)
+    val r = Ext.prop(name)
+    return if (r.size > 0) Some(r) else None()
   }
 
   def props: Map[String, String] = {
-    return Ext.props
+    return Map.empty[String, String] ++ Ext.props
   }
 
   @pure def readIndexableCFrom(url: String): Indexable.Pos[C] = {
@@ -394,6 +396,8 @@ object Os {
 
   object Proc {
 
+    val defaultFilter: String => B @pure = (s: String) => F
+
     @datatype class Result(val status: Z, val exitCode: Z, val out: String, val err: String) extends OsProto.Proc.Result
 
     object Result {
@@ -495,8 +499,20 @@ object Os {
     }
 
     def run(): Proc.Result = {
-      val r = Ext.proc(this)
-      return r
+      val hasOutLA: B = outLineActionOpt.nonEmpty
+      val outLA: String => B @pure = outLineActionOpt match {
+        case Some(f) => f
+        case _ => Proc.defaultFilter
+      }
+      val hasErrLA: B = errLineActionOpt.nonEmpty
+      val errLA: String => B @pure = errLineActionOpt match {
+        case Some(f) => f
+        case _ => Proc.defaultFilter
+      }
+      val r = Ext.proc(cmds, wd, envMap, shouldAddEnv, in, isErrAsOut, shouldOutputConsole,
+        isErrBuffered, shouldPrintEnv, shouldPrintCommands, timeoutInMillis,
+        shouldUseStandardLib, isScript, hasOutLA, outLA, hasErrLA, errLA)
+      return Proc.Result(r._1, r._2, r._3, r._4)
     }
 
     def runCheck(): Proc.Result = {
@@ -614,7 +630,7 @@ object Os {
     }
 
     def kind: Path.Kind.Type = {
-      return Ext.kind(value)
+      return Path.Kind.byOrdinal(Ext.kind(value)).get
     }
 
     def lastModified: Z = {
@@ -679,7 +695,7 @@ object Os {
     }
 
     def properties: Map[String, String] = {
-      return Ext.properties(value)
+      return Map.empty[String, String] ++ Ext.properties(value)
     }
 
     def readSymLink: Option[Path] = {
@@ -970,7 +986,7 @@ object Os {
 
     @pure def pathSepChar: C = $
 
-    @pure def osKind: Kind.Type = $
+    @pure def osKind: Z = $
 
     @pure def roots: ISZ[String] = $
 
@@ -986,9 +1002,9 @@ object Os {
 
     def download(path: String, url: String): B = $
 
-    def env(name: String): Option[String] = $
+    def env(name: String): String = $
 
-    def envs: Map[String, String] = $
+    def envs: ISZ[(String, String)] = $
 
     def exists(path: String): B = $
 
@@ -1012,7 +1028,7 @@ object Os {
 
     def isWritable(path: String): B = $
 
-    def kind(path: String): Path.Kind.Type = $
+    def kind(path: String): Z = $
 
     def lastModified(path: String): Z = $
 
@@ -1038,11 +1054,11 @@ object Os {
 
     @pure def norm(path: String): String = $
 
-    def prop(name: String): Option[String] = $
+    def prop(name: String): String = $
 
-    def props: Map[String, String] = $
+    def props: ISZ[(String, String)] = $
 
-    def properties(path: String): Map[String, String] = $
+    def properties(path: String): ISZ[(String, String)] = $
 
     def readSymLink(path: String): Option[String] = $
 
@@ -1126,7 +1142,23 @@ object Os {
 
     @pure def parent(path: String): String = $
 
-    def proc(e: Proc): Proc.Result = $
+    def proc(cmds: ISZ[String],
+             wd: String,
+             envMap: ISZ[(String, String)],
+             shouldAddEnv: B,
+             in: Option[String],
+             isErrAsOut: B,
+             shouldOutputConsole: B,
+             isErrBuffered: B,
+             shouldPrintEnv: B,
+             shouldPrintCommands: B,
+             timeoutInMillis: Z,
+             shouldUseStandardLib: B,
+             isScript: B,
+             hasOutLineAction: B,
+             outLineAction: String => B @pure,
+             hasErrLineAction: B,
+             errLineAction: String => B @pure): (Z, Z, String, String) = $
 
   }
 
