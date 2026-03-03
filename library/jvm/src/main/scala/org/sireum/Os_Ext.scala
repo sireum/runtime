@@ -115,6 +115,54 @@ object Os_Ext {
     case _ => None()
   }
 
+  lazy val p7zzWasmOpt: scala.Option[P7zzWasmServer] = Os.sireumHomeOpt match {
+    case Some(dir) =>
+      val wasmFile = dir / "lib" / "7zz_server.wasm"
+      if (WasmServer.hasJvmci && wasmFile.exists) {
+        val server = new P7zzWasmServer(JFiles.readAllBytes(toNIO(wasmFile.string)))
+        server.start()
+        scala.Some(server)
+      } else scala.None
+    case _ => scala.None
+  }
+
+  def p7zzWasmAvailable: Boolean = p7zzWasmOpt.isDefined
+
+  def p7zzArchive(workDir: String, archive: String, files: ISZ[String], recursive: B): (Z, Z, String, String) = {
+    val server = p7zzWasmOpt.get
+    val wd = JPaths.get(workDir.value).toAbsolutePath
+    val args = new scala.collection.mutable.ArrayBuffer[Predef.String]()
+    args += "7zz"
+    args += "a"
+    if (recursive) args += "-r"
+    args += JPaths.get(archive.value).toAbsolutePath.toString
+    for (f <- files.elements) args += f.value
+    val (exitCode, stdout, stderr) = server.run(wd, args.toSeq)
+    (Z(exitCode), Z(0), String(stdout), String(stderr))
+  }
+
+  def p7zzExtract(targetDir: String, archive: String): (Z, Z, String, String) = {
+    val server = p7zzWasmOpt.get
+    val archiveAbsolute = JPaths.get(archive.value).toAbsolutePath.toString
+    val targetAbsolute = JPaths.get(targetDir.value).toAbsolutePath.toString
+    val args = scala.Seq("7zz", "x", "-y", s"-o$targetAbsolute", archiveAbsolute)
+    val wd = JPaths.get(targetDir.value).toAbsolutePath
+    val (exitCode, stdout, stderr) = server.run(wd, args)
+    (Z(exitCode), Z(0), String(stdout), String(stderr))
+  }
+
+  def p7zzDelete(workDir: String, archive: String, entries: ISZ[String]): (Z, Z, String, String) = {
+    val server = p7zzWasmOpt.get
+    val wd = JPaths.get(workDir.value).toAbsolutePath
+    val args = new scala.collection.mutable.ArrayBuffer[Predef.String]()
+    args += "7zz"
+    args += "d"
+    args += JPaths.get(archive.value).toAbsolutePath.toString
+    for (e <- entries.elements) args += e.value
+    val (exitCode, stdout, stderr) = server.run(wd, args.toSeq)
+    (Z(exitCode), Z(0), String(stdout), String(stderr))
+  }
+
   private lazy val permissions: Array[PosixFilePermission] = Array(
     PosixFilePermission.OTHERS_EXECUTE,
     PosixFilePermission.OTHERS_WRITE,
@@ -799,6 +847,15 @@ object Os_Ext {
   }
 
   def zip(path: String, target: String): Unit = {
+    p7zzWasmOpt match {
+      case scala.Some(_) =>
+        val (exitCode, _, _, _) = p7zzArchive(path, target, ISZ[String](String(".")), T)
+        if (exitCode != Z(0)) {
+          halt(s"7zz WASM archive failed with exit code $exitCode")
+        }
+        return
+      case _ =>
+    }
     p7zzOpt match {
       case Some(p) =>
         Os.proc(
@@ -829,6 +886,16 @@ object Os_Ext {
   }
 
   def unzip(path: String, target: String): Unit = {
+    p7zzWasmOpt match {
+      case scala.Some(_) =>
+        mkdir(target, T)
+        val (exitCode, _, _, _) = p7zzExtract(target, path)
+        if (exitCode != Z(0)) {
+          halt(s"7zz WASM extract failed with exit code $exitCode")
+        }
+        return
+      case _ =>
+    }
     p7zzOpt match {
       case Some(p) =>
         val t = Os.path(target)

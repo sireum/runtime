@@ -571,6 +571,21 @@ import Init._
     if (gen1 != gen2) {
       installCVCGen(gen2, genVersion2)
     }
+
+    val cvc5WasmFile = homeLib / "cvc5_server.wasm"
+    val cvc5WasmVer = homeLib / ".cvc5_server.wasm.ver"
+    if (!(cvc5WasmVer.exists && cvc5WasmVer.read == genVersion1)) {
+      val dropname = s"cvc5-server-$genVersion1.wasm"
+      val drop = cache / dropname
+      if (!drop.exists) {
+        println("Downloading cvc5 WASM server ...")
+        drop.up.mkdirAll()
+        drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/cvc5/$dropname")
+        println()
+      }
+      drop.copyOverTo(cvc5WasmFile)
+      cvc5WasmVer.writeOver(genVersion1)
+    }
   }
 
   def installMaryTTS(): Unit = {
@@ -608,9 +623,20 @@ import Init._
       ansiPatch.unzipTo(mill.up)
       ansiPatch.removeAll()
       if (kind == Os.Kind.Win) {
-        val p7zz = install7zz()
-        proc"$p7zz d mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
-        proc"$p7zz a mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+        if (Os.Ext.p7zzWasmAvailable) {
+          val (ec1, _, _, _) = Os.Ext.p7zzDelete(mill.up.string, "mill.jar", ISZ("io/github/alexarchambault/windowsansi/WindowsAnsi.class"))
+          if (ec1 != 0) {
+            halt(s"7zz WASM delete failed with exit code $ec1")
+          }
+          val (ec2, _, _, _) = Os.Ext.p7zzArchive(mill.up.string, "mill.jar", ISZ("io/github/alexarchambault/windowsansi/WindowsAnsi.class"), F)
+          if (ec2 != 0) {
+            halt(s"7zz WASM archive failed with exit code $ec2")
+          }
+        } else {
+          val p7zz = install7zz()
+          proc"$p7zz d mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+          proc"$p7zz a mill.jar io/github/alexarchambault/windowsansi/WindowsAnsi.class".at(mill.up).runCheck()
+        }
       }
       val content = mill.readU8s
       val size = content.size
@@ -921,6 +947,23 @@ import Init._
     p7zzVer.writeOver(ver)
     check7zz(T)
     return p7zz
+  }
+
+  def install7zzWasm(): Unit = {
+    val p7zipVersion = versions.get("org.sireum.version.7zip").get
+    val wasmFile = homeLib / "7zz_server.wasm"
+    val wasmVer = homeLib / ".7zz_server.wasm.ver"
+    if (wasmVer.exists && wasmVer.read == p7zipVersion) {
+      return
+    }
+    val drop = cache / s"7zz-server-$p7zipVersion.wasm"
+    if (!drop.exists) {
+      println("Downloading 7zz WASM server ...")
+      drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/misc/${drop.name}")
+      println()
+    }
+    drop.copyOverTo(wasmFile)
+    wasmVer.writeOver(p7zipVersion)
   }
 
   def installVSCodium(vscode: B, existingInstallOpt: Option[Os.Path], extensionsDirOpt: Option[Os.Path], extensions: ISZ[String]): Unit = {
@@ -2131,8 +2174,15 @@ import Init._
       }
       if (Os.isWin) {
         val pkg = s"$plat.7z"
-        val p7zz = install7zz()
-        Os.proc(ISZ[String](p7zz.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
+        if (Os.Ext.p7zzWasmAvailable) {
+          val (exitCode, _, _, _) = Os.Ext.p7zzArchive(distroDir.up.string, pkg, files, F)
+          if (exitCode != 0) {
+            halt(s"7zz WASM archive failed with exit code $exitCode")
+          }
+        } else {
+          val p7zz = install7zz()
+          Os.proc(ISZ[String](p7zz.string, "a", pkg) ++ files).at(distroDir.up).runCheck()
+        }
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
@@ -2225,8 +2275,15 @@ import Init._
         cache.removeAll()
       }
       if (Os.isWin) {
-        val p7zz = install7zz()
-        Os.proc(ISZ[String](p7zz.string, "a", rname) ++ files).at(home.up.canon).runCheck()
+        if (Os.Ext.p7zzWasmAvailable) {
+          val (exitCode, _, _, _) = Os.Ext.p7zzArchive(home.up.canon.string, rname, files, F)
+          if (exitCode != 0) {
+            halt(s"7zz WASM archive failed with exit code $exitCode")
+          }
+        } else {
+          val p7zz = install7zz()
+          Os.proc(ISZ[String](p7zz.string, "a", rname) ++ files).at(home.up.canon).runCheck()
+        }
       } else {
         if (kind == Os.Kind.Linux || kind == Os.Kind.LinuxArm) {
           binfmt.removeAll()
@@ -2303,6 +2360,7 @@ import Init._
       }
     }
     install7zz()
+    install7zzWasm()
   }
 
   def proyekCompileDeps(): Unit = {

@@ -1140,6 +1140,14 @@ object Os {
 
     def unTarGz(path: String, target: String): Unit = $
 
+    def p7zzWasmAvailable: B = $
+
+    def p7zzArchive(workDir: String, archive: String, files: ISZ[String], recursive: B): (Z, Z, String, String) = $
+
+    def p7zzExtract(targetDir: String, archive: String): (Z, Z, String, String) = $
+
+    def p7zzDelete(workDir: String, archive: String, entries: ISZ[String]): (Z, Z, String, String) = $
+
     @pure def parent(path: String): String = $
 
     def proc(cmds: ISZ[String],
