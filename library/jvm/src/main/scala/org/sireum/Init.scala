@@ -971,8 +971,9 @@ import Init._
       ops.StringOps(s"${homeBin.up.canon}${Os.fileSep}").startsWith(Os.home.string)
     val vscodiumVersion = versions.get("org.sireum.version.vscodium").get
     val sireumExtVersion = versions.get("org.sireum.version.vscodium.extension").get
-    val sysIdeVersion: String = if (Os.isLinuxArm || Os.isWinArm) "0.9.1" else Os.env("SYSIDE_V").getOrElse(versions.get("org.sireum.version.vscodium.extension.syside").get)
-    val es: ISZ[String] = if (sysIdeVersion == "0.9.1") extensions :+ s"Sensmetry.sysml-2ls@$sysIdeVersion" else extensions :+ s"sensmetry.syside-editor@$sysIdeVersion"
+    val sysIdeVersion: String = Os.env("SYSIDE_V").getOrElse(versions.get("org.sireum.version.vscodium.extension.syside").get)
+    val sysIdeExtUrl = s"https://github.com/sireum/sysml-v2/releases/download/$sysIdeVersion/sireum-sysml-v2.vsix"
+    val sysIdeExtDrop = s"sireum-sysml-v2-$sysIdeVersion.vsix"
     val urlPrefix = s"https://github.com/VSCodium/vscodium/releases/download/$vscodiumVersion"
     val sireumExtUrl = s"https://github.com/sireum/vscode-extension/releases/download/$sireumExtVersion/sireum-vscode-extension.vsix"
     val sireumExtDrop = s"sireum-vscode-extension-$sireumExtVersion.vsix"
@@ -1264,12 +1265,18 @@ import Init._
         drop.downloadFrom(sireumExtUrl)
         println()
       }
+      val sysIdeDrop = cache / sysIdeExtDrop
+      if (!sysIdeDrop.exists) {
+        println("Downloading Sireum SysML v2 Extension ...")
+        sysIdeDrop.downloadFrom(sysIdeExtUrl)
+        println()
+      }
       val vscodePrefix: String = "vscode:"
       val envs = ISZ[(String, String)](
         "VSCODE_GALLERY_SERVICE_URL" ~> "https://marketplace.visualstudio.com/_apis/public/gallery",
         "VSCODE_GALLERY_CACHE_URL" ~> "https://vscode.blob.core.windows.net/gallery/index",
         "VSCODE_GALLERY_ITEM_URL" ~> "https://marketplace.visualstudio.com/items")
-      for (ext <- es) {
+      for (ext <- extensions) {
         var extension = ext
         var addEnv = vscode
         if (ops.StringOps(extension).startsWith(vscodePrefix)) {
@@ -1285,16 +1292,12 @@ import Init._
       }
       proc"$codium --force$extDirArg --install-extension $drop".env(envs).console.runCheck()
       println()
-      val sysidePrefix = conversions.String.toCis("sensmetry.sysml-")
+      proc"$codium --force$extDirArg --install-extension $sysIdeDrop".env(envs).console.runCheck()
+      println()
       val metalsPrefix = conversions.String.toCis("scalameta.metals-")
-      val sysideEditorPrefix = conversions.String.toCis("sensmetry.syside-editor-")
       for (p <- extensionsDir.list) {
         val cis = conversions.String.toCis(p.name)
-        if (ops.StringOps.startsWith(cis, sysidePrefix)) {
-          patchSysIde(p)
-        } else if (ops.StringOps.startsWith(cis, sysideEditorPrefix)) {
-          patchSysIdeEditor(p)
-        } else if (ops.StringOps.startsWith(cis, metalsPrefix)) {
+        if (ops.StringOps.startsWith(cis, metalsPrefix)) {
           patchMetals(p)
         }
       }
