@@ -73,8 +73,8 @@ object Os_Ext {
   lazy val downloadCommands: ISZ[ISZ[String]] = {
     var r = ISZ[ISZ[String]]()
     if (proc"curl --version".run().ok) {
-      r = r :+ ISZ("curl", "-c", "/dev/null", "-JLso")
-      r = r :+ ISZ("curl", "-c", "/dev/null", "-JLkso")
+      r = r :+ ISZ("curl", "-c", "/dev/null", "--connect-timeout", "30", "--max-time", "600", "-JLso")
+      r = r :+ ISZ("curl", "-c", "/dev/null", "--connect-timeout", "30", "--max-time", "600", "-JLkso")
     }
     if (proc"wget --version".run().ok) {
       r = r :+ ISZ("wget", "-qO")
@@ -245,6 +245,8 @@ object Os_Ext {
 
       def fetch(loc: Predef.String): java.net.HttpURLConnection = {
         val c = new java.net.URI(loc).toURL.openConnection().asInstanceOf[java.net.HttpURLConnection]
+        c.setConnectTimeout(30000)
+        c.setReadTimeout(600000)
         c.setInstanceFollowRedirects(false)
         c.setUseCaches(false)
         val responseCode = c.getResponseCode
