@@ -125,6 +125,22 @@ import Init._
     return homeLib / "marytts_text2wav.jar"
   }
 
+  @memoize def sysmlV2LspJar: Os.Path = {
+    return homeLib / "sysml-lsp-server.jar"
+  }
+
+  @memoize def sysmlV2LspVersion: String = {
+    return versions.get("org.sireum.version.sysml-v2-lsp").get
+  }
+
+  @memoize def tesseractWasmVersion: String = {
+    return versions.get("org.sireum.version.tesseract").get
+  }
+
+  @memoize def tesseractWasm: Os.Path = {
+    return homeLib / "tesseract_server.wasm"
+  }
+
   @memoize def checkstack: Os.Path = {
     return homeBinPlatform / ".checkstack"
   }
@@ -599,6 +615,38 @@ import Init._
       cacheJar.copyOverTo(maryTtsJar)
       println()
     }
+  }
+
+  def installSysMLv2Lsp(): Unit = {
+    val ver = homeLib / ".sysml-lsp-server.jar.ver"
+    if (ver.exists && ver.read == sysmlV2LspVersion) {
+      return
+    }
+    val drop = cache / s"sysml-lsp-server-$sysmlV2LspVersion.jar"
+    if (!drop.exists) {
+      println(s"Please wait while downloading SysML v2 LSP server $sysmlV2LspVersion ...")
+      drop.up.mkdirAll()
+      drop.downloadFrom(s"https://github.com/sireum/sysml-v2-lsp/releases/download/$sysmlV2LspVersion/sysml-lsp-server.jar")
+      println()
+    }
+    drop.copyOverTo(sysmlV2LspJar)
+    ver.writeOver(sysmlV2LspVersion)
+  }
+
+  def installTesseractWasm(): Unit = {
+    val ver = homeLib / ".tesseract_server.wasm.ver"
+    if (ver.exists && ver.read == tesseractWasmVersion) {
+      return
+    }
+    val drop = cache / s"tesseract-server-$tesseractWasmVersion.wasm"
+    if (!drop.exists) {
+      println(s"Please wait while downloading Tesseract WASM server $tesseractWasmVersion ...")
+      drop.up.mkdirAll()
+      drop.downloadFrom(s"https://github.com/sireum/rolling/releases/download/misc/${drop.name}")
+      println()
+    }
+    drop.copyOverTo(tesseractWasm)
+    ver.writeOver(tesseractWasmVersion)
   }
 
   def installCheckStack(): Unit = {
@@ -2363,7 +2411,7 @@ import Init._
       }
     }
     install7zz()
-    install7zzWasm()
+    //install7zzWasm()
   }
 
   def proyekCompileDeps(): Unit = {
