@@ -35,6 +35,11 @@ import java.util.concurrent.locks.ReentrantLock
  */
 object WasmServer {
 
+  // Uber JARs (e.g., sireum.jar) strip Multi-Release manifest attributes;
+  // disable Truffle's check so Polyglot can initialize from repackaged JARs.
+  // Must be set before any Truffle/Polyglot class is loaded.
+  System.setProperty("polyglotimpl.DisableMultiReleaseCheck", "true")
+
   /** Type alias for the GraalVM Context.Builder to avoid Scala 2 inner-class path issues. */
   type ContextBuilder = org.graalvm.polyglot.Context#Builder
 
@@ -62,7 +67,10 @@ object WasmServer {
    * Lazily initialised so that processes that do not use WASM do not pay the
    * engine start-up cost.
    */
-  private[sireum] lazy val engine: org.graalvm.polyglot.Engine = org.graalvm.polyglot.Engine.create()
+  private[sireum] lazy val engine: org.graalvm.polyglot.Engine =
+    org.graalvm.polyglot.Engine.newBuilder()
+      .option("engine.WarnInterpreterOnly", "false")
+      .build()
 
   /**
    * Ring buffer with ReentrantLock + Condition, replacing Java's PipedInputStream
@@ -213,6 +221,11 @@ class WasmServer(
 ) {
   import WasmServer._
 
+  // Must be set before any Polyglot class is loaded (source val below triggers loading).
+  // The companion-object copy may not have run yet because object init is deferred
+  // until the object is first accessed, which only happens in start() via `engine`.
+  System.setProperty("polyglotimpl.DisableMultiReleaseCheck", "true")
+
   /** Cached GraalVM Source object built from [[wasmBytes]] and [[moduleName]]. */
   private val source: org.graalvm.polyglot.Source =
     org.graalvm.polyglot.Source.newBuilder(
@@ -250,7 +263,6 @@ class WasmServer(
         val baseBuilder: ContextBuilder = org.graalvm.polyglot.Context.newBuilder("wasm")
           .engine(engine)
           .option("wasm.Builtins", "wasi_snapshot_preview1")
-          .option("engine.WarnInterpreterOnly", "false")
           .arguments("wasm", args)
           .in(stdinPipe.inputStream)
           .out(stdoutPipe.outputStream)
