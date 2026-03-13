@@ -2442,7 +2442,17 @@ object Json {
     return printValue(v)
   }
 
+  @pure def stringify[@mut T](o: T): String = {
+    return Fun.stringify[T](o)
+  }
+  @pure def parse[@mut T](s: String): T = {
+    return Fun.parse[T](s)
+  }
+
   @ext("JsonFun_Ext") object Fun {
+    @pure def stringify[@mut T](o: T): String = $
+    @pure def parse[@mut T](s: String): T = $
+
     def printPure0[R](f: () => R @pure): String = $
     def parsePure0[R](parser: Parser, f: String): () => R @pure = $
 

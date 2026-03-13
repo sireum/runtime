@@ -29,6 +29,8 @@ import _root_.java.io._
 import _root_.java.util.Base64
 
 object JsonFun_Ext {
+  @pure def stringify[T](o: T): String = halt("Unsupported operation")
+  @pure def parse[T](s: String): T = halt("Unsupported operation")
 
   def printObj[T](o: T): Array[Byte] = {
     val baos = new ByteArrayOutputStream()
