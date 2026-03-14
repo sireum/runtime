@@ -301,7 +301,7 @@ class WasmServer(
       }
     })
     thread.setDaemon(true)
-    thread.setName(s"wasm-$moduleName-${thread.getId}")
+    thread.setName(s"wasm-$moduleName-${thread.threadId}")
     thread.start()
 
     // Wait up to 10 s for the WASM module to initialise (alive set before context.eval).
