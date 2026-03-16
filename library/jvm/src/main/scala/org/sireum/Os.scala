@@ -712,7 +712,7 @@ object Os {
     }
 
     def readLines: ISZ[String] = {
-      return Ext.readLineStream(value).toISZ
+      return Ext.readLines(value)
     }
 
     def readLineStream: Jen[String] = {
@@ -1065,6 +1065,8 @@ object Os {
     @pure def relativize(path: String, other: String): String = $
 
     def read(path: String): String = $
+
+    def readLines(path: String): ISZ[String] = $
 
     def readU8s(path: String): ISZ[U8] = $
 
