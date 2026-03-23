@@ -1734,7 +1734,9 @@ import Init._
       "javaee-jakarta-data",
       "spring-boot-initializr",
       "javaee-extensions",
-      "keymap-netbeans"
+      "keymap-netbeans",
+      "fullLine",
+      "javascript-plugin"
     )
     val ignoredIcons = HashSet ++ ISZ[String](
       "idea.icns",
@@ -2237,7 +2239,7 @@ import Init._
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       } else {
         val pkg = s"$plat.tar.xz"
-        Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).at(distroDir.up).runCheck()
+        Os.proc(ISZ[String]("tar", "-c", "-J", "-f", pkg) ++ files).env(ISZ("XZ_OPT" ~> "-9e")).at(distroDir.up).runCheck()
         (distroDir.up / pkg).moveOverTo(setupDir.up / pkg)
       }
       if (tmp.exists) {
