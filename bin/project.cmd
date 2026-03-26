@@ -83,7 +83,10 @@ val (libraryShared, libraryJvm) = moduleSharedJvmPub(
     "org.graalvm.compiler:compiler:",
     "org.graalvm.polyglot:polyglot:",
     "org.graalvm.wasm:wasm-language:",
-    "org.graalvm.truffle:truffle-runtime:"
+    "org.graalvm.truffle:truffle-runtime:",
+    "com.dylibso.chicory:runtime:",
+    "com.dylibso.chicory:wasi:",
+    "com.dylibso.chicory:compiler:"
   ),
   pubOpt = pub(
     desc = "Slang Runtime Library",
