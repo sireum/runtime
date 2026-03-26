@@ -26,630 +26,613 @@
 package org.sireum
 
 
-@ext object B {
+type @sig @ext B {
 
-  def random: B = $
+  def @pure hash: Z
 
-  def randomSeed(seed: Z): B = $
+  def @pure string: String
 
-}
+  def @pure &(other: B): B
 
-@ext trait B {
+  def @pure |(other: B): B
 
-  @pure def hash: Z
+  def @pure |^(other: B): B
 
-  @pure def string: String
+  def @pure `__>:`(other: B): B
 
-  @pure def &(other: B): B
+  def @pure ->:(other: B): B
 
-  @pure def |(other: B): B
+  def @pure =!=(other: B): B
 
-  @pure def |^(other: B): B
+  def @pure ===(other: B): B
 
-  @pure def __>:(other: B): B
+  def @pure &&(other: => B): B
 
-  @pure def ->:(other: B): B
+  def @pure ||(other: => B): B
 
-  @pure def =!=(other: B): B
+  def @pure `___>:`(other: => B): B
 
-  @pure def ===(other: B): B
+  def @pure -->:(other: => B): B
 
-  @pure def &&(other: => B): B
+  def @pure =>:(other: B): B
 
-  @pure def ||(other: => B): B
+  def @pure unary_! : B
 
-  @pure def ___>:(other: => B): B
-
-  @pure def -->:(other: => B): B
-
-  @pure def =>:(other: B): B
-
-  @pure def unary_! : B
-
-  @pure def unary_~ : B
+  def @pure unary_~ : B
 
 }
 
 
-@ext object C {
+type @sig @ext C {
 
-  def fromZ(n: Z): C = $
+  def @pure hash: Z
 
-  def random: C = $
+  def @pure string: String
 
-  def randomSeed(seed: Z): Z = $
+  def @pure `<`(other: C): B
 
-  def randomBetween(min: C, max: C): C = $
+  def @pure <=(other: C): B
 
-  def randomSeedBetween(seed: Z, min: C, max: C): C = $
+  def @pure `>`(other: C): B
 
-}
+  def @pure >=(other: C): B
 
-@ext trait C {
+  def @pure ===(other: C): B
 
-  @pure def hash: Z
+  def @pure =!=(other: C): B
 
-  @pure def string: String
+  def @pure >>>(other: C): C
 
-  @pure def <(other: C): B
+  def @pure <<(other: C): C
 
-  @pure def <=(other: C): B
+  def @pure &(other: C): C
 
-  @pure def >(other: C): B
+  def @pure |(other: C): C
 
-  @pure def >=(other: C): B
+  def @pure |^(other: C): C
 
-  @pure def ===(other: C): B
+  def @pure isWhitespace: B
 
-  @pure def =!=(other: C): B
-
-  @pure def >>>(other: C): C
-
-  @pure def <<(other: C): C
-
-  @pure def &(other: C): C
-
-  @pure def |(other: C): C
-
-  @pure def |^(other: C): C
-
-  @pure def isWhitespace: B
-
-  @pure def toZ: Z
+  def @pure toZ: Z
 }
 
 
-@ext object Z {
+type @sig @ext Z {
 
-  def random: Z = $
+  def @pure hash: Z
 
-  def randomSeed(seed: Z): Z = $
+  def @pure string: String
 
-  def randomBetween(min: Z, max: Z): Z = $
+  def @pure `<`(other: Z): B
 
-  def randomSeedBetween(seed: Z, min: Z, max: Z): Z = $
+  def @pure <=(other: Z): B
 
-  def read(): Z = $
+  def @pure `>`(other: Z): B
 
-  def prompt(msg: String): Z = $
+  def @pure >=(other: Z): B
 
-}
+  def @pure ===(other: Z): B
 
-@ext trait Z {
+  def @pure =!=(other: Z): B
 
-  @pure def hash: Z
+  def @pure +(other: Z): Z
 
-  @pure def string: String
+  def @pure -(other: Z): Z
 
-  @pure def <(other: Z): B
+  def @pure `*`(other: Z): Z
 
-  @pure def <=(other: Z): B
+  def @pure /(other: Z): Z
 
-  @pure def >(other: Z): B
+  def @pure %(other: Z): Z
 
-  @pure def >=(other: Z): B
+  def @pure unary_- : Z
 
-  @pure def ===(other: Z): B
+  def @pure increase: Z
 
-  @pure def =!=(other: Z): B
-
-  @pure def +(other: Z): Z
-
-  @pure def -(other: Z): Z
-
-  @pure def *(other: Z): Z
-
-  @pure def /(other: Z): Z
-
-  @pure def %(other: Z): Z
-
-  @pure def unary_- : Z
-
-  @pure def increase: Z
-
-  @pure def decrease: Z
+  def @pure decrease: Z
 
 }
 
 
-@ext object F32 {
+type @sig @ext F32 {
 
-  val PInf: F32 = $
+  def @pure hash: Z
 
-  val NInf: F32 = $
+  def @pure string: String
 
-  val NaN: F32 = $
+  def @pure `<`(other: F32): B
 
-  def MaxValue: F32 = Contract.Only(Ensures(Res == f32"3.4028235E38"))
+  def @pure <=(other: F32): B
 
-  def MinValue: F32 = Contract.Only(Ensures(Res == f32"-3.4028235E38"))
+  def @pure `>`(other: F32): B
 
-  def random: F32 = $
+  def @pure >=(other: F32): B
 
-  def randomSeed(seed: Z): F32 = $
+  def @pure +(other: F32): F32
 
-  def randomBetween(min: F32, max: F32): F32 = $
+  def @pure -(other: F32): F32
 
-  def randomSeedBetween(seed: Z, min: F32, max: F32): F32 = $
+  def @pure `*`(other: F32): F32
 
-}
+  def @pure /(other: F32): F32
 
-@ext trait F32 {
+  def @pure %(other: F32): F32
 
-  @pure def hash: Z
+  def @pure unary_- : F32
 
-  @pure def string: String
+  def @pure isNaN: B
 
-  @pure def <(other: F32): B
+  def @pure isInfinite: B
 
-  @pure def <=(other: F32): B
+  def @pure ~~(other: F32): B
 
-  @pure def >(other: F32): B
-
-  @pure def >=(other: F32): B
-
-  @pure def +(other: F32): F32
-
-  @pure def -(other: F32): F32
-
-  @pure def *(other: F32): F32
-
-  @pure def /(other: F32): F32
-
-  @pure def %(other: F32): F32
-
-  @pure def unary_- : F32
-
-  @pure def isNaN: B
-
-  @pure def isInfinite: B
-
-  @pure def ~~(other: F32): B
-
-  @pure def !~(other: F32): B
+  def @pure !~(other: F32): B
 
 }
 
 
-@ext object F64 {
+type @sig @ext F64 {
 
-  val PInf: F64 = $
+  def @pure hash: Z
 
-  val NInf: F64 = $
+  def @pure string: String
 
-  val NaN: F64 = $
+  def @pure `<`(other: F64): B
 
-  def MaxValue: F64 = Contract.Only(Ensures(Res == 1.7976931348623157E308d))
+  def @pure <=(other: F64): B
 
-  def MinValue: F64 = Contract.Only(Ensures(Res == -1.7976931348623157E308d))
+  def @pure `>`(other: F64): B
 
-  def random: F64 = $
+  def @pure >=(other: F64): B
 
-  def randomSeed(seed: Z): F64 = $
+  def @pure +(other: F64): F64
 
-  def randomBetween(min: F64, max: F64): F64 = $
+  def @pure -(other: F64): F64
 
-  def randomSeedBetween(seed: Z, min: F64, max: F64): F64 = $
+  def @pure `*`(other: F64): F64
 
-}
+  def @pure /(other: F64): F64
 
-@ext trait F64 {
+  def @pure %(other: F64): F64
 
-  @pure def hash: Z
+  def @pure unary_- : F64
 
-  @pure def string: String
+  def @pure isNaN: B
 
-  @pure def <(other: F64): B
+  def @pure isInfinite: B
 
-  @pure def <=(other: F64): B
+  def @pure ~~(other: F64): B
 
-  @pure def >(other: F64): B
-
-  @pure def >=(other: F64): B
-
-  @pure def +(other: F64): F64
-
-  @pure def -(other: F64): F64
-
-  @pure def *(other: F64): F64
-
-  @pure def /(other: F64): F64
-
-  @pure def %(other: F64): F64
-
-  @pure def unary_- : F64
-
-  @pure def isNaN: B
-
-  @pure def isInfinite: B
-
-  @pure def ~~(other: F64): B
-
-  @pure def !~(other: F64): B
+  def @pure !~(other: F64): B
 }
 
 
-@ext object R {
+type @sig @ext R {
 
-  def random: R = $
+  def @pure hash: Z
 
-  def randomSeed(seed: Z): R = $
+  def @pure string: String
 
-  def randomBetween(min: R, max: R): R = $
+  def @pure `<`(other: R): B
 
-  def randomSeedBetween(seed: Z, min: R, max: R): R = $
+  def @pure <=(other: R): B
 
-}
+  def @pure `>`(other: R): B
 
-@ext trait R {
+  def @pure >=(other: R): B
 
-  @pure def hash: Z
+  def @pure ===(other: R): B
 
-  @pure def string: String
+  def @pure =!=(other: R): B
 
-  @pure def <(other: R): B
+  def @pure +(other: R): R
 
-  @pure def <=(other: R): B
+  def @pure -(other: R): R
 
-  @pure def >(other: R): B
+  def @pure `*`(other: R): R
 
-  @pure def >=(other: R): B
+  def @pure /(other: R): R
 
-  @pure def ===(other: R): B
-
-  @pure def =!=(other: R): B
-
-  @pure def +(other: R): R
-
-  @pure def -(other: R): R
-
-  @pure def *(other: R): R
-
-  @pure def /(other: R): R
-
-  @pure def unary_- : R
+  def @pure unary_- : R
 
 }
 
-@ext object String {
+type @sig @ext String {
 
-  def random: String = $
+  def @pure ===(other: String): B
 
-}
+  def @pure =!=(other: String): B
 
-@ext trait String {
+  def @pure `<`(other: String): B
 
-  @pure def ===(other: String): B
+  def @pure <=(other: String): B
 
-  @pure def =!=(other: String): B
+  def @pure `>`(other: String): B
 
-  @pure def <(other: String): B
+  def @pure >=(other: String): B
 
-  @pure def <=(other: String): B
+  def @pure hash: Z
 
-  @pure def >(other: String): B
+  def @pure string: String
 
-  @pure def >=(other: String): B
+  def @pure size: Z
 
-  @pure def hash: Z
-
-  @pure def string: String
-
-  @pure def size: Z
-
-  @pure def stripMargin: String
+  def @pure stripMargin: String
 
 }
 
 
-@ext trait ST {
+type @sig @ext ST {
 
-  @pure def hash: Z
+  def @pure hash: Z
 
-  @pure def string: String
+  def @pure string: String
 
-  @pure def render: String
+  def @pure render: String
 
-  @pure def renderCompact: String
-
-}
-
-
-@ext object IS {
-
-  @pure def create[@index I, E](size: Z, default: E): IS[I, E] =
-    Contract.Only(
-      Requires(seqIndexValidSize[I](size)),
-      Ensures(
-        Res.size == size,
-        ∀(Res.indices)(i => Res(i) == default)
-      )
-    )
+  def @pure renderCompact: String
 
 }
 
-@ext trait IS[@index I, @imm E] {
 
-  @pure def hash: Z
+type @sig @ext IS[@index I, @imm E] {
 
-  @pure def string: String
+  def @pure hash: Z
 
-  @pure def isEmpty: B = Contract.Only(Ensures(Res == (this.size == 0)))
+  def @pure string: String
 
-  @pure def nonEmpty: B = Contract.Only(Ensures(Res == (this.size != 0)))
+  def @pure isEmpty: B @[
+    ensures Res == (this.size == 0)
+  ]
 
-  @pure def isInBound(i: I): B
+  def @pure nonEmpty: B @[
+    ensures Res == (this.size != 0)
+  ]
 
-  @pure def :+(e: E): IS[I, E]
+  def @pure isInBound(i: I): B
 
-  @pure def +:(e: E): IS[I, E]
+  def @pure :+(e: E): IS[I, E]
 
-  @pure def ++[@index I2](other: IS[I2, E]): IS[I, E]
+  def @pure +:(e: E): IS[I, E]
 
-  @pure def --[@index I2](other: IS[I2, E]): IS[I, E]
+  def @pure ++[@index I2](other: IS[I2, E]): IS[I, E]
 
-  @pure def -(e: E): IS[I, E]
+  def @pure --[@index I2](other: IS[I2, E]): IS[I, E]
 
-  @pure def map[E2](f: E => E2 @pure): IS[I, E2]
+  def @pure -(e: E): IS[I, E]
 
-  @pure def flatMap[E2](f: E => IS[I, E2] @pure): IS[I, E2]
+  def @pure map[@imm E2](f: E => @pure E2): IS[I, E2]
 
-  @pure def filter(p: E => B @pure): IS[I, E]
+  def @pure flatMap[@imm E2](f: E => @pure IS[I, E2]): IS[I, E2]
 
-  def foreach[V](p: E => V): Unit
+  def @pure filter(p: E => @pure B): IS[I, E]
 
-  @pure def size: Z
+  def foreach[V](p: E => V)
 
-  @pure def sizeS32: S32
+  def @pure size: Z
 
-  @pure def sizeU32: U32
+  def @pure sizeS32: S32
 
-  @pure def sizeS64: S64
+  def @pure sizeU32: U32
 
-  @pure def sizeU64: U64
+  def @pure sizeS64: S64
 
-  @pure def firstIndex: I
+  def @pure sizeU64: U64
 
-  @pure def lastIndex: I
+  def @pure firstIndex: I
 
-  @pure def indices: ISZ[I]
+  def @pure lastIndex: I
 
-  @pure def atZ(index: Z): E
+  def @pure indices: ISZ[I]
 
-  @pure def atS32(index: S32): E
+  def @pure atZ(index: Z): E
 
-  @pure def atU32(index: U32): E
+  def @pure atS32(index: S32): E
 
-  @pure def atS64(index: S64): E
+  def @pure atU32(index: U32): E
 
-  @pure def atU64(index: U64): E
+  def @pure atS64(index: S64): E
 
-  @pure def toMS: MS[I, E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(Res.indices)(i => Res(i) == this(i))
-      )
-    )
+  def @pure atU64(index: U64): E
 
-  @pure def toISZ: ISZ[E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
-      )
-    )
+  def @pure toMS: MS[I, E] @[
+    ensures Res.size == this.size, ∀ i: Res.indices => Res(i) == this(i)
+  ]
 
-  @pure def toMSZ: MSZ[E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
-      )
-    )
+  def @pure toISZ: ISZ[E] @[
+    ensures Res.size == this.size, ∀ e: this => ∃ i: Res.indices => Res(i) == e
+  ]
+
+  def @pure toMSZ: MSZ[E] @[
+    ensures Res.size == this.size, ∀ e: this => ∃ i: Res.indices => Res(i) == e
+  ]
 }
 
-@ext object ISZ {
 
-  @pure def create[E](size: Z, default: E): ISZ[E] =
-    Contract.Only(
-      Requires(0 <= size),
-      Ensures(
-        Res.size == size,
-        ∀(Res.indices)(i => Res(i) == default)
-      )
-    )
+type @msig @ext MS[@index I, @mut E] {
 
+  def @pure hash: Z
+
+  def @pure string: String
+
+  def @pure isEmpty: B @[
+    ensures Res == (this.size == 0)
+  ]
+
+  def @pure nonEmpty: B @[
+    ensures Res == (this.size != 0)
+  ]
+
+  def @pure isInBound(i: I): B
+
+  def @pure :+(e: E): MS[I, E]
+
+  def @pure +:(e: E): MS[I, E]
+
+  def @pure ++[@index I2](other: MS[I2, E]): MS[I, E]
+
+  def @pure --[@index I2](other: MS[I2, E]): MS[I, E]
+
+  def @pure -(e: E): MS[I, E]
+
+  def @pure map[@mut E2](f: E => @pure E2): MS[I, E2]
+
+  def @pure flatMap[@mut E2](f: E => @pure MS[I, E2]): MS[I, E2]
+
+  def @pure filter(p: E => @pure B): MS[I, E]
+
+  def foreach[@mut V](p: E => V)
+
+  def @pure size: Z
+
+  def @pure sizeS32: S32
+
+  def @pure sizeU32: U32
+
+  def @pure sizeS64: S64
+
+  def @pure sizeU64: U64
+
+  def @pure firstIndex: I
+
+  def @pure lastIndex: I
+
+  def @pure indices: ISZ[I]
+
+  def @pure atZ(index: Z): E
+
+  def @pure atS32(index: S32): E
+
+  def @pure atU32(index: U32): E
+
+  def @pure atS64(index: S64): E
+
+  def @pure atU64(index: U64): E
+
+  def @pure updateZ(index: Z, e: E)
+
+  def @pure updateS32(index: S32, e: E)
+
+  def @pure updateU32(index: U32, e: E)
+
+  def @pure updateS64(index: S64, e: E)
+
+  def @pure updateU64(index: U64, e: E)
+
+  def @pure toIS[@imm E2]: IS[I, E2]
+
+  def @pure toISZ[@imm E2]: ISZ[E2]
+
+  def @pure toMSZ: MSZ[E] @[
+    ensures Res.size == this.size, ∀ e: this => ∃ i: Res.indices => Res(i) == e
+  ]
 }
 
-@ext object MS {
 
-  @pure def create[@index I, @mut E](size: Z, default: E): MS[I, E] =
-    Contract.Only(
-      Requires(seqIndexValidSize[I](size)),
-      Ensures(
-        Res.size == size,
-        ∀(Res.indices)(i => Res(i) == default)
-      )
-    )
+type @sig @ext StepId
 
+type @sig @ext RS {
+  def @pure +(other: RS): RS
+  def @pure -(other: RS): RS
 }
 
-@ext trait MS[@index I, @mut E] {
 
-  @pure def hash: Z
+package @ext B {
 
-  @pure def string: String
+  def random: B
 
-  @pure def isEmpty: B = Contract.Only(Ensures(Res == (this.size == 0)))
-
-  @pure def nonEmpty: B = Contract.Only(Ensures(Res == (this.size != 0)))
-
-  @pure def isInBound(i: I): B
-
-  @pure def :+(e: E): MS[I, E]
-
-  @pure def +:(e: E): MS[I, E]
-
-  @pure def ++[@index I2](other: MS[I2, E]): MS[I, E]
-
-  @pure def --[@index I2](other: MS[I2, E]): MS[I, E]
-
-  @pure def -(e: E): MS[I, E]
-
-  @pure def map[@mut E2](f: E => E2 @pure): MS[I, E2]
-
-  @pure def flatMap[@mut E2](f: E => MS[I, E2] @pure): MS[I, E2]
-
-  @pure def filter(p: E => B @pure): MS[I, E]
-
-  def foreach[@mut V](p: E => V): Unit
-
-  @pure def size: Z
-
-  @pure def sizeS32: S32
-
-  @pure def sizeU32: U32
-
-  @pure def sizeS64: S64
-
-  @pure def sizeU64: U64
-
-  @pure def firstIndex: I
-
-  @pure def lastIndex: I
-
-  @pure def indices: ISZ[I]
-
-  @pure def atZ(index: Z): E
-
-  @pure def atS32(index: S32): E
-
-  @pure def atU32(index: U32): E
-
-  @pure def atS64(index: S64): E
-
-  @pure def atU64(index: U64): E
-
-  @pure def updateZ(index: Z, e: E): Unit
-
-  @pure def updateS32(index: S32, e: E): Unit
-
-  @pure def updateU32(index: U32, e: E): Unit
-
-  @pure def updateS64(index: S64, e: E): Unit
-
-  @pure def updateU64(index: U64, e: E): Unit
-
-  @pure def toIS[@imm E2]: IS[I, E2]
-
-  @pure def toISZ[@imm E2]: ISZ[E2]
-
-  @pure def toMSZ: MSZ[E] =
-    Contract.Only(
-      Ensures(
-        Res.size == this.size,
-        ∀(this)(e => ∃(Res.indices)(i => Res(i) == e))
-      )
-    )
-}
-
-@ext object MSZ {
-
-  @pure def create[@mut E](size: Z, default: E): MSZ[E] =
-    Contract.Only(
-      Requires(0 <= size),
-      Ensures(
-        Res.size == size,
-        ∀(Res.indices)(i => Res(i) == default)
-      )
-    )
+  def randomSeed(seed: Z): B
 
 }
 
-@ext object ZS {
+package @ext C {
 
-  def random: ZS = $
+  def fromZ(n: Z): C
 
-  @pure def create(size: Z, default: Z): ZS =
-    Contract.Only(
-      Requires(0 <= size),
-      Ensures(
-        Res.size == size,
-        ∀(Res.indices)(i => Res(i) == default)
-      )
-    )
-}
+  def random: C
 
-@ext object Sireum {
+  def randomSeed(seed: Z): Z
 
-  def initRuntimeLibrary(): Unit = $
+  def randomBetween(min: C, max: C): C
 
-  def proc(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result = $
-
-  def procCheck(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result = $
-
-  def run(args: ISZ[String]): Z = $
-
-  def runWithInputAndReporter(args: ISZ[String], input: String, reporter: message.Reporter): (Z, String, String) = $
-
-  def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String) = $
-
-  def versions: Map[String, String] = $
-
-  def javaVer: String = $
-
-  def scalaVer: String = $
-
-  def scalacPluginVer: String = $
-
-  def version: String = $
-
-  def commitHash: String = $
-
-  def homePathString: String = $
-
-  def javaHomePathString: String = $
-
-  def scalaHomePathString: String = $
-
-  def commitSha: String = $
-
-  def platform: String = $
-
-  def isNative: B = $
-
-  def scalacPluginJarPathString: String = $
-
-  def sireumJarPathString: String = $
-
-  def nativ(): Unit = $
+  def randomSeedBetween(seed: Z, min: C, max: C): C
 
 }
 
-@ext trait StepId
+package @ext Z {
 
-@ext trait RS {
-  @pure def +(other: RS): RS
-  @pure def -(other: RS): RS
+  def random: Z
+
+  def randomSeed(seed: Z): Z
+
+  def randomBetween(min: Z, max: Z): Z
+
+  def randomSeedBetween(seed: Z, min: Z, max: Z): Z
+
+  def read(): Z
+
+  def prompt(msg: String): Z
+
+}
+
+package @ext F32 {
+
+  val PInf: F32
+
+  val NInf: F32
+
+  val NaN: F32
+
+  def MaxValue: F32 @[
+    ensures Res == 3.4028235E38f
+  ]
+
+  def MinValue: F32 @[
+    ensures Res == -3.4028235E38f
+  ]
+
+  def random: F32
+
+  def randomSeed(seed: Z): F32
+
+  def randomBetween(min: F32, max: F32): F32
+
+  def randomSeedBetween(seed: Z, min: F32, max: F32): F32
+
+}
+
+package @ext F64 {
+
+  val PInf: F64
+
+  val NInf: F64
+
+  val NaN: F64
+
+  def MaxValue: F64 @[
+    ensures Res == 1.7976931348623157E308d
+  ]
+
+  def MinValue: F64 @[
+    ensures Res == -1.7976931348623157E308d
+  ]
+
+  def random: F64
+
+  def randomSeed(seed: Z): F64
+
+  def randomBetween(min: F64, max: F64): F64
+
+  def randomSeedBetween(seed: Z, min: F64, max: F64): F64
+
+}
+
+package @ext R {
+
+  def random: R
+
+  def randomSeed(seed: Z): R
+
+  def randomBetween(min: R, max: R): R
+
+  def randomSeedBetween(seed: Z, min: R, max: R): R
+
+}
+
+package @ext String {
+
+  def random: String
+
+}
+
+package @ext IS {
+
+  def @pure create[@index I, E](size: Z, default: E): IS[I, E] @[
+    requires seqIndexValidSize[I](size)
+    ensures Res.size == size, ∀ i: Res.indices => Res(i) == default
+  ]
+
+}
+
+package @ext ISZ {
+
+  def @pure create[E](size: Z, default: E): ISZ[E] @[
+    requires 0 <= size
+    ensures Res.size == size, ∀ i: Res.indices => Res(i) == default
+  ]
+
+}
+
+package @ext MS {
+
+  def @pure create[@index I, @mut E](size: Z, default: E): MS[I, E] @[
+    requires seqIndexValidSize[I](size)
+    ensures Res.size == size, ∀ i: Res.indices => Res(i) == default
+  ]
+
+}
+
+package @ext MSZ {
+
+  def @pure create[@mut E](size: Z, default: E): MSZ[E] @[
+    requires 0 <= size
+    ensures Res.size == size, ∀ i: Res.indices => Res(i) == default
+  ]
+
+}
+
+package @ext ZS {
+
+  def random: ZS
+
+  def @pure create(size: Z, default: Z): ZS @[
+    requires 0 <= size
+    ensures Res.size == size, ∀ i: Res.indices => Res(i) == default
+  ]
+}
+
+package @ext Sireum {
+
+  def initRuntimeLibrary()
+
+  def proc(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result
+
+  def procCheck(p: OsProto.Proc, reporter: message.Reporter): OsProto.Proc.Result
+
+  def run(args: ISZ[String]): Z
+
+  def runWithInputAndReporter(args: ISZ[String], input: String, reporter: message.Reporter): (Z, String, String)
+
+  def runWithReporter(args: ISZ[String], reporter: message.Reporter): (Z, String, String)
+
+  def versions: Map[String, String]
+
+  def javaVer: String
+
+  def scalaVer: String
+
+  def scalacPluginVer: String
+
+  def version: String
+
+  def commitHash: String
+
+  def homePathString: String
+
+  def javaHomePathString: String
+
+  def scalaHomePathString: String
+
+  def commitSha: String
+
+  def platform: String
+
+  def isNative: B
+
+  def scalacPluginJarPathString: String
+
+  def sireumJarPathString: String
+
+  def nativ()
+
 }
