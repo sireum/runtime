@@ -175,8 +175,11 @@ import Init._
       var javaUrl: String = ""
       kind match {
         case Os.Kind.LinuxArm =>
-          isNik = F
-          javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
+          if (useNik) {
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-openjdk$nikJavaVersion-$nikVersion-linux-aarch64.tar.gz"
+          } else {
+            javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
+          }
         case Os.Kind.Linux =>
           if (useNik) {
             javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-linux-amd64.tar.gz"
@@ -1786,7 +1789,6 @@ import Init._
         ISZ("bin", "win", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum.bat"),
-        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1815,7 +1817,6 @@ import Init._
         ISZ("bin", "linux", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1838,7 +1839,6 @@ import Init._
         ISZ("bin", "linux", "arm", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -1863,7 +1863,6 @@ import Init._
         ISZ("bin", "mac", "z3"),
         ISZ("bin", "install"),
         ISZ("bin", "sireum"),
-        ISZ("bin", "sireum-mcp.bat"),
         ISZ("lib"),
         ISZ("license.txt"),
         ISZ("readme.md"),
@@ -2394,22 +2393,11 @@ import Init._
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum.bat")
       }
-      val sireumMcpScript = homeBin / "sireum-mcp.bat"
-      if (!sireumMcpScript.exists) {
-        sireumMcpScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum-mcp.bat")
-      }
     } else {
       val sireumScript = homeBin / "sireum"
       if (!sireumScript.exists) {
         sireumScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum")
         sireumScript.chmod("+x")
-      }
-      val sireumMcpScript = homeBin / "sireum-mcp.bat"
-      if (!sireumMcpScript.exists) {
-        sireumMcpScript.downloadFrom(s"https://raw.githubusercontent.com/sireum/kekinian/$sireumV/bin/sireum-mcp.bat")
-        if (sireumMcpScript.exists) {
-          sireumMcpScript.chmod("+x")
-        }
       }
     }
     install7zz()
@@ -2479,7 +2467,7 @@ import Init._
     }
 
     val vs: Map[String, String] = if (versions.isEmpty) versionsPath.properties else versions
-    if (!installJava(vs, F, F)) {
+    if (!installJava(vs, T, F)) {
       eprintln("Unsupported platform")
       return F
     }
