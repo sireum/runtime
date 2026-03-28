@@ -51,5 +51,51 @@ class StringOpsTest extends TestSuite {
 
     * - assert(ops.StringOps("a b").contains("b"))
 
+    // chunk: exact multiple
+    * - {
+      val chunks = ops.StringOps("abcdef").chunk(z"3")
+      assert(chunks.size == z"2")
+      assert(chunks(0) == string"abc")
+      assert(chunks(1) == string"def")
+    }
+
+    // chunk: remainder
+    * - {
+      val chunks = ops.StringOps("abcdefg").chunk(z"3")
+      assert(chunks.size == z"3")
+      assert(chunks(0) == string"abc")
+      assert(chunks(1) == string"def")
+      assert(chunks(2) == string"g")
+    }
+
+    // chunk: size larger than string
+    * - {
+      val chunks = ops.StringOps("ab").chunk(z"10")
+      assert(chunks.size == z"1")
+      assert(chunks(0) == string"ab")
+    }
+
+    // chunk: size equals string length
+    * - {
+      val chunks = ops.StringOps("abc").chunk(z"3")
+      assert(chunks.size == z"1")
+      assert(chunks(0) == string"abc")
+    }
+
+    // chunk: empty string
+    * - {
+      val chunks = ops.StringOps("").chunk(z"5")
+      assert(chunks.size == z"0")
+    }
+
+    // chunk: size 1
+    * - {
+      val chunks = ops.StringOps("abc").chunk(z"1")
+      assert(chunks.size == z"3")
+      assert(chunks(0) == string"a")
+      assert(chunks(1) == string"b")
+      assert(chunks(2) == string"c")
+    }
+
   }
 }

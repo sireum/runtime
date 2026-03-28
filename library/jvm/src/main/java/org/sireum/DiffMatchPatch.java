@@ -539,7 +539,7 @@ public class DiffMatchPatch {
         int lineStart = 0;
         int lineEnd = -1;
         String line;
-        StringBuilder chars = new StringBuilder();
+        java.lang.StringBuilder chars = new java.lang.StringBuilder();
         // Walk the text, pulling out a substring for each line.
         // text.split('\n') would would temporarily double our memory footprint.
         // Modifying text would create many large strings to garbage collect.
@@ -576,9 +576,9 @@ public class DiffMatchPatch {
      */
     protected void diff_charsToLines(List<Diff> diffs,
                                      List<String> lineArray) {
-        StringBuilder text;
+        java.lang.StringBuilder text;
         for (Diff diff : diffs) {
-            text = new StringBuilder();
+            text = new java.lang.StringBuilder();
             for (int j = 0; j < diff.text.length(); j++) {
                 text.append(lineArray.get(diff.text.charAt(j)));
             }
@@ -1347,7 +1347,7 @@ public class DiffMatchPatch {
      * @return HTML representation.
      */
     public String diff_prettyHtml(List<Diff> diffs) {
-        StringBuilder html = new StringBuilder();
+        java.lang.StringBuilder html = new java.lang.StringBuilder();
         for (Diff aDiff : diffs) {
             String text = aDiff.text.replace("&", "&amp;").replace("<", "&lt;")
                     .replace(">", "&gt;").replace("\n", "&para;<br>");
@@ -1374,7 +1374,7 @@ public class DiffMatchPatch {
      * @return Source text.
      */
     public String diff_text1(List<Diff> diffs) {
-        StringBuilder text = new StringBuilder();
+        java.lang.StringBuilder text = new java.lang.StringBuilder();
         for (Diff aDiff : diffs) {
             if (aDiff.operation != Operation.INSERT) {
                 text.append(aDiff.text);
@@ -1389,7 +1389,7 @@ public class DiffMatchPatch {
      * @return Destination text.
      */
     public String diff_text2(List<Diff> diffs) {
-        StringBuilder text = new StringBuilder();
+        java.lang.StringBuilder text = new java.lang.StringBuilder();
         for (Diff aDiff : diffs) {
             if (aDiff.operation != Operation.DELETE) {
                 text.append(aDiff.text);
@@ -1437,7 +1437,7 @@ public class DiffMatchPatch {
      * @return Delta text.
      */
     public String diff_toDelta(List<Diff> diffs) {
-        StringBuilder text = new StringBuilder();
+        java.lang.StringBuilder text = new java.lang.StringBuilder();
         for (Diff aDiff : diffs) {
             switch (aDiff.operation) {
                 case INSERT:
@@ -2208,7 +2208,7 @@ public class DiffMatchPatch {
      * @return Text representation of patches.
      */
     public String patch_toText(List<Patch> patches) {
-        StringBuilder text = new StringBuilder();
+        java.lang.StringBuilder text = new java.lang.StringBuilder();
         for (Patch aPatch : patches) {
             text.append(aPatch);
         }
@@ -2428,7 +2428,7 @@ public class DiffMatchPatch {
             } else {
                 coords2 = (this.start2 + 1) + "," + this.length2;
             }
-            StringBuilder text = new StringBuilder();
+            java.lang.StringBuilder text = new java.lang.StringBuilder();
             text.append("@@ -").append(coords1).append(" +").append(coords2)
                     .append(" @@\n");
             // Escape the body of the patch with %xx notation.

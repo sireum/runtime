@@ -641,4 +641,19 @@ object StringOps {
   @pure def isJavaId: B = {
     return StringOps.isJavaId(conversions.String.toCis(s))
   }
+
+  @pure def chunk(size: Z): ISZ[String] = {
+    val len = s.size
+    if (len == z"0" || size <= z"0") {
+      return ISZ()
+    }
+    var r = ISZ[String]()
+    var i: Z = 0
+    while (i < len) {
+      val end: Z = if (i + size > len) len else i + size
+      r = r :+ substring(i, end)
+      i = i + size
+    }
+    return r
+  }
 }
