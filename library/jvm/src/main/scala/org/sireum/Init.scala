@@ -176,13 +176,13 @@ import Init._
       kind match {
         case Os.Kind.LinuxArm =>
           if (useNik) {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-openjdk$nikJavaVersion-$nikVersion-linux-aarch64.tar.gz"
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-openjdk$nikJavaVersion-$nikVersion-linux-aarch64-musl.tar.gz"
           } else {
             javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-aarch64-full.tar.gz"
           }
         case Os.Kind.Linux =>
           if (useNik) {
-            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-full-openjdk$nikJavaVersion-$nikVersion-linux-amd64.tar.gz"
+            javaUrl = s"https://github.com/bell-sw/LibericaNIK/releases/download/$nikFullVersion/bellsoft-liberica-vm-openjdk$nikJavaVersion-$nikVersion-linux-x64-musl.tar.gz"
           } else {
             javaUrl = s"https://download.bell-sw.com/java/$javaVersion/bellsoft-jdk$javaVersion-linux-amd64-full.tar.gz"
           }
