@@ -195,7 +195,7 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
 
   def ++[@index I2](other: MS[I2, V]): MS[I, V] = {
     val bxr = if (isEmpty) other.boxer else boxer
-    if (other.length == Z.MP.zero) return this
+    if (other.length == Z.MP.zero) return $clone
     val newLength = length + other.length
     MS.checkSize(newLength)(companion)
     val a = bxr.cloneMut(data, length, newLength, Z.MP.zero)
@@ -222,7 +222,7 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
   }
 
   def --[@index I2](other: MS[I2, V]): MS[I, V] =
-    if (isEmpty || other.length == Z.MP.zero) this
+    if (isEmpty || other.length == Z.MP.zero) $clone
     else {
       val otherElements = other.elements
       var sm = elements.withFilter(_ != otherElements.head)
@@ -240,7 +240,7 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
       MS[I, V](companion, a, newLength, boxer)
     }
 
-  def -(e: V): MS[I, V] = if (isEmpty) this else filter(_ != e)
+  def -(e: V): MS[I, V] = filter(_ != e)
 
   def ===(other: MS[I, V]): B =
     if (this eq other.asInstanceOf[scala.AnyRef]) true
