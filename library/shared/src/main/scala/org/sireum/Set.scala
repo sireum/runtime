@@ -367,7 +367,14 @@ object Set {
   }
 
   @pure override def hash: Z = {
-    return elements.hash
+    var sum = size * 31 + 1
+    var square = size * 17 + 3
+    for (e <- elements) {
+      val h = e.hash
+      sum = sum + h
+      square = square + h * h
+    }
+    return sum + square * 7
   }
 
   @pure def isEmpty: B = {
