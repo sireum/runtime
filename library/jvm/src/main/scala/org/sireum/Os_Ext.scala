@@ -34,6 +34,8 @@ import com.zaxxer.nuprocess._
 import org.apache.commons.compress.archivers.tar.{TarArchiveEntry, TarArchiveInputStream}
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.sireum.$internal.CollectionCompat.Converters._
+import org.sireum.$internal.RuntimeConsole
+import org.sireum.$internal.RuntimeEnv
 import org.sireum.message.{FlatPos, Position}
 import os.SubProcess
 
@@ -177,6 +179,8 @@ object Os_Ext {
 
   private lazy val hasTar: B = proc"tar --version".run().ok
 
+  def currentTimeMicros: Z = System.nanoTime() / 1000L
+
   def totalMemory: Z = Runtime.getRuntime.totalMemory
 
   def freeMemory: Z = Runtime.getRuntime.freeMemory
@@ -282,16 +286,11 @@ object Os_Ext {
   }
 
   def env(name: String): String = {
-    val value = System.getenv(name.value)
-    if (value != null) value else ""
+    RuntimeEnv.env(name.value)
   }
 
   def envs: ISZ[(String, String)] = {
-    var r = ISZ[(String, String)]()
-    for ((k, v) <- System.getenv().asScala) {
-      r = r :+ ((String(k), String(v)))
-    }
-    r
+    RuntimeEnv.envs()
   }
 
   def exists(path: String): B = JFiles.exists(toNIO(path), LO.NOFOLLOW_LINKS)
@@ -1070,8 +1069,8 @@ object Os_Ext {
         val bs = outLine.toByteArray
         out.write(bs)
         if (p.shouldOutputConsole) {
-          System.out.write(bs)
-          System.out.flush()
+          RuntimeConsole.outWrite(bs)
+          RuntimeConsole.outFlush()
         }
         outLine.reset()
       }
@@ -1080,11 +1079,11 @@ object Os_Ext {
         err.write(bs)
         if (p.shouldOutputConsole) {
           if (p.isErrAsOut) {
-            System.out.write(bs)
-            System.out.flush()
+            RuntimeConsole.outWrite(bs)
+            RuntimeConsole.outFlush()
           } else if (!p.isErrBuffered) {
-            System.err.write(bs)
-            System.err.flush()
+            RuntimeConsole.errWrite(bs)
+            RuntimeConsole.errFlush()
           }
         }
         errLine.reset()
@@ -1102,9 +1101,9 @@ object Os_Ext {
     def fErr(bytes: Array[Byte], n: Int): Unit = f(T, bytes, n)
 
     def f(isErr: B, bytes: Array[Byte], n: Int): Unit = {
-      val (baos, baosLine, pw, laOpt) =
-        if (isErr) (err, errLine, System.err, p.errLineActionOpt)
-        else (out, outLine, System.out, p.outLineActionOpt)
+      val (baos, baosLine, laOpt) =
+        if (isErr) (err, errLine, p.errLineActionOpt)
+        else (out, outLine, p.outLineActionOpt)
       val shouldOutputConsole = if (isErr) p.shouldOutputConsole && !p.isErrBuffered else p.shouldOutputConsole
       laOpt match {
         case Some(la) =>
@@ -1117,8 +1116,8 @@ object Os_Ext {
               val line = ss(i)
               if (la(line)) {
                 if (shouldOutputConsole) {
-                  pw.println(line)
-                  pw.flush()
+                  if (isErr) RuntimeConsole.errPrintln(line) else RuntimeConsole.outPrintln(line)
+                  RuntimeConsole.flush()
                 }
                 baos.write(line.getBytes(SC.UTF_8))
                 baos.write('\n')
@@ -1130,8 +1129,8 @@ object Os_Ext {
             if (bytes(n - 1) == newLine) {
               if (la(line)) {
                 if (shouldOutputConsole) {
-                  pw.println(line)
-                  pw.flush()
+                  if (isErr) RuntimeConsole.errPrintln(line) else RuntimeConsole.outPrintln(line)
+                  RuntimeConsole.flush()
                 }
                 baos.write('\n')
               }
@@ -1140,8 +1139,8 @@ object Os_Ext {
         case _ =>
           baos.write(bytes, 0, n)
           if (shouldOutputConsole) {
-            pw.write(bytes, 0, n)
-            pw.flush()
+            if (isErr) RuntimeConsole.errWrite(bytes, 0, n) else RuntimeConsole.outWrite(bytes, 0, n)
+            RuntimeConsole.flush()
           }
       }
     }
@@ -1193,7 +1192,7 @@ object Os_Ext {
     def standardLib(): (Z, Z, String, String) = {
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
-        for ((key, value) <- System.getenv().asScala) {
+        for ((key, value) <- RuntimeEnv.envMap()) {
           m(key) = value
         }
       }
@@ -1253,7 +1252,7 @@ object Os_Ext {
       val commands = new java.util.ArrayList(p.cmds.elements.map(_.value).asJavaCollection)
       val m = scala.collection.mutable.Map[Predef.String, Predef.String]()
       if (p.shouldAddEnv) {
-        for ((key, value) <- System.getenv().asScala) {
+        for ((key, value) <- RuntimeEnv.envMap()) {
           m(key) = value
         }
       }

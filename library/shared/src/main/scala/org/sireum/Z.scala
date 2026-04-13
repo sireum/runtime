@@ -1457,8 +1457,8 @@ object Z extends $ZCompanion[Z] {
 
   def prompt(msg: String): Z = {
     while (true) {
-      System.out.print(msg.value)
-      System.out.flush()
+      $internal.RuntimeConsole.outPrint(msg.value)
+      $internal.RuntimeConsole.flush()
       val bs = new java.io.ByteArrayOutputStream
       var n = System.in.read().toByte
       while (n != -1 && n != '\n') {
@@ -1472,8 +1472,8 @@ object Z extends $ZCompanion[Z] {
         return Z.$String(s)
       } catch {
         case _: Throwable =>
-          System.err.println(s"Invalid integer format: $s.")
-          System.err.flush()
+          $internal.RuntimeConsole.errPrintln(s"Invalid integer format: $s.")
+          $internal.RuntimeConsole.flush()
       }
     }
     Z.MP.zero

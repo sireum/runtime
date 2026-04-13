@@ -52,6 +52,10 @@ object Os {
     return Ext.fileSep
   }
 
+  def currentTimeMicros: Z = {
+    return Ext.currentTimeMicros
+  }
+
   def freeMemory: Z = {
     return Ext.freeMemory
   }
@@ -997,6 +1001,8 @@ object Os {
     def chmod(path: String, mask: String, all: B): Unit = $
 
     def copy(path: String, target: String, over: B): Unit = $
+
+    def currentTimeMicros: Z = $
 
     def detectSireumHome: Option[Os.Path] = $
 

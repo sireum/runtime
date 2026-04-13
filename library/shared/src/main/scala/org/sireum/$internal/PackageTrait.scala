@@ -75,45 +75,41 @@ trait PackageTrait {
   final def println(as: Any*): Unit = {
     as.size match {
       case 0 =>
-        System.out.println()
+        RuntimeConsole.outPrintln()
       case 1 =>
-        System.out.println(as(0))
+        RuntimeConsole.outPrintln(java.lang.String.valueOf(as(0)))
       case _ =>
-        for (a <- as) System.out.print(a)
-        System.out.println()
+        for (a <- as) RuntimeConsole.outPrint(java.lang.String.valueOf(a))
+        RuntimeConsole.outPrintln()
     }
-    System.out.flush()
-    System.err.flush()
+    RuntimeConsole.flush()
   }
 
   final def print(as: Any*): Unit = {
     for (a <- as) {
-      System.out.print(a)
+      RuntimeConsole.outPrint(java.lang.String.valueOf(a))
     }
-    System.out.flush()
-    System.err.flush()
+    RuntimeConsole.flush()
   }
 
   final def eprintln(as: Any*): Unit = {
     as.size match {
       case 0 =>
-        System.err.println()
+        RuntimeConsole.errPrintln()
       case 1 =>
-        System.err.println(as(0))
+        RuntimeConsole.errPrintln(java.lang.String.valueOf(as(0)))
       case _ =>
-        for (a <- as) System.err.print(a)
-        System.err.println()
+        for (a <- as) RuntimeConsole.errPrint(java.lang.String.valueOf(a))
+        RuntimeConsole.errPrintln()
     }
-    System.err.flush()
-    System.out.flush()
+    RuntimeConsole.flush()
   }
 
   final def eprint(as: Any*): Unit = {
     for (a <- as) {
-      System.err.print(a)
+      RuntimeConsole.errPrint(java.lang.String.valueOf(a))
     }
-    System.err.flush()
-    System.out.flush()
+    RuntimeConsole.flush()
   }
 
   import language.implicitConversions

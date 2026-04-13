@@ -49,6 +49,8 @@ import org.sireum.roboto.WaitForSpeech
 import org.sireum.roboto.ScreenCapture
 import org.sireum.roboto.ClickText
 import org.sireum.roboto.WaitForText
+import org.sireum.roboto.HideCursor
+import org.sireum.roboto.ShowCursor
 import org.sireum.roboto.Action
 import org.sireum.roboto.Script
 
@@ -134,6 +136,8 @@ object JSON {
         case o: ScreenCapture => return printScreenCapture(o)
         case o: ClickText => return printClickText(o)
         case o: WaitForText => return printWaitForText(o)
+        case o: HideCursor => return printHideCursor(o)
+        case o: ShowCursor => return printShowCursor(o)
       }
     }
 
@@ -269,6 +273,18 @@ object JSON {
       ))
     }
 
+    @pure def printHideCursor(o: HideCursor): ST = {
+      return printObject(ISZ(
+        ("type", st""""HideCursor"""")
+      ))
+    }
+
+    @pure def printShowCursor(o: ShowCursor): ST = {
+      return printObject(ISZ(
+        ("type", st""""ShowCursor"""")
+      ))
+    }
+
     @pure def printAction(o: Action): ST = {
       return printObject(ISZ(
         ("type", st""""Action""""),
@@ -360,7 +376,7 @@ object JSON {
     }
 
     def parseCommand(): Command = {
-      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText"))
+      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText", "HideCursor", "ShowCursor"))
       t.native match {
         case "TypeText" => val r = parseTypeTextT(T); return r
         case "PressKey" => val r = parsePressKeyT(T); return r
@@ -378,7 +394,9 @@ object JSON {
         case "ScreenCapture" => val r = parseScreenCaptureT(T); return r
         case "ClickText" => val r = parseClickTextT(T); return r
         case "WaitForText" => val r = parseWaitForTextT(T); return r
-        case _ => val r = parseWaitForTextT(T); return r
+        case "HideCursor" => val r = parseHideCursorT(T); return r
+        case "ShowCursor" => val r = parseShowCursorT(T); return r
+        case _ => val r = parseShowCursorT(T); return r
       }
     }
 
@@ -680,6 +698,30 @@ object JSON {
       val timeoutMs = parser.parseZ()
       parser.parseObjectNext()
       return WaitForText(text, timeoutMs)
+    }
+
+    def parseHideCursor(): HideCursor = {
+      val r = parseHideCursorT(F)
+      return r
+    }
+
+    def parseHideCursorT(typeParsed: B): HideCursor = {
+      if (!typeParsed) {
+        parser.parseObjectType("HideCursor")
+      }
+      return HideCursor()
+    }
+
+    def parseShowCursor(): ShowCursor = {
+      val r = parseShowCursorT(F)
+      return r
+    }
+
+    def parseShowCursorT(typeParsed: B): ShowCursor = {
+      if (!typeParsed) {
+        parser.parseObjectType("ShowCursor")
+      }
+      return ShowCursor()
     }
 
     def parseAction(): Action = {
@@ -1044,6 +1086,42 @@ object JSON {
       return r
     }
     val r = to(s, fWaitForText _)
+    return r
+  }
+
+  def fromHideCursor(o: HideCursor, isCompact: B): String = {
+    val st = Printer.printHideCursor(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toHideCursor(s: String): Either[HideCursor, Json.ErrorMsg] = {
+    def fHideCursor(parser: Parser): HideCursor = {
+      val r = parser.parseHideCursor()
+      return r
+    }
+    val r = to(s, fHideCursor _)
+    return r
+  }
+
+  def fromShowCursor(o: ShowCursor, isCompact: B): String = {
+    val st = Printer.printShowCursor(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toShowCursor(s: String): Either[ShowCursor, Json.ErrorMsg] = {
+    def fShowCursor(parser: Parser): ShowCursor = {
+      val r = parser.parseShowCursor()
+      return r
+    }
+    val r = to(s, fShowCursor _)
     return r
   }
 
