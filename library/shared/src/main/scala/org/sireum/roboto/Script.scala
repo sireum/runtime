@@ -124,6 +124,15 @@ import org.sireum._
 @datatype class WaitForText(val text: String,
                             val timeoutMs: Z) extends Command
 
+// Hide the mouse cursor for the rest of the script: stops compositing the
+// cursor overlay onto recorded frames and parks the OS pointer offscreen
+// so it doesn't appear anywhere in the capture.
+@datatype class HideCursor() extends Command
+
+// Re-enable the cursor overlay (and leave the OS pointer wherever it
+// currently is — callers can `mouseMove` to reposition).
+@datatype class ShowCursor() extends Command
+
 @datatype class Action(val name: String,
                        val commands: ISZ[Command])
 
