@@ -69,6 +69,14 @@ class HashSMapTest extends TestSuite {
         .empty[String, Z]
         .+("a", 1)
         .+("b", 2)
+        .+("c", 3)
+        .-("b", 99).keys =~ ISZ(String("a"), String("b"), String("c")))
+
+    * - assert(
+      HashSMap
+        .empty[String, Z]
+        .+("a", 1)
+        .+("b", 2)
         .--(ISZ("a", "b")) =~ HashSMap.empty[String, Z])
 
   }

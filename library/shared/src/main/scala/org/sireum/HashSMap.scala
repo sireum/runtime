@@ -95,7 +95,15 @@ object HashSMap {
   }
 
   @pure def -(p: (K, T)): HashSMap[K, T] = {
-    return HashSMap(map - p, keys - p._1)
+    map.entry(p._1) match {
+      case Some((_, value)) =>
+        if (value == p._2) {
+          return HashSMap(map - p, keys - p._1)
+        } else {
+          return this
+        }
+      case _ => return this
+    }
   }
 
   @pure def contains(key: K): B = {
