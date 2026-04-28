@@ -40,6 +40,7 @@ import org.sireum.roboto.MouseMove
 import org.sireum.roboto.MouseClick
 import org.sireum.roboto.MouseDoubleClick
 import org.sireum.roboto.MouseDrag
+import org.sireum.roboto.MouseWheel
 import org.sireum.roboto.ClickImage
 import org.sireum.roboto.WaitForImage
 import org.sireum.roboto.Wait
@@ -127,6 +128,7 @@ object JSON {
         case o: MouseClick => return printMouseClick(o)
         case o: MouseDoubleClick => return printMouseDoubleClick(o)
         case o: MouseDrag => return printMouseDrag(o)
+        case o: MouseWheel => return printMouseWheel(o)
         case o: ClickImage => return printClickImage(o)
         case o: WaitForImage => return printWaitForImage(o)
         case o: Wait => return printWait(o)
@@ -198,6 +200,14 @@ object JSON {
         ("fromY", printZ(o.fromY)),
         ("toX", printZ(o.toX)),
         ("toY", printZ(o.toY))
+      ))
+    }
+
+    @pure def printMouseWheel(o: MouseWheel): ST = {
+      return printObject(ISZ(
+        ("type", st""""MouseWheel""""),
+        ("notches", printZ(o.notches)),
+        ("durationMs", printZ(o.durationMs))
       ))
     }
 
@@ -376,7 +386,7 @@ object JSON {
     }
 
     def parseCommand(): Command = {
-      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText", "HideCursor", "ShowCursor"))
+      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "MouseWheel", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText", "HideCursor", "ShowCursor"))
       t.native match {
         case "TypeText" => val r = parseTypeTextT(T); return r
         case "PressKey" => val r = parsePressKeyT(T); return r
@@ -385,6 +395,7 @@ object JSON {
         case "MouseClick" => val r = parseMouseClickT(T); return r
         case "MouseDoubleClick" => val r = parseMouseDoubleClickT(T); return r
         case "MouseDrag" => val r = parseMouseDragT(T); return r
+        case "MouseWheel" => val r = parseMouseWheelT(T); return r
         case "ClickImage" => val r = parseClickImageT(T); return r
         case "WaitForImage" => val r = parseWaitForImageT(T); return r
         case "Wait" => val r = parseWaitT(T); return r
@@ -536,6 +547,24 @@ object JSON {
       val toY = parser.parseZ()
       parser.parseObjectNext()
       return MouseDrag(fromX, fromY, toX, toY)
+    }
+
+    def parseMouseWheel(): MouseWheel = {
+      val r = parseMouseWheelT(F)
+      return r
+    }
+
+    def parseMouseWheelT(typeParsed: B): MouseWheel = {
+      if (!typeParsed) {
+        parser.parseObjectType("MouseWheel")
+      }
+      parser.parseObjectKey("notches")
+      val notches = parser.parseZ()
+      parser.parseObjectNext()
+      parser.parseObjectKey("durationMs")
+      val durationMs = parser.parseZ()
+      parser.parseObjectNext()
+      return MouseWheel(notches, durationMs)
     }
 
     def parseClickImage(): ClickImage = {
@@ -924,6 +953,24 @@ object JSON {
       return r
     }
     val r = to(s, fMouseDrag _)
+    return r
+  }
+
+  def fromMouseWheel(o: MouseWheel, isCompact: B): String = {
+    val st = Printer.printMouseWheel(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toMouseWheel(s: String): Either[MouseWheel, Json.ErrorMsg] = {
+    def fMouseWheel(parser: Parser): MouseWheel = {
+      val r = parser.parseMouseWheel()
+      return r
+    }
+    val r = to(s, fMouseWheel _)
     return r
   }
 

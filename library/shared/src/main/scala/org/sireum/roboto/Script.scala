@@ -96,6 +96,14 @@ import org.sireum._
                           val toX: Z,
                           val toY: Z) extends Command
 
+// Rotate the mouse scroll wheel by `notches` ticks: positive scrolls
+// down/toward the user, negative scrolls up/away (matches
+// java.awt.Robot.mouseWheel's contract).  When `durationMs > 0` the
+// runner emits one tick every `durationMs / |notches|` milliseconds for
+// a smooth visual scroll; `durationMs = 0` rotates all ticks at once.
+@datatype class MouseWheel(val notches: Z,
+                           val durationMs: Z) extends Command
+
 @datatype class ClickImage(val imagePath: String,
                            val similarity: F64,
                            val xOffset: Z,
