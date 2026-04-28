@@ -257,8 +257,6 @@ type @sig @ext String {
 
   def @pure size: Z
 
-  def @pure stripMargin: String
-
 }
 
 
