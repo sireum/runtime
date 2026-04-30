@@ -147,4 +147,5 @@ import org.sireum._
 @datatype class Script(val name: String,
                        val defaultCharDelayMs: Z,
                        val defaultActionDelayMs: Z,
+                       val defaultSpeakGapMs: Z,
                        val actions: ISZ[Action])
