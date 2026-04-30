@@ -309,6 +309,7 @@ object JSON {
         ("name", printString(o.name)),
         ("defaultCharDelayMs", printZ(o.defaultCharDelayMs)),
         ("defaultActionDelayMs", printZ(o.defaultActionDelayMs)),
+        ("defaultSpeakGapMs", printZ(o.defaultSpeakGapMs)),
         ("actions", printISZ(F, o.actions, printAction _))
       ))
     }
@@ -789,10 +790,13 @@ object JSON {
       parser.parseObjectKey("defaultActionDelayMs")
       val defaultActionDelayMs = parser.parseZ()
       parser.parseObjectNext()
+      parser.parseObjectKey("defaultSpeakGapMs")
+      val defaultSpeakGapMs = parser.parseZ()
+      parser.parseObjectNext()
       parser.parseObjectKey("actions")
       val actions = parser.parseISZ(parseAction _)
       parser.parseObjectNext()
-      return Script(name, defaultCharDelayMs, defaultActionDelayMs, actions)
+      return Script(name, defaultCharDelayMs, defaultActionDelayMs, defaultSpeakGapMs, actions)
     }
 
     def eof(): B = {
