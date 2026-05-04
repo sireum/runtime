@@ -52,6 +52,10 @@ import org.sireum.roboto.ClickText
 import org.sireum.roboto.WaitForText
 import org.sireum.roboto.HideCursor
 import org.sireum.roboto.ShowCursor
+import org.sireum.roboto.ShowBackground
+import org.sireum.roboto.LowerBackground
+import org.sireum.roboto.HideBackground
+import org.sireum.roboto.Spawn
 import org.sireum.roboto.Action
 import org.sireum.roboto.Script
 
@@ -140,6 +144,10 @@ object JSON {
         case o: WaitForText => return printWaitForText(o)
         case o: HideCursor => return printHideCursor(o)
         case o: ShowCursor => return printShowCursor(o)
+        case o: ShowBackground => return printShowBackground(o)
+        case o: LowerBackground => return printLowerBackground(o)
+        case o: HideBackground => return printHideBackground(o)
+        case o: Spawn => return printSpawn(o)
       }
     }
 
@@ -248,6 +256,7 @@ object JSON {
       return printObject(ISZ(
         ("type", st""""Speak""""),
         ("text", printString(o.text)),
+        ("displayText", printString(o.displayText)),
         ("async", printB(o.async))
       ))
     }
@@ -292,6 +301,34 @@ object JSON {
     @pure def printShowCursor(o: ShowCursor): ST = {
       return printObject(ISZ(
         ("type", st""""ShowCursor"""")
+      ))
+    }
+
+    @pure def printShowBackground(o: ShowBackground): ST = {
+      return printObject(ISZ(
+        ("type", st""""ShowBackground""""),
+        ("imagePath", printString(o.imagePath))
+      ))
+    }
+
+    @pure def printLowerBackground(o: LowerBackground): ST = {
+      return printObject(ISZ(
+        ("type", st""""LowerBackground"""")
+      ))
+    }
+
+    @pure def printHideBackground(o: HideBackground): ST = {
+      return printObject(ISZ(
+        ("type", st""""HideBackground"""")
+      ))
+    }
+
+    @pure def printSpawn(o: Spawn): ST = {
+      return printObject(ISZ(
+        ("type", st""""Spawn""""),
+        ("command", printString(o.command)),
+        ("await", printB(o.await)),
+        ("timeoutMs", printZ(o.timeoutMs))
       ))
     }
 
@@ -387,7 +424,7 @@ object JSON {
     }
 
     def parseCommand(): Command = {
-      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "MouseWheel", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText", "HideCursor", "ShowCursor"))
+      val t = parser.parseObjectTypes(ISZ("TypeText", "PressKey", "TypeChar", "MouseMove", "MouseClick", "MouseDoubleClick", "MouseDrag", "MouseWheel", "ClickImage", "WaitForImage", "Wait", "Notify", "Speak", "WaitForSpeech", "ScreenCapture", "ClickText", "WaitForText", "HideCursor", "ShowCursor", "ShowBackground", "LowerBackground", "HideBackground", "Spawn"))
       t.native match {
         case "TypeText" => val r = parseTypeTextT(T); return r
         case "PressKey" => val r = parsePressKeyT(T); return r
@@ -408,7 +445,11 @@ object JSON {
         case "WaitForText" => val r = parseWaitForTextT(T); return r
         case "HideCursor" => val r = parseHideCursorT(T); return r
         case "ShowCursor" => val r = parseShowCursorT(T); return r
-        case _ => val r = parseShowCursorT(T); return r
+        case "ShowBackground" => val r = parseShowBackgroundT(T); return r
+        case "LowerBackground" => val r = parseLowerBackgroundT(T); return r
+        case "HideBackground" => val r = parseHideBackgroundT(T); return r
+        case "Spawn" => val r = parseSpawnT(T); return r
+        case _ => val r = parseSpawnT(T); return r
       }
     }
 
@@ -655,10 +696,13 @@ object JSON {
       parser.parseObjectKey("text")
       val text = parser.parseString()
       parser.parseObjectNext()
+      parser.parseObjectKey("displayText")
+      val displayText = parser.parseString()
+      parser.parseObjectNext()
       parser.parseObjectKey("async")
       val async = parser.parseB()
       parser.parseObjectNext()
-      return Speak(text, async)
+      return Speak(text, displayText, async)
     }
 
     def parseWaitForSpeech(): WaitForSpeech = {
@@ -752,6 +796,66 @@ object JSON {
         parser.parseObjectType("ShowCursor")
       }
       return ShowCursor()
+    }
+
+    def parseShowBackground(): ShowBackground = {
+      val r = parseShowBackgroundT(F)
+      return r
+    }
+
+    def parseShowBackgroundT(typeParsed: B): ShowBackground = {
+      if (!typeParsed) {
+        parser.parseObjectType("ShowBackground")
+      }
+      parser.parseObjectKey("imagePath")
+      val imagePath = parser.parseString()
+      parser.parseObjectNext()
+      return ShowBackground(imagePath)
+    }
+
+    def parseLowerBackground(): LowerBackground = {
+      val r = parseLowerBackgroundT(F)
+      return r
+    }
+
+    def parseLowerBackgroundT(typeParsed: B): LowerBackground = {
+      if (!typeParsed) {
+        parser.parseObjectType("LowerBackground")
+      }
+      return LowerBackground()
+    }
+
+    def parseHideBackground(): HideBackground = {
+      val r = parseHideBackgroundT(F)
+      return r
+    }
+
+    def parseHideBackgroundT(typeParsed: B): HideBackground = {
+      if (!typeParsed) {
+        parser.parseObjectType("HideBackground")
+      }
+      return HideBackground()
+    }
+
+    def parseSpawn(): Spawn = {
+      val r = parseSpawnT(F)
+      return r
+    }
+
+    def parseSpawnT(typeParsed: B): Spawn = {
+      if (!typeParsed) {
+        parser.parseObjectType("Spawn")
+      }
+      parser.parseObjectKey("command")
+      val command = parser.parseString()
+      parser.parseObjectNext()
+      parser.parseObjectKey("await")
+      val await = parser.parseB()
+      parser.parseObjectNext()
+      parser.parseObjectKey("timeoutMs")
+      val timeoutMs = parser.parseZ()
+      parser.parseObjectNext()
+      return Spawn(command, await, timeoutMs)
     }
 
     def parseAction(): Action = {
@@ -1173,6 +1277,78 @@ object JSON {
       return r
     }
     val r = to(s, fShowCursor _)
+    return r
+  }
+
+  def fromShowBackground(o: ShowBackground, isCompact: B): String = {
+    val st = Printer.printShowBackground(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toShowBackground(s: String): Either[ShowBackground, Json.ErrorMsg] = {
+    def fShowBackground(parser: Parser): ShowBackground = {
+      val r = parser.parseShowBackground()
+      return r
+    }
+    val r = to(s, fShowBackground _)
+    return r
+  }
+
+  def fromLowerBackground(o: LowerBackground, isCompact: B): String = {
+    val st = Printer.printLowerBackground(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toLowerBackground(s: String): Either[LowerBackground, Json.ErrorMsg] = {
+    def fLowerBackground(parser: Parser): LowerBackground = {
+      val r = parser.parseLowerBackground()
+      return r
+    }
+    val r = to(s, fLowerBackground _)
+    return r
+  }
+
+  def fromHideBackground(o: HideBackground, isCompact: B): String = {
+    val st = Printer.printHideBackground(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toHideBackground(s: String): Either[HideBackground, Json.ErrorMsg] = {
+    def fHideBackground(parser: Parser): HideBackground = {
+      val r = parser.parseHideBackground()
+      return r
+    }
+    val r = to(s, fHideBackground _)
+    return r
+  }
+
+  def fromSpawn(o: Spawn, isCompact: B): String = {
+    val st = Printer.printSpawn(o)
+    if (isCompact) {
+      return st.renderCompact
+    } else {
+      return st.render
+    }
+  }
+
+  def toSpawn(s: String): Either[Spawn, Json.ErrorMsg] = {
+    def fSpawn(parser: Parser): Spawn = {
+      val r = parser.parseSpawn()
+      return r
+    }
+    val r = to(s, fSpawn _)
     return r
   }
 

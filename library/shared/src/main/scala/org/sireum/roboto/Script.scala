@@ -117,7 +117,17 @@ import org.sireum._
 
 @datatype class Notify(val message: String) extends Command
 
+// `text` is the TTS-synthesis input (post-substitution — e.g.,
+// phonetic spellings like "Seereeum V" so MaryTTS pronounces
+// "Sireum V" correctly).  `displayText` is the original speak
+// argument before substitution; it's used as the SRT subtitle
+// text so closed captions show the natural-spelling form rather
+// than the phonetic variant.  Both are populated by the markdown
+// parser; `text` is also used to look up the cached audio file by
+// SHA3 fingerprint, so callers that hand-build Speak should match
+// `text` to whatever the audio was synthesised from.
 @datatype class Speak(val text: String,
+                      val displayText: String,
                       val async: B) extends Command
 
 @datatype class WaitForSpeech() extends Command
@@ -140,6 +150,50 @@ import org.sireum._
 // Re-enable the cursor overlay (and leave the OS pointer wherever it
 // currently is — callers can `mouseMove` to reposition).
 @datatype class ShowCursor() extends Command
+
+// Display a fullscreen image as a foreground layer on the current
+// Space.  Used by demo scripts that want a presentation slide
+// visible during narration (and as a backdrop behind a later
+// launched app, when paired with LowerBackground).  The window is
+// borderless, sized to the main screen, and starts at the
+// always-on-top level so it covers the terminal / IDE that
+// launched Roboto without needing to activate the JVM as a
+// foreground app.  Only one background is shown at a time —
+// calling ShowBackground replaces any existing one.
+@datatype class ShowBackground(val imagePath: String) extends Command
+
+// Drop the always-on-top level on the active background image and
+// send it to the back of the z-order.  Use this right before
+// launching an app whose window should appear over the slide
+// (e.g. an iOS Simulator window for a music-player closer): the
+// simulator's activation pushes the slide further down naturally.
+// No-op if no background is currently active.
+@datatype class LowerBackground() extends Command
+
+// Dispose any background image set by ShowBackground.  No-op if no
+// background is active.  Also fires automatically on script exit
+// via a JVM shutdown hook.
+@datatype class HideBackground() extends Command
+
+// Spawn a shell subprocess via `sh -c "<command>"`.  The command
+// inherits the runner's stdout/stderr.
+//
+//   - `await = T`: block until the subprocess exits (or until
+//     `timeoutMs` elapses, in which case the process is force-
+//     terminated and the runner continues).
+//   - `await = F`: fire-and-forget; the subprocess runs in
+//     parallel with the rest of the script.  `timeoutMs` is
+//     ignored.
+//
+// `timeoutMs <= 0` means no timeout (block until natural exit).
+//
+// Used by demo scripts to launch sibling processes — e.g.
+// `xcrun simctl boot UDID` then `xcrun simctl launch UDID
+// org.example` — without leaving the Roboto process to hand off
+// to a separate launcher script.
+@datatype class Spawn(val command: String,
+                      val await: B,
+                      val timeoutMs: Z) extends Command
 
 @datatype class Action(val name: String,
                        val commands: ISZ[Command])
