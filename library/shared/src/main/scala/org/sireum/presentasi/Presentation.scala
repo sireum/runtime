@@ -32,11 +32,15 @@ object Presentation {
   @datatype trait Entry {
     @pure def path: String
     @pure def delay: Z
+    // Optional chapter title; when present, marks the start of a chapter
+    // (section) at this entry's timeline position in the recorded .mp4.
+    @pure def chapterOpt: Option[String]
   }
 
   @datatype class SlideEntry(val path: String,
                              val delay: Z,
-                             val text: String) extends Entry
+                             val text: String,
+                             val chapterOpt: Option[String]) extends Entry
 
   @datatype class VideoEntry(val path: String,
                              val delay: Z,
@@ -45,16 +49,17 @@ object Presentation {
                              val start: F64,
                              val end: F64,
                              val useVideoDuration: B,
-                             val textOpt: Option[String]) extends Entry
+                             val textOpt: Option[String],
+                             val chapterOpt: Option[String]) extends Entry
 
   type Slide = SlideEntry
   type Video = VideoEntry
 
   val empty: Presentation = Presentation("Presentasi", ISZ(), 2000, 2000, 250, 1.0, 2000, 1, ISZ(), HashSMap.empty)
 
-  val Slide: Slide = SlideEntry("", 0, "")
+  val Slide: Slide = SlideEntry("", 0, "", None())
 
-  val Video: Video = VideoEntry("", 0, 1.0, 1.0, 0.0, 0.0, F, None())
+  val Video: Video = VideoEntry("", 0, 1.0, 1.0, 0.0, 0.0, F, None(), None())
 
 }
 

@@ -50,7 +50,8 @@ object JSON {
         ("type", st""""Presentation.SlideEntry""""),
         ("path", printString(o.path)),
         ("delay", printZ(o.delay)),
-        ("text", printString(o.text))
+        ("text", printString(o.text)),
+        ("chapterOpt", printOption(T, o.chapterOpt, printString _))
       ))
     }
 
@@ -64,7 +65,8 @@ object JSON {
         ("start", printF64(o.start)),
         ("end", printF64(o.end)),
         ("useVideoDuration", printB(o.useVideoDuration)),
-        ("textOpt", printOption(T, o.textOpt, printString _))
+        ("textOpt", printOption(T, o.textOpt, printString _)),
+        ("chapterOpt", printOption(T, o.chapterOpt, printString _))
       ))
     }
 
@@ -120,7 +122,10 @@ object JSON {
       parser.parseObjectKey("text")
       val text = parser.parseString()
       parser.parseObjectNext()
-      return Presentation.SlideEntry(path, delay, text)
+      parser.parseObjectKey("chapterOpt")
+      val chapterOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Presentation.SlideEntry(path, delay, text, chapterOpt)
     }
 
     def parsePresentationVideoEntry(): Presentation.VideoEntry = {
@@ -156,7 +161,10 @@ object JSON {
       parser.parseObjectKey("textOpt")
       val textOpt = parser.parseOption(parser.parseString _)
       parser.parseObjectNext()
-      return Presentation.VideoEntry(path, delay, volume, rate, start, end, useVideoDuration, textOpt)
+      parser.parseObjectKey("chapterOpt")
+      val chapterOpt = parser.parseOption(parser.parseString _)
+      parser.parseObjectNext()
+      return Presentation.VideoEntry(path, delay, volume, rate, start, end, useVideoDuration, textOpt, chapterOpt)
     }
 
     def parsePresentation(): Presentation = {
