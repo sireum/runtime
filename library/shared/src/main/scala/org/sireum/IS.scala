@@ -188,20 +188,13 @@ final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
   def --[@index I2](other: IS[I2, V]): IS[I, V] =
     if (isEmpty || other.length == Z.MP.zero) this
     else {
-      val otherElements = other.elements
-      var sm = elements.withFilter(_ != otherElements.head)
-      for (e <- other.elements.tail) {
-        sm = sm.withFilter(_ != e)
-      }
-      val s = sm.map(identity)
-      val newLength = Z.MP(s.size)
-      val a = boxer.create(newLength)
+      var drop = HashSet.emptyInit[V](other.length)
       var i = Z.MP.zero
-      for (e <- s) {
-        boxer.store(a, i, e)
+      while (i < other.length) {
+        drop = drop + other.boxer.lookup[V](other.data, i)
         i = i.increase
       }
-      IS[I, V](companion, a, newLength, boxer)
+      filter((v: V) => !drop.contains(v))
     }
 
   def -(e: V): IS[I, V] = {

@@ -91,7 +91,17 @@ object HashSMap {
   }
 
   @pure def --(keys: ISZ[K]): HashSMap[K, T] = {
-    return HashSMap(map -- keys, this.keys -- keys)
+    val newMap = map -- keys
+    if (newMap.size == map.size) {
+      return this
+    }
+    var newKeys = ISZ[K]()
+    for (k <- this.keys) {
+      if (newMap.contains(k)) {
+        newKeys = newKeys :+ k
+      }
+    }
+    return HashSMap(newMap, newKeys)
   }
 
   @pure def -(p: (K, T)): HashSMap[K, T] = {

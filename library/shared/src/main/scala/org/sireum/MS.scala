@@ -224,20 +224,13 @@ final class MS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
   def --[@index I2](other: MS[I2, V]): MS[I, V] =
     if (isEmpty || other.length == Z.MP.zero) $clone
     else {
-      val otherElements = other.elements
-      var sm = elements.withFilter(_ != otherElements.head)
-      for (e <- other.elements.tail) {
-        sm = sm.withFilter(_ != e)
-      }
-      val s = sm.map(identity)
-      val newLength = Z.MP(s.size)
-      val a = boxer.create(newLength)
+      var drop = HashSet.emptyInit[V](other.length)
       var i = Z.MP.zero
-      for (e <- s) {
-        boxer.store(a, i, helper.assign(e))
+      while (i < other.length) {
+        drop = drop + other.boxer.lookup[V](other.data, i)
         i = i.increase
       }
-      MS[I, V](companion, a, newLength, boxer)
+      filter((v: V) => !drop.contains(v))
     }
 
   def -(e: V): MS[I, V] = filter(_ != e)
