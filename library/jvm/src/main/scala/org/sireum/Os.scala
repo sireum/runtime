@@ -812,13 +812,14 @@ object Os {
       }
     }
 
+    /**
+     * Updates this path's last-modified time, creating an empty file and its
+     * parent directories when the path does not exist.  Existing files retain
+     * their contents and metadata.
+     */
     def touch(): Unit = {
       if (exists) {
-        if (isFile) {
-          writeOver(read)
-        } else {
-          setLastModified(extension.Time.currentMillis)
-        }
+        setLastModified(extension.Time.currentMillis)
       } else {
         up.mkdirAll()
         writeOver("")
@@ -1179,4 +1180,3 @@ object Os {
   }
 
 }
-
