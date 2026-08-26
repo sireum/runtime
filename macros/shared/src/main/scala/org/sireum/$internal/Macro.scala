@@ -30,7 +30,7 @@ import scala.language.experimental.macros
 object Macro {
   val templateString = "st\"...\""
 
-  def parMap[T, U](poolRef: _root_.java.util.concurrent.atomic.AtomicReference[AnyRef],
+  def parMap[T, U](pools: _root_.java.util.concurrent.ConcurrentHashMap[_root_.java.lang.Integer, _root_.java.util.concurrent.ForkJoinPool],
                    cores: Int, arg: scala.collection.Seq[T], f: T => U): scala.collection.IndexedSeq[U] = macro Macro.parMapImpl
 
   def any[R](fs: _root_.scala.Seq[() => _root_.scala.Option[R]], default: () => R, isSequential: Boolean): (R, _root_.scala.Long) = macro Macro.anyImpl
@@ -389,17 +389,24 @@ class Macro(val c: scala.reflect.macros.blackbox.Context) {
   if ($isSequential) anySeq() else anyPar()
 }"""
 
-  def parMapImpl(poolRef: c.Tree, cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
+  def parMapImpl(pools: c.Tree, cores: c.Tree, arg: c.Tree, f: c.Tree): c.Tree =
     if (isJsCheck) q"$arg.map($f).toIndexedSeq"
     else
       q"""{
-  val newPool = new _root_.java.util.concurrent.ForkJoinPool($cores)
-  val success = $poolRef.compareAndSet(null, newPool)
-  if (!success) newPool.shutdown()
+  val key = _root_.java.lang.Integer.valueOf($cores)
+  var pool = $pools.get(key)
+  if (pool == null) {
+    val candidate = new _root_.java.util.concurrent.ForkJoinPool($cores)
+    val existing = $pools.putIfAbsent(key, candidate)
+    if (existing == null) pool = candidate
+    else {
+      candidate.shutdown()
+      pool = existing
+    }
+  }
   val pc = _root_.scala.collection.parallel.mutable.ParArray($arg: _*)
-  pc.tasksupport = new _root_.scala.collection.parallel.ForkJoinTaskSupport($poolRef.get.asInstanceOf[_root_.java.util.concurrent.ForkJoinPool])
+  pc.tasksupport = new _root_.scala.collection.parallel.ForkJoinTaskSupport(pool)
   val r = pc.map($f).toIndexedSeq
-  if (success) $poolRef.getAndSet(null).asInstanceOf[_root_.java.util.concurrent.ForkJoinPool].shutdown()
   r
 }"""
 
