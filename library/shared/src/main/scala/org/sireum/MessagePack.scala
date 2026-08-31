@@ -156,8 +156,7 @@ object MessagePack {
     }
 
     @pure def isFixInt(n: U8): B = {
-      val v = n & u8"0xFF"
-      return v <= u8"0x7F" || v >= u8"0xE0"
+      return n < POSFIXINT_MASK || n >= NEGFIXINT_PREFIX
     }
 
     @pure def isPosFixInt(n: U8): B = {
@@ -1297,14 +1296,18 @@ object MessagePack {
 
     def readISZ[E](f: () => E): IS[Z, E] = {
       val size = readArrayHeader()
-      var r = IS[Z, E]()
-      var i = 0
+      if (size == 0) {
+        return IS[Z, E]()
+      }
+      val first = f()
+      val r = Buffer.createWithCapacity[E](size, first)
+      r.append(first)
+      var i = 1
       while (i < size) {
-        val o = f()
-        r = r :+ o
+        r.append(f())
         i = i + 1
       }
-      return r
+      return r.toIS
     }
 
     def readISZ8[E](f: () => E): IS[Z8, E] = {

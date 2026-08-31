@@ -43,11 +43,21 @@ class MessagePackTest extends TestSuite {
       r.readB()
     })
 
-    * - check(-1, { w =>
-      w.writeZ(-1)
-    }, { r =>
-      r.readZ()
-    })
+    * - {
+      for (n <- ISZ[Z](-3, -1, 0, 1, 127, 128, 65536)) {
+        check(n, { w =>
+          w.writeZ(n)
+        }, { r =>
+          r.readZ()
+        })
+      }
+    }
+
+    * - {
+      for (a <- ISZ[ISZ[Z]](ISZ[Z](), ISZ[Z](-3, -1, 0, 1, 127, 128, 65536))) {
+        check(a, (w) => w.writeISZ(a, w.writeZ _), (r) => r.readISZ(r.readZ _))
+      }
+    }
 
     * - {
       for (s <- Seq[String]("∧",
