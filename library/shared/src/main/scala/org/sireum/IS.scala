@@ -430,9 +430,10 @@ final class IS[@index I, V](val companion: $ZCompanion[I], val data: scala.AnyRe
           val b2 = other.boxer
           val data1 = data
           val data2 = other.data
-          for (i <- Z.MP.zero until length) {
-            val iMP = i.toMP
-            if (b1.lookup[V](data1, iMP) != b2.lookup[V](data2, iMP)) return false
+          var i = Z.MP.zero
+          while (i < length) {
+            if (b1.lookup[V](data1, i) != b2.lookup[V](data2, i)) return false
+            i = i.increase
           }
           true
         case _ => false
