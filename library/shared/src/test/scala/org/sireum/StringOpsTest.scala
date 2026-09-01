@@ -51,6 +51,14 @@ class StringOpsTest extends TestSuite {
 
     * - assert(ops.StringOps("a b").contains("b"))
 
+    "endsWith" in {
+      assert(ops.StringOps("abc").endsWith("bc"))
+      assert(ops.StringOps("abc").endsWith("abc"))
+      assert(ops.StringOps("abc").endsWith(""))
+      assert(!ops.StringOps("abc").endsWith("ac"))
+      assert(!ops.StringOps("abc").endsWith("abcd"))
+    }
+
     // chunk: exact multiple
     * - {
       val chunks = ops.StringOps("abcdef").chunk(z"3")

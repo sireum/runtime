@@ -131,10 +131,12 @@ object StringOps {
       return F
     }
     val offset = cis.size - otherCis.size
-    for (i <- otherCis.size - 1 to 0 by -1) {
+    var i = otherCis.size - 1
+    while (i >= 0) {
       if (otherCis(i) != cis(offset + i)) {
         return F
       }
+      i = i - 1
     }
     return T
   }
