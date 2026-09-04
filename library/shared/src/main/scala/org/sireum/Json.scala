@@ -600,24 +600,39 @@ object Json {
     }
 
     @pure def printString(s: String): ST = {
-      var r = ISZ[C]()
+      val r = Buffer.create[C]()
+
+      def appendUnicodeEscape(c: C): Unit = {
+        val q = COps(c).toUnicodeHex
+        r.append('\\')
+        r.append('u')
+        r.append(q._1)
+        r.append(q._2)
+        r.append(q._3)
+        r.append(q._4)
+      }
+
       for (c <- conversions.String.toCis(s)) {
-        c.native match {
-          case '"' => r = r :+ '\\' :+ '\"'
-          case '\\' => r = r :+ '\\' :+ '\\'
-          case '/' => r = r :+ '\\' :+ '/'
-          case '\b' => r = r :+ '\\' :+ 'b'
-          case '\f' => r = r :+ '\\' :+ 'f'
-          case '\n' => r = r :+ '\\' :+ 'n'
-          case '\r' => r = r :+ '\\' :+ 'r'
-          case '\t' => r = r :+ '\\' :+ 't'
-          case _ if '\u0020' <= c && c < '\u00FF' && c != '\u007f' => r = r :+ c
-          case _ =>
-            val q = COps(c).toUnicodeHex
-            r = r :+ '\\' :+ 'u' :+ q._1 :+ q._2 :+ q._3 :+ q._4
+        if (c > '\uFFFF') {
+          val n = conversions.C.toU32(c) - u32"0x10000"
+          appendUnicodeEscape(conversions.U32.toC(u32"0xD800" + (n >>> u32"10")))
+          appendUnicodeEscape(conversions.U32.toC(u32"0xDC00" + (n & u32"0x3FF")))
+        } else {
+          c.native match {
+            case '"' => r.append('\\'); r.append('\"')
+            case '\\' => r.append('\\'); r.append('\\')
+            case '/' => r.append('\\'); r.append('/')
+            case '\b' => r.append('\\'); r.append('b')
+            case '\f' => r.append('\\'); r.append('f')
+            case '\n' => r.append('\\'); r.append('n')
+            case '\r' => r.append('\\'); r.append('r')
+            case '\t' => r.append('\\'); r.append('t')
+            case _ if '\u0020' <= c && c < '\u00FF' && c != '\u007f' => r.append(c)
+            case _ => appendUnicodeEscape(c)
+          }
         }
       }
-      return st""""${conversions.String.fromCis(r)}""""
+      return st""""${conversions.String.fromCis(r.toIS)}""""
     }
 
     @pure def printConstant(s: String): ST = {

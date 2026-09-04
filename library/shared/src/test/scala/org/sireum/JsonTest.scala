@@ -35,6 +35,33 @@ class JsonTest extends TestSuite {
 
     * - assert(parseString("\"a\\\"\\rbc\"") =~ "a\"\rbc")
 
+    "printString escapes Unicode code points" in {
+      val supplementary = conversions.String.fromCis(ISZ(
+        C.fromZ(0x10000),
+        C.fromZ(0x1F642),
+        C.fromZ(0x10FFFF)))
+      assert(
+        Json.Printer.printString(supplementary).render.value ==
+          "\"\\uD800\\uDC00\\uD83D\\uDE42\\uDBFF\\uDFFF\"")
+
+      val controls = conversions.String.fromCis(ISZ(
+        C.fromZ(0x0000),
+        C.fromZ(0x001F),
+        C.fromZ(0x007F),
+        C.fromZ(0xFFFF),
+        C.fromZ(0x0022),
+        C.fromZ(0x005C),
+        C.fromZ(0x002F),
+        C.fromZ(0x0008),
+        C.fromZ(0x000C),
+        C.fromZ(0x000A),
+        C.fromZ(0x000D),
+        C.fromZ(0x0009)))
+      assert(
+        Json.Printer.printString(controls).render.value ==
+          "\"\\u0000\\u001F\\u007F\\uFFFF\\\"\\\\\\/\\b\\f\\n\\r\\t\"")
+    }
+
     * - assert(parseNumber("-0") =~ "-0")
 
     * - assert(parseNumber("12.33") =~ "12.33")
