@@ -82,8 +82,7 @@ final class ScalaTestReporter extends ResourcefulReporter {
   }
 
   private def failedLine(event: TestFailed): String = {
-    formatted(event).getOrElse(
-      s"TEST FAILED - ${event.suiteName}: ${event.testName}: ${event.message}")
+    s"TEST FAILED - ${event.suiteName}: ${event.testName}: ${event.message}"
   }
 
   private def suiteAbortedLine(event: SuiteAborted): String = {
