@@ -65,6 +65,32 @@ class HashSSetTest extends TestSuite {
         .+("a")
         .∩(HashSSet.empty[String].+("A")) =~ HashSSet.empty[String])
 
+    * - {
+      val one = HashSSet.empty[String].+("a").+("b")
+      val same = one.+("a")
+      assert(same eq one)
+      assert(same.elements(0) == String("a"))
+      assert(same.elements(1) == String("b"))
+      val extended = same.+("c")
+      assert(extended.size =~ z"3")
+      assert(extended.elements(0) == String("a"))
+      assert(extended.elements(1) == String("b"))
+      assert(extended.elements(2) == String("c"))
+
+      val collision = HashSSet.emptyInit[String](1).+("Aa").+("BB")
+      assert(collision.map.map.hashIndex("Aa") == collision.map.map.hashIndex("BB"))
+      assert(collision.contains("Aa"))
+      assert(collision.contains("BB"))
+      assert((collision + "BB") eq collision)
+
+      val repaired = HashSSet(HashSMap.emptyInit[String, B](1) + ("x" ~> F)).+(
+        "x")
+      repaired.map.get("x") match {
+        case Some(v) => assert(v == T)
+        case _ => assert(false)
+      }
+    }
+
   }
 
 }

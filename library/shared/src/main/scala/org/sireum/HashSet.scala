@@ -40,6 +40,13 @@ object HashSet {
 @datatype class HashSet[T](val map: HashMap[T, B]) {
 
   @pure def +(e: T): HashSet[T] = {
+    map.get(e) match {
+      case Some(v) =>
+        if (v) {
+          return this
+        }
+      case _ =>
+    }
     return HashSet(map + e ~> T)
   }
 
