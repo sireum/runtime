@@ -573,8 +573,24 @@ class MessagePackTest extends TestSuite {
 
     * - {
       import org.sireum.U32._
-      val o = message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40"))
-      check(o, (w) => w.writeDocInfo(o), (r) => r.readDocInfo())
+      val values = ISZ[message.DocInfo](
+        message.DocInfo(None(), ISZ(u32"0", u32"10", u32"40")),
+        message.DocInfo(Some(""), ISZ()),
+        message.DocInfo(Some("source.slang"), ISZ(u32"0", u32"5", u32"5")))
+      for (o <- values) {
+        check(o, (w) => w.writeDocInfo(o), (r) => r.readDocInfo())
+      }
+
+      val repeated = message.DocInfo(Some("source.slang"), ISZ(u32"0", u32"5"))
+      for (pooling <- Seq(T, F)) {
+        val w = MessagePack.writer(pooling)
+        w.writeDocInfo(repeated)
+        w.writeDocInfo(repeated)
+        val r = MessagePack.reader(w.result)
+        r.init()
+        assert(r.readDocInfo().asInstanceOf[Object].equals(repeated.asInstanceOf[Object]))
+        assert(r.readDocInfo().asInstanceOf[Object].equals(repeated.asInstanceOf[Object]))
+      }
     }
 
     * - {

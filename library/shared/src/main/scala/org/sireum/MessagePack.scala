@@ -2186,7 +2186,7 @@ object MessagePack {
       }
 
       def readDocInfoNoPool(): message.DocInfo = {
-        val uriOpt = readOption(readString _)
+        val uriOpt = readOption(readStringNoPool _)
         val lineOffsets = readISZ(readU32 _)
         return message.DocInfo(uriOpt, lineOffsets)
       }

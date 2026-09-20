@@ -31,6 +31,18 @@ class HashMapTest extends TestSuite {
 
   val tests = Tests {
 
+    * - {
+      val left = HashMap.emptyInit[String, B](1).+("Aa", F).+("BB", T)
+      val right = HashMap.emptyInit[String, B](97).+("BB", T).+("Aa", F)
+      assert(left.hashIndex("Aa") == left.hashIndex("BB"))
+      assert(left.isEqual(right))
+      assert(right.isEqual(left))
+      assert(!left.isEqual(right.+("Aa", T)))
+      assert(!left.isEqual(HashMap.emptyInit[String, B](97).+("Aa", F).+("CC", T)))
+      assert(!left.isEqual(HashMap.empty[String, B].+("Aa", F)))
+      assert(HashMap.empty[String, B].isEqual(HashMap.emptyInit[String, B](97)))
+    }
+
     * - assert(HashMap.empty[String, Z].size =~ z"0")
 
     * - assert(HashMap.empty[String, Z].get("a") =~ None())

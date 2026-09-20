@@ -28,7 +28,7 @@ package org.sireum.test
 import java.io.{ByteArrayOutputStream, PrintStream}
 import java.nio.charset.StandardCharsets
 
-import org.scalatest.events.{Ordinal, TestCanceled, TestFailed}
+import org.scalatest.events.{IndentedText, Ordinal, TestCanceled, TestFailed}
 import org.scalatest.exceptions.{TestCanceledException, TestFailedException}
 
 class ScalaTestReporterTest extends TestSuite {
@@ -62,7 +62,7 @@ class ScalaTestReporterTest extends TestSuite {
     assert(!out.contains("TestCanceledException"), out)
   }
 
-  "failed tests still print a stack trace" in {
+  "formatted failed tests retain full identity and a stack trace" in {
     val ex = new TestFailedException("boom", 0)
     val out = capture {
       new ScalaTestReporter().apply(TestFailed(
@@ -71,13 +71,16 @@ class ScalaTestReporterTest extends TestSuite {
         "SomeSuite",
         "SomeSuite",
         Some("SomeSuite"),
-        "some test",
-        "some test",
+        "FabPlacementSuite C",
+        "C",
         Vector.empty,
         Vector.empty,
-        Some(ex)))
+        Some(ex),
+        formatter = Some(IndentedText("- C", "C", 0))))
     }
-    assert(out.contains("boom") || out.toLowerCase.contains("failed"), out)
+    assert(out.contains("SomeSuite"), out)
+    assert(out.contains("FabPlacementSuite C"), out)
+    assert(out.contains("boom"), out)
     assert(out.contains("at "), out)
   }
 }

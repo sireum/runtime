@@ -63,5 +63,29 @@ class HashSetTest extends TestSuite {
       HashSet.empty[String].+("a").∩(HashSet.empty[String].+("A")) =~ HashSet
         .empty[String])
 
+    * - {
+      val one = HashSet.empty[String].+("a").+("b")
+      val same = one.+("a")
+      assert(same eq one)
+      assert(same.contains("a"))
+      assert(same.contains("b"))
+      val extended = same.+("c")
+      assert(extended.size =~ z"3")
+      assert(extended.contains("c"))
+
+      val collision = HashSet.emptyInit[String](1).+("Aa").+("BB")
+      assert(collision.map.hashIndex("Aa") == collision.map.hashIndex("BB"))
+      assert(collision.contains("Aa"))
+      assert(collision.contains("BB"))
+      assert((collision + "BB") eq collision)
+
+      val repaired = HashSet(HashMap.emptyInit[String, B](1) + ("x" ~> F)).+(
+        "x")
+      repaired.map.get("x") match {
+        case Some(v) => assert(v == T)
+        case _ => assert(false)
+      }
+    }
+
   }
 }

@@ -177,24 +177,10 @@ object HashMap {
       return F
     }
 
-    var comparedKeys = ISZ[K]()
     for (ms <- mapEntries) {
       for (kv <- ms.entries) {
         val k = kv._1
-        comparedKeys = comparedKeys :+ k
         other.get(k) match {
-          case Some(v) =>
-            if (kv._2 != v) {
-              return F
-            }
-          case _ => return F
-        }
-      }
-    }
-    for (ms <- (other -- comparedKeys).mapEntries) {
-      for (kv <- ms.entries) {
-        val k = kv._1
-        get(k) match {
           case Some(v) =>
             if (kv._2 != v) {
               return F
