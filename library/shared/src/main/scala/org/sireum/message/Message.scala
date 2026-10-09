@@ -240,7 +240,7 @@ object Position {
         return computeLC(i)
       } else {
         min = i
-        i = i + (max - i) / 2
+        i = i + (max - i + 1) / 2
       }
     }
     return if (i <= min) computeLC(min) else computeLC(max)
