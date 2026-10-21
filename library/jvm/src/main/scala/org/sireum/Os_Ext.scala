@@ -79,8 +79,11 @@ object Os_Ext {
       r = r :+ ISZ("curl", "-c", "/dev/null", "--connect-timeout", "30", "--max-time", "600", "-JLkso")
     }
     if (proc"wget --version".run().ok) {
-      r = r :+ ISZ("wget", "-qO")
-      r = r :+ ISZ("wget", "--no-check-certificate", "-qO")
+      // bounded like curl's above: wget's defaults (20 tries, a 15-minute read timeout) can hang
+      // for a very long time on an unreachable host before the next way is tried.  Short
+      // options: BusyBox wget always parses -T and -t (it ignores -t), not --timeout/--tries
+      r = r :+ ISZ("wget", "-T", "30", "-t", "2", "-qO")
+      r = r :+ ISZ("wget", "-T", "30", "-t", "2", "--no-check-certificate", "-qO")
     }
     r
   }
