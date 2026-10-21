@@ -961,7 +961,7 @@ import Init._
               println(
                 st"""Please run the following to enable $p7zz:
                     |
-                    |sudo wget -O /usr/bin/ape https://cosmo.zip/pub/cosmos/v/$cosmosVersion/bin/ape-$$(uname -m).elf
+                    |sudo wget -O /usr/bin/ape https://github.com/sireum/rolling/releases/download/ape/ape-$$(uname -m)-$cosmosVersion.elf
                     |sudo chmod +x /usr/bin/ape
                     |sudo sh -c "echo ':APE:M::MZqFpD::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
                     |sudo sh -c "echo ':APE-jart:M::jartsr::/usr/bin/ape:' >/proc/sys/fs/binfmt_misc/register"
